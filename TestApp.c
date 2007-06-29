@@ -7,13 +7,19 @@
 #include "TestApp.h"
 
 /* Scheduler Task List: */
+	enum
+	{
+		TestApp_CheckJoystick_ID,
+		TestApp_Delay_ID,
+		USB_ManagementTask_ID,
+	} TaskIDs;
+
 	TASK_LIST
 	{
-		TestApp_CheckJoystick,
-		TestApp_Delay,
-		USB_ManagementTask // Required to manage USB
+		{ TaskID: TestApp_CheckJoystick_ID, TaskPointer: TestApp_CheckJoystick, TaskStatus: TASK_RUN },
+		{ TaskID: TestApp_Delay_ID        , TaskPointer: TestApp_Delay,         TaskStatus: TASK_RUN },
+		{ TaskID: USB_ManagementTask_ID   , TaskPointer: USB_ManagementTask,    TaskStatus: TASK_RUN }
 	};
-
 
 
 int main(void)
@@ -40,7 +46,7 @@ TASK(TestApp_CheckJoystick)
 		
 		/* Test of the hardware button - invert joystick status when pressed */
 		if (HWB_GetStatus() == true)
-		  JoyStatus_LCL ^= (JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT | JOY_PRESS);
+		  JoyStatus_LCL ^= (JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT);
 
 		/* Test of the Joystick - change a mask in response to joystick */
 		if (JoyStatus_LCL & JOY_UP)

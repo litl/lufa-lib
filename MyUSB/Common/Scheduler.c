@@ -16,7 +16,7 @@ bool Scheduler_HasDelayElapsed(uint8_t Delay, SchedulerDelayCounter_t Count)
 	}
 	else
 	{
-		if ((Count - DelayCounter_LCL) >= Delay)
+		if (((MAX_DELAYCTR_COUNT - Count) + DelayCounter_LCL) >= Delay)
 		{
 			Count = DelayCounter_LCL;
 			return true;
@@ -24,4 +24,16 @@ bool Scheduler_HasDelayElapsed(uint8_t Delay, SchedulerDelayCounter_t Count)
 	}
 	
 	return false;
+}
+
+void Scheduler_SetTaskMode(uint8_t id, bool run)
+{
+	for (uint8_t i = 0; i < TOTAL_TASKS; i++)
+	{
+		if (TaskList[i].TaskID == id)
+		{
+			TaskList[i].TaskStatus = run;
+			return;
+		}
+	}
 }
