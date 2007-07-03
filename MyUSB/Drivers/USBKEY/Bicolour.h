@@ -22,22 +22,22 @@
 			PORTD &= ~BICOLOUR_ALL_LEDS;
 		}
 		
-		static inline void Bicolour_TurnOnLeds(uint8_t LedMask)
+		static inline void Bicolour_TurnOnLeds(const uint8_t LedMask)
 		{
 			PORTD |= LedMask;
 		}
 
-		static inline void Bicolour_TurnOffLeds(uint8_t LedMask)
+		static inline void Bicolour_TurnOffLeds(const uint8_t LedMask)
 		{
 			PORTD &= ~LedMask;
 		}
 
-		static inline void Bicolour_SetLeds(uint8_t LedMask)
+		static inline void Bicolour_SetLeds(const uint8_t LedMask)
 		{
 			PORTD = ((PORTD & ~BICOLOUR_ALL_LEDS) | LedMask);
 		}
 		
-		static inline void Bicolour_SetLed(uint8_t LedNumber, uint8_t LedMask)
+		static inline void Bicolour_SetLed(const uint8_t LedNumber, const uint8_t LedMask)
 		{
 			if (LedNumber == 2)
 			  PORTD = ((PORTD & ~BICOLOUR_LED2_ORANGE) | (LedMask & BICOLOUR_LED2_ORANGE));

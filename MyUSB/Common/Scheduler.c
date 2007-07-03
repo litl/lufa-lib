@@ -1,8 +1,9 @@
 #include "Scheduler.h"
 
 volatile SchedulerDelayCounterNS_t SchedulerDelayCounter;
+         uint8_t                   TotalSchedulerTasks;
 
-bool Scheduler_HasDelayElapsed(uint8_t Delay, SchedulerDelayCounterNS_t Count)
+bool Scheduler_HasDelayElapsed(const uint8_t Delay, SchedulerDelayCounterNS_t Count)
 {
 	SchedulerDelayCounterNS_t DelayCounter_LCL = SchedulerDelayCounter;
 
@@ -26,14 +27,11 @@ bool Scheduler_HasDelayElapsed(uint8_t Delay, SchedulerDelayCounterNS_t Count)
 	return false;
 }
 
-void Scheduler_SetTaskMode(uint8_t id, bool run)
+void Scheduler_SetTaskMode(const uint8_t id, const bool run)
 {
-	for (uint8_t i = 0; i < TOTAL_TASKS; i++)
+	for (uint8_t i = 0; i < TotalSchedulerTasks; i++)
 	{
 		if (TaskList[i].TaskID == id)
-		{
-			TaskList[i].TaskStatus = run;
-			return;
-		}
+		  TaskList[i].TaskStatus = run;
 	}
 }

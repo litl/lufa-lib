@@ -23,7 +23,7 @@
 		#define Scheduler_IncrementElapsedDelay() SchedulerDelayCounter++
 		
 	/* Private Macros */
-		#define TOTAL_TASKS                       4//(sizeof(TaskList) / sizeof(TaskList[0]))
+		#define TOTAL_TASKS                       (sizeof(TaskList) / sizeof(TaskEntry_t))
 		#define MAX_DELAYCTR_COUNT                0xFF
 		
 	/* Private Type Defines */
@@ -41,12 +41,15 @@
 		typedef unsigned char SchedulerDelayCounterNS_t;
 
 	/* External Variables */
-		extern TaskEntry_t TaskList[];
+		extern          TaskEntry_t               TaskList[];
 		extern volatile SchedulerDelayCounterNS_t SchedulerDelayCounter;
+		extern          uint8_t                   TotalSchedulerTasks;
 	
 	/* Inline Functions */
-		static inline void Scheduler_GoSchedule(uint8_t TotalTasks)
+		static inline void Scheduler_GoSchedule(const uint8_t TotalTasks)
 		{
+			TotalSchedulerTasks = TotalTasks;
+		
 			while (1)
 			{
 				for (uint8_t CurrTask = 0; CurrTask < TotalTasks; CurrTask++)
@@ -58,7 +61,7 @@
 		}
 
 	/* Function Prototypes */
-		bool Scheduler_HasDelayElapsed(uint8_t Delay, SchedulerDelayCounterNS_t Count) ATTR_WARN_UNUSED_RESULT;
-		void Scheduler_SetTaskMode(uint8_t id, bool run);
+		bool Scheduler_HasDelayElapsed(const uint8_t Delay, SchedulerDelayCounterNS_t Count) ATTR_WARN_UNUSED_RESULT;
+		void Scheduler_SetTaskMode(const uint8_t id, const bool run);
 
 #endif

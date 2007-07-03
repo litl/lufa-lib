@@ -5,7 +5,7 @@
 		#include <stdbool.h>
 	
 		#include "LowLevel/LowLevel.h"		
-		#include "MidLevel/MidLevel.h"		
+		#include "MidLevel/MidLevel.h"
 		#include "../../Common/Scheduler.h"
 
 	/* Task Definitions */

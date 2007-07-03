@@ -7,7 +7,7 @@
 		#include "../USB.h"
 
 	/* Inline Functions */
-		static inline void USB_Init(uint8_t Mode)
+		static inline void USB_Init(const uint8_t Mode)
 		{
 			USB_LowLevelInit(Mode);
 			USB_PowerOn();

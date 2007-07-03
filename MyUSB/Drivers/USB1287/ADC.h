@@ -16,21 +16,21 @@
 		#define  ADC_GetReading()        ADC
 
 	/* Inline Functions */
-	static inline void ADC_SetupChannel(uint8_t Channel)
+	static inline void ADC_SetupChannel(const uint8_t Channel)
 	{
 		DDRD  &= ~(1 << Channel);
 		DIDR0 |= (1 << Channel);
 	}
 	
-	static inline void ADC_StartReading(uint8_t Channel)
+	static inline void ADC_StartReading(const uint8_t Channel)
 	{
 		ADMUX = Channel;
 	
 		ADCSRA |= (1 << ADSC);
 	}
 	
-	static inline uint16_t ADC_ReadChannel(uint8_t Channel) ATTR_WARN_UNUSED_RESULT;
-	static inline uint16_t ADC_ReadChannel(uint8_t Channel)
+	static inline uint16_t ADC_ReadChannel(const uint8_t Channel) ATTR_WARN_UNUSED_RESULT;
+	static inline uint16_t ADC_ReadChannel(const uint8_t Channel)
 	{
 		ADC_StartReading(Channel);
 
