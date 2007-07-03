@@ -1,10 +1,10 @@
 #include "Scheduler.h"
 
-volatile SchedulerDelayCounter_t SchedulerDelayCounter;
+volatile SchedulerDelayCounterNS_t SchedulerDelayCounter;
 
-bool Scheduler_HasDelayElapsed(uint8_t Delay, SchedulerDelayCounter_t Count)
+bool Scheduler_HasDelayElapsed(uint8_t Delay, SchedulerDelayCounterNS_t Count)
 {
-	SchedulerDelayCounter_t DelayCounter_LCL = SchedulerDelayCounter;
+	SchedulerDelayCounterNS_t DelayCounter_LCL = SchedulerDelayCounter;
 
 	if (DelayCounter_LCL > Count)
 	{
