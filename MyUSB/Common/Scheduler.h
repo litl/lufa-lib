@@ -5,6 +5,7 @@
 		#include <avr/io.h>
 		#include <stdbool.h>
 
+		#include "Atomic.h"
 		#include "FunctionAttributes.h"
 
 	/* Public Macros */
@@ -12,7 +13,7 @@
 		#define TASK_LIST                         extern TaskEntry_t TaskList[]; TaskEntry_t TaskList[] = 
 		#define TASK_ID_LIST                      enum TaskIDs
 		
-		#define TASK_MAX_DELAY                    0xFE
+		#define TASK_MAX_DELAY                    (MAX_DELAYCTR_COUNT - 1)
 
 		#define TASK_RUN                          true
 		#define TASK_STOP                         false
@@ -24,7 +25,7 @@
 		
 	/* Private Macros */
 		#define TOTAL_TASKS                       (sizeof(TaskList) / sizeof(TaskEntry_t))
-		#define MAX_DELAYCTR_COUNT                0xFF
+		#define MAX_DELAYCTR_COUNT                0xFFFF
 		
 	/* Private Type Defines */
 		typedef void (*TaskPtr_t)(void);
@@ -38,7 +39,7 @@
 		} TaskEntry_t;
 
 	/* Private Type Defines */
-		typedef unsigned char SchedulerDelayCounterNS_t;
+		typedef uint16_t SchedulerDelayCounterNS_t;
 
 	/* External Variables */
 		extern          TaskEntry_t               TaskList[];
@@ -61,7 +62,7 @@
 		}
 
 	/* Function Prototypes */
-		bool Scheduler_HasDelayElapsed(const uint8_t Delay, SchedulerDelayCounterNS_t Count) ATTR_WARN_UNUSED_RESULT;
+		bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounterNS_t* TaskCounter) ATTR_WARN_UNUSED_RESULT;
 		void Scheduler_SetTaskMode(const uint8_t id, const bool run);
 
 #endif

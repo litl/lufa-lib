@@ -19,6 +19,6 @@
 
 	/* Task Definitions */
 		TASK(TestApp_CheckJoystick);
-		TASK(TestApp_Delay);
+		TASK(TestApp_USBConnCheck);
 
 #endif

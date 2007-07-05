@@ -3,23 +3,31 @@
 volatile SchedulerDelayCounterNS_t SchedulerDelayCounter;
          uint8_t                   TotalSchedulerTasks;
 
-bool Scheduler_HasDelayElapsed(const uint8_t Delay, SchedulerDelayCounterNS_t Count)
+bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounterNS_t* TaskCounter)
 {
-	SchedulerDelayCounterNS_t DelayCounter_LCL = SchedulerDelayCounter;
-
-	if (DelayCounter_LCL > Count)
+	SchedulerDelayCounterNS_t DelayCounter_LCL;
+	SchedulerDelayCounterNS_t TaskCounter_LCL;
+	
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	{
-		if ((DelayCounter_LCL - Count) >= Delay)
+		DelayCounter_LCL = SchedulerDelayCounter;
+	}
+	
+	TaskCounter_LCL = *TaskCounter;
+	
+	if (DelayCounter_LCL >= TaskCounter_LCL)
+	{
+		if ((DelayCounter_LCL - TaskCounter_LCL) >= Delay)
 		{
-			Count = DelayCounter_LCL;
+			*TaskCounter = DelayCounter_LCL;
 			return true;
 		}
 	}
 	else
 	{
-		if (((MAX_DELAYCTR_COUNT - Count) + DelayCounter_LCL) >= Delay)
+		if (((MAX_DELAYCTR_COUNT - TaskCounter_LCL) + DelayCounter_LCL) >= Delay)
 		{
-			Count = DelayCounter_LCL;
+			*TaskCounter = DelayCounter_LCL;
 			return true;
 		}	
 	}

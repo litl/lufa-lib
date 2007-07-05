@@ -10,12 +10,14 @@
 	TASK_ID_LIST
 	{
 		TestApp_CheckJoystick_ID,
+		TestApp_USBConnCheck_ID,
 		USB_ManagementTask_ID,
 	};
 
 	TASK_LIST
 	{
 		{ TaskID: TestApp_CheckJoystick_ID, TaskName: TestApp_CheckJoystick, TaskStatus: TASK_RUN },
+		{ TaskID: TestApp_USBConnCheck_ID , TaskName: TestApp_USBConnCheck , TaskStatus: TASK_RUN },
 		{ TaskID: USB_ManagementTask_ID   , TaskName: USB_ManagementTask   , TaskStatus: TASK_RUN }
 	};
 
@@ -31,7 +33,8 @@ int main(void)
 	/* Millisecond Timer Initialization */
 	OCR0A  = 0x7D;
 	TCCR0A = (1 << WGM01);
-	TCCR0B = ((1 << CS01) | (1 << CS00));
+	TCCR0B = (1 << CS01);
+	TIMSK0 = (1 << OCIE0A);
 	
 	/* Turn on interrupts */
 	sei();
@@ -52,7 +55,7 @@ TASK(TestApp_CheckJoystick)
 {
 	SchedulerDelayCounter_t MouseDelay;
 	
-	if (Scheduler_HasDelayElapsed(10, MouseDelay))
+	if (Scheduler_HasDelayElapsed(10, &MouseDelay))
 	{
 		uint8_t JoyStatus_LCL = Joystick_GetStatus();
 		uint8_t LEDMask = 0;
@@ -79,5 +82,34 @@ TASK(TestApp_CheckJoystick)
 
 		/* Test of bi-colour LED - light up in response to joystick */
 		Bicolour_SetLeds(LEDMask);
+	}
+}
+
+TASK(TestApp_USBConnCheck)
+{
+	SchedulerDelayCounter_t LEDDelay;
+	static bool IsBlocking;
+	static bool LedToggle;
+
+	if (!(IsBlocking))
+	{
+		if (USB_Get_VBUS_Status())
+		{
+			IsBlocking = true;
+			Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+			Scheduler_SetTaskMode(TestApp_CheckJoystick_ID, TASK_STOP);
+		}
+	}
+	else
+	{
+		if (Scheduler_HasDelayElapsed(200, &LEDDelay))
+		{
+			if (!(LedToggle))
+			  Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_GREEN);
+			else
+			  Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+			  
+			LedToggle = !(LedToggle);
+		}
 	}
 }
