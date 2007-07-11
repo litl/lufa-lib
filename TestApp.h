@@ -19,6 +19,7 @@
 
 	/* Task Definitions */
 		TASK(TestApp_CheckJoystick);
+		TASK(TestApp_HWBTest);
 		TASK(TestApp_USBConnCheck);
 
 #endif

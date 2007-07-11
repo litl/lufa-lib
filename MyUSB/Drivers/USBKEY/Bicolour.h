@@ -41,7 +41,7 @@
 		{
 			if (LedNumber == 2)
 			  PORTD = ((PORTD & ~BICOLOUR_LED2_ORANGE) | (LedMask & BICOLOUR_LED2_ORANGE));
-			else
+			else if (LedNumber == 1)
 			  PORTD = ((PORTD & ~BICOLOUR_LED1_ORANGE) | (LedMask & BICOLOUR_LED1_ORANGE));
 		}
 		

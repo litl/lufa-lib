@@ -4,11 +4,8 @@
 	/* Includes */
 		#include <stdbool.h>
 	
-		#include "LowLevel/LowLevel.h"		
-		#include "MidLevel/MidLevel.h"
 		#include "../../Common/Scheduler.h"
-
-	/* Task Definitions */
-		TASK(USB_ManagementTask);
+		#include "LowLevel/Endpoint.h"
+		#include "LowLevel/LowLevel.h"
 	
 #endif

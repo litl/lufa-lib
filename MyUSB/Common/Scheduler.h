@@ -61,6 +61,14 @@
 			}
 		}
 
+		static inline void Scheduler_ResetDelay(SchedulerDelayCounterNS_t* TaskCounter)
+		{
+			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+			{
+				*TaskCounter = SchedulerDelayCounter;
+			}
+		}
+		
 	/* Function Prototypes */
 		bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounterNS_t* TaskCounter) ATTR_WARN_UNUSED_RESULT;
 		void Scheduler_SetTaskMode(const uint8_t id, const bool run);

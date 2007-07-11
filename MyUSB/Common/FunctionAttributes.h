@@ -8,4 +8,8 @@
 		#define ATTR_NON_NULL_PTR_ARGS(x) __attribute__ ((nonnull (x)))
 		#define ATTR_NAKED                __attribute__ ((naked))
 	
+		#define RETURN_OK                 1
+		#define RETURN_FAIL               0
+		
+	
 #endif
