@@ -4,10 +4,11 @@
 	/* Includes */
 		#include <avr/io.h>
 		#include <avr/interrupt.h>
+		#include <stdbool.h>
 
-		#include "../USB.h"
 		#include "Device.h"
 		#include "Endpoint.h"
+		#include "../HighLevel/USBTask.h"
 
 	/* Preprocessor Checks and Defines */
 		#if (F_CPU == 8000000)
@@ -19,14 +20,14 @@
 		#endif
 
 	/* Public Macros */
-		#define USB_MODE_NONE           0
-		#define USB_MODE_DEVICE         1
-		#define USB_MODE_HOST           2
-		#define USB_MODE_MIXED          3
+		#define USB_MODE_NONE             0
+		#define USB_MODE_DEVICE           1
+		#define USB_MODE_HOST             2
+		#define USB_MODE_MIXED            3
 		
-		#define USB_POWERON_OK          true
-		#define USB_POWERON_FAIL        false
-		
+		#define USB_POWERON_OK            true
+		#define USB_POWERON_FAIL          false
+						
 	/* Private Macros */	
 		#define USB_PLL_On()              PLLCSR  =  (USB_PLL_PSC | (1 << PLLE))
 		#define USB_PLL_Off()             PLLCSR  =  0
@@ -43,25 +44,20 @@
 
 		#define USB_Interface_Enable()    USBCON |=  (1 << USBE)
 		#define USB_Interface_Disable()   USBCON &= ~(1 << USBE)
-		#define USB_Interface_IsEnabled() (USBCON & (1 << USBE))
 
-		#define USB_VBUS_GetStatus()      (USBSTA & (1 << VBUS))
+		#define USB_VBUS_GetStatus()      ((USBSTA & (1 << VBUS)) ? true : false)
+
+		#define USB_INT_VBUS_Enable()     USBCON |= (1 << VBUSTE)
+		#define USB_INT_VBUS_Disable()    USBCON &= ~(1 << VBUSTE)
+		#define USB_INT_VBUS_IsEnabled()  (USBCON & (1 << VBUSTE))   
+		#define USB_INT_VBUS_Reset()      USBINT = ~(1 << VBUSTI)
 		
 	/* Function Prototypes */
+		void USB_Init(const uint8_t Mode, const uint8_t Options);
+		void USB_Disable(void);
 		uint8_t USB_GetUSBMode(void);
 
 	/* Inline Functions */
-		static inline void USB_Init(const uint8_t Mode)
-		{
-			USB_Interface_Disable();
-		
-			if (Mode == USB_MODE_MIXED)
-			  UHWCON &= ~(1 << UIDE);
-			else if (Mode == USB_MODE_DEVICE)
-			  UHWCON |= ((1 << UIDE) | (1 << UIMOD));
-			else if (Mode == USB_MODE_HOST)			
-			  UHWCON |= (1 << UIDE);
-		}
 	
 		static inline bool USB_PowerOn(void)
 		{
@@ -70,10 +66,10 @@
 		
 			USB_REG_On();
 			USB_PLL_On();
-			USB_OTGPAD_On();
 			
 			while (!(USB_PLL_IsReady()));
 			
+			USB_Interface_Disable();
 			USB_Interface_Enable();
 			USB_CLK_Unfreeze();
 

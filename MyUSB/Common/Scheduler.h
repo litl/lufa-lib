@@ -17,8 +17,6 @@
 
 		#define TASK_RUN                          true
 		#define TASK_STOP                         false
-
-		#define SchedulerDelayCounter_t           static SchedulerDelayCounterNS_t
 		
 		#define Scheduler_Start()                 Scheduler_GoSchedule(TOTAL_TASKS);
 		#define Scheduler_IncrementElapsedDelay() SchedulerDelayCounter++
@@ -39,11 +37,11 @@
 		} TaskEntry_t;
 
 	/* Private Type Defines */
-		typedef uint16_t SchedulerDelayCounterNS_t;
+		typedef uint16_t SchedulerDelayCounter_t;
 
 	/* External Variables */
 		extern          TaskEntry_t               TaskList[];
-		extern volatile SchedulerDelayCounterNS_t SchedulerDelayCounter;
+		extern volatile SchedulerDelayCounter_t   SchedulerDelayCounter;
 		extern          uint8_t                   TotalSchedulerTasks;
 	
 	/* Inline Functions */
@@ -61,7 +59,7 @@
 			}
 		}
 
-		static inline void Scheduler_ResetDelay(SchedulerDelayCounterNS_t* TaskCounter)
+		static inline void Scheduler_ResetDelay(SchedulerDelayCounter_t* TaskCounter)
 		{
 			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 			{
@@ -70,7 +68,7 @@
 		}
 		
 	/* Function Prototypes */
-		bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounterNS_t* TaskCounter) ATTR_WARN_UNUSED_RESULT;
+		bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* TaskCounter) ATTR_WARN_UNUSED_RESULT;
 		void Scheduler_SetTaskMode(const uint8_t id, const bool run);
 
 #endif

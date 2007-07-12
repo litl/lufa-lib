@@ -1,12 +1,12 @@
 #include "Scheduler.h"
 
-volatile SchedulerDelayCounterNS_t SchedulerDelayCounter;
-         uint8_t                   TotalSchedulerTasks;
+volatile SchedulerDelayCounter_t SchedulerDelayCounter;
+         uint8_t                 TotalSchedulerTasks;
 
-bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounterNS_t* TaskCounter)
+bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* TaskCounter)
 {
-	SchedulerDelayCounterNS_t DelayCounter_LCL;
-	SchedulerDelayCounterNS_t TaskCounter_LCL;
+	SchedulerDelayCounter_t DelayCounter_LCL;
+	SchedulerDelayCounter_t TaskCounter_LCL;
 	
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	{
