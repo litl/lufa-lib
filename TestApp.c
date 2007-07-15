@@ -109,7 +109,7 @@ TASK(TestApp_CheckHWB)
 
 				if (USBInitialized == true)
 				{
-					USB_Disable();
+					USB_PowerOff();
 					Bicolour_SetLeds(BICOLOUR_LED1_RED);
 				}
 				else

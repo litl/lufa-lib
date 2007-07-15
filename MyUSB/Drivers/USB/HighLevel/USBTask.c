@@ -6,10 +6,20 @@ bool      USBConnected;
 bool      USBInitialized;
 TaskPtr_t USBTaskPtr;
 
-TASK(USB_USBTask)
+void USB_USBTask(void)
 {
 	if (USBInitialized && USBConnected)
 	  (*USBTaskPtr)();
+
+	/* START DEBUG */
+	if (USBInitialized)
+	{
+		if (USBConnected)
+		  Bicolour_SetLed(2, BICOLOUR_LED2_GREEN);
+		else
+		  Bicolour_SetLed(2, BICOLOUR_LED2_ORANGE);
+	}
+	/* END DEBUG */
 }
 
 void USB_InitTaskPointer(void)
@@ -35,10 +45,20 @@ void USB_InitTaskPointer(void)
 
 void USB_DeviceTask(void)
 {
-	Bicolour_SetLed(2, BICOLOUR_LED2_GREEN);
+	// Check for reset command here - if so reset control endpoint
+
+   Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+   if (USB_IsSetupRecieved())
+   {
+		Bicolour_SetLed(2, BICOLOUR_LED2_RED);
+   
+		for (;;);
+		
+		USB_ClearSetupRecieved();
+   }
 }
 
 void USB_HostTask(void)
 {
-	Bicolour_SetLed(2, BICOLOUR_LED2_RED);
+
 }

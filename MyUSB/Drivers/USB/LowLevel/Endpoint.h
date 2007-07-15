@@ -50,4 +50,6 @@
 		                                    const uint8_t UECFG0Xdata,
 		                                    const uint8_t UECFG1Xdata);
 
+		void Endpoint_ClearEndpoints(void);
+
 #endif

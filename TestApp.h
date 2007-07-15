@@ -5,7 +5,7 @@
 		#include <avr/io.h>
 		#include <avr/interrupt.h>
 
-		#include "MyUSB/Common/Scheduler.h"           // Simple scheduler for task management
+		#include "MyUSB/Scheduler/Scheduler.h"        // Simple scheduler for task management
 		#include "MyUSB/Common/ISRMacro.h"            // Replacement ISR macro
 
 		#include "MyUSB/Drivers/USB/USB.h"            // USB Functionality
