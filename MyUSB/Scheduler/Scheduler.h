@@ -5,8 +5,8 @@
 		#include <avr/io.h>
 		#include <stdbool.h>
 
-		#include "Atomic.h"
-		#include "FunctionAttributes.h"
+		#include "../Common/Atomic.h"
+		#include "../Common/FunctionAttributes.h"
 
 	/* Public Macros */
 		#define TASK(name)                        void name (void)
