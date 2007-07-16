@@ -12,7 +12,7 @@ bool Endpoint_ConfigureEndpoint_PRV(const uint8_t EndpointNum,
 	
 	Endpoint_AllocateMemory();
 	
-	return ((UESTA0X & (1 << CFGOK)) ? ENDPOINT_CONFIG_OK : ENDPOINT_CONFIG_FAIL);
+	return Endpoint_IsConfigured();
 }
 
 void Endpoint_ClearEndpoints(void)

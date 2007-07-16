@@ -5,6 +5,6 @@
 		#include "LowLevel/Endpoint.h"
 		#include "LowLevel/LowLevel.h"
 		#include "HighLevel/USBTask.h"
-		#include "USBEvents.h"
+		#include "../../Configuration/USB/EventHooks.h"
 
 #endif

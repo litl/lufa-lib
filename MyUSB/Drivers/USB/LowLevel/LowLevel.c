@@ -6,15 +6,16 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 		
 	if (Mode == USB_MODE_UID)
 	{
-		UHWCON &= ~(1 << UIDE);
+		UHWCON |= (1 << UIDE);
 	}
 	else if (Mode == USB_MODE_DEVICE)
 	{
-		UHWCON |= ((1 << UIDE) | (1 << UIMOD));
+		UHWCON &= ~(1 << UIDE);
+		UHWCON |=  (1 << UIMOD);
 	}
 	else if (Mode == USB_MODE_HOST)			
 	{
-		UHWCON |= (1 << UIDE);
+		UHWCON &= ~((1 << UIMOD) | (1 << UIDE));
 	}
 
 	USB_InitTaskPointer();
@@ -26,7 +27,9 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	if (Options & USB_DEV_LOWSPEED)
 	  USB_DEV_SetLowSpeed();
 	else
-	  USB_DEV_SetHighSpeed();	  
+	  USB_DEV_SetHighSpeed();
+
+	sei();
 }
 
 bool USB_PowerOn(void)
@@ -57,6 +60,7 @@ bool USB_PowerOn(void)
 		}
 
 		USB_INT_ENABLE(USB_INT_SUSPEND);
+		USB_INT_ENABLE(USB_INT_EORSTI);
 	}
 
 	return USB_POWERON_OK;
@@ -67,7 +71,8 @@ void USB_PowerOff(void)
 	USB_IsConnected   = false;
 	USB_IsInitialized = false;
 	
-	USB_EVENT_OnUSBDisconnect();
+	if (USB_Interface_IsEnabled())
+	  USB_EVENT_OnUSBDisconnect();
 	
 	if (USB_GetUSBMode() == USB_MODE_DEVICE)
 	  USB_DEV_Detach();

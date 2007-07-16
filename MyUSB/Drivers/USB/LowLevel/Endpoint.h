@@ -30,8 +30,8 @@
 		
 		#define ENDPOINT_CONTROLEP                 0
 
-		#define Endpoint_SelectEndpoint(epnum)     { UENUM = 0; UENUM = (epnum & 0b111); }
-		#define Endpoint_ResetEndpoint(epnum)      { UERST = (1 << epnum); UERST = 0; }
+		#define Endpoint_SelectEndpoint(epnum)     { UENUM = (epnum & 0b111); }
+		#define Endpoint_ResetFIFO(epnum)          { UERST = (1 << epnum); UERST = 0; }
 		#define Endpoint_ActivateEndpoint()        UECONX |=  (1 << EPEN)
 		#define Endpoint_DeactivateEndpoint()      UECONX &= ~(1 << EPEN)
 		#define Endpoint_Reset(epnum)              { Endpoint_SelectEndpoint(epnum);            \
@@ -44,6 +44,7 @@
 												   Endpoint_ConfigureEndpoint_PRV(num,            \
 																				  ((type << EPTYPE0) | dir),   \
 																				  ((size << EPSIZE0) | banks))
+		#define Endpoint_IsConfigured()            ((UESTA0X & (1 << CFGOK)) ? ENDPOINT_CONFIG_OK : ENDPOINT_CONFIG_FAIL)
 
 	/* Function Prototypes */
 		bool Endpoint_ConfigureEndpoint_PRV(const uint8_t EndpointNum,

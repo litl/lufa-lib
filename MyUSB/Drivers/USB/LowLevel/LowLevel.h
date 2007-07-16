@@ -47,6 +47,7 @@
 
 		#define USB_Interface_Enable()     USBCON |=  (1 << USBE)
 		#define USB_Interface_Disable()    USBCON &= ~(1 << USBE)
+		#define USB_Interface_IsEnabled()  USBCON &   (1 << USBE)
 		
 	/* Function Prototypes */
 		void    USB_Init(const uint8_t Mode, const uint8_t Options);

@@ -1,7 +1,5 @@
 #include "USBTask.h"
 
-#include "../../USBKEY/Bicolour.h"
-
 bool      USB_IsConnected;
 bool      USB_IsInitialized;
 TaskPtr_t USB_TaskPtr;
@@ -10,16 +8,6 @@ void USB_USBTask(void)
 {
 	if (USB_IsInitialized && USB_IsConnected)
 	  (*USB_TaskPtr)();
-
-	/* START DEBUG */
-	if (USB_IsInitialized)
-	{
-		if (USB_IsConnected)
-		  Bicolour_SetLed(2, BICOLOUR_LED2_GREEN);
-		else
-		  Bicolour_SetLed(2, BICOLOUR_LED2_ORANGE);
-	}
-	/* END DEBUG */
 }
 
 void USB_InitTaskPointer(void)

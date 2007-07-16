@@ -5,7 +5,7 @@
 		#include <avr/io.h>
 		
 		#include "../LowLevel/LowLevel.h"
-		#include "../USBEvents.h"
+		#include "../../../Configuration/USB/EventHooks.h"
 
 	/* Private Macros */
 		#define USB_INT_GETITEM1(a, b, c, d) a
@@ -22,5 +22,6 @@
 		#define USB_INT_VBUS                 USBCON, (1 << VBUSTE) , USBINT, (1 << VBUSTI)
 		#define USB_INT_WAKEUP               UDIEN , (1 << WAKEUPE), UDINT , (1 << WAKEUPI)
 		#define USB_INT_SUSPEND              UDIEN , (1 << SUSPE)  , UDINT , (1 << SUSPI)
+		#define USB_INT_EORSTI               UDIEN , (1 << EORSTE) , UDINT , (1 << EORSTI)
 
 #endif
