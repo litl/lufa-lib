@@ -10,7 +10,7 @@
 
 	/* Public Macros */
 		#define TASK(name)                        void name (void)
-		#define TASK_LIST                         extern TaskEntry_t TaskList[]; TaskEntry_t TaskList[] = 
+		#define TASK_LIST                         extern TaskEntry_t Scheduler_TaskList[]; TaskEntry_t Scheduler_TaskList[] = 
 		#define TASK_ID_LIST                      enum TaskIDs
 		
 		#define TASK_MAX_DELAY                    (MAX_DELAYCTR_COUNT - 1)
@@ -19,10 +19,9 @@
 		#define TASK_STOP                         false
 		
 		#define Scheduler_Start()                 Scheduler_GoSchedule(TOTAL_TASKS);
-		#define Scheduler_IncrementElapsedDelay() SchedulerDelayCounter++
 		
 	/* Private Macros */
-		#define TOTAL_TASKS                       (sizeof(TaskList) / sizeof(TaskEntry_t))
+		#define TOTAL_TASKS                       (sizeof(Scheduler_TaskList) / sizeof(TaskEntry_t))
 		#define MAX_DELAYCTR_COUNT                0xFFFF
 		
 	/* Private Type Defines */
@@ -40,21 +39,21 @@
 		typedef uint16_t SchedulerDelayCounter_t;
 
 	/* External Variables */
-		extern          TaskEntry_t               TaskList[];
-		extern volatile SchedulerDelayCounter_t   SchedulerDelayCounter;
-		extern          uint8_t                   TotalSchedulerTasks;
+		extern          TaskEntry_t               Scheduler_TaskList[];
+		extern          uint8_t                   Scheduler_TotalTasks;
+		extern volatile SchedulerDelayCounter_t   Scheduler_TickCounter;
 	
 	/* Inline Functions */
 		static inline void Scheduler_GoSchedule(const uint8_t TotalTasks)
 		{
-			TotalSchedulerTasks = TotalTasks;
+			Scheduler_TotalTasks = TotalTasks;
 		
 			while (1)
 			{
 				for (uint8_t CurrTask = 0; CurrTask < TotalTasks; CurrTask++)
 				{
-					if (TaskList[CurrTask].TaskStatus == TASK_RUN)
-					  TaskList[CurrTask].TaskName();
+					if (Scheduler_TaskList[CurrTask].TaskStatus == TASK_RUN)
+					  Scheduler_TaskList[CurrTask].TaskName();
 				}
 			}
 		}
@@ -63,7 +62,7 @@
 		{
 			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 			{
-				*TaskCounter = SchedulerDelayCounter;
+				*TaskCounter = Scheduler_TickCounter;
 			}
 		}
 		

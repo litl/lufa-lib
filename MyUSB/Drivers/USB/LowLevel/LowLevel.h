@@ -24,11 +24,13 @@
 		#define USB_MODE_NONE              0
 		#define USB_MODE_DEVICE            1
 		#define USB_MODE_HOST              2
-		#define USB_MODE_MIXED             3
+		#define USB_MODE_UID               3
 		
 		#define USB_POWERON_OK             true
 		#define USB_POWERON_FAIL           false
 						
+		#define USB_VBUS_GetStatus()       ((USBSTA & (1 << VBUS)) ? true : false)
+
 	/* Private Macros */	
 		#define USB_PLL_On()               PLLCSR  =  (USB_PLL_PSC | (1 << PLLE))
 		#define USB_PLL_Off()              PLLCSR  =  0
@@ -45,8 +47,6 @@
 
 		#define USB_Interface_Enable()     USBCON |=  (1 << USBE)
 		#define USB_Interface_Disable()    USBCON &= ~(1 << USBE)
-
-		#define USB_VBUS_GetStatus()       ((USBSTA & (1 << VBUS)) ? true : false)
 		
 	/* Function Prototypes */
 		void    USB_Init(const uint8_t Mode, const uint8_t Options);

@@ -2,26 +2,52 @@
 
 ISR(USB_GEN_vect)
 {
-	if (USB_INT_VBUS_IntOccured() && USB_INT_VBUS_IsEnabled())
+	if (USB_INT_OCCURED(USB_INT_VBUS) && USB_INT_ISENABLED(USB_INT_VBUS))
 	{
-		if (!(USBConnected) && USB_VBUS_GetStatus() && USBInitialized)
+		USB_EVENT_OnVBUSChange();
+
+		if (!(USB_IsConnected) && USB_VBUS_GetStatus() && USB_IsInitialized)
 		{
-			USB_EVENT_OnVBUSDetect();
+			USB_EVENT_OnVBUSConnect();
 			
 			if (USB_PowerOn() == USB_POWERON_OK)
 			{
-				USBConnected = true;
+				USB_IsConnected = true;
 				
 				USB_EVENT_OnUSBConnect();
 			}
 		}
 		else
 		{
+			USB_EVENT_OnVBUSDisconnect();
+
 			USB_EVENT_OnUSBDisconnect();
 		
-			USBConnected = false;
+			USB_IsConnected = false;
 		}
 		
-		USB_INT_VBUS_Reset();
+		USB_INT_CLEAR(USB_INT_VBUS);
 	}
+	
+	if (USB_INT_OCCURED(USB_INT_SUSPEND) && USB_INT_ISENABLED(USB_INT_SUSPEND))
+	{
+		USB_CLK_Freeze();
+
+		USB_INT_CLEAR(USB_INT_SUSPEND);
+		USB_INT_CLEAR(USB_INT_WAKEUP);
+		USB_INT_ENABLE(USB_INT_WAKEUP);
+		
+		USB_EVENT_OnSuspend();
+   }
+
+	if (USB_INT_OCCURED(USB_INT_WAKEUP) && USB_INT_ISENABLED(USB_INT_WAKEUP))
+	{
+		USB_CLK_Unfreeze();
+
+		USB_INT_CLEAR(USB_INT_WAKEUP);
+		USB_INT_DISABLE(USB_INT_WAKEUP);
+		USB_INT_ENABLE(USB_INT_SUSPEND);
+		
+		USB_EVENT_OnWakeUp();
+   }
 }

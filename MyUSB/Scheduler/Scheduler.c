@@ -1,7 +1,7 @@
 #include "Scheduler.h"
 
-volatile SchedulerDelayCounter_t SchedulerDelayCounter;
-         uint8_t                 TotalSchedulerTasks;
+volatile SchedulerDelayCounter_t Scheduler_TickCounter;
+         uint8_t                 Scheduler_TotalTasks;
 
 bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* TaskCounter)
 {
@@ -10,7 +10,7 @@ bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* Ta
 	
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	{
-		DelayCounter_LCL = SchedulerDelayCounter;
+		DelayCounter_LCL = Scheduler_TickCounter;
 	}
 	
 	TaskCounter_LCL = *TaskCounter;
@@ -37,9 +37,9 @@ bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* Ta
 
 void Scheduler_SetTaskMode(const uint8_t id, const bool run)
 {
-	for (uint8_t i = 0; i < TotalSchedulerTasks; i++)
+	for (uint8_t i = 0; i < Scheduler_TotalTasks; i++)
 	{
-		if (TaskList[i].TaskID == id)
-		  TaskList[i].TaskStatus = run;
+		if (Scheduler_TaskList[i].TaskID == id)
+		  Scheduler_TaskList[i].TaskStatus = run;
 	}
 }

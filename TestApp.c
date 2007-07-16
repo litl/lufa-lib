@@ -51,14 +51,14 @@ int main(void)
 ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 {
 	/* Scheduler test - increment scheduler delay counter once each millisecond */
-	Scheduler_IncrementElapsedDelay();
+	Scheduler_TickCounter++;
 }
 
 
 TASK(TestApp_CheckJoystick)
 {
 	uint8_t JoyStatus_LCL = Joystick_GetStatus();
-	uint8_t LEDMask = 0;
+	uint8_t LEDMask       = 0;
 		
 	/* Test of the Joystick - change a mask in response to joystick */
 	if (JoyStatus_LCL & JOY_UP)
@@ -83,18 +83,18 @@ TASK(TestApp_CheckJoystick)
 TASK(TestApp_CheckHWB)
 {
 	static SchedulerDelayCounter_t LastTick;
-	static uint8_t ConsecutiveTicks;
-	static bool    IsPressed;
-	static bool    BlockingJoystickTask;
+	static uint8_t                 ConsecutiveTicks;
+	static bool                    IsPressed;
+	static bool                    BlockingJoystickTask;
 	
 	if (HWB_GetStatus() == true)
 	{
 		if (IsPressed == false)
 		{
-			if (SchedulerDelayCounter != LastTick)
+			if (Scheduler_TickCounter != LastTick)
 			{
 				ConsecutiveTicks++;
-				LastTick = SchedulerDelayCounter;
+				LastTick = Scheduler_TickCounter;
 			}
 
 			if (ConsecutiveTicks == 100)
@@ -107,7 +107,7 @@ TASK(TestApp_CheckHWB)
 					BlockingJoystickTask = true;
 				}
 
-				if (USBInitialized == true)
+				if (USB_IsInitialized == true)
 				{
 					USB_PowerOff();
 					Bicolour_SetLeds(BICOLOUR_LED1_RED);

@@ -13,8 +13,8 @@
 		#define USB_ClearSetupRecieved() UEINTX &= ~(1 << RXSTPI)
 	
 	/* External Variables */
-		extern bool USBConnected;
-		extern bool USBInitialized;
+		extern bool USB_IsConnected;
+		extern bool USB_IsInitialized;
 
 	/* Function Prototypes */
 		void USB_USBTask(void);

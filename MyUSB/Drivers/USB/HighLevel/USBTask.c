@@ -2,19 +2,19 @@
 
 #include "../../USBKEY/Bicolour.h"
 
-bool      USBConnected;
-bool      USBInitialized;
-TaskPtr_t USBTaskPtr;
+bool      USB_IsConnected;
+bool      USB_IsInitialized;
+TaskPtr_t USB_TaskPtr;
 
 void USB_USBTask(void)
 {
-	if (USBInitialized && USBConnected)
-	  (*USBTaskPtr)();
+	if (USB_IsInitialized && USB_IsConnected)
+	  (*USB_TaskPtr)();
 
 	/* START DEBUG */
-	if (USBInitialized)
+	if (USB_IsInitialized)
 	{
-		if (USBConnected)
+		if (USB_IsConnected)
 		  Bicolour_SetLed(2, BICOLOUR_LED2_GREEN);
 		else
 		  Bicolour_SetLed(2, BICOLOUR_LED2_ORANGE);
@@ -29,18 +29,18 @@ void USB_InitTaskPointer(void)
 	if (USBMode != USB_MODE_NONE)
 	{
 		if (USBMode == USB_MODE_DEVICE)
-		  USBTaskPtr = (TaskPtr_t)USB_DeviceTask;
+		  USB_TaskPtr = (TaskPtr_t)USB_DeviceTask;
 		else
-		  USBTaskPtr = (TaskPtr_t)USB_HostTask;
+		  USB_TaskPtr = (TaskPtr_t)USB_HostTask;
 
-		USBInitialized = true;
+		USB_IsInitialized = true;
 	}
 	else
 	{
-		USBInitialized = false;
+		USB_IsInitialized = false;
 	}
 
-	USBConnected = false;
+	USB_IsConnected = false;
 }
 
 void USB_DeviceTask(void)
