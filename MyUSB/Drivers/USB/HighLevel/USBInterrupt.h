@@ -5,6 +5,7 @@
 		#include <avr/io.h>
 		
 		#include "../LowLevel/LowLevel.h"
+		#include "../LowLevel/Endpoint.h"
 		#include "../../../Configuration/USB/EventHooks.h"
 
 	/* Private Macros */

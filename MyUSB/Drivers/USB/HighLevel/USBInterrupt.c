@@ -30,7 +30,6 @@ ISR(USB_GEN_vect)
 		USB_INT_CLEAR(USB_INT_VBUS);
 	}
 
-/* TEMP	
 	if (USB_INT_OCCURED(USB_INT_SUSPEND) && USB_INT_ISENABLED(USB_INT_SUSPEND))
 	{
 		USB_CLK_Freeze();
@@ -52,15 +51,15 @@ ISR(USB_GEN_vect)
 		
 		USB_EVENT_OnWakeUp();
 	}
-*/
    
 	if (USB_INT_OCCURED(USB_INT_EORSTI) && USB_INT_ISENABLED(USB_INT_EORSTI))
 	{
-/* TEMP
-		USB_PowerOn();
-		Endpoint_ResetEndpoint(ENDPOINT_CONTROLEP);
-*/		
 		USB_INT_CLEAR(USB_INT_EORSTI);
+
+		Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, ENDPOINT_TYPE_CONTROL,
+		                           ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
+		                           ENDPOINT_BANK_SINGLE);
+
 
 		USB_EVENT_OnReset();
 	}

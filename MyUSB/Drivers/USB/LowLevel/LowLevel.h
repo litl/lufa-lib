@@ -8,6 +8,7 @@
 
 		#include "Device.h"
 		#include "Endpoint.h"
+		#include "Chapter9.h"
 		#include "../HighLevel/USBInterrupt.h"
 		#include "../HighLevel/USBTask.h"
 
@@ -49,6 +50,62 @@
 		#define USB_Interface_Disable()    USBCON &= ~(1 << USBE)
 		#define USB_Interface_IsEnabled()  USBCON &   (1 << USBE)
 		
+		#define USB_FIFOCON_Clear()        UEINTX &= ~(1<<FIFOCON)
+		
+		#define USB_In_Clear()             UEINTX &= ~(1 << TXINI)
+		#define USB_In_IsReady()           UEINTX &   (1 << TXINI)
+		
+		#define USB_Out_Clear()            UEINTX &= ~(1<<RXOUTI), USB_FIFOCON_Clear()
+		#define USB_Out_IsRecieved()       UEINTX &   (1<<RXOUTI)
+		
+		#define USB_Stall_Transaction()    UECONX |=  (1<<STALLRQ)
+
+	/* Inline Functions */		
+		static inline uint8_t USB_Read_Byte(void)
+		{
+			return UEDATX;
+		}
+
+		static inline void USB_Write_Byte(uint8_t Byte)
+		{
+			UEDATX = Byte;
+		}
+
+		static inline void USB_Ignore_Byte(void)
+		{		
+			volatile uint8_t Dummy;
+			
+			Dummy = UEDATX;
+			
+			// TODO: Optimize with inline asm - PUSH LDS POP
+		}
+		
+		static inline uint16_t USB_Read_Word(void)
+		{
+			uint16_t Data;
+			
+			Data  = UEDATX;
+			Data |= (((uint16_t)UEDATX) << 8);
+		
+			return Data;
+		}
+
+		static inline void USB_Write_Word(uint16_t Byte)
+		{
+			UEDATX = (Byte & 0xFF);
+			UEDATX = (Byte >> 8);
+		}
+		
+		static inline void USB_Ignore_Word(void)
+		{
+			volatile uint16_t Dummy;
+			
+			Dummy = UEDATX;
+			Dummy = UEDATX;
+
+			// TODO: Optimize with inline asm - PUSH LDS LDS POP
+		}
+
 	/* Function Prototypes */
 		void    USB_Init(const uint8_t Mode, const uint8_t Options);
 		bool    USB_PowerOn(void);

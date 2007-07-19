@@ -17,18 +17,19 @@
 		#define ENDPOINT_DIR_OUT                   0
 		#define ENDPOINT_DIR_IN                    (1 << EPDIR)
 		
-		#define ENDPOINT_SIZE_8                    0b000
-		#define ENDPOINT_SIZE_16                   0b001
-		#define ENDPOINT_SIZE_32                   0b010
-		#define ENDPOINT_SIZE_64                   0b011
-		#define ENDPOINT_SIZE_128                  0b100
-		#define ENDPOINT_SIZE_256                  0b101
-		#define ENDPOINT_SIZE_512                  0b110
+		#define ENDPOINT_SIZE_8_MASK               0b000
+		#define ENDPOINT_SIZE_16_MASK              0b001
+		#define ENDPOINT_SIZE_32_MASK              0b010
+		#define ENDPOINT_SIZE_64_MASK              0b011
+		#define ENDPOINT_SIZE_128_MASK             0b100
+		#define ENDPOINT_SIZE_256_MASK             0b101
+		#define ENDPOINT_SIZE_512_MASK             0b110
 		
 		#define ENDPOINT_BANK_SINGLE               0
 		#define ENDPOINT_BANK_DOUBLE               (1 << EPBK0)
 		
 		#define ENDPOINT_CONTROLEP                 0
+		#define ENDPOINT_CONTROLEP_SIZE            64
 
 		#define Endpoint_SelectEndpoint(epnum)     { UENUM = (epnum & 0b111); }
 		#define Endpoint_ResetFIFO(epnum)          { UERST = (1 << epnum); UERST = 0; }
@@ -43,8 +44,27 @@
 		#define Endpoint_ConfigureEndpoint(num, type, dir, size, banks)                           \
 												   Endpoint_ConfigureEndpoint_PRV(num,            \
 																				  ((type << EPTYPE0) | dir),   \
-																				  ((size << EPSIZE0) | banks))
+																				  ((Endpoint_BytesToEPSizeMask(size) << EPSIZE0) | banks))
 		#define Endpoint_IsConfigured()            ((UESTA0X & (1 << CFGOK)) ? ENDPOINT_CONFIG_OK : ENDPOINT_CONFIG_FAIL)
+
+	/* Inline Functions */
+		static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)
+		{
+			if (Bytes <= 8)
+			  return ENDPOINT_SIZE_8_MASK;
+			else if (Bytes <= 16)
+			  return ENDPOINT_SIZE_16_MASK;
+			else if (Bytes <= 32)
+			  return ENDPOINT_SIZE_32_MASK;
+			else if (Bytes <= 64)
+			  return ENDPOINT_SIZE_64_MASK;
+			else if (Bytes <= 128)
+			  return ENDPOINT_SIZE_128_MASK;
+			else if (Bytes <= 256)
+			  return ENDPOINT_SIZE_256_MASK;
+			else
+			  return ENDPOINT_SIZE_512_MASK;
+		};
 
 	/* Function Prototypes */
 		bool Endpoint_ConfigureEndpoint_PRV(const uint8_t EndpointNum,

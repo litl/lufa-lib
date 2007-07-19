@@ -38,11 +38,9 @@ void USB_DeviceTask(void)
    Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
    if (USB_IsSetupRecieved())
    {
-		Bicolour_SetLed(2, BICOLOUR_LED2_RED);
-   
-		for (;;);
-		
-		USB_ClearSetupRecieved();
+		Bicolour_SetLed(2, BICOLOUR_LED2_RED); // TEMP
+
+		USB_ProcessControlPacket();		
    }
 }
 

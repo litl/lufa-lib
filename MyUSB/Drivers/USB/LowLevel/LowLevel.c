@@ -49,8 +49,8 @@ bool USB_PowerOn(void)
 	if (USB_GetUSBMode() == USB_MODE_DEVICE)
 	{
 		if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, ENDPOINT_TYPE_CONTROL,
-		                               ENDPOINT_DIR_OUT, ENDPOINT_SIZE_64, ENDPOINT_BANK_SINGLE)
-		    == ENDPOINT_CONFIG_OK)
+		                               ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
+									   ENDPOINT_BANK_SINGLE) == ENDPOINT_CONFIG_OK)
 		{
 			USB_DEV_Attach();
 		}
