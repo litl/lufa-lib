@@ -5,7 +5,8 @@
 	#include <avr/io.h>
 	#include <avr/pgmspace.h>
 	
-	#include "../../../Configuration/USB/Descriptors.h"
+	#include "../../../Configuration/USB/Device/Descriptors.h"
+	#include "../../../Configuration/USB/Device/UserChapter9.h"
 	#include "../../../Configuration/USB/EventHooks.h"
 	#include "LowLevel.h"
 
@@ -36,11 +37,11 @@
 			REQ_GetStatus           = 0,
 			REQ_ClearFeature        = 1,
 			REQ_SetFeature          = 3,
-			REQ_SetAddress          = 5,
-			REQ_GetDescriptor       = 6,
+			REQ_SetAddress          = 5,      /* DONE */
+			REQ_GetDescriptor       = 6,      /* DONE */
 			REQ_SetDescriptor       = 7,
-			REQ_GetConfiguration    = 8,
-			REQ_SetConfiguration    = 9,
+			REQ_GetConfiguration    = 8,      /* DONE */
+			REQ_SetConfiguration    = 9,      /* DONE */
 			REQ_GetInterface        = 10,
 			REQ_SetInterface        = 11,
 			REQ_SynchFrame          = 12

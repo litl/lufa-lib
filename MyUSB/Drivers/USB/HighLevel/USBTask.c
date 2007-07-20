@@ -35,13 +35,9 @@ void USB_DeviceTask(void)
 {
 	// Check for reset command here - if so reset control endpoint
 
-   Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
-   if (USB_IsSetupRecieved())
-   {
-		Bicolour_SetLed(2, BICOLOUR_LED2_RED); // TEMP
-
-		USB_ProcessControlPacket();		
-   }
+	Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+	if (USB_IsSetupRecieved())
+	  USB_ProcessControlPacket();		
 }
 
 void USB_HostTask(void)

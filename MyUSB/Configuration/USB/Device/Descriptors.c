@@ -6,7 +6,7 @@
 		Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
 		USBSpecification:       0x0200,
-		Class:                  0x00,
+		Class:                  0xFF,
 		SubClass:               0x00,	
 		Protocol:               0x00,
 				
@@ -31,7 +31,7 @@
 				Header:                 {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
 				TotalConfigurationSize: (  sizeof(USB_Descriptor_Configuration_Header_t)
-				                         + sizeof(USB_Descriptor_Interface_t)     ),
+				                         + sizeof(USB_Descriptor_Interface_t)            ),
 				TotalInterfaces:        1,
 				
 				ConfigurationNumber:    1,
@@ -60,6 +60,13 @@
 	};
 	
 /* Configure any descriptor strings here: */
+	USB_Descriptor_Language_t LanguageString PROGMEM =
+	{
+		Header:                 {Size: sizeof(USB_Descriptor_Language_t), Type: DTYPE_String},
+		
+		LanguageID:             LANGUAGE_ID
+	};
+
 	USB_Descriptor_String_t ManafacturerString PROGMEM =
 	{
 		Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
@@ -80,19 +87,16 @@
 		
 		UnicodeString:          {'0','.','1','.','0'}
 	};
-	
-	USB_Descriptor_String_t UnknownString PROGMEM = // TEMP
-	{
-		Header:                 {Size: USB_STRING_LEN(7), Type: DTYPE_String},
-		
-		UnicodeString:          {'U','N','K','N','O','W','N'}
-	};
 
 /* Add handlers for the descriptor strings here: */
 	bool USB_GetDescriptorString(const uint8_t Index, void** StringDescriptorAddr, uint16_t* Size)
 	{
 		switch (Index)
 		{
+			case 0x00:
+				*StringDescriptorAddr = (void*)&LanguageString;
+				*Size                 = sizeof(USB_Descriptor_Language_t);
+				return true;		
 			case 0x01:
 				*StringDescriptorAddr = (void*)&ManafacturerString;
 				*Size                 = USB_STRING_LEN(11);
@@ -104,10 +108,6 @@
 			case 0x03:
 				*StringDescriptorAddr = (void*)&VersionString;
 				*Size                 = USB_STRING_LEN(5);
-				return true;
-			default: // TEMP
-				*StringDescriptorAddr = (void*)&UnknownString;
-				*Size                 = USB_STRING_LEN(7);
 				return true;
 		}
 		

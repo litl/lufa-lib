@@ -7,6 +7,8 @@ void USB_ProcessControlPacket(void)
 	uint8_t RequestType;
 	uint8_t Request;
 	
+	bool    RequestHandled = false;
+	
 	RequestType = USB_Read_Byte();
 	Request     = USB_Read_Byte();
 			
@@ -14,33 +16,45 @@ void USB_ProcessControlPacket(void)
 	{
 		case REQ_SetAddress:
 			if (RequestType == 0x00000000)
-			  USB_CHAP9_SetAddress();			
+			{
+				USB_CHAP9_SetAddress();
+				RequestHandled = true;
+			}
+
 			break;
 		case REQ_SetConfiguration:
 			if (RequestType == 0b00000000)
-			  USB_CHAP9_SetConfiguration();			
+			{
+				USB_CHAP9_SetConfiguration();
+				RequestHandled = true;
+			}
+
 			break;
 		case REQ_GetConfiguration:
 			if (RequestType == 0b10000000)
-			  USB_CHAP9_GetConfiguration();
+			{
+				USB_CHAP9_GetConfiguration();
+				RequestHandled = true;
+			}
+
 			break;
 		case REQ_GetDescriptor:
 			if (RequestType == 0b10000000)
-			  USB_CHAP9_GetDescriptor();
+			{
+				USB_CHAP9_GetDescriptor();
+				RequestHandled = true;
+			}
+
 			break;
-		default:		
-			while (OCDR & (1 << IDRD)); // TEMP
-			OCDR = 0; // TEMP
-			while (OCDR & (1 << IDRD)); // TEMP
-			OCDR = Request; // TEMP
-			while (OCDR & (1 << IDRD)); // TEMP
-			OCDR = RequestType; // TEMP
-			while (OCDR & (1 << IDRD)); // TEMP
-			OCDR = 0; // TEMP
-	
-			USB_ClearSetupRecieved();
-			// TODO: Pass to user app?
-			break;
+	}
+
+	if (RequestHandled == false)
+	  USB_User_ProcessControlPacket(Request, RequestType);
+	  
+	if (USB_IsSetupRecieved())
+	{
+		USB_Stall_Transaction();
+		USB_ClearSetupRecieved();		
 	}
 }
 
@@ -77,8 +91,7 @@ void USB_CHAP9_SetConfiguration(void)
 	}
 	
 	USB_In_Clear();
-	
-	// TODO: User app endpoint configuration
+
 	USB_EVENT_OnSetConfiguration();
 }
 
@@ -97,8 +110,8 @@ void USB_CHAP9_GetConfiguration(void)
 void USB_CHAP9_GetDescriptor(void)
 {
 	uint8_t  DescriptorIndex = USB_Read_Byte();
-	volatile uint8_t  DescriptorType  = USB_Read_Byte(); // TEMP volatile
-	volatile uint16_t DescriptorLength; // TEMP volatile
+	uint8_t  DescriptorType  = USB_Read_Byte();
+	uint16_t DescriptorLength;
 	
 	void*    DescriptorPointer;
 	uint16_t DescriptorBytesRem;
@@ -140,13 +153,13 @@ void USB_CHAP9_GetDescriptor(void)
 		DescriptorBytesRem = DescriptorLength;
 	}
 	
-	while (DescriptorBytesRem && (!(USB_Out_IsRecieved()))) // New packet aborts transfer
+	while (DescriptorBytesRem && (!(USB_Out_IsRecieved())))
 	{
 		while (!(USB_In_IsReady()));
 		
 		uint8_t BytesInPacket = 0;
 		
-		while (DescriptorBytesRem && (BytesInPacket++ < ENDPOINT_CONTROLEP_SIZE)) // Fill the control endpoint
+		while (DescriptorBytesRem && (BytesInPacket++ < ENDPOINT_CONTROLEP_SIZE))
 		{
 			USB_Write_Byte(pgm_read_byte_near(DescriptorPointer++));
 			DescriptorBytesRem--;
@@ -157,7 +170,7 @@ void USB_CHAP9_GetDescriptor(void)
 	
 	USB_In_Clear();
 
-	if (USB_Out_IsRecieved()) // Host abort
+	if (USB_Out_IsRecieved())
 	{
 		USB_Out_Clear();
 		return;

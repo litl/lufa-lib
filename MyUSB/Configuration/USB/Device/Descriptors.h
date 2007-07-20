@@ -5,7 +5,7 @@
 		#include <avr/pgmspace.h>
 		#include <stdbool.h>
 	
-		#include "../../Drivers/USB/LowLevel/Chapter9.h"
+		#include "../../../Drivers/USB/LowLevel/Chapter9.h"
 		
 	/* Private Macros */
 		#define NO_DESCRIPTOR_STRING              0
@@ -94,6 +94,13 @@
 			
 			uint16_t                              UnicodeString[];
 		} USB_Descriptor_String_t;
+
+		typedef struct
+		{
+			USB_Descriptor_Header_t               Header;
+			
+			uint16_t                              LanguageID;
+		} USB_Descriptor_Language_t;
 		
 		/* Add Interface and Endpoint descriptors as required to configuration descriptor here: */
 		typedef	struct
