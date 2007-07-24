@@ -37,7 +37,7 @@
 				ConfigurationNumber:    1,
 				ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
 				
-				ConfigAttributes:       USB_CONFIG_ATTR_BUSPOWERED,
+				ConfigAttributes:       CONFIG_ATTRIBUTES,
 				
 				MaxPowerConsumption:    USB_CONFIG_POWER_MA(100)
 			},
@@ -71,14 +71,14 @@
 	{
 		Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
 		
-		UnicodeString:          {'D','E','A','N',' ','C','A','M','E','R','A'}
+		UnicodeString:          {'D','e','a','n',' ','C','a','m','e','r','a'}
 	};
 
 	USB_Descriptor_String_t ProductString PROGMEM =
 	{
 		Header:                 {Size: USB_STRING_LEN(10), Type: DTYPE_String},
 		
-		UnicodeString:          {'M','Y','U','S','B',' ','D','E','M','O'}
+		UnicodeString:          {'M','y','U','S','B',' ','D','e','m','o'}
 	};
 
 	USB_Descriptor_String_t VersionString PROGMEM =
@@ -88,27 +88,30 @@
 		UnicodeString:          {'0','.','1','.','0'}
 	};
 
-/* Add handlers for the descriptor strings here: */
-	bool USB_GetDescriptorString(const uint8_t Index, void** StringDescriptorAddr, uint16_t* Size)
+/* Add handlers for the descriptors here: */
+	bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, void** DescriptorAddr, uint16_t* Size)
 	{
-		switch (Index)
+		if (Type == DTYPE_String)
 		{
-			case 0x00:
-				*StringDescriptorAddr = (void*)&LanguageString;
-				*Size                 = sizeof(USB_Descriptor_Language_t);
-				return true;		
-			case 0x01:
-				*StringDescriptorAddr = (void*)&ManafacturerString;
-				*Size                 = USB_STRING_LEN(11);
-				return true;
-			case 0x02:
-				*StringDescriptorAddr = (void*)&ProductString;
-				*Size                 = USB_STRING_LEN(10);
-				return true;
-			case 0x03:
-				*StringDescriptorAddr = (void*)&VersionString;
-				*Size                 = USB_STRING_LEN(5);
-				return true;
+			switch (Index)
+			{
+				case 0x00:
+					*DescriptorAddr = (void*)&LanguageString;
+					*Size                 = sizeof(USB_Descriptor_Language_t);
+					return true;
+				case 0x01:
+					*DescriptorAddr = (void*)&ManafacturerString;
+					*Size                 = USB_STRING_LEN(11);
+					return true;
+				case 0x02:
+					*DescriptorAddr = (void*)&ProductString;
+					*Size                 = USB_STRING_LEN(10);
+					return true;
+				case 0x03:
+					*DescriptorAddr = (void*)&VersionString;
+					*Size                 = USB_STRING_LEN(5);
+					return true;
+			}
 		}
 		
 		return false;

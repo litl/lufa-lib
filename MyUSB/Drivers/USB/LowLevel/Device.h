@@ -9,7 +9,7 @@
 		#define USB_DEV_Detach()       UDCON |=  (1 << DETACH)
 		#define USB_DEV_Attach()       UDCON &= ~(1 << DETACH)
 		
-		#define USB_DEV_SetLowSpeed()  UDCON |= (1 << LSM)
+		#define USB_DEV_SetLowSpeed()  UDCON |=  (1 << LSM)
 		#define USB_DEV_SetHighSpeed() UDCON &= ~(1 << LSM)
 
 #endif

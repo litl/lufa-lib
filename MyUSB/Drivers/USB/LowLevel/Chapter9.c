@@ -11,7 +11,7 @@ void USB_ProcessControlPacket(void)
 	
 	RequestType = USB_Read_Byte();
 	Request     = USB_Read_Byte();
-			
+	
 	switch (Request)
 	{
 		case REQ_SetAddress:
@@ -44,7 +44,31 @@ void USB_ProcessControlPacket(void)
 				USB_CHAP9_GetDescriptor();
 				RequestHandled = true;
 			}
+			
+			break;
+		case REQ_GetStatus:
+			if ((RequestType & 0b11111100) == 0b10000000)
+			{
+				USB_CHAP9_GetStatus(RequestType);
+				RequestHandled = true;
+			}			
 
+			break;
+		case REQ_SetFeature:
+			if ((RequestType & 0b11111100) == 0b00000000)
+			{
+				USB_CHAP9_SetFeature(RequestType);
+				RequestHandled = true;
+			}			
+
+			break;
+		case REQ_ClearFeature:
+			if ((RequestType & 0b11111100) == 0b00000000)
+			{
+				USB_CHAP9_ClearFeature(RequestType);
+				RequestHandled = true;
+			}			
+			
 			break;
 	}
 
@@ -129,7 +153,7 @@ void USB_CHAP9_GetDescriptor(void)
 			DescriptorBytesRem = sizeof(ConfigurationDescriptor);
 			break;			
 		default:
-			if (USB_GetDescriptorString(DescriptorIndex, &DescriptorPointer, &DescriptorBytesRem) == false)
+			if (USB_GetDescriptor(DescriptorType, DescriptorIndex, &DescriptorPointer, &DescriptorBytesRem) == false)
 			{
 				USB_Stall_Transaction();
 				USB_ClearSetupRecieved();
@@ -168,8 +192,6 @@ void USB_CHAP9_GetDescriptor(void)
 		USB_In_Clear();
 	}
 	
-	USB_In_Clear();
-
 	if (USB_Out_IsRecieved())
 	{
 		USB_Out_Clear();
@@ -184,4 +206,126 @@ void USB_CHAP9_GetDescriptor(void)
 
    while(!(USB_Out_IsRecieved()));
    USB_Out_Clear();
+}
+
+void USB_CHAP9_GetStatus(const uint8_t RequestType)
+{
+	uint8_t EndpointIndex;
+	uint8_t StatusByte = 0;
+	
+	USB_Ignore_Word(); // Ignore unused Value word
+	EndpointIndex = USB_Read_Byte();
+	
+	switch (RequestType & 0b00000011)
+	{
+		case REQREC_Device:
+			if (CONFIG_ATTRIBUTES & USB_CONFIG_ATTR_SELFPOWERED)
+			  StatusByte |= FEATURE_SELFPOWERED;
+			
+			if (CONFIG_ATTRIBUTES & USB_CONFIG_ATTR_REMOTEWAKEUP)
+			  StatusByte |= FEATURE_REMOTE_WAKEUP;
+			
+			break;
+		case REQREC_Interface:
+			// No bits set, all bits currently reserved
+				
+			break;
+		case REQREC_Endpoint:
+			Endpoint_SelectEndpoint(EndpointIndex);
+
+			if (!(Endpoint_IsEnabled()))
+			  StatusByte = FEATURE_ENDPOINT_ENABLED;
+
+			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			  
+			break;
+		default:
+			USB_Stall_Transaction();
+			USB_ClearSetupRecieved();
+			
+			return;
+	}
+	
+	USB_ClearSetupRecieved();
+	
+	USB_Write_Byte(StatusByte);
+	USB_Write_Byte(0x00);
+
+	USB_In_Clear();
+	
+	while(!(USB_Out_IsRecieved()));
+	USB_Out_Clear();
+
+	USB_ClearSetupRecieved();
+}
+
+void USB_CHAP9_SetFeature(const uint8_t RequestType)
+{
+	uint8_t EndpointIndex;
+	uint8_t Feature;
+	bool    SetFeatureFailed = true;
+
+	Feature       = USB_Read_Byte();
+	USB_Ignore_Byte();
+	EndpointIndex = USB_Read_Byte();
+
+	switch (RequestType & 0b00000011)
+	{
+		case REQREC_Endpoint:
+			if ((Feature == FEATURE_ENDPOINT) && (EndpointIndex != ENDPOINT_CONTROLEP))
+			{
+				Endpoint_SelectEndpoint(EndpointIndex)
+
+				if (!(Endpoint_IsEnabled()))
+				{
+					Endpoint_EnableEndpoint();
+					SetFeatureFailed = false;
+				}
+				
+				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP)			
+			}
+
+			break;
+	}
+
+	if (SetFeatureFailed)
+	{
+		USB_Stall_Transaction();
+		USB_ClearSetupRecieved();
+	}
+}
+
+void USB_CHAP9_ClearFeature(const uint8_t RequestType)
+{
+	uint8_t EndpointIndex;
+	uint8_t Feature;
+	bool    ClearFeatureFailed = true;
+
+	Feature       = USB_Read_Byte();
+	USB_Ignore_Byte();
+	EndpointIndex = USB_Read_Byte();
+
+	switch (RequestType & 0b00000011)
+	{
+		case REQREC_Endpoint:
+			if ((Feature == FEATURE_ENDPOINT) && (EndpointIndex != ENDPOINT_CONTROLEP))
+			{
+				Endpoint_SelectEndpoint(EndpointIndex)
+
+				if (Endpoint_IsEnabled())
+				{
+					Endpoint_DisableEndpoint();
+					ClearFeatureFailed = false;
+				}
+				
+				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP)			
+			}
+
+			break;
+	}
+
+	if (ClearFeatureFailed)
+	{
+		USB_Stall_Transaction();
+		USB_ClearSetupRecieved();
+	}
 }

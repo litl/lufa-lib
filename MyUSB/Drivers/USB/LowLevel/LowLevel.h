@@ -98,7 +98,7 @@
 		
 		static inline void USB_Ignore_Word(void)
 		{
-			volatile uint16_t Dummy;
+			volatile uint8_t Dummy;
 			
 			Dummy = UEDATX;
 			Dummy = UEDATX;

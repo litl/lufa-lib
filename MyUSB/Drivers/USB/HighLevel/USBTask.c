@@ -33,8 +33,6 @@ void USB_InitTaskPointer(void)
 
 void USB_DeviceTask(void)
 {
-	// Check for reset command here - if so reset control endpoint
-
 	Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 	if (USB_IsSetupRecieved())
 	  USB_ProcessControlPacket();		

@@ -31,10 +31,12 @@
 		#define ENDPOINT_CONTROLEP                 0
 		#define ENDPOINT_CONTROLEP_SIZE            64
 
+		#define Endpoint_GetCurrentEndpoint()      (UENUM & 0b111)
 		#define Endpoint_SelectEndpoint(epnum)     { UENUM = (epnum & 0b111); }
 		#define Endpoint_ResetFIFO(epnum)          { UERST = (1 << epnum); UERST = 0; }
-		#define Endpoint_ActivateEndpoint()        UECONX |=  (1 << EPEN)
-		#define Endpoint_DeactivateEndpoint()      UECONX &= ~(1 << EPEN)
+		#define Endpoint_EnableEndpoint()          UECONX |=  (1 << EPEN)
+		#define Endpoint_DisableEndpoint()         UECONX &= ~(1 << EPEN)
+		#define Endpoint_IsEnabled()               UECONX &   (1 << EPEN)
 		#define Endpoint_Reset(epnum)              { Endpoint_SelectEndpoint(epnum);            \
 													 Endpoint_DeactivateEndpoint();             \
 													 Endpoint_ActivateEndpoint();    }

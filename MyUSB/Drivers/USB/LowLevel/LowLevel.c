@@ -21,14 +21,16 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	USB_InitTaskPointer();
 	USB_OTGPAD_On();
 	
-	if (Mode == USB_MODE_DEVICE)
-	  USB_INT_ENABLE(USB_INT_VBUS);
+	if (USB_GetUSBMode() == USB_MODE_DEVICE)
+	{
+		USB_INT_ENABLE(USB_INT_VBUS);
 
-	if (Options & USB_DEV_LOWSPEED)
-	  USB_DEV_SetLowSpeed();
-	else
-	  USB_DEV_SetHighSpeed();
-
+		if (Options & USB_DEV_LOWSPEED)
+		  USB_DEV_SetLowSpeed();
+		else
+		  USB_DEV_SetHighSpeed();
+	}
+	
 	sei();
 }
 

@@ -65,6 +65,19 @@
 		{
 			USB_Descriptor_Header_t               Header;
 
+			uint16_t                              USBSpecification;
+			uint8_t                               Class;
+			uint8_t                               SubClass;
+			uint8_t                               Protocol;
+			
+			uint8_t                               Endpoint0Size;
+
+		} USB_Descriptor_DeviceQualifier_t;
+
+		typedef struct
+		{
+			USB_Descriptor_Header_t               Header;
+
 			uint8_t                               InterfaceNumber;
 			uint8_t                               AlternateSetting;
 			uint8_t                               TotalEndpoints;
@@ -74,6 +87,8 @@
 			uint8_t                               Protocol;
 
 			uint8_t                               InterfaceStrIndex;
+			uint8_t                               NumberOfConfigurations;
+			uint8_t                               Reserved;
 		} USB_Descriptor_Interface_t;
 
 		typedef struct
@@ -115,10 +130,11 @@
 		extern USB_Descriptor_Configuration_t     ConfigurationDescriptor;
 		
 	/* Function Prototypes: */
-		bool USB_GetDescriptorString(const uint8_t Index, void** StringDescriptorAddr, uint16_t* Size);
+		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, void** DescriptorAddr, uint16_t* Size);
 
 	/* Descriptor Settings */
 		#define CONFIGURATIONS                    1
 		#define LANGUAGE_ID                       0x0409
+		#define CONFIG_ATTRIBUTES                 USB_CONFIG_ATTR_BUSPOWERED
 
 #endif

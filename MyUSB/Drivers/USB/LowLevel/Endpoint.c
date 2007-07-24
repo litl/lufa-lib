@@ -5,7 +5,7 @@ bool Endpoint_ConfigureEndpoint_PRV(const uint8_t EndpointNum,
                                     const uint8_t UECFG1Xdata)
 {
 	Endpoint_SelectEndpoint(EndpointNum);
-	Endpoint_ActivateEndpoint();
+	Endpoint_EnableEndpoint();
 	
 	UECFG0X = UECFG0Xdata;
 	UECFG1X = ((UECFG1X & (1 << ALLOC)) | UECFG1Xdata);
@@ -21,6 +21,6 @@ void Endpoint_ClearEndpoints(void)
 	{
 		Endpoint_SelectEndpoint(EPNum);
 		Endpoint_DeallocateMemory();
-		Endpoint_DeactivateEndpoint();
+		Endpoint_DisableEndpoint();
 	}
 }
