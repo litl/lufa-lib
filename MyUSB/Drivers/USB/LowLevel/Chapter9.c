@@ -39,11 +39,8 @@ void USB_ProcessControlPacket(void)
 
 			break;
 		case REQ_GetDescriptor:
-			if (RequestType == 0b10000000)
-			{
-				USB_CHAP9_GetDescriptor();
-				RequestHandled = true;
-			}
+			USB_CHAP9_GetDescriptor();
+			RequestHandled = true;
 			
 			break;
 		case REQ_GetStatus:
@@ -214,7 +211,7 @@ void USB_CHAP9_GetStatus(const uint8_t RequestType)
 	uint8_t StatusByte = 0;
 	
 	USB_Ignore_Word(); // Ignore unused Value word
-	EndpointIndex = USB_Read_Byte();
+	EndpointIndex = (USB_Read_Byte() & ENDPOINT_EPNUM_MASK);
 	
 	switch (RequestType & 0b00000011)
 	{
@@ -266,7 +263,7 @@ void USB_CHAP9_SetFeature(const uint8_t RequestType)
 
 	Feature       = USB_Read_Byte();
 	USB_Ignore_Byte();
-	EndpointIndex = USB_Read_Byte();
+	EndpointIndex = (USB_Read_Byte() & ENDPOINT_EPNUM_MASK);
 
 	switch (RequestType & 0b00000011)
 	{
@@ -302,7 +299,7 @@ void USB_CHAP9_ClearFeature(const uint8_t RequestType)
 
 	Feature       = USB_Read_Byte();
 	USB_Ignore_Byte();
-	EndpointIndex = USB_Read_Byte();
+	EndpointIndex = (USB_Read_Byte() & ENDPOINT_EPNUM_MASK);
 
 	switch (RequestType & 0b00000011)
 	{

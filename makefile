@@ -82,15 +82,15 @@ OBJDIR = .
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                     \
 	  MyUSB/Scheduler/Scheduler.c                     \
-	  MyUSB/Drivers/USBKEY/Temperature.c              \
 	  MyUSB/Drivers/USB1287/ADC.c                     \
+	  MyUSB/Drivers/USBKEY/Temperature.c              \
 	  MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
 	  MyUSB/Drivers/USB/LowLevel/Chapter9.c           \
 	  MyUSB/Drivers/USB/HighLevel/USBTask.c           \
 	  MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
 	  MyUSB/Configuration/USB/Device/Descriptors.c    \
-	  MyUSB/Configuration/USB/Device/UserChapter9.c
+	  MyUSB/Configuration/USB/Device/UserChapter9.c   \
 	  
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 

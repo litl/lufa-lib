@@ -32,7 +32,17 @@
 						
 		#define USB_VBUS_GetStatus()       ((USBSTA & (1 << VBUS)) ? true : false)
 
-	/* Private Macros */	
+		#define USB_FIFOCON_Clear()        UEINTX &= ~(1<<FIFOCON)
+		
+		#define USB_In_Clear()             UEINTX &= ~(1 << TXINI)
+		#define USB_In_IsReady()           UEINTX &   (1 << TXINI)
+		
+		#define USB_Out_Clear()            UEINTX &= ~(1 << RXOUTI), USB_FIFOCON_Clear()
+		#define USB_Out_IsRecieved()       UEINTX &   (1 << RXOUTI)
+		
+		#define USB_Stall_Transaction()    UECONX |=  (1 << STALLRQ)
+
+	/* Private Macros */
 		#define USB_PLL_On()               PLLCSR  =  (USB_PLL_PSC | (1 << PLLE))
 		#define USB_PLL_Off()              PLLCSR  =  0
 		#define USB_PLL_IsReady()          PLLCSR &   (1 << PLOCK)
@@ -50,16 +60,6 @@
 		#define USB_Interface_Disable()    USBCON &= ~(1 << USBE)
 		#define USB_Interface_IsEnabled()  USBCON &   (1 << USBE)
 		
-		#define USB_FIFOCON_Clear()        UEINTX &= ~(1<<FIFOCON)
-		
-		#define USB_In_Clear()             UEINTX &= ~(1 << TXINI)
-		#define USB_In_IsReady()           UEINTX &   (1 << TXINI)
-		
-		#define USB_Out_Clear()            UEINTX &= ~(1<<RXOUTI), USB_FIFOCON_Clear()
-		#define USB_Out_IsRecieved()       UEINTX &   (1<<RXOUTI)
-		
-		#define USB_Stall_Transaction()    UECONX |=  (1<<STALLRQ)
-
 	/* Inline Functions */		
 		static inline uint8_t USB_Read_Byte(void)
 		{

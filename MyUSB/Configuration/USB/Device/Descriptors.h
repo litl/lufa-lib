@@ -4,9 +4,9 @@
 	/* Includes: */
 		#include <avr/pgmspace.h>
 		#include <stdbool.h>
-	
+
 		#include "../../../Drivers/USB/LowLevel/Chapter9.h"
-		
+			
 	/* Private Macros */
 		#define NO_DESCRIPTOR_STRING              0
 		
@@ -122,7 +122,6 @@
 		{
 			USB_Descriptor_Configuration_Header_t Config;
 			USB_Descriptor_Interface_t            Interface;
-			USB_Descriptor_Endpoint_t             Endpoint;
 		} USB_Descriptor_Configuration_t;
 
 	/* External Variables: */

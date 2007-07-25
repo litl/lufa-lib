@@ -6,15 +6,15 @@
 		Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
 		USBSpecification:       0x0200,
-		Class:                  0xFF,
+		Class:                  0x00,
 		SubClass:               0x00,	
 		Protocol:               0x00,
 				
 		Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
-		VendorID:               0x03EB,
-		ProductID:              0x201C,
-		ReleaseNumber:          0x1000,
+		VendorID:               0x0000,
+		ProductID:              0x0001,
+		ReleaseNumber:          0x0100,
 		
 		ManafacturerStrIndex:   0x01,
 		ProductStrIndex:        0x02,
@@ -58,7 +58,7 @@
 				InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 			}
 	};
-	
+
 /* Configure any descriptor strings here: */
 	USB_Descriptor_Language_t LanguageString PROGMEM =
 	{
