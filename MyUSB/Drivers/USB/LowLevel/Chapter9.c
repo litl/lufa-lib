@@ -113,7 +113,7 @@ void USB_CHAP9_SetConfiguration(void)
 	
 	USB_In_Clear();
 
-	USB_EVENT_OnSetConfiguration();
+	USB_User_CreateEndpoints();
 }
 
 void USB_CHAP9_GetConfiguration(void)

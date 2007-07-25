@@ -13,8 +13,8 @@
 		Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
 		VendorID:               0x0000,
-		ProductID:              0x0001,
-		ReleaseNumber:          0x0100,
+		ProductID:              0x0002,
+		ReleaseNumber:          0x0000,
 		
 		ManafacturerStrIndex:   0x01,
 		ProductStrIndex:        0x02,
@@ -46,7 +46,7 @@
 			{
 				Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
-				InterfaceNumber:        0,
+				InterfaceNumber:        1,
 				AlternateSetting:       0,
 				
 				TotalEndpoints:         0,
@@ -56,7 +56,7 @@
 				Protocol:               0x00,
 				
 				InterfaceStrIndex:      NO_DESCRIPTOR_STRING
-			}
+			},
 	};
 
 /* Configure any descriptor strings here: */
@@ -91,27 +91,30 @@
 /* Add handlers for the descriptors here: */
 	bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, void** DescriptorAddr, uint16_t* Size)
 	{
-		if (Type == DTYPE_String)
+		switch (Type)
 		{
-			switch (Index)
-			{
-				case 0x00:
-					*DescriptorAddr = (void*)&LanguageString;
-					*Size                 = sizeof(USB_Descriptor_Language_t);
-					return true;
-				case 0x01:
-					*DescriptorAddr = (void*)&ManafacturerString;
-					*Size                 = USB_STRING_LEN(11);
-					return true;
-				case 0x02:
-					*DescriptorAddr = (void*)&ProductString;
-					*Size                 = USB_STRING_LEN(10);
-					return true;
-				case 0x03:
-					*DescriptorAddr = (void*)&VersionString;
-					*Size                 = USB_STRING_LEN(5);
-					return true;
-			}
+			case DTYPE_String:
+				switch (Index)
+				{
+					case 0x00:
+						*DescriptorAddr = (void*)&LanguageString;
+						*Size           = sizeof(USB_Descriptor_Language_t);
+						return true;
+					case 0x01:
+						*DescriptorAddr = (void*)&ManafacturerString;
+						*Size           = USB_STRING_LEN(11);
+						return true;
+					case 0x02:
+						*DescriptorAddr = (void*)&ProductString;
+						*Size           = USB_STRING_LEN(10);
+						return true;
+					case 0x03:
+						*DescriptorAddr = (void*)&VersionString;
+						*Size           = USB_STRING_LEN(5);
+						return true;
+				}
+				
+				break;
 		}
 		
 		return false;

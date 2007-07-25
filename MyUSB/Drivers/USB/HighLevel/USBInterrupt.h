@@ -6,7 +6,6 @@
 		
 		#include "../LowLevel/LowLevel.h"
 		#include "../LowLevel/Endpoint.h"
-		#include "../../../Configuration/USB/EventHooks.h"
 
 	/* Private Macros */
 		#define USB_INT_GETITEM1(a, b, c, d) a

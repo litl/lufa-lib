@@ -1,8 +1,8 @@
 #include "USBTask.h"
 
-bool      USB_IsConnected;
-bool      USB_IsInitialized;
-TaskPtr_t USB_TaskPtr;
+volatile bool      USB_IsConnected;
+volatile bool      USB_IsInitialized;
+         TaskPtr_t USB_TaskPtr;
 
 void USB_USBTask(void)
 {

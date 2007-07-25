@@ -8,13 +8,9 @@
 		#include "../../../Scheduler/Scheduler.h"
 		#include "../LowLevel/LowLevel.h"
 	
-	/* Private Macros */
-		#define USB_IsSetupRecieved()    (UEINTX & (1 << RXSTPI))
-		#define USB_ClearSetupRecieved() UEINTX &= ~(1 << RXSTPI)
-	
 	/* External Variables */
-		extern bool USB_IsConnected;
-		extern bool USB_IsInitialized;
+		extern volatile bool USB_IsConnected;
+		extern volatile bool USB_IsInitialized;
 
 	/* Function Prototypes */
 		void USB_USBTask(void);

@@ -7,22 +7,6 @@
 
 #include "TestApp.h"
 
-/* Scheduler Task List: */
-	TASK_ID_LIST
-	{
-		TestApp_CheckJoystick_ID,
-		TestApp_CheckHWB_ID,
-		USB_USBTask_ID,
-	};
-
-	TASK_LIST
-	{
-		{ TaskID: TestApp_CheckJoystick_ID, TaskName: TestApp_CheckJoystick, TaskStatus: TASK_RUN },
-		{ TaskID: TestApp_CheckHWB_ID     , TaskName: TestApp_CheckHWB     , TaskStatus: TASK_RUN },
-		{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN },
-	};
-
-
 int main(void)
 {
 	/* Disable clock division */
@@ -110,11 +94,13 @@ TASK(TestApp_CheckHWB)
 				if (USB_IsInitialized == true)
 				{
 					USB_PowerOff();
+					
 					Bicolour_SetLeds(BICOLOUR_LED1_RED);
 				}
 				else
 				{
 					Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
+
 					USB_Init(USB_MODE_DEVICE, USB_DEV_HIGHSPEED);
 				}
 			}

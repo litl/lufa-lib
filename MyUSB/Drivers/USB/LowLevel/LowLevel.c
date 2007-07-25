@@ -84,6 +84,8 @@ void USB_PowerOff(void)
 	USB_INT_DISABLE(USB_INT_VBUS);
 	USB_INT_DISABLE(USB_INT_SUSPEND);
 
+	USB_INT_CLEAR(USB_INT_WAKEUP);
+
 	UHWCON &= ~((1 << UIDE) | (1 << UIMOD));			
 
 	Endpoint_ClearEndpoints();

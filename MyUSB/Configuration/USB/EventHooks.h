@@ -16,6 +16,5 @@
 		#define USB_EVENT_OnSuspend()                               { Bicolour_SetLeds(BICOLOUR_ALL_LEDS); }
 		#define USB_EVENT_OnWakeUp()                                { Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN); }
 		#define USB_EVENT_OnReset()                                 { Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN); }
-		#define USB_EVENT_OnSetConfiguration()                      NO_EVENT_HOOK
 
 #endif

@@ -17,6 +17,9 @@
 		#define ENDPOINT_DIR_OUT                   0
 		#define ENDPOINT_DIR_IN                    (1 << EPDIR)
 		
+		#define ENDPOINT_DESCRIPTOR_DIR_IN         0x80
+		#define ENDPOINT_DESCRIPTOR_DIR_OUT        0x00		
+		
 		#define ENDPOINT_SIZE_8_MASK               0b000
 		#define ENDPOINT_SIZE_16_MASK              0b001
 		#define ENDPOINT_SIZE_32_MASK              0b010
@@ -44,6 +47,9 @@
 													 Endpoint_ActivateEndpoint();    }
 		#define Endpoint_AllocateMemory()          UECFG1X |=  (1 << ALLOC)
 		#define Endpoint_DeallocateMemory()        UECFG1X &= ~(1 << ALLOC)
+		
+		#define Endpoint_ReadWriteAllowed()        (UEINTX & (1<<RWAL))
+
 		
 		#define Endpoint_ConfigureEndpoint(num, type, dir, size, banks)                           \
 												   Endpoint_ConfigureEndpoint_PRV(num,            \

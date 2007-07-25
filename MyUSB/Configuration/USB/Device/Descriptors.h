@@ -5,7 +5,7 @@
 		#include <avr/pgmspace.h>
 		#include <stdbool.h>
 
-		#include "../../../Drivers/USB/LowLevel/Chapter9.h"
+		#include "../../../Drivers/USB/USB.h"
 			
 	/* Private Macros */
 		#define NO_DESCRIPTOR_STRING              0
@@ -14,8 +14,8 @@
 		#define USB_STRING_LEN(x)                 (sizeof(USB_Descriptor_Header_t) + (x << 1))
 		
 		#define USB_CONFIG_ATTR_BUSPOWERED        0b10000000
-		#define USB_CONFIG_ATTR_SELFPOWERED       0b10100000
-		#define USB_CONFIG_ATTR_REMOTEWAKEUP      0b10010000
+		#define USB_CONFIG_ATTR_SELFPOWERED       0b11000000
+		#define USB_CONFIG_ATTR_REMOTEWAKEUP      0b10100000
 
 	/* Type Defines: */
 		typedef struct
@@ -87,8 +87,6 @@
 			uint8_t                               Protocol;
 
 			uint8_t                               InterfaceStrIndex;
-			uint8_t                               NumberOfConfigurations;
-			uint8_t                               Reserved;
 		} USB_Descriptor_Interface_t;
 
 		typedef struct
@@ -98,7 +96,7 @@
 			uint8_t                               EndpointAddress;
 			uint8_t                               Attributes;
 			
-			uint8_t                               EndpointSize;
+			uint16_t                              EndpointSize;
 			
 			uint8_t                               PollingIntervalMS;		
 		} USB_Descriptor_Endpoint_t;
@@ -134,6 +132,6 @@
 	/* Descriptor Settings */
 		#define CONFIGURATIONS                    1
 		#define LANGUAGE_ID                       0x0409
-		#define CONFIG_ATTRIBUTES                 USB_CONFIG_ATTR_BUSPOWERED
+		#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
 
 #endif

@@ -34,14 +34,16 @@
 
 		#define USB_FIFOCON_Clear()        UEINTX &= ~(1<<FIFOCON)
 		
-		#define USB_In_Clear()             UEINTX &= ~(1 << TXINI)
+		#define USB_In_Clear()             UEINTX &= ~(1 << TXINI); USB_FIFOCON_Clear()
 		#define USB_In_IsReady()           UEINTX &   (1 << TXINI)
 		
-		#define USB_Out_Clear()            UEINTX &= ~(1 << RXOUTI), USB_FIFOCON_Clear()
+		#define USB_Out_Clear()            UEINTX &= ~(1 << RXOUTI); USB_FIFOCON_Clear()
 		#define USB_Out_IsRecieved()       UEINTX &   (1 << RXOUTI)
 		
+		#define USB_IsSetupRecieved()      (UEINTX & (1 << RXSTPI))
+		#define USB_ClearSetupRecieved()   UEINTX &= ~(1 << RXSTPI)
 		#define USB_Stall_Transaction()    UECONX |=  (1 << STALLRQ)
-
+		
 	/* Private Macros */
 		#define USB_PLL_On()               PLLCSR  =  (USB_PLL_PSC | (1 << PLLE))
 		#define USB_PLL_Off()              PLLCSR  =  0
@@ -76,8 +78,6 @@
 			volatile uint8_t Dummy;
 			
 			Dummy = UEDATX;
-			
-			// TODO: Optimize with inline asm - PUSH LDS POP
 		}
 		
 		static inline uint16_t USB_Read_Word(void)
@@ -102,8 +102,6 @@
 			
 			Dummy = UEDATX;
 			Dummy = UEDATX;
-
-			// TODO: Optimize with inline asm - PUSH LDS LDS POP
 		}
 
 	/* Function Prototypes */
