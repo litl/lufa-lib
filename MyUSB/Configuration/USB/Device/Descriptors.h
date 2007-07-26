@@ -1,3 +1,13 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
 #ifndef USB_DESCRIPTORS_H
 #define USB_DESCRIPTORS_H
 
@@ -6,6 +16,7 @@
 		#include <stdbool.h>
 
 		#include "../../../Drivers/USB/USB.h"
+		#include "../../../Common/FunctionAttributes.h"
 			
 	/* Private Macros */
 		#define NO_DESCRIPTOR_STRING              0
@@ -127,7 +138,7 @@
 		extern USB_Descriptor_Configuration_t     ConfigurationDescriptor;
 		
 	/* Function Prototypes: */
-		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, void** DescriptorAddr, uint16_t* Size);
+		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, void** DescriptorAddr, uint16_t* Size) ATTR_WARN_UNUSED_RESULT;
 
 	/* Descriptor Settings */
 		#define CONFIGURATIONS                    1

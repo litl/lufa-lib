@@ -1,3 +1,13 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
 #ifndef CHAPTER9_H
 #define CHAPTER9_H
 
@@ -6,7 +16,7 @@
 		#include <avr/pgmspace.h>
 		
 		#include "../../../Configuration/USB/Device/Descriptors.h"
-		#include "../../../Configuration/USB/Device/UserChapter9.h"
+		#include "../../../Configuration/USB/Device/UserDeviceRoutines.h"
 		#include "../../../Configuration/USB/EventHooks.h"
 		#include "LowLevel.h"
 

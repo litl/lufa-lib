@@ -1,3 +1,13 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
 #include "USBTask.h"
 
 volatile bool      USB_IsConnected;
@@ -12,11 +22,9 @@ void USB_USBTask(void)
 
 void USB_InitTaskPointer(void)
 {
-	uint8_t USBMode = USB_GetUSBMode();
-				
-	if (USBMode != USB_MODE_NONE)
+	if (USB_CurrentMode != USB_MODE_NONE)
 	{
-		if (USBMode == USB_MODE_DEVICE)
+		if (USB_CurrentMode == USB_MODE_DEVICE)
 		  USB_TaskPtr = (TaskPtr_t)USB_DeviceTask;
 		else
 		  USB_TaskPtr = (TaskPtr_t)USB_HostTask;

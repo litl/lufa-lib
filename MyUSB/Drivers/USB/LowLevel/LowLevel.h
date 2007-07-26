@@ -1,3 +1,13 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
 #ifndef USBLOWLEVEL_H
 #define USBLOWLEVEL_H
 
@@ -11,6 +21,7 @@
 		#include "Chapter9.h"
 		#include "../HighLevel/USBInterrupt.h"
 		#include "../HighLevel/USBTask.h"
+		#include "../../../Common/FunctionAttributes.h"
 
 	/* Preprocessor Checks and Defines */
 		#if (F_CPU == 8000000)
@@ -61,8 +72,12 @@
 		#define USB_Interface_Enable()     USBCON |=  (1 << USBE)
 		#define USB_Interface_Disable()    USBCON &= ~(1 << USBE)
 		#define USB_Interface_IsEnabled()  USBCON &   (1 << USBE)
-		
-	/* Inline Functions */		
+	
+	/* External Variables */
+		extern uint8_t USB_CurrentMode;
+	
+	/* Inline Functions */
+		static inline uint8_t USB_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
 		static inline uint8_t USB_Read_Byte(void)
 		{
 			return UEDATX;
@@ -74,12 +89,13 @@
 		}
 
 		static inline void USB_Ignore_Byte(void)
-		{		
+		{
 			volatile uint8_t Dummy;
 			
 			Dummy = UEDATX;
 		}
 		
+		static inline uint16_t USB_Read_Word(void) ATTR_WARN_UNUSED_RESULT;
 		static inline uint16_t USB_Read_Word(void)
 		{
 			uint16_t Data;
@@ -103,11 +119,19 @@
 			Dummy = UEDATX;
 			Dummy = UEDATX;
 		}
+		
+		static inline uint8_t USB_GetUSBModeFromUID(void) ATTR_WARN_UNUSED_RESULT;
+		static inline uint8_t USB_GetUSBModeFromUID(void)
+		{
+			if (USBSTA & (1 << ID))
+			  return USB_MODE_DEVICE;
+			else
+			  return USB_MODE_HOST;
+		}
 
 	/* Function Prototypes */
 		void    USB_Init(const uint8_t Mode, const uint8_t Options);
 		bool    USB_PowerOn(void);
 		void    USB_PowerOff(void);
-		uint8_t USB_GetUSBMode(void);
 
 #endif

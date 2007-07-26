@@ -1,3 +1,13 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
 #ifndef USBINT_H
 #define USBINT_H
 
@@ -23,5 +33,6 @@
 		#define USB_INT_WAKEUP               UDIEN , (1 << WAKEUPE), UDINT , (1 << WAKEUPI)
 		#define USB_INT_SUSPEND              UDIEN , (1 << SUSPE)  , UDINT , (1 << SUSPI)
 		#define USB_INT_EORSTI               UDIEN , (1 << EORSTE) , UDINT , (1 << EORSTI)
+		#define USB_INT_IDTI                 UHWCON, (1 << UIDE)   , USBINT, (1 << IDTI)
 
 #endif

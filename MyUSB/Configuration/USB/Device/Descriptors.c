@@ -1,3 +1,13 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
 #include "Descriptors.h"
 
 /* Configure device descriptor here: */
@@ -13,7 +23,7 @@
 		Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
 		VendorID:               0x0000,
-		ProductID:              0x0002,
+		ProductID:              0x0001,
 		ReleaseNumber:          0x0000,
 		
 		ManafacturerStrIndex:   0x01,

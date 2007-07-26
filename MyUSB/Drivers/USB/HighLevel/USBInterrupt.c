@@ -1,3 +1,13 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
 #include "USBInterrupt.h"
 
 ISR(USB_GEN_vect)
@@ -20,9 +30,13 @@ ISR(USB_GEN_vect)
 		}
 		else
 		{
-			USB_EVENT_OnVBUSDisconnect();
+			if (USB_CurrentMode == USB_MODE_DEVICE)
+			{
+				USB_DEV_Detach();
+				USB_CLK_Unfreeze();
+			}
 			
-			USB_EVENT_OnUSBDisconnect();
+			USB_EVENT_OnVBUSDisconnect();
 		
 			USB_IsConnected = false;
 		}
@@ -65,7 +79,29 @@ ISR(USB_GEN_vect)
 		                           ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
 		                           ENDPOINT_BANK_SINGLE);
 
-
 		USB_EVENT_OnReset();
+	}
+	
+	if (USB_INT_OCCURED(USB_INT_IDTI) && USB_INT_ISENABLED(USB_INT_IDTI))
+	{
+		if (USB_CurrentMode == USB_MODE_DEVICE)
+		{
+			USB_DEV_Detach();
+			USB_CLK_Unfreeze();
+
+			USB_EVENT_OnUSBDisconnect();
+		}
+
+		USB_CurrentMode = USB_GetUSBModeFromUID();
+		USB_INT_CLEAR(USB_INT_IDTI);
+		
+		if (USB_PowerOn() == USB_POWERON_OK)
+		{
+			USB_IsConnected = true;
+				
+			USB_EVENT_OnUSBConnect();
+		}
+		
+		USB_EVENT_OnUIDChange();
 	}
 }

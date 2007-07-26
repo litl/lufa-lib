@@ -1,4 +1,17 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
 #include "LowLevel.h"
+
+uint8_t USB_CurrentMode = USB_MODE_NONE;
+uint8_t USB_Options;
 
 void USB_Init(const uint8_t Mode, const uint8_t Options)
 {
@@ -7,38 +20,48 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	if (Mode == USB_MODE_UID)
 	{
 		UHWCON |= (1 << UIDE);
+		
+		USB_CurrentMode = USB_GetUSBModeFromUID();
 	}
 	else if (Mode == USB_MODE_DEVICE)
 	{
 		UHWCON &= ~(1 << UIDE);
 		UHWCON |=  (1 << UIMOD);
+		
+		USB_CurrentMode = USB_MODE_DEVICE;
 	}
 	else if (Mode == USB_MODE_HOST)			
 	{
 		UHWCON &= ~((1 << UIMOD) | (1 << UIDE));
+		
+		USB_CurrentMode = USB_MODE_HOST;
 	}
 
 	USB_InitTaskPointer();
 	USB_OTGPAD_On();
 	
-	if (USB_GetUSBMode() == USB_MODE_DEVICE)
-	{
-		USB_INT_ENABLE(USB_INT_VBUS);
-
-		if (Options & USB_DEV_LOWSPEED)
-		  USB_DEV_SetLowSpeed();
-		else
-		  USB_DEV_SetHighSpeed();
-	}
+	if (USB_CurrentMode == USB_MODE_DEVICE)
+	  USB_INT_ENABLE(USB_INT_VBUS);
+	
+	USB_Options = Options;
 	
 	sei();
 }
 
 bool USB_PowerOn(void)
 {
-	if (USB_GetUSBMode() == USB_MODE_NONE)
-	  return USB_POWERON_FAIL;
-		
+	if (USB_CurrentMode == USB_MODE_NONE)
+	{
+		return USB_POWERON_FAIL;
+	}
+	else if (USB_CurrentMode == USB_MODE_DEVICE)
+	{
+		if (USB_Options & USB_DEV_LOWSPEED)
+		  USB_DEV_SetLowSpeed();
+		else
+		  USB_DEV_SetHighSpeed();
+	}
+	
 	USB_REG_On();
 	USB_PLL_On();
 			
@@ -48,7 +71,7 @@ bool USB_PowerOn(void)
 	USB_Interface_Enable();
 	USB_CLK_Unfreeze();
 
-	if (USB_GetUSBMode() == USB_MODE_DEVICE)
+	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
 		if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, ENDPOINT_TYPE_CONTROL,
 		                               ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
@@ -76,7 +99,7 @@ void USB_PowerOff(void)
 	if (USB_Interface_IsEnabled())
 	  USB_EVENT_OnUSBDisconnect();
 	
-	if (USB_GetUSBMode() == USB_MODE_DEVICE)
+	if (USB_CurrentMode == USB_MODE_DEVICE)
 	  USB_DEV_Detach();
 
 	USB_OTGPAD_Off();
@@ -90,25 +113,8 @@ void USB_PowerOff(void)
 
 	Endpoint_ClearEndpoints();
 
+	USB_CLK_Freeze();
 	USB_Interface_Disable();
 	USB_PLL_Off();
 	USB_REG_Off();
-}
-
-uint8_t USB_GetUSBMode(void)
-{
-	if (UHWCON & (1 << UIDE))
-	{
-		if (UHWCON & (1 << UIMOD))
-		  return USB_MODE_DEVICE;
-		else
-		  return USB_MODE_HOST;
-	}
-	else
-	{
-		if (USBSTA & (1 << ID))
-		  return USB_MODE_DEVICE;
-		else
-		  return USB_MODE_HOST;
-	}
 }
