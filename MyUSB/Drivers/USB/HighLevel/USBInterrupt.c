@@ -32,7 +32,7 @@ ISR(USB_GEN_vect)
 		{
 			if (USB_CurrentMode == USB_MODE_DEVICE)
 			{
-				USB_DEV_Detach();
+				USB_Detach();
 				USB_CLK_Unfreeze();
 			}
 			
@@ -84,13 +84,8 @@ ISR(USB_GEN_vect)
 	
 	if (USB_INT_OCCURED(USB_INT_IDTI) && USB_INT_ISENABLED(USB_INT_IDTI))
 	{
-		if (USB_CurrentMode == USB_MODE_DEVICE)
-		{
-			USB_DEV_Detach();
-			USB_CLK_Unfreeze();
-
-			USB_EVENT_OnUSBDisconnect();
-		}
+		USB_PowerOff();
+		USB_EVENT_OnUSBDisconnect();
 
 		USB_CurrentMode = USB_GetUSBModeFromUID();
 		USB_INT_CLEAR(USB_INT_IDTI);

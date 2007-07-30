@@ -45,16 +45,17 @@
 		#define ENDPOINT_CONTROLEP_SIZE            64
 		
 		#define ENDPOINT_EPNUM_MASK                0b111
+		#define ENDPOINT_MAXENDPOINTS              7
 		
 		#define Endpoint_GetCurrentEndpoint()      (UENUM & ENDPOINT_EPNUM_MASK)
-		#define Endpoint_SelectEndpoint(epnum)     { UENUM = (epnum & ENDPOINT_EPNUM_MASK); }
+		#define Endpoint_SelectEndpoint(epnum)     UENUM = (epnum & ENDPOINT_EPNUM_MASK)
 		#define Endpoint_ResetFIFO(epnum)          { UERST = (1 << epnum); UERST = 0; }
 		#define Endpoint_EnableEndpoint()          UECONX |=  (1 << EPEN)
 		#define Endpoint_DisableEndpoint()         UECONX &= ~(1 << EPEN)
-		#define Endpoint_IsEnabled()               UECONX &   (1 << EPEN)
-		#define Endpoint_Reset(epnum)              { Endpoint_SelectEndpoint(epnum);            \
-													 Endpoint_DeactivateEndpoint();             \
-													 Endpoint_ActivateEndpoint();    }
+		#define Endpoint_IsEnabled()               (UECONX &   (1 << EPEN))
+		#define Endpoint_Reset(epnum)              { Endpoint_SelectEndpoint(epnum);              \
+													 Endpoint_EnableEndpoint();                   \
+													 Endpoint_DisableEndpoint();    }
 		#define Endpoint_AllocateMemory()          UECFG1X |=  (1 << ALLOC)
 		#define Endpoint_DeallocateMemory()        UECFG1X &= ~(1 << ALLOC)
 		
@@ -87,10 +88,7 @@
 		};
 
 	/* Function Prototypes */
-		bool Endpoint_ConfigureEndpoint_PRV(const uint8_t EndpointNum,
-		                                    const uint8_t UECFG0Xdata,
-		                                    const uint8_t UECFG1Xdata);
-
+		bool Endpoint_ConfigureEndpoint_PRV(const uint8_t EndpointNum, const uint8_t UECFG0Xdata, const uint8_t UECFG1Xdata);
 		void Endpoint_ClearEndpoints(void);
 
 #endif

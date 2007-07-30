@@ -17,6 +17,7 @@
 		#include <stdbool.h>
 
 		#include "Device.h"
+		#include "Host.h"
 		#include "Endpoint.h"
 		#include "Chapter9.h"
 		#include "../HighLevel/USBInterrupt.h"
@@ -54,6 +55,9 @@
 		#define USB_IsSetupRecieved()      (UEINTX & (1 << RXSTPI))
 		#define USB_ClearSetupRecieved()   UEINTX &= ~(1 << RXSTPI)
 		#define USB_Stall_Transaction()    UECONX |=  (1 << STALLRQ)
+		
+		#define USB_Detach()               UDCON |=  (1 << DETACH)
+		#define USB_Attach()               UDCON &= ~(1 << DETACH)
 		
 	/* Private Macros */
 		#define USB_PLL_On()               PLLCSR  =  (USB_PLL_PSC | (1 << PLLE))

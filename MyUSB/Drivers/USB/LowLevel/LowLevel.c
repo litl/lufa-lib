@@ -16,7 +16,7 @@ uint8_t USB_Options;
 void USB_Init(const uint8_t Mode, const uint8_t Options)
 {
 	USB_PowerOff();
-		
+
 	if (Mode == USB_MODE_UID)
 	{
 		UHWCON |= (1 << UIDE);
@@ -42,6 +42,8 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	  USB_INT_ENABLE(USB_INT_VBUS);
+	else
+	  USB_PowerOn();
 	
 	USB_Options = Options;
 	
@@ -77,7 +79,7 @@ bool USB_PowerOn(void)
 		                               ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
 									   ENDPOINT_BANK_SINGLE) == ENDPOINT_CONFIG_OK)
 		{
-			USB_DEV_Attach();
+			USB_Attach();
 		}
 		else
 		{
@@ -86,6 +88,17 @@ bool USB_PowerOn(void)
 
 		USB_INT_ENABLE(USB_INT_SUSPEND);
 		USB_INT_ENABLE(USB_INT_EORSTI);
+	}
+	else if (USB_CurrentMode == USB_MODE_HOST)
+	{
+		if (Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
+		                       PIPE_TOKEN_SETUP, ENDPOINT_CONTROLEP,
+							   PIPE_CONTROLPIPE_SIZE, PIPE_BANK_SINGLE)
+							   == PIPE_CONFIG_OK)
+		{
+			USB_Attach();
+			USB_HOST_HostModeOn();
+		}
 	}
 
 	return USB_POWERON_OK;
@@ -99,8 +112,8 @@ void USB_PowerOff(void)
 	if (USB_Interface_IsEnabled())
 	  USB_EVENT_OnUSBDisconnect();
 	
-	if (USB_CurrentMode == USB_MODE_DEVICE)
-	  USB_DEV_Detach();
+	USB_HOST_HostModeOff();
+	USB_Detach();
 
 	USB_OTGPAD_Off();
 
@@ -111,7 +124,10 @@ void USB_PowerOff(void)
 
 	UHWCON &= ~((1 << UIDE) | (1 << UIMOD));			
 
-	Endpoint_ClearEndpoints();
+	if (USB_CurrentMode == USB_MODE_DEVICE)
+	  Endpoint_ClearEndpoints();
+	else
+	  Pipe_ClearPipes();
 
 	USB_CLK_Freeze();
 	USB_Interface_Disable();

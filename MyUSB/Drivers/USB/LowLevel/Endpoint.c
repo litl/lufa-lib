@@ -27,7 +27,7 @@ bool Endpoint_ConfigureEndpoint_PRV(const uint8_t EndpointNum,
 
 void Endpoint_ClearEndpoints(void)
 {
-	for (uint8_t EPNum = 0; EPNum < 8; EPNum++)
+	for (uint8_t EPNum = 0; EPNum < ENDPOINT_MAXENDPOINTS; EPNum++)
 	{
 		Endpoint_SelectEndpoint(EPNum);
 		Endpoint_DeallocateMemory();

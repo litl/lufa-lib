@@ -280,7 +280,7 @@ void USB_CHAP9_SetFeature(const uint8_t RequestType)
 		case REQREC_Endpoint:
 			if ((Feature == FEATURE_ENDPOINT) && (EndpointIndex != ENDPOINT_CONTROLEP))
 			{
-				Endpoint_SelectEndpoint(EndpointIndex)
+				Endpoint_SelectEndpoint(EndpointIndex);
 
 				if (!(Endpoint_IsEnabled()))
 				{
@@ -288,7 +288,7 @@ void USB_CHAP9_SetFeature(const uint8_t RequestType)
 					SetFeatureFailed = false;
 				}
 				
-				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP)			
+				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);	
 			}
 
 			break;
@@ -316,7 +316,7 @@ void USB_CHAP9_ClearFeature(const uint8_t RequestType)
 		case REQREC_Endpoint:
 			if ((Feature == FEATURE_ENDPOINT) && (EndpointIndex != ENDPOINT_CONTROLEP))
 			{
-				Endpoint_SelectEndpoint(EndpointIndex)
+				Endpoint_SelectEndpoint(EndpointIndex);
 
 				if (Endpoint_IsEnabled())
 				{
@@ -324,7 +324,7 @@ void USB_CHAP9_ClearFeature(const uint8_t RequestType)
 					ClearFeatureFailed = false;
 				}
 				
-				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP)			
+				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);		
 			}
 
 			break;

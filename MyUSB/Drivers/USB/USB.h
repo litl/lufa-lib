@@ -12,9 +12,12 @@
 #define MYUSB_H
 
 	/* Includes */
+		#include "LowLevel/Pipe.h"
 		#include "LowLevel/Endpoint.h"
 		#include "LowLevel/LowLevel.h"
+		#include "LowLevel/Chapter9.h"
 		#include "HighLevel/USBTask.h"
+		#include "HighLevel/USBInterrupt.h"
 		#include "../../Configuration/USB/EventHooks.h"
 
 #endif

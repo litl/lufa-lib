@@ -104,7 +104,10 @@ TASK(TestApp_CheckHWB)
 				{
 					Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
 
-					USB_Init(USB_MODE_DEVICE, USB_DEV_HIGHSPEED);
+					USB_Init(USB_MODE_HOST, 0);
+					
+					if (USB_PowerOn() == USB_POWERON_OK)
+					  Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
 				}
 			}
 		}
