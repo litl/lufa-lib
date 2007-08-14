@@ -49,9 +49,9 @@
 		
 		#define Endpoint_GetCurrentEndpoint()      (UENUM & ENDPOINT_EPNUM_MASK)
 		#define Endpoint_SelectEndpoint(epnum)     UENUM = (epnum & ENDPOINT_EPNUM_MASK)
-		#define Endpoint_ResetFIFO(epnum)          { UERST = (1 << epnum); UERST = 0; }
-		#define Endpoint_EnableEndpoint()          UECONX |=  (1 << EPEN)
-		#define Endpoint_DisableEndpoint()         UECONX &= ~(1 << EPEN)
+		#define Endpoint_ResetFIFO(epnum)          { UERST  = (1 << epnum); UERST = 0; }
+		#define Endpoint_EnableEndpoint()          UECONX  |=  (1 << EPEN)
+		#define Endpoint_DisableEndpoint()         UECONX  &= ~(1 << EPEN)
 		#define Endpoint_IsEnabled()               (UECONX &   (1 << EPEN))
 		#define Endpoint_Reset(epnum)              { Endpoint_SelectEndpoint(epnum);              \
 													 Endpoint_EnableEndpoint();                   \

@@ -44,38 +44,38 @@
 						
 		#define USB_VBUS_GetStatus()       ((USBSTA & (1 << VBUS)) ? true : false)
 
-		#define USB_FIFOCON_Clear()        UEINTX &= ~(1<<FIFOCON)
+		#define USB_FIFOCON_Clear()        UEINTX  &= ~(1<<FIFOCON)
 		
-		#define USB_In_Clear()             UEINTX &= ~(1 << TXINI); USB_FIFOCON_Clear()
-		#define USB_In_IsReady()           UEINTX &   (1 << TXINI)
+		#define USB_In_Clear()             UEINTX  &= ~(1 << TXINI); USB_FIFOCON_Clear()
+		#define USB_In_IsReady()           UEINTX  &   (1 << TXINI)
 		
-		#define USB_Out_Clear()            UEINTX &= ~(1 << RXOUTI); USB_FIFOCON_Clear()
-		#define USB_Out_IsRecieved()       UEINTX &   (1 << RXOUTI)
+		#define USB_Out_Clear()            UEINTX  &= ~(1 << RXOUTI); USB_FIFOCON_Clear()
+		#define USB_Out_IsRecieved()       UEINTX  &   (1 << RXOUTI)
 		
 		#define USB_IsSetupRecieved()      (UEINTX & (1 << RXSTPI))
-		#define USB_ClearSetupRecieved()   UEINTX &= ~(1 << RXSTPI)
-		#define USB_Stall_Transaction()    UECONX |=  (1 << STALLRQ)
+		#define USB_ClearSetupRecieved()   UEINTX  &= ~(1 << RXSTPI)
+		#define USB_Stall_Transaction()    UECONX  |=  (1 << STALLRQ)
 		
-		#define USB_Detach()               UDCON |=  (1 << DETACH)
-		#define USB_Attach()               UDCON &= ~(1 << DETACH)
+		#define USB_Detach()               UDCON   |=  (1 << DETACH)
+		#define USB_Attach()               UDCON   &= ~(1 << DETACH)
 		
 	/* Private Macros */
-		#define USB_PLL_On()               PLLCSR  =  (USB_PLL_PSC | (1 << PLLE))
-		#define USB_PLL_Off()              PLLCSR  =  0
-		#define USB_PLL_IsReady()          PLLCSR &   (1 << PLOCK)
+		#define USB_PLL_On()               PLLCSR   =  (USB_PLL_PSC | (1 << PLLE))
+		#define USB_PLL_Off()              PLLCSR   =  0
+		#define USB_PLL_IsReady()          PLLCSR  &   (1 << PLOCK)
 
-		#define USB_REG_On()               UHWCON |=  (1 << UVREGE)
-		#define USB_REG_Off()              UHWCON &= ~(1 << UVREGE)
+		#define USB_REG_On()               UHWCON  |=  (1 << UVREGE)
+		#define USB_REG_Off()              UHWCON  &= ~(1 << UVREGE)
 	
-		#define USB_OTGPAD_On()            USBCON |=  (1 << OTGPADE)
-		#define USB_OTGPAD_Off()           USBCON &= ~(1 << OTGPADE)
+		#define USB_OTGPAD_On()            USBCON  |=  (1 << OTGPADE)
+		#define USB_OTGPAD_Off()           USBCON  &= ~(1 << OTGPADE)
 
-		#define USB_CLK_Freeze()           USBCON |=  (1 << FRZCLK)
-		#define USB_CLK_Unfreeze()         USBCON &= ~(1 << FRZCLK)
+		#define USB_CLK_Freeze()           USBCON  |=  (1 << FRZCLK)
+		#define USB_CLK_Unfreeze()         USBCON  &= ~(1 << FRZCLK)
 
-		#define USB_Interface_Enable()     USBCON |=  (1 << USBE)
-		#define USB_Interface_Disable()    USBCON &= ~(1 << USBE)
-		#define USB_Interface_IsEnabled()  USBCON &   (1 << USBE)
+		#define USB_Interface_Enable()     USBCON  |=  (1 << USBE)
+		#define USB_Interface_Disable()    USBCON  &= ~(1 << USBE)
+		#define USB_Interface_IsEnabled()  USBCON  &   (1 << USBE)
 	
 	/* External Variables */
 		extern uint8_t USB_CurrentMode;

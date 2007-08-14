@@ -10,8 +10,8 @@
 
 #include "LowLevel.h"
 
-uint8_t USB_CurrentMode = USB_MODE_NONE;
-uint8_t USB_Options;
+volatile uint8_t USB_CurrentMode = USB_MODE_NONE;
+         uint8_t USB_Options;
 
 void USB_Init(const uint8_t Mode, const uint8_t Options)
 {
@@ -21,7 +21,8 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	{
 		UHWCON |= (1 << UIDE);
 		
-		USB_CurrentMode = USB_GetUSBModeFromUID();
+		USB_CurrentMode = USB_GetUSBModeFromUID();		
+		USB_INT_ENABLE(USB_INT_IDTI);
 	}
 	else if (Mode == USB_MODE_DEVICE)
 	{
@@ -29,12 +30,14 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 		UHWCON |=  (1 << UIMOD);
 		
 		USB_CurrentMode = USB_MODE_DEVICE;
+		USB_INT_DISABLE(USB_INT_IDTI);
 	}
 	else if (Mode == USB_MODE_HOST)			
 	{
 		UHWCON &= ~((1 << UIMOD) | (1 << UIDE));
 		
 		USB_CurrentMode = USB_MODE_HOST;
+		USB_INT_DISABLE(USB_INT_IDTI);
 	}
 
 	USB_InitTaskPointer();
@@ -92,12 +95,17 @@ bool USB_PowerOn(void)
 	else if (USB_CurrentMode == USB_MODE_HOST)
 	{
 		if (Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
-		                       PIPE_TOKEN_SETUP, ENDPOINT_CONTROLEP,
+		                       PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 							   PIPE_CONTROLPIPE_SIZE, PIPE_BANK_SINGLE)
 							   == PIPE_CONFIG_OK)
 		{
 			USB_Attach();
 			USB_HOST_HostModeOn();
+		}
+		else
+		{
+			asm volatile ("NOP"::);
+			return USB_POWERON_FAIL;
 		}
 	}
 

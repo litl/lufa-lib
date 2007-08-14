@@ -142,7 +142,7 @@
 
 	/* Descriptor Settings */
 		#define CONFIGURATIONS                    1
-		#define LANGUAGE_ID                       0x0409
+		#define LANGUAGE_ID_ENG                   0x0409
 		#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
 
 #endif

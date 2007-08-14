@@ -51,10 +51,10 @@
 		#define Pipe_GetPipeInterrupts()       UPINT
 		#define Pipe_ResetPipe(pipenum)        { UPRST = (1 << pipenum); UPRST = 0; }
 		#define Pipe_SelectPipe(pipenum)       UPNUM = (pipenum & PIPE_PIPENUM_MASK)
-		#define Pipe_AllocateMemory()          UPCFG1X |=  (1 << ALLOC)
-		#define Pipe_DeallocateMemory()        UPCFG1X &= ~(1 << ALLOC)
-		#define Pipe_EnablePipe()              UPCONX  |=  (1 << PEN)
-		#define Pipe_DisablePipe()             UPCONX  &= ~(1 << PEN)
+		#define Pipe_AllocateMemory()          UPCFG1X  |=  (1 << ALLOC)
+		#define Pipe_DeallocateMemory()        UPCFG1X  &= ~(1 << ALLOC)
+		#define Pipe_EnablePipe()              UPCONX   |=  (1 << PEN)
+		#define Pipe_DisablePipe()             UPCONX   &= ~(1 << PEN)
 		#define Pipe_IsEnabled()               (UPCONX  &   (1 << PEN))
 		
 		#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
