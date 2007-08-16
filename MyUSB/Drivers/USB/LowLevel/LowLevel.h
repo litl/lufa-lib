@@ -78,7 +78,7 @@
 		#define USB_Interface_IsEnabled()  USBCON  &   (1 << USBE)
 	
 	/* External Variables */
-		extern uint8_t USB_CurrentMode;
+		extern volatile uint8_t USB_CurrentMode;
 	
 	/* Inline Functions */
 		static inline uint8_t USB_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;

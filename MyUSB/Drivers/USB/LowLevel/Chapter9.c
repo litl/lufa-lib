@@ -25,7 +25,7 @@ void USB_ProcessControlPacket(void)
 	switch (Request)
 	{
 		case REQ_SetAddress:
-			if (RequestType == 0x00000000)
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
 			{
 				USB_CHAP9_SetAddress();
 				RequestHandled = true;
@@ -33,7 +33,7 @@ void USB_ProcessControlPacket(void)
 
 			break;
 		case REQ_SetConfiguration:
-			if (RequestType == 0b00000000)
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
 			{
 				USB_CHAP9_SetConfiguration();
 				RequestHandled = true;
@@ -41,7 +41,7 @@ void USB_ProcessControlPacket(void)
 
 			break;
 		case REQ_GetConfiguration:
-			if (RequestType == 0b10000000)
+			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE))
 			{
 				USB_CHAP9_GetConfiguration();
 				RequestHandled = true;
@@ -54,7 +54,8 @@ void USB_ProcessControlPacket(void)
 			
 			break;
 		case REQ_GetStatus:
-			if ((RequestType & 0b11111100) == 0b10000000)
+			if ((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_RECIPIENT))
+			   == (REQDIR_DEVICETOHOST | (REQREC_INTERFACE | REQREC_ENDPOINT | REQREC_OTHER)))
 			{
 				USB_CHAP9_GetStatus(RequestType);
 				RequestHandled = true;
@@ -62,7 +63,8 @@ void USB_ProcessControlPacket(void)
 
 			break;
 		case REQ_SetFeature:
-			if ((RequestType & 0b11111100) == 0b00000000)
+			if ((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_RECIPIENT))
+			   == (REQDIR_HOSTTODEVICE | (REQREC_INTERFACE | REQREC_ENDPOINT | REQREC_OTHER)))
 			{
 				USB_CHAP9_SetFeature(RequestType);
 				RequestHandled = true;
@@ -70,7 +72,8 @@ void USB_ProcessControlPacket(void)
 
 			break;
 		case REQ_ClearFeature:
-			if ((RequestType & 0b11111100) == 0b00000000)
+			if ((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_RECIPIENT))
+			   == (REQDIR_HOSTTODEVICE | (REQREC_INTERFACE | REQREC_ENDPOINT | REQREC_OTHER)))
 			{
 				USB_CHAP9_ClearFeature(RequestType);
 				RequestHandled = true;
@@ -223,9 +226,9 @@ void USB_CHAP9_GetStatus(const uint8_t RequestType)
 	USB_Ignore_Word(); // Ignore unused Value word
 	EndpointIndex = (USB_Read_Byte() & ENDPOINT_EPNUM_MASK);
 	
-	switch (RequestType & 0b00000011)
+	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
-		case REQREC_Device:
+		case REQREC_DEVICE:
 			if (CONFIG_ATTRIBUTES & USB_CONFIG_ATTR_SELFPOWERED)
 			  StatusByte |= FEATURE_SELFPOWERED;
 			
@@ -233,11 +236,11 @@ void USB_CHAP9_GetStatus(const uint8_t RequestType)
 			  StatusByte |= FEATURE_REMOTE_WAKEUP;
 			
 			break;
-		case REQREC_Interface:
+		case REQREC_INTERFACE:
 			// No bits set, all bits currently reserved
 				
 			break;
-		case REQREC_Endpoint:
+		case REQREC_ENDPOINT:
 			Endpoint_SelectEndpoint(EndpointIndex);
 
 			if (!(Endpoint_IsEnabled()))
@@ -275,9 +278,9 @@ void USB_CHAP9_SetFeature(const uint8_t RequestType)
 	USB_Ignore_Byte();
 	EndpointIndex = (USB_Read_Byte() & ENDPOINT_EPNUM_MASK);
 
-	switch (RequestType & 0b00000011)
+	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
-		case REQREC_Endpoint:
+		case REQREC_ENDPOINT:
 			if ((Feature == FEATURE_ENDPOINT) && (EndpointIndex != ENDPOINT_CONTROLEP))
 			{
 				Endpoint_SelectEndpoint(EndpointIndex);
@@ -311,9 +314,9 @@ void USB_CHAP9_ClearFeature(const uint8_t RequestType)
 	USB_Ignore_Byte();
 	EndpointIndex = (USB_Read_Byte() & ENDPOINT_EPNUM_MASK);
 
-	switch (RequestType & 0b00000011)
+	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
-		case REQREC_Endpoint:
+		case REQREC_ENDPOINT:
 			if ((Feature == FEATURE_ENDPOINT) && (EndpointIndex != ENDPOINT_CONTROLEP))
 			{
 				Endpoint_SelectEndpoint(EndpointIndex);

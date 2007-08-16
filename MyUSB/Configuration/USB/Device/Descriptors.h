@@ -24,6 +24,8 @@
 		#define USB_CONFIG_POWER_MA(x)            (x >> 1)
 		#define USB_STRING_LEN(x)                 (sizeof(USB_Descriptor_Header_t) + (x << 1))
 		
+		#define LANGUAGE_ID_ENG                   0x0409
+
 		#define USB_CONFIG_ATTR_BUSPOWERED        0b10000000
 		#define USB_CONFIG_ATTR_SELFPOWERED       0b11000000
 		#define USB_CONFIG_ATTR_REMOTEWAKEUP      0b10100000
@@ -126,11 +128,12 @@
 			uint16_t                              LanguageID;
 		} USB_Descriptor_Language_t;
 		
-		/* Add Interface and Endpoint descriptors as required to configuration descriptor here: */
 		typedef	struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;
 			USB_Descriptor_Interface_t            Interface;
+
+		    // Add Interface and Endpoint descriptors as required to configuration descriptor here
 		} USB_Descriptor_Configuration_t;
 
 	/* External Variables: */
@@ -142,7 +145,6 @@
 
 	/* Descriptor Settings */
 		#define CONFIGURATIONS                    1
-		#define LANGUAGE_ID_ENG                   0x0409
 		#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
 
 #endif
