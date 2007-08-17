@@ -84,6 +84,7 @@ SRC = $(TARGET).c                                     \
 	  MyUSB/Scheduler/Scheduler.c                     \
 	  MyUSB/Drivers/USBKEY/Temperature.c              \
 	  MyUSB/Drivers/USB1287/ADC.c                     \
+	  MyUSB/Drivers/USB1287/Serial_Stream.c           \
 	  MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
 	  MyUSB/Drivers/USB/LowLevel/Pipe.c               \
@@ -223,8 +224,8 @@ PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
 
 # If this is left blank, then it will use the Standard printf version.
-PRINTF_LIB = 
-#PRINTF_LIB = $(PRINTF_LIB_MIN)
+#PRINTF_LIB = 
+PRINTF_LIB = $(PRINTF_LIB_MIN)
 #PRINTF_LIB = $(PRINTF_LIB_FLOAT)
 
 

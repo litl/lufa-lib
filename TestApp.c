@@ -20,6 +20,7 @@ int main(void)
 	Joystick_Init();
 	HWB_Init();
 	Bicolour_Init();
+	Serial_Init(9600);
 	
 	/* Millisecond Timer Initialization */
 	OCR0A  = 0x7D;
@@ -29,6 +30,9 @@ int main(void)
 	
 	/* Turn on interrupts */
 	sei();
+
+    /* Startup message via USART */
+	printf("MyUSB Demo running.\r\n\n");
 		
 	/* Scheduling */
 	Scheduler_Start(); // Scheduler never returns, so put this last
