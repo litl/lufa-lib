@@ -39,13 +39,13 @@ void Serial_TxString(const char *StringPtr)
 	}
 }
 
-void Serial_Tx(const char Data)
+void Serial_TxByte(const char DataByte)
 {
-	while (!(UCSRA & (1 << UDRE)));
-	UDR = Data;
+	while (!(UCSR1A & (1 << UDRE1)));
+	UDR1 = DataByte;
 }
 
-char Serial_Rx(void)
+char Serial_RxByte(void)
 {
 	while (!(UCSR1A & (1 << RXC1)));
 	return UDR1; 

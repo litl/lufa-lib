@@ -22,6 +22,6 @@
 		void Serial_Init(const uint16_t BaudRate);
 		
 	/* Private Functions */
-		int  Serial_TransmitByte(char DataByte, FILE *Stream);
-		int  Serial_RecieveByte(FILE *Stream);
+		int  Serial_TxByte(char DataByte, FILE *Stream);
+		int  Serial_RxByte(FILE *Stream);
 #endif

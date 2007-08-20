@@ -112,18 +112,16 @@ void USB_CHAP9_SetConfiguration(void)
 {
 	uint8_t ConfigNum = USB_Read_Byte();
 	
-	if (ConfigNum <= CONFIGURATIONS)
-	{
-		USB_ConfigurationNumber = ConfigNum;
-		USB_ClearSetupRecieved();
-	}
-	else
+	if (ConfigNum > CONFIGURATIONS)
 	{
 		USB_Stall_Transaction();
 		USB_ClearSetupRecieved();
 		return;
 	}
 	
+	USB_ConfigurationNumber = ConfigNum;
+
+	USB_ClearSetupRecieved();
 	USB_In_Clear();
 
 	USB_User_CreateEndpoints();

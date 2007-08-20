@@ -39,8 +39,8 @@
 		#define USB_MODE_HOST              2
 		#define USB_MODE_UID               3
 		
-		#define USB_POWERON_OK             true
-		#define USB_POWERON_FAIL           false
+		#define USB_SETUPINTERFACE_OK      true
+		#define USB_SETUPINTERFACE_FAIL    false
 						
 		#define USB_VBUS_GetStatus()       ((USBSTA & (1 << VBUS)) ? true : false)
 
@@ -76,6 +76,14 @@
 		#define USB_Interface_Enable()     USBCON  |=  (1 << USBE)
 		#define USB_Interface_Disable()    USBCON  &= ~(1 << USBE)
 		#define USB_Interface_IsEnabled()  USBCON  &   (1 << USBE)
+	
+	/* Enums */
+		enum PowerOnErrorCodes
+		{
+			POWERON_ERR_NoModeSpecified         = 0,
+			POWERON_ERR_EndpointCreationFailed  = 1,
+			POWERON_ERR_PipeCreationFailed      = 2,			
+		};
 	
 	/* External Variables */
 		extern volatile uint8_t USB_CurrentMode;
@@ -134,8 +142,8 @@
 		}
 
 	/* Function Prototypes */
-		void    USB_Init(const uint8_t Mode, const uint8_t Options);
-		bool    USB_PowerOn(void);
-		void    USB_PowerOff(void);
+		void USB_Init(const uint8_t Mode, const uint8_t Options);
+		void USB_ShutDown(void);
+		bool USB_SetupInterface(void);
 
 #endif

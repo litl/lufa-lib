@@ -25,6 +25,6 @@
 		void Serial_Init(const uint16_t BaudRate);
 		void Serial_TxString_P(const char *FlashStringPtr);
 		void Serial_TxString(const char *StringPtr);
-		void Serial_Tx(const char Data);
-		char Serial_Rx(void);
+		void Serial_TxByte(const char Data);
+		char Serial_RxByte(void);
 #endif

@@ -35,4 +35,7 @@
 		#define USB_INT_EORSTI               UDIEN , (1 << EORSTE) , UDINT , (1 << EORSTI)
 		#define USB_INT_IDTI                 UHWCON, (1 << UIDE)   , USBINT, (1 << IDTI)
 
+	/* Function Prototypes */
+		void USB_INT_DisableAllInterrupts(void);
+
 #endif

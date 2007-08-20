@@ -100,18 +100,19 @@ TASK(TestApp_CheckHWB)
 
 				if (USB_IsInitialized == true)
 				{
-					USB_PowerOff();
+					USB_ShutDown();
+
+					printf("USB Power Off.\r\n");				
 					
 					Bicolour_SetLeds(BICOLOUR_LED1_RED);
 				}
 				else
 				{
-					Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
+					Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
 
-					USB_Init(USB_MODE_HOST, 0);
-					
-					if (USB_PowerOn() == USB_POWERON_OK)
-					  Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+					printf("USB Power On.\r\n");
+				
+					USB_Init(USB_MODE_UID, USB_DEV_HIGHSPEED);
 				}
 			}
 		}
