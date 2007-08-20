@@ -102,14 +102,12 @@ TASK(TestApp_CheckHWB)
 				{
 					USB_ShutDown();
 
-					printf("USB Power Off.\r\n");				
-					
 					Bicolour_SetLeds(BICOLOUR_LED1_RED);
+					printf("USB Power Off.\r\n");
 				}
 				else
 				{
 					Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
-
 					printf("USB Power On.\r\n");
 				
 					USB_Init(USB_MODE_UID, USB_DEV_HIGHSPEED);

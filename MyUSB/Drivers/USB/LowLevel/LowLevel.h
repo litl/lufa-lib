@@ -38,7 +38,7 @@
 		#define USB_MODE_DEVICE            1
 		#define USB_MODE_HOST              2
 		#define USB_MODE_UID               3
-		
+				
 		#define USB_SETUPINTERFACE_OK      true
 		#define USB_SETUPINTERFACE_FAIL    false
 						
