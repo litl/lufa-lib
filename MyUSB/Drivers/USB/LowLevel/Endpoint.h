@@ -15,6 +15,8 @@
 		#include <avr/io.h>
 		#include <stdbool.h>
 
+		#include "../../../Common/Common.h"
+
 	/* Public Macros: */
 		#define ENDPOINT_CONFIG_OK                 true
 		#define ENDPOINT_CONFIG_FAIL               false
@@ -49,17 +51,17 @@
 		
 		#define Endpoint_GetCurrentEndpoint()      (UENUM & ENDPOINT_EPNUM_MASK)
 		#define Endpoint_SelectEndpoint(epnum)     UENUM = (epnum & ENDPOINT_EPNUM_MASK)
-		#define Endpoint_ResetFIFO(epnum)          { UERST  = (1 << epnum); UERST = 0; }
+		#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST  = (1 << epnum); UERST = 0; }MACROE
 		#define Endpoint_EnableEndpoint()          UECONX  |=  (1 << EPEN)
 		#define Endpoint_DisableEndpoint()         UECONX  &= ~(1 << EPEN)
 		#define Endpoint_IsEnabled()               (UECONX &   (1 << EPEN))
-		#define Endpoint_Reset(epnum)              { Endpoint_SelectEndpoint(epnum);              \
+		#define Endpoint_Reset(epnum)              MACROS{ Endpoint_SelectEndpoint(epnum);        \
 													 Endpoint_EnableEndpoint();                   \
-													 Endpoint_DisableEndpoint();    }
+													 Endpoint_DisableEndpoint();    }MACROE
 		#define Endpoint_AllocateMemory()          UECFG1X |=  (1 << ALLOC)
 		#define Endpoint_DeallocateMemory()        UECFG1X &= ~(1 << ALLOC)
 		
-		#define Endpoint_ReadWriteAllowed()        (UEINTX & (1<<RWAL))
+		#define Endpoint_ReadWriteAllowed()        (UEINTX & (1 << RWAL))
 
 		
 		#define Endpoint_ConfigureEndpoint(num, type, dir, size, banks)                           \

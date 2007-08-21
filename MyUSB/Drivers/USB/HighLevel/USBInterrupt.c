@@ -94,6 +94,13 @@ ISR(USB_GEN_vect)
 		
 		USB_SetupInterface();
 	}
+	
+	if (USB_INT_OCCURED(USB_INT_SRPI) && USB_INT_ISENABLED(USB_INT_SRPI))
+	{
+		asm volatile ("NOP" ::); // New device     TEMP
+
+		USB_INT_CLEAR(USB_INT_SRPI);		
+	}	
 }
 
 void USB_INT_DisableAllInterrupts(void)
@@ -103,4 +110,5 @@ void USB_INT_DisableAllInterrupts(void)
 	USB_INT_DISABLE(USB_INT_WAKEUP);
 	USB_INT_DISABLE(USB_INT_SUSPEND);
 	USB_INT_DISABLE(USB_INT_EORSTI);
+	USB_INT_DISABLE(USB_INT_SRPI);
 }

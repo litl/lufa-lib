@@ -63,6 +63,11 @@ void USB_ShutDown(void)
 	Endpoint_ClearEndpoints();
 	Pipe_ClearPipes();
 
+	USB_HOST_VBUS_Off();
+	USB_HOST_DisableVBUSControl();
+	USB_HOST_HostModeOff();
+	USB_Detach();
+
 	USB_CLK_Freeze();
 
 	USB_Interface_Disable();
@@ -86,6 +91,8 @@ bool USB_SetupInterface(void)
 	if (USB_IsConnected)
 	  USB_EVENT_OnUSBDisconnect();
 	
+	USB_HOST_VBUS_Off();
+	USB_HOST_DisableVBUSControl();
 	USB_HOST_HostModeOff();
 	USB_Detach();
 
@@ -143,19 +150,12 @@ bool USB_SetupInterface(void)
 	}
 	else if (USB_CurrentMode == USB_MODE_HOST)
 	{
-		if (Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
-		                       PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
-							   PIPE_CONTROLPIPE_SIZE, PIPE_BANK_SINGLE)
-							   == PIPE_CONFIG_OK)
-		{
-			USB_Attach();
-			USB_HOST_HostModeOn();
-		}
-		else
-		{
-			USB_EVENT_PowerOnFail(POWERON_ERR_PipeCreationFailed);
-			return USB_SETUPINTERFACE_FAIL;
-		}
+		USB_Attach();
+		USB_HOST_HostModeOn();
+		USB_HOST_EnableVBUSControl();
+		USB_HOST_VBUS_On();
+
+		USB_INT_ENABLE(USB_INT_SRPI);
 	}
 	
 	USB_InitTaskPointer();

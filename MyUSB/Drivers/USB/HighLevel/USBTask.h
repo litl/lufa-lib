@@ -17,7 +17,7 @@
 		
 		#include "../../../Scheduler/Scheduler.h"
 		#include "../LowLevel/LowLevel.h"
-	
+		
 	/* External Variables */
 		extern volatile bool USB_IsConnected;
 		extern volatile bool USB_IsInitialized;
