@@ -20,8 +20,10 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 
 	if (Mode == USB_MODE_UID)
 	{
-		USB_INT_ENABLE(USB_INT_IDTI);
+		UHWCON |=  (1 << UIDE);
+
 		USB_INT_CLEAR(USB_INT_IDTI);
+		USB_INT_ENABLE(USB_INT_IDTI);
 	}
 	else if (Mode == USB_MODE_DEVICE)
 	{
@@ -93,11 +95,14 @@ bool USB_SetupInterface(void)
 	Pipe_ClearPipes();
 
 	if (UHWCON & (1 << UIDE))
-	  USB_CurrentMode = USB_GetUSBModeFromUID();
+	{
+		USB_INT_ENABLE(USB_INT_IDTI);
+		USB_CurrentMode = USB_GetUSBModeFromUID();
+	}
 	  
 	if (USB_CurrentMode == USB_MODE_NONE)
 	{
-		USB_EVENT_PowerOnFail("N/A", POWERON_ERR_NoModeSpecified);
+		USB_EVENT_PowerOnFail(POWERON_ERR_NoModeSpecified);
 		return USB_SETUPINTERFACE_FAIL;
 	}
 	else if (USB_CurrentMode == USB_MODE_DEVICE)
@@ -129,7 +134,7 @@ bool USB_SetupInterface(void)
 		}
 		else
 		{
-			USB_EVENT_PowerOnFail("DEVICE", POWERON_ERR_EndpointCreationFailed);
+			USB_EVENT_PowerOnFail(POWERON_ERR_EndpointCreationFailed);
 			return USB_SETUPINTERFACE_FAIL;
 		}
 
@@ -148,7 +153,7 @@ bool USB_SetupInterface(void)
 		}
 		else
 		{
-			USB_EVENT_PowerOnFail("MASTER", POWERON_ERR_PipeCreationFailed);
+			USB_EVENT_PowerOnFail(POWERON_ERR_PipeCreationFailed);
 			return USB_SETUPINTERFACE_FAIL;
 		}
 	}

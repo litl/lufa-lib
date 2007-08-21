@@ -28,6 +28,6 @@
 		#define USB_EVENT_OnWakeUp()                                { printf("EVENT: USB Wakeup\r\n"); Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN); }
 		#define USB_EVENT_OnReset()                                 { printf("EVENT: USB Reset\r\n"); Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN); }
 		#define USB_EVENT_OnUIDChange()                             { printf("EVENT: UID Change\r\n"); }
-		#define USB_EVENT_PowerOnFail(mode, errno)                  { printf("EVENT: Power on fail\r\n"); printf(" -- Mode %s\r\n", mode); printf(" -- Error Code %d\r\n", errno); Bicolour_SetLeds(BICOLOUR_LED1_RED); }
+		#define USB_EVENT_PowerOnFail(errno)                        { printf("EVENT: Power on fail\r\n"); switch (USB_CurrentMode) { case USB_MODE_DEVICE: printf(" -- Mode DEVICE\r\n"); break; case USB_MODE_HOST: printf(" -- Mode HOST\r\n"); break; default: printf(" -- Mode N/A\r\n"); break; } printf(" -- Error Code %d\r\n", errno); Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED); }
 
 #endif

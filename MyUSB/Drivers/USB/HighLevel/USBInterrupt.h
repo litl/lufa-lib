@@ -30,7 +30,7 @@
 		#define USB_INT_CLEAR(int)           USB_INT_GET_INT_REG(int) &= ~(USB_INT_GET_INT_MASK(int))
 	
 		#define USB_INT_VBUS                 USBCON, (1 << VBUSTE) , USBINT, (1 << VBUSTI)
-		#define USB_INT_IDTI                 UHWCON, (1 << UIDE)   , USBINT, (1 << IDTI)
+		#define USB_INT_IDTI                 USBCON, (1 << IDTE)   , USBINT, (1 << IDTI)
 		#define USB_INT_WAKEUP               UDIEN , (1 << WAKEUPE), UDINT , (1 << WAKEUPI)
 		#define USB_INT_SUSPEND              UDIEN , (1 << SUSPE)  , UDINT , (1 << SUSPI)
 		#define USB_INT_EORSTI               UDIEN , (1 << EORSTE) , UDINT , (1 << EORSTI)
