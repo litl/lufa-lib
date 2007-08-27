@@ -13,10 +13,11 @@
 volatile bool      USB_IsConnected;
 volatile bool      USB_IsInitialized;
          TaskPtr_t USB_TaskPtr;
+volatile uint8_t   USB_HostState;
 
 void USB_USBTask(void)
 {
-	if (USB_IsInitialized && USB_IsConnected)
+	if (USB_IsInitialized)
 	  (*USB_TaskPtr)();
 }
 
@@ -41,12 +42,57 @@ void USB_InitTaskPointer(void)
 
 void USB_DeviceTask(void)
 {
-	Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
-	if (USB_IsSetupRecieved())
-	  USB_ProcessControlPacket();		
+	if (USB_IsConnected)
+	{
+		Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+
+		if (USB_IsSetupRecieved())
+		  USB_ProcessControlPacket();
+	}
 }
 
 void USB_HostTask(void)
 {
+	switch (USB_HostState)
+	{
+		case HOST_STATE_Unattached:
+			if (!(USB_Options & USB_HOST_MANUALVBUS))
+			  USB_HOST_AutoVBUS_On();
 
+			if (USB_VBUS_GetStatus())
+			  USB_HostState = HOST_STATE_Powered;
+
+			break;
+		case HOST_STATE_Powered:
+			if (USB_INT_OCCURRED(USB_INT_SRPI) || USB_INT_OCCURRED(USB_INT_DCONNI))
+			{
+				USB_INT_CLEAR(USB_INT_SRPI);
+				USB_INT_CLEAR(USB_INT_DCONNI);
+
+				USB_IsConnected = true;
+				USB_EVENT_OnUSBConnect();
+
+				USB_INT_ENABLE(USB_INT_DDISCI);
+
+				USB_HostState = HOST_STATE_Attached;
+			}
+			else if (USB_INT_OCCURRED(USB_INT_BCERRI) || USB_INT_OCCURRED(USB_INT_VBERRI))
+			{
+				if (USB_INT_OCCURRED(USB_INT_VBERRI))
+				  USB_EVENT_HostError(HOST_ERROR_VBusVoltageDip);
+			
+				USB_INT_CLEAR(USB_INT_BCERRI);
+				USB_INT_CLEAR(USB_INT_VBERRI);
+					
+				USB_HOST_AutoVBUS_Off();				
+			
+				USB_HostState = HOST_STATE_Unattached;
+			}
+			
+			break;
+		case HOST_STATE_Attached:
+			
+		
+			break;
+	}
 }

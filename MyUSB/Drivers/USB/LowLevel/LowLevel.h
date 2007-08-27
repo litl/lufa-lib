@@ -81,12 +81,13 @@
 	/* Enums */
 		enum PowerOnErrorCodes
 		{
-			POWERON_ERR_NoModeSpecified         = 0,
+			POWERON_ERR_NoUSBModeSpecified      = 0,
 			POWERON_ERR_EndpointCreationFailed  = 1,
 		};
 	
 	/* External Variables */
 		extern volatile uint8_t USB_CurrentMode;
+		extern          uint8_t USB_Options;
 	
 	/* Inline Functions */
 		static inline uint8_t USB_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;

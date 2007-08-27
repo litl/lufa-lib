@@ -32,5 +32,6 @@
 		#define USB_EVENT_OnReset()              MACROS{ printf("EVENT: USB Reset\r\n"); Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN); }MACROE
 		#define USB_EVENT_OnUIDChange()          MACROS{ printf("EVENT: UID Change\r\n"); }MACROE
 		#define USB_EVENT_PowerOnFail(errno)     MACROS{ printf("EVENT: Power on fail\r\n"); switch (USB_CurrentMode) { case USB_MODE_DEVICE: printf(" -- Mode DEVICE\r\n"); break; case USB_MODE_HOST: printf(" -- Mode HOST\r\n"); break; default: printf(" -- Mode N/A\r\n"); break; } printf(" -- Error Code %d\r\n", errno); Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED); }MACROE
+		#define USB_EVENT_HostError(errno)       MACROS{ printf("EVENT: Host mode error\r\n"); printf(" -- Error Code %d\r\n", errno); Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED); }MACROE
 
 #endif

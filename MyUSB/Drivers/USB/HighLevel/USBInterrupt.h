@@ -28,7 +28,7 @@
 		#define USB_INT_DISABLE(int)             MACROS{ USB_INT_GET_EN_REG(int)   &= ~(USB_INT_GET_EN_MASK(int));  }MACROE
 		#define USB_INT_CLEAR(int)               MACROS{ USB_INT_GET_INT_REG(int)  &= ~(USB_INT_GET_INT_MASK(int)); }MACROE
 		#define USB_INT_ISENABLED(int)                   (USB_INT_GET_EN_REG(int)  &    USB_INT_GET_EN_MASK(int))
-		#define USB_INT_OCCURED(int)                     (USB_INT_GET_INT_REG(int) &    USB_INT_GET_INT_MASK(int))
+		#define USB_INT_OCCURRED(int)                    (USB_INT_GET_INT_REG(int) &    USB_INT_GET_INT_MASK(int))
 	
 		#define USB_INT_VBUS                             USBCON, (1 << VBUSTE) , USBINT, (1 << VBUSTI)
 		#define USB_INT_IDTI                             USBCON, (1 << IDTE)   , USBINT, (1 << IDTI)
@@ -36,6 +36,10 @@
 		#define USB_INT_SUSPEND                          UDIEN , (1 << SUSPE)  , UDINT , (1 << SUSPI)
 		#define USB_INT_EORSTI                           UDIEN , (1 << EORSTE) , UDINT , (1 << EORSTI)
 		#define USB_INT_SRPI                             OTGIEN, (1 << SRPE)   , OTGINT, (1 << SRPI)
+		#define USB_INT_DCONNI                           UHIEN , (1 << DCONNE) , UHINT , (1 << DCONNI)
+		#define USB_INT_DDISCI                           UHIEN , (1 << DDISCE) , UHINT , (1 << DDISCI)
+		#define USB_INT_BCERRI                           OTGIEN, (1 << BCERRE) , OTGINT, (1 << BCERRI)
+		#define USB_INT_VBERRI                           OTGIEN, (1 << VBERRE) , OTGINT, (1 << VBERRI)
 
 	/* Function Prototypes */
 		void USB_INT_DisableAllInterrupts(void);

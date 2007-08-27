@@ -19,8 +19,9 @@
 		#include "../LowLevel/LowLevel.h"
 		
 	/* External Variables */
-		extern volatile bool USB_IsConnected;
-		extern volatile bool USB_IsInitialized;
+		extern volatile bool    USB_IsConnected;
+		extern volatile bool    USB_IsInitialized;
+		extern volatile uint8_t USB_HostState;
 
 	/* Function Prototypes */
 		void USB_USBTask(void);

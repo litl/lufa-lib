@@ -110,7 +110,8 @@ TASK(TestApp_CheckHWB)
 					Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
 					printf("USB Power On.\r\n");
 				
-					USB_Init(USB_MODE_UID, USB_DEV_HIGHSPEED);
+					USB_Init(USB_MODE_HOST, USB_HOST_AUTOVBUS);
+//					USB_HOST_VBUS_On();
 				}
 			}
 		}
