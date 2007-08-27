@@ -65,7 +65,7 @@ void USB_ShutDown(void)
 
 	USB_HOST_VBUS_Off();
 	USB_HOST_AutoVBUS_Off();
-	USB_HOST_DisableManualVBUS();
+	USB_HOST_ManualVBUS_Disable();
 	USB_HOST_HostModeOff();
 	USB_Detach();
 
@@ -94,7 +94,7 @@ bool USB_SetupInterface(void)
 	
 	USB_HOST_VBUS_Off();
 	USB_HOST_AutoVBUS_Off();
-	USB_HOST_DisableManualVBUS();
+	USB_HOST_ManualVBUS_Disable();
 	USB_HOST_HostModeOff();
 	USB_Detach();
 
@@ -158,11 +158,33 @@ bool USB_SetupInterface(void)
 		if (USB_Options & USB_HOST_MANUALVBUS)
 		{
 			USB_INT_CLEAR(USB_INT_SRPI);
-			USB_HOST_EnableManualVBUS();
+			USB_HOST_ManualVBUS_Enable();
 		}
 	}
 	
 	USB_InitTaskPointer();
 
 	return USB_SETUPINTERFACE_OK;
+}
+
+bool USB_HostWaitMS(uint8_t MS)
+{
+	uint8_t MSRemaining = 100;
+				
+	while (MSRemaining)
+	{
+		if (USB_INT_OCCURRED(USB_INT_HSOFI))
+		{
+			USB_INT_CLEAR(USB_INT_HSOFI);
+						
+			MSRemaining--;
+		}
+					
+		if (USB_INT_OCCURRED(USB_INT_DDISCI) || USB_INT_OCCURRED(USB_INT_BCERRI))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }

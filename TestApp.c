@@ -33,7 +33,7 @@ int main(void)
 
     /* Startup message via USART */
 	printf("MyUSB Demo running.\r\n\n");
-		
+
 	/* Scheduling */
 	Scheduler_Start(); // Scheduler never returns, so put this last
 }
@@ -111,7 +111,6 @@ TASK(TestApp_CheckHWB)
 					printf("USB Power On.\r\n");
 				
 					USB_Init(USB_MODE_HOST, USB_HOST_AUTOVBUS);
-//					USB_HOST_VBUS_On();
 				}
 			}
 		}

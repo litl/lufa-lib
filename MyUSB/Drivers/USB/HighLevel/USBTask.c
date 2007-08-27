@@ -56,32 +56,51 @@ void USB_HostTask(void)
 	switch (USB_HostState)
 	{
 		case HOST_STATE_Unattached:
+			USB_INT_CLEAR(USB_INT_BCERRI);
+
 			if (!(USB_Options & USB_HOST_MANUALVBUS))
 			  USB_HOST_AutoVBUS_On();
 
 			if (USB_VBUS_GetStatus())
-			  USB_HostState = HOST_STATE_Powered;
+			  USB_HostState = HOST_STATE_Attached;
 
 			break;
-		case HOST_STATE_Powered:
+		case HOST_STATE_Attached:
 			if (USB_INT_OCCURRED(USB_INT_SRPI) || USB_INT_OCCURRED(USB_INT_DCONNI))
 			{
 				USB_INT_CLEAR(USB_INT_SRPI);
 				USB_INT_CLEAR(USB_INT_DCONNI);
 
-				USB_IsConnected = true;
-				USB_EVENT_OnUSBConnect();
-
 				USB_INT_ENABLE(USB_INT_DDISCI);
 
-				USB_HostState = HOST_STATE_Attached;
+				USB_IsConnected = true;
+				USB_EVENT_OnUSBConnect();
+				
+				USB_HOST_SOFGeneration_Enable();
+				if (USB_HostWaitMS(100) == false)
+				{
+					USB_HostState = HOST_STATE_Unattached;
+					break;
+				}
+				
+				USB_INT_CLEAR(USB_INT_RSTI);
+				USB_HOST_ResetDevice();
+
+				while (!(USB_INT_OCCURRED(USB_INT_RSTI)));
+				
+				if (USB_HostWaitMS(100) == false)
+				{
+					USB_HostState = HOST_STATE_Unattached;
+					break;
+				}				
+
+				USB_HostState = HOST_STATE_Powered;
 			}
 			else if (USB_INT_OCCURRED(USB_INT_BCERRI) || USB_INT_OCCURRED(USB_INT_VBERRI))
 			{
 				if (USB_INT_OCCURRED(USB_INT_VBERRI))
 				  USB_EVENT_HostError(HOST_ERROR_VBusVoltageDip);
 			
-				USB_INT_CLEAR(USB_INT_BCERRI);
 				USB_INT_CLEAR(USB_INT_VBERRI);
 					
 				USB_HOST_AutoVBUS_Off();				
@@ -90,9 +109,14 @@ void USB_HostTask(void)
 			}
 			
 			break;
-		case HOST_STATE_Attached:
-			
+		case HOST_STATE_Powered:
 		
+			break;
+		case HOST_STATE_Configured:
+			
+			break;
+		case HOST_STATE_Suspended:
+			
 			break;
 	}
 }

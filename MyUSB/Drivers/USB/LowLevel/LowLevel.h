@@ -146,5 +146,6 @@
 		void USB_Init(const uint8_t Mode, const uint8_t Options);
 		void USB_ShutDown(void);
 		bool USB_SetupInterface(void);
+		bool USB_HostWaitMS(uint8_t MS);
 
 #endif
