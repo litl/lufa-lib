@@ -13,6 +13,7 @@
 
 	/* Includes: */
 		#include "../../../Common/Common.h"
+		#include "../../../Common/FunctionAttributes.h"
 
 	/* Public Macros */
 		#define USB_HOST_AUTOVBUS             (0 << 1)
@@ -52,5 +53,49 @@
 		#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON  &= ~(1 << SOFEN);   }MACROE 
 
 		#define USB_HOST_ResetDevice()             MACROS{ UHCON  |= (1 << RESET);     }MACROE 
+
+	/* Inline Functions */
+		static inline uint8_t USB_Host_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
+		static inline uint8_t USB_Host_Read_Byte(void)
+		{
+			return UPDATX;
+		}
+
+		static inline void USB_Host_Write_Byte(uint8_t Byte)
+		{
+			UPDATX = Byte;
+		}
+
+		static inline void USB_Host_Ignore_Byte(void)
+		{
+			volatile uint8_t Dummy;
+			
+			Dummy = UPDATX;
+		}
+		
+		static inline uint16_t USB_Host_Read_Word(void) ATTR_WARN_UNUSED_RESULT;
+		static inline uint16_t USB_Host_Read_Word(void)
+		{
+			uint16_t Data;
+			
+			Data  = UPDATX;
+			Data |= (((uint16_t)UPDATX) << 8);
+		
+			return Data;
+		}
+
+		static inline void USB_Host_Write_Word(uint16_t Byte)
+		{
+			UPDATX = (Byte & 0xFF);
+			UPDATX = (Byte >> 8);
+		}
+		
+		static inline void USB_Host_Ignore_Word(void)
+		{
+			volatile uint8_t Dummy;
+			
+			Dummy = UPDATX;
+			Dummy = UPDATX;
+		}
 
 #endif

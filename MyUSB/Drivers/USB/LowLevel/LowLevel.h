@@ -89,50 +89,7 @@
 		extern volatile uint8_t USB_CurrentMode;
 		extern          uint8_t USB_Options;
 	
-	/* Inline Functions */
-		static inline uint8_t USB_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
-		static inline uint8_t USB_Read_Byte(void)
-		{
-			return UEDATX;
-		}
-
-		static inline void USB_Write_Byte(uint8_t Byte)
-		{
-			UEDATX = Byte;
-		}
-
-		static inline void USB_Ignore_Byte(void)
-		{
-			volatile uint8_t Dummy;
-			
-			Dummy = UEDATX;
-		}
-		
-		static inline uint16_t USB_Read_Word(void) ATTR_WARN_UNUSED_RESULT;
-		static inline uint16_t USB_Read_Word(void)
-		{
-			uint16_t Data;
-			
-			Data  = UEDATX;
-			Data |= (((uint16_t)UEDATX) << 8);
-		
-			return Data;
-		}
-
-		static inline void USB_Write_Word(uint16_t Byte)
-		{
-			UEDATX = (Byte & 0xFF);
-			UEDATX = (Byte >> 8);
-		}
-		
-		static inline void USB_Ignore_Word(void)
-		{
-			volatile uint8_t Dummy;
-			
-			Dummy = UEDATX;
-			Dummy = UEDATX;
-		}
-		
+	/* Inline Functions */		
 		static inline uint8_t USB_GetUSBModeFromUID(void) ATTR_WARN_UNUSED_RESULT;
 		static inline uint8_t USB_GetUSBModeFromUID(void)
 		{

@@ -56,12 +56,12 @@
 		#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X  &= ~(1 << ALLOC);             }MACROE
 		#define Pipe_EnablePipe()              MACROS{ UPCONX   |=  (1 << PEN);               }MACROE
 		#define Pipe_DisablePipe()             MACROS{ UPCONX   &= ~(1 << PEN);               }MACROE
-		#define Pipe_IsEnabled()                       (UPCONX  &   (1 << PEN))
+		#define Pipe_IsEnabled()                      (UPCONX   &   (1 << PEN))
 		
 		#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
 											   MACROS{ Pipe_ConfigurePipe_PRV(num,       \
 														                  ((type << PTYPE0) | (token << PTOKEN0) | ((epnum & ENDPOINT_EPNUM_MASK) << PEPNUM0)),   \
-																		  ((Pipe_BytesToEPSizeMask(size) << EPSIZE0) | banks)) }MACROE
+																		  ((Pipe_BytesToEPSizeMask(size) << EPSIZE0) | banks)); }MACROE
 		#define Pipe_IsConfigured()                    ((UPSTAX & (1 << CFGOK)) ? PIPE_CONFIG_OK : PIPE_CONFIG_FAIL)
 		#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG1X = ms                           }MACROE
 		#define Pipe_GetPipeInterrupts()               UPINT

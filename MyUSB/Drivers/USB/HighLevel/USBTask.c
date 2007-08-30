@@ -77,6 +77,7 @@ void USB_HostTask(void)
 				USB_EVENT_OnUSBConnect();
 				
 				USB_HOST_SOFGeneration_Enable();
+				
 				if (USB_HostWaitMS(100) == false)
 				{
 					USB_HostState = HOST_STATE_Unattached;
@@ -110,6 +111,19 @@ void USB_HostTask(void)
 			
 			break;
 		case HOST_STATE_Powered:
+			USB_HostWaitMS(100);
+
+			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
+		                       PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
+							   PIPE_CONTROLPIPE_SIZE, PIPE_BANK_SINGLE);
+
+			USB_HostState = HOST_STATE_Addressed;
+		
+			break;
+		case HOST_STATE_Default:
+
+			break;
+		case HOST_STATE_Addressed:
 		
 			break;
 		case HOST_STATE_Configured:
