@@ -41,7 +41,7 @@
 				Header:                 {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
 				TotalConfigurationSize: (  sizeof(USB_Descriptor_Configuration_Header_t)
-				                         + sizeof(USB_Descriptor_Interface_t)            ),
+				                         + sizeof(USB_Descriptor_Interface_t)           ),
 				TotalInterfaces:        1,
 				
 				ConfigurationNumber:    1,

@@ -47,7 +47,7 @@ void USB_DeviceTask(void)
 		Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 
 		if (USB_IsSetupRecieved())
-		  USB_ProcessControlPacket();
+		  USB_DEVC9_ProcessControlPacket();
 	}
 }
 
@@ -78,7 +78,7 @@ void USB_HostTask(void)
 				
 				USB_HOST_SOFGeneration_Enable();
 				
-				if (USB_HostWaitMS(100) == false)
+				if (USB_Host_WaitMS(100) == false)
 				{
 					USB_HostState = HOST_STATE_Unattached;
 					break;
@@ -89,7 +89,7 @@ void USB_HostTask(void)
 
 				while (!(USB_INT_OCCURRED(USB_INT_RSTI)));
 				
-				if (USB_HostWaitMS(100) == false)
+				if (USB_Host_WaitMS(100) == false)
 				{
 					USB_HostState = HOST_STATE_Unattached;
 					break;
@@ -111,16 +111,23 @@ void USB_HostTask(void)
 			
 			break;
 		case HOST_STATE_Powered:
-			USB_HostWaitMS(100);
+			USB_Host_WaitMS(100);
 
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
 		                       PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 							   PIPE_CONTROLPIPE_SIZE, PIPE_BANK_SINGLE);
 
-			USB_HostState = HOST_STATE_Addressed;
+			USB_HostState = HOST_STATE_Default;
 		
 			break;
 		case HOST_STATE_Default:
+			HostRequest.bmRequestType = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
+			HostRequest.bRequest      = REQ_GetDescriptor;
+			HostRequest.wValue        = (DTYPE_Device << 8);
+			HostRequest.wIndex        = 0;
+			HostRequest.wLength       = 64;
+			
+			USB_Host_SendControlRequest(NULL);
 
 			break;
 		case HOST_STATE_Addressed:

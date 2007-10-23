@@ -15,7 +15,6 @@
 		#include <avr/io.h>
 		
 		#include "../LowLevel/LowLevel.h"
-		#include "../LowLevel/Endpoint.h"
 		#include "../../../Common/Common.h"
 		
 	/* Private Macros */

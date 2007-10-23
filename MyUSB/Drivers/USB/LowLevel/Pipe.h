@@ -65,6 +65,9 @@
 		#define Pipe_IsConfigured()                    ((UPSTAX & (1 << CFGOK)) ? PIPE_CONFIG_OK : PIPE_CONFIG_FAIL)
 		#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG1X = ms                           }MACROE
 		#define Pipe_GetPipeInterrupts()               UPINT
+		#define Pipe_SendPipeData()            MACROS{ UPINTX &= ~(1 << FIFOCON);             }MACROE
+		#define Pipe_Unfreeze()                MACROS{ UPCONX &= ~(1 << PFREEZE);             }MACROE
+		#define Pipe_Freeze()                  MACROS{ UPCONX |=  (1 << PFREEZE);             }MACROE
 
 	/* Inline Functions */
 		static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes)

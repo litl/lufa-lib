@@ -12,8 +12,12 @@
 #define HOST_H
 
 	/* Includes: */
+		#include <avr/io.h>
+		#include <stdbool.h>
+
 		#include "../../../Common/Common.h"
 		#include "../../../Common/FunctionAttributes.h"
+		#include "../HighLevel/USBInterrupt.h"
 
 	/* Public Macros */
 		#define USB_HOST_AUTOVBUS             (0 << 1)
@@ -97,5 +101,8 @@
 			Dummy = UPDATX;
 			Dummy = UPDATX;
 		}
+
+	/* Function Prototypes */
+		bool USB_Host_WaitMS(uint8_t MS);
 
 #endif

@@ -108,11 +108,7 @@ ISR(USB_GEN_vect)
 
 void USB_INT_DisableAllInterrupts(void)
 {
-	USB_INT_DISABLE(USB_INT_IDTI);
-	USB_INT_DISABLE(USB_INT_VBUS);
-
 	UHIEN  = 0;
 	UDIEN  = 0;
 	OTGIEN = 0;
-	USBCON = 0;
 }

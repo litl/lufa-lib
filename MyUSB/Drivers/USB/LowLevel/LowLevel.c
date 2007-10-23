@@ -18,6 +18,9 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	if (USB_IsInitialized)
 	  USB_ShutDown();
 
+	USB_INT_DISABLE(USB_INT_IDTI);
+	USB_INT_DISABLE(USB_INT_VBUS);
+
 	if (Mode == USB_MODE_UID)
 	{
 		UHWCON |=  (1 << UIDE);
@@ -165,26 +168,4 @@ bool USB_SetupInterface(void)
 	USB_InitTaskPointer();
 
 	return USB_SETUPINTERFACE_OK;
-}
-
-bool USB_HostWaitMS(uint8_t MS)
-{
-	uint8_t MSRemaining = 100;
-				
-	while (MSRemaining)
-	{
-		if (USB_INT_OCCURRED(USB_INT_HSOFI))
-		{
-			USB_INT_CLEAR(USB_INT_HSOFI);
-						
-			MSRemaining--;
-		}
-					
-		if (USB_INT_OCCURRED(USB_INT_DDISCI) || USB_INT_OCCURRED(USB_INT_BCERRI))
-		{
-			return false;
-		}
-	}
-
-	return true;
 }

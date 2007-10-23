@@ -30,6 +30,19 @@
 		#define USB_CONFIG_ATTR_SELFPOWERED       0b11000000
 		#define USB_CONFIG_ATTR_REMOTEWAKEUP      0b10100000
 
+	/* Enums */
+		enum DescriptorTypes
+		{
+			DTYPE_Device            = 1,
+			DTYPE_Configuration     = 2,
+			DTYPE_String            = 3,
+			DTYPE_Interface         = 4,
+			DTYPE_Endpoint          = 5,
+			DTYPE_DeviceQualifier   = 6,
+			DTYPE_Other             = 7,
+			DTYPE_InterfacePower    = 8
+		};
+
 	/* Type Defines: */
 		typedef struct
 		{

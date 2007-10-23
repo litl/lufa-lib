@@ -16,10 +16,13 @@
 		#include <avr/interrupt.h>
 		#include <stdbool.h>
 
-		#include "Device.h"
 		#include "Host.h"
+		#include "Device.h"
 		#include "Endpoint.h"
-		#include "Chapter9.h"
+		#include "Pipe.h"
+		#include "HostChapter9.h"
+		#include "DevChapter9.h"
+		#include "../../../Configuration/USB/EventHooks.h"
 		#include "../HighLevel/USBInterrupt.h"
 		#include "../HighLevel/USBTask.h"
 		#include "../../../Common/FunctionAttributes.h"
@@ -103,6 +106,5 @@
 		void USB_Init(const uint8_t Mode, const uint8_t Options);
 		void USB_ShutDown(void);
 		bool USB_SetupInterface(void);
-		bool USB_HostWaitMS(uint8_t MS);
 
 #endif
