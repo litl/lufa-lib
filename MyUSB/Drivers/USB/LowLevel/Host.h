@@ -65,7 +65,7 @@
 			return UPDATX;
 		}
 
-		static inline void USB_Host_Write_Byte(uint8_t Byte)
+		static inline void USB_Host_Write_Byte(const uint8_t Byte)
 		{
 			UPDATX = Byte;
 		}
@@ -88,7 +88,7 @@
 			return Data;
 		}
 
-		static inline void USB_Host_Write_Word(uint16_t Byte)
+		static inline void USB_Host_Write_Word(const uint16_t Byte)
 		{
 			UPDATX = (Byte & 0xFF);
 			UPDATX = (Byte >> 8);

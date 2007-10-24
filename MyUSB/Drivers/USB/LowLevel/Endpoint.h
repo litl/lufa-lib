@@ -15,6 +15,7 @@
 		#include <avr/io.h>
 		#include <stdbool.h>
 
+		#include "../../../Common/FunctionAttributes.h"
 		#include "../../../Common/Common.h"
 
 	/* Public Macros: */
@@ -71,6 +72,7 @@
 		#define Endpoint_IsConfigured()            ((UESTA0X & (1 << CFGOK)) ? ENDPOINT_CONFIG_OK : ENDPOINT_CONFIG_FAIL)
 
 	/* Inline Functions */
+		static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes) ATTR_CONST;
 		static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)
 		{
 			if (Bytes <= 8)

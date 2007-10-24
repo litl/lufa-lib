@@ -15,6 +15,7 @@
 		#include <avr/io.h>
 		#include <stdbool.h>
 
+		#include "../../../Common/FunctionAttributes.h"
 		#include "../../../Common/Common.h"
 
 	/* Public Macros */
@@ -70,6 +71,7 @@
 		#define Pipe_Freeze()                  MACROS{ UPCONX |=  (1 << PFREEZE);             }MACROE
 
 	/* Inline Functions */
+		static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes) ATTR_CONST;
 		static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes)
 		{
 			if (Bytes <= 8)
@@ -93,6 +95,6 @@
 	/* Function Prototypes: */
 		bool    Pipe_ConfigurePipe_PRV(const uint8_t PipeNum, const uint8_t UPCFG0Xdata, const uint8_t UPCFG1Xdata);
 		void    Pipe_ClearPipes(void);
-		uint8_t Pipe_GetInterruptPipeNumber(void);
+		uint8_t Pipe_GetInterruptPipeNumber(void) ATTR_WARN_UNUSED_RESULT;
 
 #endif
