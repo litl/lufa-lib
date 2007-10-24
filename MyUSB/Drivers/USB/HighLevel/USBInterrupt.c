@@ -14,10 +14,10 @@ ISR(USB_GEN_vect)
 {
 	if (USB_INT_OCCURRED(USB_INT_VBUS) && USB_INT_ISENABLED(USB_INT_VBUS))
 	{
-		USB_EVENT_OnVBUSChange();
+		RAISE_EVENT(OnVBUSChange);
 
 		if (USB_VBUS_GetStatus())
-		  USB_EVENT_OnVBUSConnect();
+		  RAISE_EVENT(OnVBUSConnect);
 
 		if (!(USB_IsConnected) && USB_VBUS_GetStatus() && USB_IsInitialized)
 		{
@@ -25,7 +25,7 @@ ISR(USB_GEN_vect)
 			{
 				USB_IsConnected = true;
 				
-				USB_EVENT_OnUSBConnect();
+				RAISE_EVENT(OnUSBConnect);
 			}
 		}
 		else
@@ -36,7 +36,7 @@ ISR(USB_GEN_vect)
 				USB_CLK_Unfreeze();
 			}
 			
-			USB_EVENT_OnVBUSDisconnect();
+			RAISE_EVENT(OnVBUSDisconnect);
 		
 			USB_IsConnected = false;
 		}
@@ -53,7 +53,7 @@ ISR(USB_GEN_vect)
 		USB_INT_DISABLE(USB_INT_SUSPEND);
 		USB_INT_ENABLE(USB_INT_WAKEUP);
 		
-		USB_EVENT_OnSuspend();
+		RAISE_EVENT(OnSuspend);
 	}
 
 	if (USB_INT_OCCURRED(USB_INT_WAKEUP) && USB_INT_ISENABLED(USB_INT_WAKEUP))
@@ -66,7 +66,7 @@ ISR(USB_GEN_vect)
 		USB_INT_DISABLE(USB_INT_WAKEUP);
 		USB_INT_ENABLE(USB_INT_SUSPEND);
 		
-		USB_EVENT_OnWakeUp();
+		RAISE_EVENT(OnWakeUp);
 	}
    
 	if (USB_INT_OCCURRED(USB_INT_EORSTI) && USB_INT_ISENABLED(USB_INT_EORSTI))
@@ -82,13 +82,13 @@ ISR(USB_GEN_vect)
 		                           ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
 		                           ENDPOINT_BANK_SINGLE);
 
-		USB_EVENT_OnReset();
+		RAISE_EVENT(OnReset);
 	}
 	
 	if (USB_INT_OCCURRED(USB_INT_IDTI) && USB_INT_ISENABLED(USB_INT_IDTI))
 	{		
-		USB_EVENT_OnUIDChange();
-		USB_EVENT_OnUSBDisconnect();
+		RAISE_EVENT(OnUIDChange);
+		RAISE_EVENT(OnUSBDisconnect);
 
 		USB_INT_CLEAR(USB_INT_IDTI);
 		
@@ -98,7 +98,7 @@ ISR(USB_GEN_vect)
 	if (USB_INT_OCCURRED(USB_INT_DDISCI) && USB_INT_ISENABLED(USB_INT_DDISCI))
 	{
 		USB_IsConnected = false;
-		USB_EVENT_OnUSBDisconnect();
+		RAISE_EVENT(OnUSBDisconnect);
 
 		USB_INT_CLEAR(USB_INT_DDISCI);
 

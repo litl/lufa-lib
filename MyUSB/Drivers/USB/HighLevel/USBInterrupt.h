@@ -15,6 +15,7 @@
 		#include <avr/io.h>
 		
 		#include "../LowLevel/LowLevel.h"
+		#include "../HighLevel/Events.h"
 		#include "../../../Common/Common.h"
 		
 	/* Private Macros */
@@ -42,6 +43,15 @@
 		#define USB_INT_SOFI                             UDIEN,  (1 << SOFE)   , UDINT , (1 << SOFI)
 		#define USB_INT_HSOFI                            UHIEN,  (1 << HSOFE)  , UHINT , (1 << HSOFI)
 		#define USB_INT_RSTI                             UHIEN , (1 << RSTE)   , UHINT , (1 << RSTI)
+
+	/* Throwable Events */
+		RAISES_EVENT(OnVBUSChange);
+		RAISES_EVENT(OnVBUSConnect);
+		RAISES_EVENT(OnVBUSDisconnect);
+		RAISES_EVENT(OnSuspend);
+		RAISES_EVENT(OnWakeUp);
+		RAISES_EVENT(OnReset);
+		RAISES_EVENT(OnUIDChange);
 
 	/* Function Prototypes */
 		void USB_INT_DisableAllInterrupts(void);

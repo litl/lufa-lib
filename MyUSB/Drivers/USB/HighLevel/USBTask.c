@@ -74,7 +74,7 @@ void USB_HostTask(void)
 				USB_INT_ENABLE(USB_INT_DDISCI);
 
 				USB_IsConnected = true;
-				USB_EVENT_OnUSBConnect();
+				RAISE_EVENT(OnUSBConnect);
 				
 				USB_HOST_SOFGeneration_Enable();
 				
@@ -100,7 +100,7 @@ void USB_HostTask(void)
 			else if (USB_INT_OCCURRED(USB_INT_BCERRI) || USB_INT_OCCURRED(USB_INT_VBERRI))
 			{
 				if (USB_INT_OCCURRED(USB_INT_VBERRI))
-				  USB_EVENT_HostError(HOST_ERROR_VBusVoltageDip);
+				  RAISE_EVENT(HostError, HOST_ERROR_VBusVoltageDip);
 			
 				USB_INT_CLEAR(USB_INT_VBERRI);
 					

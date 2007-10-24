@@ -22,7 +22,7 @@
 		#include "Pipe.h"
 		#include "HostChapter9.h"
 		#include "DevChapter9.h"
-		#include "../../../Configuration/USB/EventHooks.h"
+		#include "../HighLevel/Events.h"
 		#include "../HighLevel/USBInterrupt.h"
 		#include "../HighLevel/USBTask.h"
 		#include "../../../Common/FunctionAttributes.h"
@@ -82,11 +82,15 @@
 		#define USB_Interface_IsEnabled()          (USBCON &   (1 << USBE))
 	
 	/* Enums */
-		enum PowerOnErrorCodes
+		enum USB_PowerOnErrorCodes
 		{
 			POWERON_ERR_NoUSBModeSpecified      = 0,
 			POWERON_ERR_EndpointCreationFailed  = 1,
 		};
+	
+	/* Throwable Events */
+		RAISES_EVENT(OnUSBDisconnect);
+		RAISES_EVENT(PowerOnFail);
 	
 	/* External Variables */
 		extern volatile uint8_t USB_CurrentMode;

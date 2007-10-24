@@ -17,7 +17,6 @@
 		
 		#include "../../../Configuration/USB/Device/Descriptors.h"
 		#include "../../../Configuration/USB/Device/UserDeviceRoutines.h"
-		#include "../../../Configuration/USB/EventHooks.h"
 		#include "LowLevel.h"
 		#include "StdRequestType.h"
 

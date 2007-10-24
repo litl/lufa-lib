@@ -15,6 +15,7 @@
 		#include <avr/io.h>
 		#include <stdbool.h>
 		
+		#include "../HighLevel/Events.h"
 		#include "../../../Scheduler/Scheduler.h"
 		#include "../LowLevel/LowLevel.h"
 		
@@ -23,6 +24,10 @@
 		extern volatile bool    USB_IsInitialized;
 		extern volatile uint8_t USB_HostState;
 
+	/* Throwable Events */
+		RAISES_EVENT(OnUSBConnect);
+		RAISES_EVENT(HostError);
+		
 	/* Function Prototypes */
 		void USB_USBTask(void);
 		void USB_InitTaskPointer(void);

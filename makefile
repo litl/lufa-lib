@@ -81,6 +81,7 @@ OBJDIR = .
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                     \
+	  TestEvents.c                                    \
 	  MyUSB/Scheduler/Scheduler.c                     \
 	  MyUSB/Drivers/USBKEY/Temperature.c              \
 	  MyUSB/Drivers/USB1287/ADC.c                     \
@@ -93,6 +94,7 @@ SRC = $(TARGET).c                                     \
 	  MyUSB/Drivers/USB/LowLevel/Host.c               \
 	  MyUSB/Drivers/USB/HighLevel/USBTask.c           \
 	  MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
+	  MyUSB/Drivers/USB/HighLevel/Events.c            \
 	  MyUSB/Configuration/USB/Device/Descriptors.c    \
 	  MyUSB/Configuration/USB/Device/UserDeviceRoutines.c
 	  

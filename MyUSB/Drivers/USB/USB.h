@@ -19,6 +19,6 @@
 		#include "LowLevel/HostChapter9.h"
 		#include "HighLevel/USBTask.h"
 		#include "HighLevel/USBInterrupt.h"
-		#include "../../Configuration/USB/EventHooks.h"
+		#include "HighLevel/Events.h"
 
 #endif
