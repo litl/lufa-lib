@@ -16,12 +16,16 @@
 		#include <avr/pgmspace.h>
 		
 		#include "../../../Configuration/USB/Device/Descriptors.h"
-		#include "../../../Configuration/USB/Device/UserDeviceRoutines.h"
+		#include "../HighLevel/Events.h"
 		#include "LowLevel.h"
 		#include "StdRequestType.h"
 
 	/* External Variables */
 		extern uint8_t USB_ConfigurationNumber;
+
+	/* Throwable Events */
+		RAISES_EVENT(USB_UnhandledControlPacket);
+		RAISES_EVENT(USB_CreateEndpoints);
 
 	/* Function Prototypes */
 		void USB_DEVC9_ProcessControlPacket(void);

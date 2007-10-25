@@ -60,7 +60,7 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 void USB_ShutDown(void)
 {
 	if (USB_IsConnected)
-	  RAISE_EVENT(OnUSBDisconnect);
+	  RAISE_EVENT(USB_Disconnect);
 
 	USB_INT_DisableAllInterrupts();
 	Endpoint_ClearEndpoints();
@@ -93,7 +93,7 @@ bool USB_SetupInterface(void)
 	USB_ConfigurationNumber = 0;
 	
 	if (USB_IsConnected)
-	  RAISE_EVENT(OnUSBDisconnect);
+	  RAISE_EVENT(USB_Disconnect);
 	
 	USB_HOST_VBUS_Off();
 	USB_HOST_AutoVBUS_Off();
@@ -114,7 +114,7 @@ bool USB_SetupInterface(void)
 	  
 	if (USB_CurrentMode == USB_MODE_NONE)
 	{
-		RAISE_EVENT(PowerOnFail, POWERON_ERR_NoUSBModeSpecified);
+		RAISE_EVENT(USB_PowerOnFail, POWERON_ERR_NoUSBModeSpecified);
 		return USB_SETUPINTERFACE_FAIL;
 	}
 	else if (USB_CurrentMode == USB_MODE_DEVICE)
@@ -146,7 +146,7 @@ bool USB_SetupInterface(void)
 		}
 		else
 		{
-			RAISE_EVENT(PowerOnFail, POWERON_ERR_EndpointCreationFailed);
+			RAISE_EVENT(USB_PowerOnFail, POWERON_ERR_EndpointCreationFailed);
 			return USB_SETUPINTERFACE_FAIL;
 		}
 

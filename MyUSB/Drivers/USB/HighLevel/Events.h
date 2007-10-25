@@ -11,58 +11,69 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
+	// Includes:
+	#include <avr/io.h>
+
 	// Event Defines:
-	#define RAISE_EVENT(e, ...)    Event_ ## e (__VA_ARGS__)
-	#define EVENT_HANDLER(e)       void e
-	#define RAISES_EVENT(e)        void e
-	#define HANDLES_EVENT(e)       void e e ## _M
-	#define ALIAS_STUB(e)          void e __attribute__((weak, alias("__stub")))
+	#define RAISE_EVENT(e, ...)           Event_ ## e (__VA_ARGS__)
+	#define EVENT_HANDLER(e)              void _GETEVENT(e)
+	#define RAISES_EVENT(e)               void _GETEVENT(e)
+	#define HANDLES_EVENT(e)              void _GETEVENT(e) e ## _M
+	#define ALIAS_STUB(e)                 void _GETEVENT(e) __attribute__((weak, alias("__stub")))
+
+	#define _GETEVENT(e)                  Event_ ## e
 
 	// Event Modifiers:
-	#define DEPRECATED             __attribute__((deprecated))
+	#define DEPRECATED                    __attribute__((deprecated))
  	#define NO_MODIFIER
 
 	// Event Prototypes:
-	#define OnVBUSChange	       Event_OnVBUSChange (void)
-	#define OnVBUSConnect          Event_OnVBUSConnect (void)
-	#define OnVBUSDisconnect       Event_OnVBUSDisconnect (void)
-	#define OnUSBConnect           Event_OnUSBConnect (void)
-	#define OnUSBDisconnect        Event_OnUSBDisconnect (void)
-	#define OnSuspend              Event_OnSuspend (void)
-	#define OnWakeUp               Event_OnWakeUp (void)
-	#define OnReset                Event_OnReset (void)
-	#define OnUIDChange            Event_OnUIDChange (void)
-	#define PowerOnFail            Event_PowerOnFail (unsigned char ErrorCode)
-	#define HostError              Event_HostError (unsigned char ErrorCode)
+	#define USB_VBUSChange	              USB_VBUSChange (void)
+	#define USB_VBUSConnect               USB_VBUSConnect (void)
+	#define USB_VBUSDisconnect            USB_VBUSDisconnect (void)
+	#define USB_Connect                   USB_Connect (void)
+	#define USB_Disconnect                USB_Disconnect (void)
+	#define USB_Suspend                   USB_Suspend (void)
+	#define USB_WakeUp                    USB_WakeUp (void)
+	#define USB_Reset                     USB_Reset (void)
+	#define USB_UIDChange                 USB_UIDChange (void)
+	#define USB_PowerOnFail               USB_PowerOnFail (const unsigned char ErrorCode)
+	#define USB_HostError                 USB_HostError (const unsigned char ErrorCode)
+	#define USB_UnhandledControlPacket    USB_UnhandledControlPacket (const uint8_t Request, const uint8_t RequestType)
+	#define USB_CreateEndpoints           USB_CreateEndpoints (void)
 
 	// Event Modifiers:
-	#define OnVBUSChange_M	       NO_MODIFIER
-	#define OnVBUSConnect_M        NO_MODIFIER
-	#define OnVBUSDisconnect_M     NO_MODIFIER
-	#define OnUSBConnect_M         NO_MODIFIER
-	#define OnUSBDisconnect_M      NO_MODIFIER
-	#define OnSuspend_M            NO_MODIFIER
-	#define OnWakeUp_M             NO_MODIFIER
-	#define OnReset_M              NO_MODIFIER
-	#define OnUIDChange_M          NO_MODIFIER
-	#define PowerOnFail_M          NO_MODIFIER
-	#define HostError_M            NO_MODIFIER
+	#define USB_VBUSChange_M	          NO_MODIFIER
+	#define USB_VBUSConnect_M             NO_MODIFIER
+	#define USB_VBUSDisconnect_M          NO_MODIFIER
+	#define USB_Connect_M                 NO_MODIFIER
+	#define USB_Disconnect_M              NO_MODIFIER
+	#define USB_Suspend_M                 NO_MODIFIER
+	#define USB_WakeUp_M                  NO_MODIFIER
+	#define USB_Reset_M                   NO_MODIFIER
+	#define USB_UIDChange_M               NO_MODIFIER
+	#define USB_PowerOnFail_M             NO_MODIFIER
+	#define USB_HostError_M               NO_MODIFIER
+	#define USB_UnhandledControlPacket_M  NO_MODIFIER
+	#define USB_CreateEndpoints_M         NO_MODIFIER
 
 	// Events File Prototypes:
 	#ifdef INCLUDE_FROM_EVENTS_H
 		static void __stub (void);
 
-		ALIAS_STUB(OnVBUSChange);
-		ALIAS_STUB(OnVBUSConnect);
-		ALIAS_STUB(OnVBUSDisconnect);
-		ALIAS_STUB(OnUSBConnect);
-		ALIAS_STUB(OnUSBDisconnect);
-		ALIAS_STUB(OnSuspend);
-		ALIAS_STUB(OnWakeUp);
-		ALIAS_STUB(OnReset);
-		ALIAS_STUB(OnUIDChange);
-		ALIAS_STUB(PowerOnFail);
-		ALIAS_STUB(HostError);
+		ALIAS_STUB(USB_VBUSChange);
+		ALIAS_STUB(USB_VBUSConnect);
+		ALIAS_STUB(USB_VBUSDisconnect);
+		ALIAS_STUB(USB_Connect);
+		ALIAS_STUB(USB_Disconnect);
+		ALIAS_STUB(USB_Suspend);
+		ALIAS_STUB(USB_WakeUp);
+		ALIAS_STUB(USB_Reset);
+		ALIAS_STUB(USB_UIDChange);
+		ALIAS_STUB(USB_PowerOnFail);
+		ALIAS_STUB(USB_HostError);
+		ALIAS_STUB(USB_UnhandledControlPacket);
+		ALIAS_STUB(USB_CreateEndpoints);
 	#endif
 
 #endif

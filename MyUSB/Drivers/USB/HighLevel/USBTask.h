@@ -25,8 +25,8 @@
 		extern volatile uint8_t USB_HostState;
 
 	/* Throwable Events */
-		RAISES_EVENT(OnUSBConnect);
-		RAISES_EVENT(HostError);
+		RAISES_EVENT(USB_Connect);
+		RAISES_EVENT(USB_HostError);
 		
 	/* Function Prototypes */
 		void USB_USBTask(void);

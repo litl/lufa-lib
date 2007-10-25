@@ -45,13 +45,13 @@
 		#define USB_INT_RSTI                             UHIEN , (1 << RSTE)   , UHINT , (1 << RSTI)
 
 	/* Throwable Events */
-		RAISES_EVENT(OnVBUSChange);
-		RAISES_EVENT(OnVBUSConnect);
-		RAISES_EVENT(OnVBUSDisconnect);
-		RAISES_EVENT(OnSuspend);
-		RAISES_EVENT(OnWakeUp);
-		RAISES_EVENT(OnReset);
-		RAISES_EVENT(OnUIDChange);
+		RAISES_EVENT(USB_VBUSChange);
+		RAISES_EVENT(USB_VBUSConnect);
+		RAISES_EVENT(USB_VBUSDisconnect);
+		RAISES_EVENT(USB_Suspend);
+		RAISES_EVENT(USB_WakeUp);
+		RAISES_EVENT(USB_Reset);
+		RAISES_EVENT(USB_UIDChange);
 
 	/* Function Prototypes */
 		void USB_INT_DisableAllInterrupts(void);

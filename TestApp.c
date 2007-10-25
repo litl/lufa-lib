@@ -73,51 +73,41 @@ TASK(TestApp_CheckJoystick)
 
 TASK(TestApp_CheckHWB)
 {
-	static SchedulerDelayCounter_t LastTick;
-	static uint8_t                 ConsecutiveTicks;
+	static SchedulerDelayCounter_t DelayCounter;
 	static bool                    IsPressed;
 	static bool                    BlockingJoystickTask;
 	
 	if (HWB_GetStatus() == true)
 	{
-		if (IsPressed == false)
+		if ((IsPressed == false) && (Scheduler_HasDelayElapsed(100, &DelayCounter)))
 		{
-			if (Scheduler_TickCounter != LastTick)
+			IsPressed = true;
+				   
+			if (BlockingJoystickTask == false)
 			{
-				ConsecutiveTicks++;
-				LastTick = Scheduler_TickCounter;
+				Scheduler_SetTaskMode(TestApp_CheckJoystick_ID, TASK_STOP);
+				BlockingJoystickTask = true;
 			}
 
-			if (ConsecutiveTicks == 100)
+			if (USB_IsInitialized == true)
 			{
-				IsPressed = true;
-				
-				if (BlockingJoystickTask == false)
-				{
-					Scheduler_SetTaskMode(TestApp_CheckJoystick_ID, TASK_STOP);
-					BlockingJoystickTask = true;
-				}
+				USB_ShutDown();
 
-				if (USB_IsInitialized == true)
-				{
-					USB_ShutDown();
-
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					printf("USB Power Off.\r\n");
-				}
-				else
-				{
-					Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
-					printf("USB Power On.\r\n");
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				printf("USB Power Off.\r\n");
+			}
+			else
+			{
+				Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+				printf("USB Power On.\r\n");
 				
-					USB_Init(USB_MODE_UID, USB_HOST_AUTOVBUS | USB_DEV_HIGHSPEED);
-				}
+				USB_Init(USB_MODE_UID, USB_HOST_AUTOVBUS | USB_DEV_HIGHSPEED);
 			}
 		}
 	}
-	else
-	{
-		ConsecutiveTicks = 0;
-		IsPressed        = false;
+    else
+    {
+		Scheduler_ResetDelay(&DelayCounter);
+		IsPressed = false;
 	}
 }

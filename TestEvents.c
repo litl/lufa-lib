@@ -5,59 +5,59 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the GPL Licence, VersiUSB_ 3
 */
 
 #include "TestEvents.h"
 
-EVENT_HANDLER(OnVBUSChange)
+EVENT_HANDLER(USB_VBUSChange)
 {
 	printf("EVENT: VBus !=\r\n");
 }
 
-EVENT_HANDLER(OnVBUSConnect)
+EVENT_HANDLER(USB_VBUSConnect)
 {
 	printf("EVENT: VBus +\r\n");
 }
 
-EVENT_HANDLER(OnVBUSDisconnect)
+EVENT_HANDLER(USB_VBUSDisconnect)
 {
 	printf("EVENT: VBus -\r\n");
 }
 
-EVENT_HANDLER(OnUSBConnect)
+EVENT_HANDLER(USB_Connect)
 {
 	printf("EVENT: USB  +\r\n");
 }
 
-EVENT_HANDLER(OnUSBDisconnect)
+EVENT_HANDLER(USB_Disconnect)
 {
 	printf("EVENT: USB  -\r\n");
 }
 
-EVENT_HANDLER(OnSuspend)
+EVENT_HANDLER(USB_Suspend)
 {
 	printf("EVENT: USB Sleep\r\n");
 }
 
-EVENT_HANDLER(OnWakeUp)
+EVENT_HANDLER(USB_WakeUp)
 {
 	printf("EVENT: USB Wakeup\r\n");
 }
 
-EVENT_HANDLER(OnReset)
+EVENT_HANDLER(USB_Reset)
 {
 	printf("EVENT: USB Reset\r\n");
 }
 
-EVENT_HANDLER(OnUIDChange)
+EVENT_HANDLER(USB_UIDChange)
 {
 	printf("EVENT: UID Change\r\n");
 }
 
-EVENT_HANDLER(PowerOnFail)
+EVENT_HANDLER(USB_PowerOnFail)
 {
-	printf("EVENT: Power on fail\r\n");
+	printf("EVENT: Power USB_ fail\r\n");
 	
 	switch (USB_CurrentMode)
 	{
@@ -75,8 +75,15 @@ EVENT_HANDLER(PowerOnFail)
 	printf(" -- Error Code %d\r\n", ErrorCode);
 }
 
-EVENT_HANDLER(HostError)
+EVENT_HANDLER(USB_HostError)
 {
 	printf("EVENT: Host mode error\r\n");
 	printf(" -- Error Code %d\r\n", ErrorCode);
+}
+
+EVENT_HANDLER(USB_UnhandledControlPacket)
+{
+	printf("EVENT: Unhandled Ctrl Rqst\r\n");
+	printf(" -- Request data %d\r\n", Request);
+	printf(" -- Request type %d\r\n", RequestType);
 }

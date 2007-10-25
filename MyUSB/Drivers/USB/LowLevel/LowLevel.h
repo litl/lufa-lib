@@ -89,8 +89,8 @@
 		};
 	
 	/* Throwable Events */
-		RAISES_EVENT(OnUSBDisconnect);
-		RAISES_EVENT(PowerOnFail);
+		RAISES_EVENT(USB_Disconnect);
+		RAISES_EVENT(USB_PowerOnFail);
 	
 	/* External Variables */
 		extern volatile uint8_t USB_CurrentMode;

@@ -83,7 +83,7 @@ void USB_DEVC9_ProcessControlPacket(void)
 	}
 
 	if (RequestHandled == false)
-	  USB_User_ProcessControlPacket(Request, RequestType);
+	  RAISE_EVENT(USB_UnhandledControlPacket, Request, RequestType);
 	  
 	if (USB_IsSetupRecieved())
 	{
@@ -124,7 +124,7 @@ void USB_DEVC9_SetConfiguration(void)
 	USB_ClearSetupRecieved();
 	USB_In_Clear();
 
-	USB_User_CreateEndpoints();
+	RAISE_EVENT(USB_CreateEndpoints);
 }
 
 void USB_DEVC9_GetConfiguration(void)

@@ -58,7 +58,7 @@
 		{
 			Scheduler_TotalTasks = TotalTasks;
 		
-			while (1)
+			for (;;)
 			{
 				for (uint8_t CurrTask = 0; CurrTask < TotalTasks; CurrTask++)
 				{
