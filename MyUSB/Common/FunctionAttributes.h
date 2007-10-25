@@ -19,5 +19,8 @@
 		#define ATTR_NAKED                __attribute__ ((naked))
 		#define ATTR_PURE                 __attribute__ ((pure))
 		#define ATTR_CONST                __attribute__ ((const))
+		#define ATTR_DEPRECATED           __attribute__ ((deprecated))
+		#define ATTR_WEAK                 __attribute__ ((weak))
+		#define ATTR_ALIAS(x)             __attribute__ ((alias( #x )))
 		
 #endif

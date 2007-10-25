@@ -12,17 +12,17 @@
 
 EVENT_HANDLER(USB_VBUSChange)
 {
-	printf("EVENT: VBus !=\r\n");
+	printf("EVENT: VBUS Change\r\n");
 }
 
 EVENT_HANDLER(USB_VBUSConnect)
 {
-	printf("EVENT: VBus +\r\n");
+	printf("EVENT: VBUS +\r\n");
 }
 
 EVENT_HANDLER(USB_VBUSDisconnect)
 {
-	printf("EVENT: VBus -\r\n");
+	printf("EVENT: VBUS -\r\n");
 }
 
 EVENT_HANDLER(USB_Connect)
@@ -57,7 +57,7 @@ EVENT_HANDLER(USB_UIDChange)
 
 EVENT_HANDLER(USB_PowerOnFail)
 {
-	printf("EVENT: Power USB_ fail\r\n");
+	printf("EVENT: Power On Fail\r\n");
 	
 	switch (USB_CurrentMode)
 	{
@@ -83,7 +83,7 @@ EVENT_HANDLER(USB_HostError)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	printf("EVENT: Unhandled Ctrl Rqst\r\n");
+	printf("EVENT: Ctrl Request\r\n");
 	printf(" -- Request data %d\r\n", Request);
 	printf(" -- Request type %d\r\n", RequestType);
 }

@@ -24,9 +24,7 @@ bool USB_Host_WaitMS(uint8_t MS)
 		}
 					
 		if (USB_INT_OCCURRED(USB_INT_DDISCI) || USB_INT_OCCURRED(USB_INT_BCERRI))
-		{
 			return false;
-		}
 	}
 
 	return true;
