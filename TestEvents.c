@@ -87,3 +87,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	printf(" -- Request data %d\r\n", Request);
 	printf(" -- Request type %d\r\n", RequestType);
 }
+
+EVENT_HANDLER(USB_CreateEndpoints)
+{
+	printf("EVENT: Make Endpoints\r\n");
+}

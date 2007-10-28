@@ -30,5 +30,6 @@
 		HANDLES_EVENT(USB_PowerOnFail);
 		HANDLES_EVENT(USB_HostError);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
+		HANDLES_EVENT(USB_CreateEndpoints);
 
 #endif
