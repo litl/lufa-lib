@@ -17,7 +17,7 @@
 
    As a bonus, the default vector (called when an interrupt fires which does
    not have an associated ISR routine) is aliased here to a more descriptive
-   name - use the new name as you would a standard signal name.
+   name - use the new name BADISR_vect as you would a standard signal name.
    
    The new macro is backwards compatible with the original ISR macro.
    
@@ -35,39 +35,37 @@
 #ifndef ISRMACRO_H
 #define ISRMACRO_H
 
-   // If present, kill the current ISR macro:
-   #if defined(ISR)
-      #undef ISR
-   #endif
+	/* Preprocessor Checks and Defines */
+		#if defined(ISR)
+			#undef ISR
+		#endif
    
-   // The default vector is given a more descriptive alias here:
-   #define BADISR_vect __vector_default
-   
-   // Return from interrupt command, defined for convenience in ISR_NAKED routines:
-   #define reti() asm volatile ("RETI"::)
-   
-   // Internal macros:
-   #define __replace_and_string(name) #name
-   
-   // Definition of the attributes here, GCC version specific:
-   #if defined(__GNUC__) && (__GNUC__ > 3)
-      #define ISR_NOBLOCK    __attribute__((interrupt, used, externally_visible))
-      #define ISR_BLOCK      __attribute__((signal, used, externally_visible))
-      #define ISR_NAKED      __attribute__((signal, naked, used, externally_visible))
-      #define ISR_ALIASOF(v) __attribute__((alias(__replace_and_string(v)))) // GCC 4.2 and greater only!
-   #else
-      #define ISR_NOBLOCK   __attribute__((interrupt))
-      #define ISR_BLOCK     __attribute__((signal))
-      #define ISR_NAKED     __attribute__((signal, naked))
-   #endif
+	/* Public Interface - May be used in end-application: */
+		/* Macros */
+			#define BADISR_vect __vector_default
+			#define reti() asm volatile ("RETI"::)
 
-   // GCC 3.x compatible alias macro. Works with GCC 4.1 also:
-   #define ISR_ALIAS_COMPAT(vector, aliasof)      \
-      void vector (void) ISR_NAKED;               \
-      void vector (void) { asm volatile ("jmp " __replace_and_string(aliasof) ::); }
+			#if defined(__GNUC__) && (__GNUC__ > 3)
+				#define ISR_NOBLOCK    __attribute__((interrupt, used, externally_visible))
+				#define ISR_BLOCK      __attribute__((signal, used, externally_visible))
+				#define ISR_NAKED      __attribute__((signal, naked, used, externally_visible))
+				#define ISR_ALIASOF(v) __attribute__((alias(__replace_and_string(v)))) // GCC 4.2 and greater only!
+			#else
+				#define ISR_NOBLOCK   __attribute__((interrupt))
+				#define ISR_BLOCK     __attribute__((signal))
+				#define ISR_NAKED     __attribute__((signal, naked))
+			#endif
 
-   // New ISR macro definition:
-   #define ISR(vector, ...)                       \
-      void vector (void) ISR_BLOCK __VA_ARGS__;   \
-      void vector (void)
+			#define ISR_ALIAS_COMPAT(vector, aliasof)      \
+			   void vector (void) ISR_NAKED;               \
+			   void vector (void) { asm volatile ("jmp " __replace_and_string(aliasof) ::); }
+
+			#define ISR(vector, ...)                       \
+			   void vector (void) ISR_BLOCK __VA_ARGS__;   \
+			   void vector (void)
+			   
+	/* Private Interface - For use in library only: */
+		/* Macros */
+			#define __replace_and_string(name) #name
+ 
 #endif

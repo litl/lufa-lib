@@ -19,19 +19,23 @@
 		#include "../../../Scheduler/Scheduler.h"
 		#include "../LowLevel/LowLevel.h"
 		
-	/* External Variables */
-		extern volatile bool    USB_IsConnected;
-		extern volatile bool    USB_IsInitialized;
-		extern volatile uint8_t USB_HostState;
+	/* Public Interface - May be used in end-application: */
+		/* Global Variables */
+			extern volatile bool    USB_IsConnected;
+			extern volatile bool    USB_IsInitialized;
+			extern volatile uint8_t USB_HostState;
 
-	/* Throwable Events */
-		RAISES_EVENT(USB_Connect);
-		RAISES_EVENT(USB_HostError);
-		
-	/* Function Prototypes */
-		void USB_USBTask(void);
-		void USB_InitTaskPointer(void);
-		void USB_DeviceTask(void);
-		void USB_HostTask(void);
+		/* Throwable Events */
+			RAISES_EVENT(USB_Connect);
+			RAISES_EVENT(USB_HostError);
+
+		/* Tasks */
+			TASK(USB_USBTask);
+
+	/* Private Interface - For use in library only: */
+		/* Function Prototypes */
+			void USB_InitTaskPointer(void);
+			void USB_DeviceTask(void);
+			void USB_HostTask(void);
 
 #endif

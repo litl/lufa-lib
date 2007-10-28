@@ -20,21 +20,23 @@
 		#include "LowLevel.h"
 		#include "StdRequestType.h"
 
-	/* External Variables */
-		extern uint8_t USB_ConfigurationNumber;
+	/* Public Interface - May be used in end-application: */
+		/* Global Variables */
+			extern uint8_t USB_ConfigurationNumber;
 
-	/* Throwable Events */
-		RAISES_EVENT(USB_UnhandledControlPacket);
-		RAISES_EVENT(USB_CreateEndpoints);
+		/* Throwable Events */
+			RAISES_EVENT(USB_UnhandledControlPacket);
+			RAISES_EVENT(USB_CreateEndpoints);
 
-	/* Function Prototypes */
-		void USB_DEVC9_ProcessControlPacket(void);
-		void USB_DEVC9_SetAddress(void);
-		void USB_DEVC9_SetConfiguration(void);
-		void USB_DEVC9_GetConfiguration(void);
-		void USB_DEVC9_GetDescriptor(void);
-		void USB_DEVC9_GetStatus(const uint8_t RequestType);
-		void USB_DEVC9_SetFeature(const uint8_t RequestType);
-		void USB_DEVC9_ClearFeature(const uint8_t RequestType);
+	/* Private Interface - For use in library only: */	
+		/* Function Prototypes */
+			void USB_DEVC9_ProcessControlPacket(void);
+			void USB_DEVC9_SetAddress(void);
+			void USB_DEVC9_SetConfiguration(void);
+			void USB_DEVC9_GetConfiguration(void);
+			void USB_DEVC9_GetDescriptor(void);
+			void USB_DEVC9_GetStatus(const uint8_t RequestType);
+			void USB_DEVC9_SetFeature(const uint8_t RequestType);
+			void USB_DEVC9_ClearFeature(const uint8_t RequestType);
 		
 #endif

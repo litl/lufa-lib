@@ -15,13 +15,16 @@
 		#include <avr/io.h>
 		#include <stdio.h>
 
-    /* Private Macros */
-		#define SERIAL_UBBRVAL(baud)   (((F_CPU / (baud * 16UL))) - 1)
-	
-	/* Function Prototypes */
-		void Serial_Init(const uint16_t BaudRate);
+	/* Public Interface - May be used in end-application: */
+		/* Function Prototypes */
+			void Serial_Init(const uint16_t BaudRate);
+
+	/* Private Interface - For use in library only: */
+		/* Macros */
+			#define SERIAL_UBBRVAL(baud)   (((F_CPU / (baud * 16UL))) - 1)
 		
-	/* Private Functions */
-		int  Serial_TxByte(char DataByte, FILE *Stream);
-		int  Serial_RxByte(FILE *Stream);
+		/* Function Prototypes */
+			int  Serial_TxByte(char DataByte, FILE *Stream);
+			int  Serial_RxByte(FILE *Stream);
+
 #endif

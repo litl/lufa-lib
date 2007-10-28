@@ -17,16 +17,18 @@
 
 		#include "../../Common/FunctionAttributes.h"
 		
-	/* Inline Functions */
-		static inline void HWB_Init(void)
-		{
-			DDRE  &= ~(1 << 2);
-			PORTE |= (1 << 2);
-		}
+	/* Public Interface - May be used in end-application: */
+		/* Inline Functions */
+			static inline void HWB_Init(void)
+			{
+				DDRE  &= ~(1 << 2);
+				PORTE |= (1 << 2);
+			}
 
-		static inline bool HWB_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
-		static inline bool HWB_GetStatus(void)
-		{
-			return (!(PINE & (1 << 2)));
-		}
+			static inline bool HWB_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
+			static inline bool HWB_GetStatus(void)
+			{
+				return (!(PINE & (1 << 2)));
+			}
+			
 #endif

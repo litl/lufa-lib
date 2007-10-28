@@ -18,66 +18,64 @@
 		#include "../Common/Atomic.h"
 		#include "../Common/FunctionAttributes.h"
 
-	/* Public Macros */
-		#define TASK(name)                        void name (void)
-		#define TASK_LIST                         extern TaskEntry_t Scheduler_TaskList[]; TaskEntry_t Scheduler_TaskList[] = 
-		#define TASK_ID_LIST                      enum TaskIDs
-		
-		#define TASK_MAX_DELAY                    (MAX_DELAYCTR_COUNT - 1)
+	/* Public Interface - May be used in end-application: */
+		/* Macros */
+			#define TASK(name)                        void name (void)
+			#define TASK_LIST                         extern TaskEntry_t Scheduler_TaskList[]; TaskEntry_t Scheduler_TaskList[] = 
+			#define TASK_ID_LIST                      enum TaskIDs
+			
+			#define TASK_MAX_DELAY                    (MAX_DELAYCTR_COUNT - 1)
 
-		#define TASK_RUN                          true
-		#define TASK_STOP                         false
-		
-		#define Scheduler_Start()                 Scheduler_GoSchedule(TOTAL_TASKS);
-		
-	/* Private Macros */
-		#define TOTAL_TASKS                       (sizeof(Scheduler_TaskList) / sizeof(TaskEntry_t))
-		#define MAX_DELAYCTR_COUNT                0xFFFF
-		
-	/* Private Type Defines */
-		typedef void (*TaskPtr_t)(void);
+			#define TASK_RUN                          true
+			#define TASK_STOP                         false
+			
+			#define Scheduler_Start()                 Scheduler_GoSchedule(TOTAL_TASKS);
 
-	/* Public Type Defines */
-		typedef struct
-		{
-			uint8_t   TaskID;
-			TaskPtr_t TaskName;
-			bool      TaskStatus;
-		} TaskEntry_t;
-
-	/* Private Type Defines */
-		typedef uint16_t SchedulerDelayCounter_t;
-
-	/* External Variables */
-		extern          TaskEntry_t               Scheduler_TaskList[];
-		extern          uint8_t                   Scheduler_TotalTasks;
-		extern volatile SchedulerDelayCounter_t   Scheduler_TickCounter;
-	
-	/* Inline Functions */
-		static inline void Scheduler_GoSchedule(const uint8_t TotalTasks)
-		{
-			Scheduler_TotalTasks = TotalTasks;
-		
-			for (;;)
+		/* Type Defines */
+			typedef void (*TaskPtr_t)(void);
+			typedef uint16_t SchedulerDelayCounter_t;
+			typedef struct
 			{
-				for (uint8_t CurrTask = 0; CurrTask < TotalTasks; CurrTask++)
+				uint8_t   TaskID;
+				TaskPtr_t TaskName;
+				bool      TaskStatus;
+			} TaskEntry_t;			
+
+		/* Global Variables */
+			extern          TaskEntry_t               Scheduler_TaskList[];
+			extern          uint8_t                   Scheduler_TotalTasks;
+			extern volatile SchedulerDelayCounter_t   Scheduler_TickCounter;
+
+		/* Inline Functions */
+			static inline void Scheduler_GoSchedule(const uint8_t TotalTasks)
+			{
+				Scheduler_TotalTasks = TotalTasks;
+			
+				for (;;)
 				{
-					if (Scheduler_TaskList[CurrTask].TaskStatus == TASK_RUN)
-					  Scheduler_TaskList[CurrTask].TaskName();
+					for (uint8_t CurrTask = 0; CurrTask < TotalTasks; CurrTask++)
+					{
+						if (Scheduler_TaskList[CurrTask].TaskStatus == TASK_RUN)
+						  Scheduler_TaskList[CurrTask].TaskName();
+					}
 				}
 			}
-		}
 
-		static inline void Scheduler_ResetDelay(SchedulerDelayCounter_t* TaskCounter)
-		{
-			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+			static inline void Scheduler_ResetDelay(SchedulerDelayCounter_t* TaskCounter)
 			{
-				*TaskCounter = Scheduler_TickCounter;
+				ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+				{
+					*TaskCounter = Scheduler_TickCounter;
+				}
 			}
-		}
 		
-	/* Function Prototypes */
-		bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* TaskCounter) ATTR_WARN_UNUSED_RESULT;
-		void Scheduler_SetTaskMode(const uint8_t id, const bool run);
+		/* Function Prototypes */
+			bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* TaskCounter) ATTR_WARN_UNUSED_RESULT;
+			void Scheduler_SetTaskMode(const uint8_t id, const bool run);
 
+	/* Private Interface - For use in library only: */		
+		/* Macros */
+			#define TOTAL_TASKS                       (sizeof(Scheduler_TaskList) / sizeof(TaskEntry_t))
+			#define MAX_DELAYCTR_COUNT                0xFFFF
+		
 #endif

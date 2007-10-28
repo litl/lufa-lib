@@ -15,7 +15,7 @@ volatile bool      USB_IsInitialized;
          TaskPtr_t USB_TaskPtr;
 volatile uint8_t   USB_HostState;
 
-void USB_USBTask(void)
+TASK(USB_USBTask)
 {
 	if (USB_IsInitialized)
 	  (*USB_TaskPtr)();

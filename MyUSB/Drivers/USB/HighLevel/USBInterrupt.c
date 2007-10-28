@@ -105,10 +105,3 @@ ISR(USB_GEN_vect)
 		USB_HostState = HOST_STATE_Unattached;
 	}
 }
-
-void USB_INT_DisableAllInterrupts(void)
-{
-	UHIEN  = 0;
-	UDIEN  = 0;
-	OTGIEN = 0;
-}

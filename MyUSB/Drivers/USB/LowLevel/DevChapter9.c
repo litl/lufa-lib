@@ -113,11 +113,7 @@ void USB_DEVC9_SetConfiguration(void)
 	uint8_t ConfigNum = USB_Device_Read_Byte();
 	
 	if (ConfigNum > CONFIGURATIONS)
-	{
-		USB_Stall_Transaction();
-		USB_ClearSetupRecieved();
 		return;
-	}
 	
 	USB_ConfigurationNumber = ConfigNum;
 
@@ -162,11 +158,7 @@ void USB_DEVC9_GetDescriptor(void)
 			break;			
 		default:
 			if (USB_GetDescriptor(DescriptorType, DescriptorIndex, &DescriptorPointer, &DescriptorBytesRem) == false)
-			{
-				USB_Stall_Transaction();
-				USB_ClearSetupRecieved();
 				return;
-			}
 	}
 
 	USB_Device_Ignore_Word(); // Ignore language identifier
@@ -247,9 +239,6 @@ void USB_DEVC9_GetStatus(const uint8_t RequestType)
 			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			  
 			break;
 		default:
-			USB_Stall_Transaction();
-			USB_ClearSetupRecieved();
-			
 			return;
 	}
 	
@@ -270,7 +259,6 @@ void USB_DEVC9_SetFeature(const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t Feature;
-	bool    SetFeatureFailed = true;
 
 	Feature       = USB_Device_Read_Byte();
 	USB_Device_Ignore_Byte();
@@ -286,7 +274,7 @@ void USB_DEVC9_SetFeature(const uint8_t RequestType)
 				if (!(Endpoint_IsEnabled()))
 				{
 					Endpoint_EnableEndpoint();
-					SetFeatureFailed = false;
+					USB_ClearSetupRecieved();
 				}
 				
 				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);	
@@ -294,19 +282,12 @@ void USB_DEVC9_SetFeature(const uint8_t RequestType)
 
 			break;
 	}
-
-	if (SetFeatureFailed)
-	{
-		USB_Stall_Transaction();
-		USB_ClearSetupRecieved();
-	}
 }
 
 void USB_DEVC9_ClearFeature(const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t Feature;
-	bool    ClearFeatureFailed = true;
 
 	Feature       = USB_Device_Read_Byte();
 	USB_Device_Ignore_Byte();
@@ -322,18 +303,12 @@ void USB_DEVC9_ClearFeature(const uint8_t RequestType)
 				if (Endpoint_IsEnabled())
 				{
 					Endpoint_DisableEndpoint();
-					ClearFeatureFailed = false;
+					USB_ClearSetupRecieved();
 				}
 				
 				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);		
 			}
 
 			break;
-	}
-
-	if (ClearFeatureFailed)
-	{
-		USB_Stall_Transaction();
-		USB_ClearSetupRecieved();
 	}
 }

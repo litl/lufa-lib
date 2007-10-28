@@ -10,9 +10,9 @@
 
 #include "Pipe.h"
 
-bool Pipe_ConfigurePipe_PRV(const uint8_t PipeNum,
-                            const uint8_t UPCFG0Xdata,
-                            const uint8_t UPCFG1Xdata)
+bool Pipe_ConfigurePipe_P(const uint8_t PipeNum,
+                          const uint8_t UPCFG0Xdata,
+                          const uint8_t UPCFG1Xdata)
 {
 	Pipe_SelectPipe(PipeNum & PIPE_PIPENUM_MASK);
 	Pipe_EnablePipe();
@@ -41,12 +41,15 @@ uint8_t Pipe_GetInterruptPipeNumber(void)
 	uint8_t PipeInterrupts = Pipe_GetPipeInterrupts();
 	uint8_t CheckMask      = 0x01;
 
-	for (uint8_t PipeNum = 0; PipeNum < PIPE_MAXPIPES; PipeNum++)
+	if (PipeInterrupts)
 	{
-		if (PipeInterrupts & CheckMask)
-		  return PipeNum;
-	
-		CheckMask <<= 1;
+		for (uint8_t PipeNum = 0; PipeNum < PIPE_MAXPIPES; PipeNum++)
+		{
+			if (PipeInterrupts & CheckMask)
+			  return PipeNum;
+		
+			CheckMask <<= 1;
+		}
 	}
 	
 	return PIPE_NO_PIPE_INT;
