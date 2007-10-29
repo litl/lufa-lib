@@ -32,12 +32,14 @@
 	/* Task Definitions */
 		TASK(TestApp_CheckJoystick);
 		TASK(TestApp_CheckHWB);
+		TASK(TestApp_CheckTemp);
 
 	/* Scheduler Task List: */
 		TASK_ID_LIST
 		{
 			TestApp_CheckJoystick_ID,
 			TestApp_CheckHWB_ID,
+			TestApp_CheckTemp_ID,
 			USB_USBTask_ID,
 		};
 
@@ -45,6 +47,7 @@
 		{
 			{ TaskID: TestApp_CheckJoystick_ID, TaskName: TestApp_CheckJoystick, TaskStatus: TASK_RUN  },
 			{ TaskID: TestApp_CheckHWB_ID     , TaskName: TestApp_CheckHWB     , TaskStatus: TASK_RUN  },
+			{ TaskID: TestApp_CheckTemp_ID    , TaskName: TestApp_CheckTemp    , TaskStatus: TASK_RUN  },
 			{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
 		};
 
