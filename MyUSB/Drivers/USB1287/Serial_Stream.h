@@ -24,7 +24,7 @@
 			#define SERIAL_UBBRVAL(baud)   (((F_CPU / (baud * 16UL))) - 1)
 		
 		/* Function Prototypes */
-			int  Serial_TxByte(char DataByte, FILE *Stream);
-			int  Serial_RxByte(FILE *Stream);
+			int Serial_TxByte(char DataByte, FILE *Stream);
+			int Serial_RxByte(FILE *Stream);
 
 #endif

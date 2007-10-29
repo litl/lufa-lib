@@ -32,7 +32,9 @@ int main(void)
 	sei();
 
     /* Startup message via USART */
-	printf("MyUSB Demo running.\r\n\n");
+	printf(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY \
+	       "MyUSB Demo running.\r\n\n"                             \
+		   ESC_INVERSE_OFF);
 
 	/* Scheduling */
 	Scheduler_Start(); // Scheduler never returns, so put this last
@@ -94,12 +96,12 @@ TASK(TestApp_CheckHWB)
 				USB_ShutDown();
 
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				printf("USB Power Off.\r\n");
+				printf(ESC_BG_WHITE "USB Power Off.\r\n");
 			}
 			else
 			{
 				Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
-				printf("USB Power On.\r\n");
+				printf(ESC_BG_YELLOW "USB Power On.\r\n");
 				
 				USB_Init(USB_MODE_UID, USB_HOST_AUTOVBUS | USB_DEV_HIGHSPEED);
 			}

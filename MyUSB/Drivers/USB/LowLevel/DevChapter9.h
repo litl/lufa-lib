@@ -30,13 +30,13 @@
 
 	/* Private Interface - For use in library only: */	
 		/* Function Prototypes */
-			void USB_DEVC9_ProcessControlPacket(void);
-			void USB_DEVC9_SetAddress(void);
-			void USB_DEVC9_SetConfiguration(void);
-			void USB_DEVC9_GetConfiguration(void);
-			void USB_DEVC9_GetDescriptor(void);
-			void USB_DEVC9_GetStatus(const uint8_t RequestType);
-			void USB_DEVC9_SetFeature(const uint8_t RequestType);
-			void USB_DEVC9_ClearFeature(const uint8_t RequestType);
+			void USB_Device_ProcessControlPacket(void);
+			void USB_Device_SetAddress(void);
+			void USB_Device_SetConfiguration(void);
+			void USB_Device_GetConfiguration(void);
+			void USB_Device_GetDescriptor(void);
+			void USB_Device_GetStatus(const uint8_t RequestType);
+			void USB_Device_SetFeature(const uint8_t RequestType);
+			void USB_Device_ClearFeature(const uint8_t RequestType);
 		
 #endif

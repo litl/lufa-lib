@@ -12,7 +12,7 @@
 
 uint8_t USB_ConfigurationNumber;
 
-void USB_DEVC9_ProcessControlPacket(void)
+void USB_Device_ProcessControlPacket(void)
 {
 	uint8_t RequestType;
 	uint8_t Request;
@@ -27,7 +27,7 @@ void USB_DEVC9_ProcessControlPacket(void)
 		case REQ_SetAddress:
 			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
 			{
-				USB_DEVC9_SetAddress();
+				USB_Device_SetAddress();
 				RequestHandled = true;
 			}
 
@@ -35,7 +35,7 @@ void USB_DEVC9_ProcessControlPacket(void)
 		case REQ_SetConfiguration:
 			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
 			{
-				USB_DEVC9_SetConfiguration();
+				USB_Device_SetConfiguration();
 				RequestHandled = true;
 			}
 
@@ -43,13 +43,13 @@ void USB_DEVC9_ProcessControlPacket(void)
 		case REQ_GetConfiguration:
 			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE))
 			{
-				USB_DEVC9_GetConfiguration();
+				USB_Device_GetConfiguration();
 				RequestHandled = true;
 			}
 
 			break;
 		case REQ_GetDescriptor:
-			USB_DEVC9_GetDescriptor();
+			USB_Device_GetDescriptor();
 			RequestHandled = true;
 			
 			break;
@@ -57,7 +57,7 @@ void USB_DEVC9_ProcessControlPacket(void)
 			if ((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_RECIPIENT))
 			   == (REQDIR_DEVICETOHOST | (REQREC_INTERFACE | REQREC_ENDPOINT | REQREC_OTHER)))
 			{
-				USB_DEVC9_GetStatus(RequestType);
+				USB_Device_GetStatus(RequestType);
 				RequestHandled = true;
 			}			
 
@@ -66,7 +66,7 @@ void USB_DEVC9_ProcessControlPacket(void)
 			if ((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_RECIPIENT))
 			   == (REQDIR_HOSTTODEVICE | (REQREC_INTERFACE | REQREC_ENDPOINT | REQREC_OTHER)))
 			{
-				USB_DEVC9_SetFeature(RequestType);
+				USB_Device_SetFeature(RequestType);
 				RequestHandled = true;
 			}			
 
@@ -75,7 +75,7 @@ void USB_DEVC9_ProcessControlPacket(void)
 			if ((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_RECIPIENT))
 			   == (REQDIR_HOSTTODEVICE | (REQREC_INTERFACE | REQREC_ENDPOINT | REQREC_OTHER)))
 			{
-				USB_DEVC9_ClearFeature(RequestType);
+				USB_Device_ClearFeature(RequestType);
 				RequestHandled = true;
 			}			
 			
@@ -92,7 +92,7 @@ void USB_DEVC9_ProcessControlPacket(void)
 	}
 }
 
-void USB_DEVC9_SetAddress(void)
+void USB_Device_SetAddress(void)
 {
 	uint8_t NewAddress = USB_Device_Read_Byte();
 
@@ -108,7 +108,7 @@ void USB_DEVC9_SetAddress(void)
 	return;
 }
 
-void USB_DEVC9_SetConfiguration(void)
+void USB_Device_SetConfiguration(void)
 {
 	uint8_t ConfigNum = USB_Device_Read_Byte();
 	
@@ -123,7 +123,7 @@ void USB_DEVC9_SetConfiguration(void)
 	RAISE_EVENT(USB_CreateEndpoints);
 }
 
-void USB_DEVC9_GetConfiguration(void)
+void USB_Device_GetConfiguration(void)
 {
 	USB_ClearSetupRecieved();
 	
@@ -135,7 +135,7 @@ void USB_DEVC9_GetConfiguration(void)
 	USB_Out_Clear();
 }
 
-void USB_DEVC9_GetDescriptor(void)
+void USB_Device_GetDescriptor(void)
 {
 	uint8_t  DescriptorIndex = USB_Device_Read_Byte();
 	uint8_t  DescriptorType  = USB_Device_Read_Byte();
@@ -208,7 +208,7 @@ void USB_DEVC9_GetDescriptor(void)
    USB_Out_Clear();
 }
 
-void USB_DEVC9_GetStatus(const uint8_t RequestType)
+void USB_Device_GetStatus(const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t StatusByte = 0;
@@ -255,7 +255,7 @@ void USB_DEVC9_GetStatus(const uint8_t RequestType)
 	USB_ClearSetupRecieved();
 }
 
-void USB_DEVC9_SetFeature(const uint8_t RequestType)
+void USB_Device_SetFeature(const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t Feature;
@@ -284,7 +284,7 @@ void USB_DEVC9_SetFeature(const uint8_t RequestType)
 	}
 }
 
-void USB_DEVC9_ClearFeature(const uint8_t RequestType)
+void USB_Device_ClearFeature(const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t Feature;

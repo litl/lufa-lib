@@ -14,8 +14,11 @@
 	/* Includes */
 		#include <avr/io.h>
 
+		#include "MyUSB/Drivers/USBKEY/Bicolour.h"        // Bicolour LED driver for USBKEY
+
 		#include "MyUSB/Drivers/USB/USB.h"                // USB Functionality
 		#include "MyUSB/Drivers/USB1287/Serial_Stream.h"  // USART Stream driver
+		#include "MyUSB/Drivers/USB1287/TerminalCodes.h"  // ANSI Terminal Escape Codes
 
 	/* Event Catch List */
 		HANDLES_EVENT(USB_VBUSChange);
@@ -31,5 +34,8 @@
 		HANDLES_EVENT(USB_HostError);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 		HANDLES_EVENT(USB_CreateEndpoints);
+
+	/* Defines */
+		#define EVENT_PREFIX ESC_INVERSE_ON "EVENT:" ESC_INVERSE_OFF " "
 
 #endif

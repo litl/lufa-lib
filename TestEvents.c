@@ -10,54 +10,60 @@
 
 #include "TestEvents.h"
 
+
+
 EVENT_HANDLER(USB_VBUSChange)
 {
-	printf("EVENT: VBUS Change\r\n");
+	printf(EVENT_PREFIX "VBUS Change\r\n");
 }
 
 EVENT_HANDLER(USB_VBUSConnect)
 {
-	printf("EVENT: VBUS +\r\n");
+	printf(EVENT_PREFIX "VBUS +\r\n");
 }
 
 EVENT_HANDLER(USB_VBUSDisconnect)
 {
-	printf("EVENT: VBUS -\r\n");
+	printf(EVENT_PREFIX "VBUS -\r\n");
 }
 
 EVENT_HANDLER(USB_Connect)
 {
-	printf("EVENT: USB  +\r\n");
+	printf(EVENT_PREFIX "USB  +\r\n");
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
 }
 
 EVENT_HANDLER(USB_Disconnect)
 {
-	printf("EVENT: USB  -\r\n");
+	printf(EVENT_PREFIX "USB  -\r\n");
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
 }
 
 EVENT_HANDLER(USB_Suspend)
 {
-	printf("EVENT: USB Sleep\r\n");
+	printf(EVENT_PREFIX ESC_BG_YELLOW "USB Sleep\r\n");
+	Bicolour_SetLeds(BICOLOUR_LED1_ORANGE | BICOLOUR_LED2_ORANGE);
 }
 
 EVENT_HANDLER(USB_WakeUp)
 {
-	printf("EVENT: USB Wakeup\r\n");
+	printf(EVENT_PREFIX ESC_BG_GREEN "USB Wakeup\r\n");
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
 }
 
 EVENT_HANDLER(USB_Reset)
 {
-	printf("EVENT: USB Reset\r\n");
+	printf(EVENT_PREFIX "USB Reset\r\n");
 }
 
 EVENT_HANDLER(USB_UIDChange)
 {
-	printf("EVENT: UID Change\r\n");
+	printf(EVENT_PREFIX "UID Change\r\n");
 }
 
 EVENT_HANDLER(USB_PowerOnFail)
 {
-	printf("EVENT: Power On Fail\r\n");
+	printf(EVENT_PREFIX ESC_BG_RED "Power On Fail\r\n");
 	
 	switch (USB_CurrentMode)
 	{
@@ -77,18 +83,19 @@ EVENT_HANDLER(USB_PowerOnFail)
 
 EVENT_HANDLER(USB_HostError)
 {
-	printf("EVENT: Host mode error\r\n");
+	printf(EVENT_PREFIX ESC_BG_RED "Host mode error\r\n");
 	printf(" -- Error Code %d\r\n", ErrorCode);
 }
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	printf("EVENT: Ctrl Request\r\n");
+	printf(EVENT_PREFIX "Ctrl Request\r\n");
 	printf(" -- Request data %d\r\n", Request);
 	printf(" -- Request type %d\r\n", RequestType);
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
-	printf("EVENT: Make Endpoints\r\n");
+	printf(EVENT_PREFIX "Make Endpoints\r\n");
 }
+

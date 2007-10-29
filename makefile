@@ -368,7 +368,6 @@ REMOVEDIR = rm -rf
 COPY = cp
 WINSHELL = cmd
 
-
 # Define Messages
 # English
 MSG_ERRORS_NONE = Errors: none
@@ -414,7 +413,7 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: begin gccversion sizebefore build sizeafter end
+all: begin gccversion sizebefore build checkhooks sizeafter end
 
 # Change the build target to build a HEX file or a library.
 build: elf hex eep lss sym
@@ -455,7 +454,11 @@ sizeafter:
 	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); \
 	2>/dev/null; echo; fi
 
-
+checkhooks: build
+	@java -classpath MyUSB/HelperApps/CheckLibEventHooks/ CheckLibEventHooks \
+		-E MyUSB/Drivers/USB/HighLevel/Events.h -M $(TARGET).map            \
+        -P MyUSB/Drivers/USB/HighLevel/Events.o
+	
 
 # Display compiler version information.
 gccversion : 
@@ -599,7 +602,7 @@ $(OBJDIR)/%.o : %.S
 # Create preprocessed source for use in sending a bug report.
 %.i : %.c
 	$(CC) -E -mmcu=$(MCU) -I. $(CFLAGS) $< -o $@ 
-
+	
 
 # Target: clean project.
 clean: begin clean_list end
@@ -631,6 +634,6 @@ $(shell mkdir $(OBJDIR) 2>/dev/null)
 
 
 # Listing of phony targets.
-.PHONY : all begin finish end sizebefore sizeafter gccversion \
+.PHONY : all checkhooks begin finish end sizebefore sizeafter gccversion \
 build elf hex eep lss sym coff extcoff \
 clean clean_list program debug gdb-config

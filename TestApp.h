@@ -22,6 +22,7 @@
 
 		#include "MyUSB/Drivers/USB1287/ADC.h"            // ADC driver
 		#include "MyUSB/Drivers/USB1287/Serial_Stream.h"  // USART Stream driver
+		#include "MyUSB/Drivers/USB1287/TerminalCodes.h"  // ANSI Terminal Escape Codes
 
 		#include "MyUSB/Drivers/USBKEY/Joystick.h"        // Joystick driver for the USBKEY
 		#include "MyUSB/Drivers/USBKEY/Bicolour.h"        // Bicolour LEDs driver for the USBKEY

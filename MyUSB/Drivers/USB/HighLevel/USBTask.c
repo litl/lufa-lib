@@ -47,7 +47,7 @@ void USB_DeviceTask(void)
 		Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 
 		if (USB_IsSetupRecieved())
-		  USB_DEVC9_ProcessControlPacket();
+		  USB_Device_ProcessControlPacket();
 	}
 }
 
@@ -121,11 +121,11 @@ void USB_HostTask(void)
 		
 			break;
 		case HOST_STATE_Default:
-			HostRequest.bmRequestType = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
-			HostRequest.bRequest      = REQ_GetDescriptor;
-			HostRequest.wValue        = (DTYPE_Device << 8);
-			HostRequest.wIndex        = 0;
-			HostRequest.wLength       = 64;
+			USB_HostRequest.bmRequestType = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
+			USB_HostRequest.bRequest      = REQ_GetDescriptor;
+			USB_HostRequest.wValue        = (DTYPE_Device << 8);
+			USB_HostRequest.wIndex        = 0;
+			USB_HostRequest.wLength       = 64;
 			
 			USB_Host_SendControlRequest(NULL);
 

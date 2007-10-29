@@ -27,10 +27,10 @@
 				uint16_t wValue;
 				uint16_t wIndex;
 				uint16_t wLength;
-			} USB_Host_Request_Header;
+			} USB_Host_Request_Header_t;
 		
 		/* Global Variables */
-			extern USB_Host_Request_Header HostRequest;
+			extern USB_Host_Request_Header_t USB_HostRequest;
 			
 		/* Function Prototypes */
 			void USB_Host_SendControlRequest(const void* Data);
