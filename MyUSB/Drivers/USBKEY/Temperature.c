@@ -25,14 +25,14 @@ const uint16_t Temperature_Lookup[] PROGMEM = {
 
 int8_t Temperature_GetTemperature(void)
 {
-	uint16_t Temp_ADC = ADC_ReadChannel(TEMP_ADC_CHANNEL);
+	uint16_t Temp_ADC = ADC_GetChannelReading(TEMP_ADC_CHANNEL);
 
-	if (Temp_ADC > pgm_read_byte(&Temperature_Lookup[0]))
+	if (Temp_ADC > pgm_read_word(&Temperature_Lookup[0]))
 	  return TEMP_MIN_TEMP;
 
 	for (uint16_t Index = 0; Index < TEMP_TABLE_SIZE; Index++)
 	{
-		if (Temp_ADC > pgm_read_byte(&Temperature_Lookup[Index]))
+		if (Temp_ADC > pgm_read_word(&Temperature_Lookup[Index]))
 		 return ((Index - 1) + TEMP_TABLE_OFFSET);
 	}
 

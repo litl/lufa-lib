@@ -23,7 +23,7 @@
 			#define TEMP_MIN_TEMP      TEMP_TABLE_OFFSET
 			#define TEMP_MAX_TEMP      ((TEMP_TABLE_SIZE - 1) + TEMP_TABLE_OFFSET)
 			
-			#define Temperature_Init() ADC_SetupChannel(ADC_TEMP_CHANNEL);
+			#define Temperature_Init() ADC_SetupChannel(TEMP_ADC_CHANNEL);
 
 		/* Function Prototypes */
 			int8_t Temperature_GetTemperature(void) ATTR_WARN_UNUSED_RESULT;

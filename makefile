@@ -84,7 +84,6 @@ SRC = $(TARGET).c                                     \
 	  TestEvents.c                                    \
 	  MyUSB/Scheduler/Scheduler.c                     \
 	  MyUSB/Drivers/USBKEY/Temperature.c              \
-	  MyUSB/Drivers/USB1287/ADC.c                     \
 	  MyUSB/Drivers/USB1287/Serial_Stream.c           \
 	  MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  MyUSB/Drivers/USB/LowLevel/Endpoint.c           \

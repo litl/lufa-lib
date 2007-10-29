@@ -36,18 +36,17 @@
 			
 			static inline void ADC_StartReading(const uint8_t Channel)
 			{
-				ADMUX = Channel;
+				ADMUX = ((1 << REFS1) | Channel);
 			
 				ADCSRA |= (1 << ADSC);
 			}
-			
-			static inline uint16_t ADC_ReadChannel(const uint8_t Channel) ATTR_WARN_UNUSED_RESULT;
-			static inline uint16_t ADC_ReadChannel(const uint8_t Channel)
+
+			static inline uint16_t ADC_GetChannelReading(uint8_t Channel)
 			{
 				ADC_StartReading(Channel);
-
+	
 				while (!(ADC_IsReadingComplete()));
-
+	
 				return ADC_GetReading();
 			}
 

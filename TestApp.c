@@ -21,6 +21,8 @@ int main(void)
 	HWB_Init();
 	Bicolour_Init();
 	Serial_Init(9600);
+	ADC_Init();
+	Temperature_Init();
 	
 	/* Millisecond Timer Initialization */
 	OCR0A  = 0x7D;
@@ -32,9 +34,12 @@ int main(void)
 	sei();
 
     /* Startup message via USART */
-	printf(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY \
+	printf_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY \
 	       "MyUSB Demo running.\r\n\n"                             \
-		   ESC_INVERSE_OFF);
+		   ESC_INVERSE_OFF));
+
+	/* Print Current Temp */
+	printf_P(PSTR("Current temperature: %d Degrees Celcius\r\n\n"), (int)Temperature_GetTemperature());
 
 	/* Scheduling */
 	Scheduler_Start(); // Scheduler never returns, so put this last
@@ -96,12 +101,12 @@ TASK(TestApp_CheckHWB)
 				USB_ShutDown();
 
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				printf(ESC_BG_WHITE "USB Power Off.\r\n");
+				printf_P(PSTR(ESC_BG_WHITE "USB Power Off.\r\n"));
 			}
 			else
 			{
 				Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
-				printf(ESC_BG_YELLOW "USB Power On.\r\n");
+				printf_P(PSTR(ESC_BG_YELLOW "USB Power On.\r\n"));
 				
 				USB_Init(USB_MODE_UID, USB_HOST_AUTOVBUS | USB_DEV_HIGHSPEED);
 			}
