@@ -5,12 +5,10 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, VersiUSB_ 3
+ Released under the GPL Licence, Version 3
 */
 
 #include "TestEvents.h"
-
-
 
 EVENT_HANDLER(USB_VBUSChange)
 {

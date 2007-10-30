@@ -412,7 +412,7 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: begin gccversion sizebefore build checkhooks sizeafter end
+all: begin gccversion sizebefore build dumpmethodsigs checkhooks sizeafter end
 
 # Change the build target to build a HEX file or a library.
 build: elf hex eep lss sym
@@ -458,6 +458,10 @@ checkhooks: build
 		-E MyUSB/Drivers/USB/HighLevel/Events.h -M $(TARGET).map            \
         -P MyUSB/Drivers/USB/HighLevel/Events.o
 	
+dumpmethodsigs:
+	@echo
+	@echo Dumping Method Signatures to MethodSigs.txt...
+	java -classpath MyUSB/HelperApps/MethodSig/ MethodSig $(SRC) > MethodSigs.txt
 
 # Display compiler version information.
 gccversion : 

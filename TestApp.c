@@ -8,6 +8,25 @@
  Released under the GPL Licence, Version 3
 */
 
+/*
+	Test application. Demonstrates several aspects of the MyUSB
+	Library. On startup the current temperature will be printed
+	through the USART every 10 seconds, and the current joystick
+	position will be indicated via the two Bicolour LEDs on the
+	USBKEY board. Pressing the HWB on the USBKEY will initiate
+	the USB subsystem, enumerating the device (which has no
+	functionality and serves only to demonstrate the USB portion
+	of the library). It will also suspend the joystick and
+	temperature monitoring tasks.
+	
+	Pressing the HWB a second time will turn off the USB system
+	and resume the temperature printing task (but not the joystick
+	monitoring task).
+	
+	When activated, the USB events will be printed through the
+	serial USART.
+*/
+
 #include "TestApp.h"
 
 int main(void)
@@ -16,7 +35,7 @@ int main(void)
 	CLKPR = (1 << CLKPCE);
 	CLKPR = 0;
 
-	/* Hardware Initialization */
+	/* Hardware initialization */
 	Joystick_Init();
 	HWB_Init();
 	Bicolour_Init();
@@ -24,7 +43,7 @@ int main(void)
 	ADC_Init();
 	Temperature_Init();
 	
-	/* Millisecond Timer Initialization */
+	/* Millisecond timer initialization */
 	OCR0A  = 0x7D;
 	TCCR0A = (1 << WGM01);
 	TCCR0B = ((1 << CS01) | (1 << CS00));

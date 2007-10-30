@@ -66,7 +66,7 @@ public class CheckLibEventHooks
 		
 		if (EventsFilePath == null)
 		{
-			System.out.println("No events file path specified (-P switch)");
+			System.out.println("No events object file path specified (-P switch)");
 			return;		
 		}
 		
@@ -102,7 +102,7 @@ public class CheckLibEventHooks
 		{
 			MapFileReader = new BufferedReader(new FileReader(MapFileName));
 
-			System.out.println("\n--- Unhooked Events: ---");
+			System.out.println("\n--- Unhooked MyUSB Events: ---");
 
 			while (MapFileReader.ready())
 			{
@@ -126,7 +126,7 @@ public class CheckLibEventHooks
 			if (UnhookedEvents == false)
 				System.out.println("  (None)");
 			
-			System.out.println("------------------------");
+			System.out.println("------------------------------");
 
 			MapFileReader.close();
 		}
@@ -145,12 +145,12 @@ public class CheckLibEventHooks
 	{
 		for (int a = 0; a < args.length; a++)
 		{
-			String arg = args[a];
+			String Arg = args[a];
 		
-			if (arg.indexOf(Switch) != -1)
+			if (Arg.indexOf(Switch) != -1)
 			{
-				if (arg.length() > Switch.length())
-					return arg.substring(Switch.length(), arg.length());
+				if (Arg.length() > Switch.length())
+					return Arg.substring(Switch.length());
 				else
 					return args[a + 1];
 			}
@@ -158,5 +158,4 @@ public class CheckLibEventHooks
 		
 		return null;
 	}
-
 }

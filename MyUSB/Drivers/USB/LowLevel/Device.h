@@ -27,7 +27,7 @@
 				return UEDATX;
 			}
 
-			static inline void USB_Device_Write_Byte(uint8_t Byte)
+			static inline void USB_Device_Write_Byte(const uint8_t Byte)
 			{
 				UEDATX = Byte;
 			}
@@ -50,7 +50,7 @@
 				return Data;
 			}
 
-			static inline void USB_Device_Write_Word(uint16_t Byte)
+			static inline void USB_Device_Write_Word(const uint16_t Byte)
 			{
 				UEDATX = (Byte & 0xFF);
 				UEDATX = (Byte >> 8);
