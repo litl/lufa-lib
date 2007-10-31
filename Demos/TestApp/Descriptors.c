@@ -22,7 +22,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
 	VendorID:               0x0000,
-	ProductID:              0x0001,
+	ProductID:              USB_PRODUCT_ID('T', 'A'),
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
@@ -118,15 +118,15 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 					return true;
 				case 0x01:
 					*DescriptorAddr = (void*)&ManafacturerString;
-					*Size           = USB_STRING_LEN(11);
+					*Size           = pgm_read_byte(&ManafacturerString.Header.Size);
 					return true;
 				case 0x02:
 					*DescriptorAddr = (void*)&ProductString;
-					*Size           = USB_STRING_LEN(10);
+					*Size           = pgm_read_byte(&ProductString.Header.Size);
 					return true;
 				case 0x03:
 					*DescriptorAddr = (void*)&VersionString;
-					*Size           = USB_STRING_LEN(5);
+					*Size           = pgm_read_byte(&VersionString.Header.Size);
 					return true;
 			}
 			

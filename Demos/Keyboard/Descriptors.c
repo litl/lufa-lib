@@ -32,7 +32,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
 	VendorID:               0x0000,
-	ProductID:              0x0006,
+	ProductID:              USB_PRODUCT_ID('K', 'B'),
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
@@ -110,16 +110,16 @@ USB_Descriptor_Language_t LanguageString PROGMEM =
 
 USB_Descriptor_String_t ManafacturerString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
 		
-	UnicodeString:          {'D','e','a','n',' ','C','a','m','e','r','a'}
+	UnicodeString:          {'D','e','n','v','e','r',' ','G','i','n','g','e','r','i','c','h'}
 };
 
 USB_Descriptor_String_t ProductString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(19), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','M','o','u','s','e',' ','D','e','m','o'}
+	UnicodeString:          {'M','y','U','S','B',' ','K','e','y','b','o','a','r','d',' ','D','e','m','o'}
 };
 
 USB_Descriptor_String_t VersionString PROGMEM =
@@ -151,17 +151,19 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 					return true;
 				case 0x01:
 					*DescriptorAddr = (void*)&ManafacturerString;
-					*Size           = USB_STRING_LEN(11);
+					*Size           = pgm_read_byte(&ManafacturerString.Header.Size);
 					return true;
 				case 0x02:
 					*DescriptorAddr = (void*)&ProductString;
-					*Size           = USB_STRING_LEN(10);
+					*Size           = pgm_read_byte(&ProductString.Header.Size);
 					return true;
 				case 0x03:
 					*DescriptorAddr = (void*)&VersionString;
-					*Size           = USB_STRING_LEN(5);
+					*Size           = pgm_read_byte(&VersionString.Header.Size);
 					return true;
 			}
+			
+			break;
 		case DTYPE_HID:
 			*DescriptorAddr = (void*)&ConfigurationDescriptor.KeyboardHID;
 			*Size           = sizeof(USB_Descriptor_HID_t);
