@@ -15,7 +15,7 @@
 		#include <avr/pgmspace.h>
 		#include <stdbool.h>
 
-		#include "../../../Drivers/USB/USB.h"
+		#include "../USB.h"
 		#include "../../../Common/FunctionAttributes.h"
 
 	/* Public Interface - May be used in end-application: */
@@ -145,20 +145,10 @@
 				
 				uint16_t                              LanguageID;
 			} USB_Descriptor_Language_t;
-			
-			typedef	struct
-			{
-				USB_Descriptor_Configuration_Header_t Config;
-				USB_Descriptor_Interface_t            Interface;
-
-				// Add Interface and Endpoint descriptors as required to configuration descriptor here
-			} USB_Descriptor_Configuration_t;
-
-		/* Global Variables: */
-			extern USB_Descriptor_Device_t            DeviceDescriptor;
-			extern USB_Descriptor_Configuration_t     ConfigurationDescriptor;
-			
+						
 		/* Function Prototypes: */
-			bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, void** DescriptorAddr, uint16_t* Size) ATTR_WARN_UNUSED_RESULT;
+			bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
+			                       void** DescriptorAddr, uint16_t* Size)
+								   ATTR_WARN_UNUSED_RESULT ATTR_WEAK;
 			
 #endif

@@ -146,20 +146,8 @@ void USB_Device_GetDescriptor(void)
 	
 	bool     SendZeroPacket  = false;
 	
-	switch (DescriptorType)
-	{
-		case DTYPE_Device:
-			DescriptorPointer  = (void*)&DeviceDescriptor;
-			DescriptorBytesRem = sizeof(DeviceDescriptor);
-			break;
-		case DTYPE_Configuration:
-			DescriptorPointer  = (void*)&ConfigurationDescriptor;
-			DescriptorBytesRem = sizeof(ConfigurationDescriptor);
-			break;			
-		default:
-			if (USB_GetDescriptor(DescriptorType, DescriptorIndex, &DescriptorPointer, &DescriptorBytesRem) == false)
-				return;
-	}
+	if (USB_GetDescriptor(DescriptorType, DescriptorIndex, &DescriptorPointer, &DescriptorBytesRem) == false)
+		return;
 
 	USB_Device_Ignore_Word(); // Ignore language identifier
 

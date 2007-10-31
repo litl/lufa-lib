@@ -8,9 +8,9 @@
 # Released under the GPL Licence, Version 3
 #
 
-# Makefile to build the MyUSB Helper Applications and Demos.
-# Call with "make all" to rebuild everything.
+# Makefile to build the MyUSB Demos. Call with "make all" to rebuild
+# all demos.
 
 %:
-	make -C MyUSB/HelperApps/ $@
-	make -C Demos/ $@
+	make -C TestApp $@
+	make -C Mouse $@

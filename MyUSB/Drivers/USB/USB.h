@@ -20,5 +20,6 @@
 		#include "HighLevel/USBTask.h"
 		#include "HighLevel/USBInterrupt.h"
 		#include "HighLevel/Events.h"
+		#include "HighLevel/StdDescriptors.h"
 
 #endif

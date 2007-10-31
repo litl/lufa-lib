@@ -15,7 +15,7 @@
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 		
-		#include "../../../Configuration/USB/Device/Descriptors.h"
+		#include "../HighLevel/StdDescriptors.h"
 		#include "../HighLevel/Events.h"
 		#include "LowLevel.h"
 		#include "StdRequestType.h"

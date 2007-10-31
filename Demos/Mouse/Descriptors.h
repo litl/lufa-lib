@@ -1,0 +1,67 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
+#ifndef DESCRIPTORS_H
+#define DESCRIPTORS_H
+
+	/* Includes: */
+		#include "MyUSBMouse.h"
+	
+		#include "../../MyUSB/Drivers/USB/USB.h"
+
+	/* Type Defines */
+		typedef struct
+		{
+			uint8_t Size;
+			uint8_t Type;
+		} USB_HIDDescriptor_Header_t;
+
+		typedef struct
+		{
+			USB_HIDDescriptor_Header_t            Header;
+				
+			uint16_t                              HIDSpec;
+			uint8_t                               CountryCode;
+		
+			uint8_t                               TotalHIDDescriptors;
+
+			uint8_t                               HIDReportType;
+			uint16_t                              HIDReportLength;
+		} USB_Descriptor_HID_t;
+
+		typedef struct
+		{
+			USB_Descriptor_Configuration_Header_t Config;
+			USB_Descriptor_Interface_t            Interface;
+			USB_Descriptor_HID_t                  MouseHID;
+	        USB_Descriptor_Endpoint_t             MouseEndpoint;
+		} USB_Descriptor_Configuration_t;
+					
+	/* Macros: */
+		#define MOUSE_EPNUM               1
+		#define MOUSE_EPSIZE              8
+
+		#define DTYPE_HID                 0x21
+		#define DTYPE_Report              0x22
+		#define DTYPE_SetReport           0x02
+
+		#define MOUSE_INTERFACE_NUMBER    0
+		#define MOUSE_INTERFACE_ALTERNATE 0
+		#define MOUSE_INTERFACE_ENDPOINTS 1
+		#define MOUSE_INTERFACE_CLASS     0x03
+		#define MOUSE_INTERFACE_SUBCLASS  0x00
+		#define MOUSE_INTERFACE_PROTOCOL  0x02
+
+	/* Function Prototypes: */
+	bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
+	                       void** DescriptorAddr, uint16_t* Size)
+						   ATTR_WARN_UNUSED_RESULT ATTR_WEAK;
+
+#endif

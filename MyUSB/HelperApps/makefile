@@ -13,7 +13,7 @@
 # the Java SDK, avalialiable online from the Sun website.
 
 APPDIRS = CheckLibEventHooks \
-           MethodSig
+          MethodSig
 
 all: start build end
 
@@ -27,3 +27,6 @@ build:
 end:
 	@echo
 	@echo Helper Apps Build Complete.
+
+clean:
+	rm -f $(APPDIRS:%=%/*.class)
