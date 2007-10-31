@@ -70,7 +70,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = Mouse
+TARGET = Keyboard
 
 
 # Object files directory

@@ -14,3 +14,4 @@
 %:
 	make -C TestApp $@
 	make -C Mouse $@
+	make -C Keyboard $@

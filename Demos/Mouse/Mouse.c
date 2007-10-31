@@ -19,7 +19,7 @@
 	joystick inwards to simulate a left-button click.
 */
 
-#include "MyUSBMouse.h"
+#include "Mouse.h"
 
 TASK_ID_LIST
 {
@@ -30,7 +30,7 @@ TASK_ID_LIST
 TASK_LIST
 {
 	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ TaskID: USB_Mouse_Report_ID     , TaskName: USB_Mouse_Report     , TaskStatus: TASK_RUN },
+	{ TaskID: USB_Mouse_Report_ID     , TaskName: USB_Mouse_Report     , TaskStatus: TASK_RUN  },
 };
 
 USB_HID_Report_Mouse_t MouseReport PROGMEM =

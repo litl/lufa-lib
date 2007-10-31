@@ -14,7 +14,8 @@
 	This application will extract method signatures (function
 	prototypes) from C source code, and print them to the console.
 	
-	Nested function signatures are ignored.
+	Nested function signatures are ignored, as are function prototypes;
+	this application uses the actual function use for the signatures.
 	
 	Usage: java MethodSig {C Source or Header File Names}
 */
