@@ -102,7 +102,7 @@ public class CheckLibEventHooks
 		{
 			MapFileReader = new BufferedReader(new FileReader(MapFileName));
 
-			System.out.println("\n--- Unhooked MyUSB Events: ---");
+			System.out.println("\n\n--- Unhooked MyUSB Events: ---");
 
 			while (MapFileReader.ready())
 			{

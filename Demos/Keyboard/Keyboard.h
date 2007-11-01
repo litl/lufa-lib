@@ -8,6 +8,16 @@
  Released under the GPL Licence, Version 3
 */
 
+/*
+	Keyboard demonstration application by Denver Gingerich.
+
+	This example is based on the MyUSB Mouse demonstration application,
+	written by Dean Camera.
+
+	Keyboard report descriptor is from the AVR-USB project, used with
+	permission.
+*/
+
 #ifndef TESTAPP_H
 #define TESTAPP_H
 

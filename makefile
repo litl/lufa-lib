@@ -13,4 +13,5 @@
 
 %:
 	make -C MyUSB/HelperApps/ $@
+	make -C MyUSB/ $@
 	make -C Demos/ $@

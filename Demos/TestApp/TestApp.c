@@ -124,7 +124,7 @@ TASK(TestApp_CheckTemp)
 
 TASK(TestApp_CheckHWB)
 {
-	static SchedulerDelayCounter_t DelayCounter;
+	static SchedulerDelayCounter_t DelayCounter = 0;
 	static bool                    IsPressed;
 	static bool                    BlockingJoystickTask;
 	

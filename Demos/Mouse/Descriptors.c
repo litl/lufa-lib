@@ -156,7 +156,7 @@ USB_Descriptor_String_t VersionString PROGMEM =
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
-                       void** const DescriptorAddr, uint16_t* Size)
+                       void** const DescriptorAddr, uint16_t* const Size)
 {
 	switch (Type)
 	{
