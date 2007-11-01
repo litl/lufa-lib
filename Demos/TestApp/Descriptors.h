@@ -12,7 +12,7 @@
 #define DESCRIPTORS_H
 
 	/* Includes: */
-		#include "../../MyUSB/Drivers/USB/USB.h"
+		#include <MyUSB/Drivers/USB/USB.h>
 
 	/* Type Defines */
 		typedef struct
@@ -23,7 +23,7 @@
 
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
-		                       void** DescriptorAddr, uint16_t* Size)
+		                       void** const DescriptorAddr, uint16_t* Size)
 							   ATTR_WARN_UNUSED_RESULT ATTR_WEAK;
 
 #endif

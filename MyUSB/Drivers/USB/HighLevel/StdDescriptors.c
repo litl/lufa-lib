@@ -11,7 +11,7 @@
 #include "StdDescriptors.h"
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
-			           void** DescriptorAddr, uint16_t* Size)
+			           void** const DescriptorAddr, uint16_t* Size)
 {
 	return false;
 };

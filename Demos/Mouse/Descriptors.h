@@ -12,9 +12,7 @@
 #define DESCRIPTORS_H
 
 	/* Includes: */
-		#include "Mouse.h"
-	
-		#include "../../MyUSB/Drivers/USB/USB.h"
+		#include <MyUSB/Drivers/USB/USB.h>
 
 	/* Type Defines */
 		typedef struct
@@ -35,6 +33,11 @@
 			uint8_t                               HIDReportType;
 			uint16_t                              HIDReportLength;
 		} USB_Descriptor_HID_t;
+
+		typedef struct
+		{
+			uint8_t ReportData[0x34];
+		} USB_Descriptor_HID_Mouse_Report_t;
 
 		typedef struct
 		{
@@ -60,7 +63,7 @@
 
 	/* Function Prototypes: */
 	bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
-	                       void** DescriptorAddr, uint16_t* Size)
+	                       void** const DescriptorAddr, uint16_t* Size)
 						   ATTR_WARN_UNUSED_RESULT ATTR_WEAK;
 
 #endif

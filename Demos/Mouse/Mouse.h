@@ -17,11 +17,10 @@
 
 		#include "Descriptors.h"
 
-		#include "../../MyUSB/Drivers/USB/USB.h"            // Event functionality
-
-		#include "../../MyUSB/Scheduler/Scheduler.h"        // Simple scheduler for task management
-		#include "../../MyUSB/Drivers/USBKEY/Joystick.h"    // Joystick driver for the USBKEY
-		#include "../../MyUSB/Drivers/USBKEY/Bicolour.h"    // Bicolour LEDs driver for the USBKEY
+		#include <MyUSB/Drivers/USB/USB.h>            // Event functionality
+		#include <MyUSB/Drivers/USBKEY/Joystick.h>    // Joystick driver for the USBKEY
+		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
+		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
 	/* Task Definitions */
 		TASK(USB_Mouse_Report);
@@ -33,15 +32,7 @@
 			uint8_t X;
 			uint8_t Y;
 		} USB_MouseReport_Data_t;
-
-		typedef struct
-		{
-			uint8_t ReportData[0x34];
-		} USB_HID_Report_Mouse_t;
-	
-	/* External Variables */
-		extern USB_HID_Report_Mouse_t MouseReport;
-		
+			
 	/* Event Handlers */
 		HANDLES_EVENT(USB_CreateEndpoints);
 
