@@ -13,7 +13,7 @@
 volatile SchedulerDelayCounter_t Scheduler_TickCounter;
          uint8_t                 Scheduler_TotalTasks;
 
-bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* TaskCounter)
+bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* const TaskCounter)
 {
 	SchedulerDelayCounter_t DelayCounter_LCL;
 	SchedulerDelayCounter_t TaskCounter_LCL;

@@ -61,7 +61,7 @@
 				}
 			}
 
-			static inline void Scheduler_ResetDelay(SchedulerDelayCounter_t* TaskCounter)
+			static inline void Scheduler_ResetDelay(SchedulerDelayCounter_t* const TaskCounter)
 			{
 				ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 				{
@@ -70,7 +70,7 @@
 			}
 		
 		/* Function Prototypes */
-			bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* TaskCounter) ATTR_WARN_UNUSED_RESULT;
+			bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* const TaskCounter) ATTR_WARN_UNUSED_RESULT;
 			void Scheduler_SetTaskMode(const uint8_t id, const bool run);
 
 	/* Private Interface - For use in library only: */		

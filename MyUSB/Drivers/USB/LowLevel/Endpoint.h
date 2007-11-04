@@ -51,23 +51,23 @@
 			#define ENDPOINT_EPNUM_MASK                0b111
 			#define ENDPOINT_MAXENDPOINTS              7
 			
-			#define Endpoint_GetCurrentEndpoint()      (UENUM & ENDPOINT_EPNUM_MASK)
-			#define Endpoint_SelectEndpoint(epnum)     UENUM = (epnum & ENDPOINT_EPNUM_MASK)
-			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST  = (1 << epnum); UERST = 0; }MACROE
-			#define Endpoint_EnableEndpoint()          UECONX  |=  (1 << EPEN)
-			#define Endpoint_DisableEndpoint()         UECONX  &= ~(1 << EPEN)
-			#define Endpoint_IsEnabled()               (UECONX &   (1 << EPEN))
+			#define Endpoint_GetCurrentEndpoint()             (UENUM & ENDPOINT_EPNUM_MASK)
+			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM = (epnum & ENDPOINT_EPNUM_MASK); }MACROE
+			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST  = (1 << epnum); UERST = 0;      }MACROE
+			#define Endpoint_EnableEndpoint()          MACROS{ UECONX  |=  (1 << EPEN);               }MACROE
+			#define Endpoint_DisableEndpoint()         MACROS{ UECONX  &= ~(1 << EPEN);               }MACROE
+			#define Endpoint_IsEnabled()                     ((UECONX &   (1 << EPEN)) ? true : false)
 			#define Endpoint_Reset(epnum)              MACROS{ Endpoint_SelectEndpoint(epnum);        \
 														 Endpoint_EnableEndpoint();                   \
-														 Endpoint_DisableEndpoint();    }MACROE
-			#define Endpoint_AllocateMemory()          UECFG1X |=  (1 << ALLOC)
-			#define Endpoint_DeallocateMemory()        UECFG1X &= ~(1 << ALLOC)
+														 Endpoint_DisableEndpoint();                  }MACROE
+			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);              }MACROE
+			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);              }MACROE
 			
-			#define Endpoint_ReadWriteAllowed()        (UEINTX & (1 << RWAL))
+			#define Endpoint_ReadWriteAllowed()              ((UEINTX & (1 << RWAL)) ? true : false)
 
 			
 			#define Endpoint_ConfigureEndpoint(num, type, dir, size, banks)                           \
-												       Endpoint_ConfigureEndpoint_P(num,                \
+												       Endpoint_ConfigureEndpoint_P(num,              \
                                                        ((type << EPTYPE0) | dir),                     \
 											           ((Endpoint_BytesToEPSizeMask(size) << EPSIZE0) | banks))
 			#define Endpoint_IsConfigured()            ((UESTA0X & (1 << CFGOK)) ? ENDPOINT_CONFIG_OK : ENDPOINT_CONFIG_FAIL)

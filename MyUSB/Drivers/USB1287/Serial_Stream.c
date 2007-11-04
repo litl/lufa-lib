@@ -34,5 +34,6 @@ int Serial_TxByte(char DataByte, FILE *Stream)
 int Serial_RxByte(FILE *Stream)
 {
 	while (!(UCSR1A & (1 << RXC1)));
+	
 	return UDR1; 
 }

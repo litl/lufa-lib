@@ -61,35 +61,32 @@ EVENT_HANDLER(USB_UIDChange)
 
 EVENT_HANDLER(USB_PowerOnFail)
 {
+	char* ModeStrPtr;
+	
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Power On Fail\r\n"));
+
+	if (USB_CurrentMode == USB_MODE_DEVICE)
+		ModeStrPtr = PSTR("DEVICE");
+	else if (USB_CurrentMode == USB_MODE_HOST)
+		ModeStrPtr = PSTR("HOST");
+	else
+		ModeStrPtr = PSTR("N/A");
 	
-	switch (USB_CurrentMode)
-	{
-		case USB_MODE_DEVICE:
-			puts_P(PSTR(" -- Mode DEVICE\r\n"));
-			break;
-		case USB_MODE_HOST:
-			puts_P(PSTR(" -- Mode HOST\r\n"));
-			break;
-		default:
-			puts_P(PSTR(" -- Mode N/A\r\n"));
-			break;
-	}
-	
+	printf_P(PSTR(" -- Mode %S\r\n"), ModeStrPtr);
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 }
 
 EVENT_HANDLER(USB_HostError)
 {
-	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Host mode error\r\n"));
+	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Host Mode Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 }
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	puts_P(PSTR(EVENT_PREFIX "Ctrl Request\r\n"));
-	printf_P(PSTR(" -- Request data %d\r\n"), Request);
-	printf_P(PSTR(" -- Request type %d\r\n"), RequestType);
+	printf_P(PSTR(" -- Req Data %d\r\n"), Request);
+	printf_P(PSTR(" -- Req Type %d\r\n"), RequestType);
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)

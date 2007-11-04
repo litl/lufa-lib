@@ -8,10 +8,7 @@
 # Released under the GPL Licence, Version 3
 #
 
-# Makefile to run various helper applications on the library.
-# NB: This makefile does not compile the library itself, or
-# the Helper Applications. This makefile is designed to generate
-# library information from the already compiled tools only.
+# Makefile to build and run various helper applications on the library.
 
 MYUSBFILES = ./Scheduler/Scheduler.c                     \
              ./Drivers/USBKEY/Temperature.c              \
@@ -28,8 +25,13 @@ MYUSBFILES = ./Scheduler/Scheduler.c                     \
              ./Drivers/USB/HighLevel/StdDescriptors.c    \
 
 all:
+	make -C HelperApps $@
+
+	@echo
 	@echo Dumping library method signatures...
 	java -classpath HelperApps/MethodSig MethodSig $(MYUSBFILES) > FunctionSignatures.txt
 	
 clean:
+	make -C HelperApps $@
+
 	rm -f FunctionSignatures.txt

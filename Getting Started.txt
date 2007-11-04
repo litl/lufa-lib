@@ -35,7 +35,7 @@ To build each demonstration application individually, run a "make all" from the 
 
 To build the Helper applications (small Java tools used to perform MyUSB related development tasks such as determine which events in the library are not hooked in a particular user application) you will need to have the latest JDK installed. Run "make all" from the MyUSB/HelperApps/ subdirectory to build all the tools at once.
 
-To run the applicable Helper applications (and any other library-related operations), execute a "make all" from the MyUSB/ directory.
+To build the helper applications and run the Helper applications which operate on the whole library (and any other library-related operations), execute a "make all" from the MyUSB/ directory.
 
 A makefile is present in the root of the project folder; this will perform all the above tasks in sequence when called with "make all".
 

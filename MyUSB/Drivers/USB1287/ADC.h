@@ -41,7 +41,7 @@
 				ADCSRA |= (1 << ADSC);
 			}
 
-			static inline uint16_t ADC_GetChannelReading(uint8_t Channel)
+			static inline uint16_t ADC_GetChannelReading(const uint8_t Channel)
 			{
 				ADC_StartReading(Channel);
 	

@@ -12,6 +12,9 @@
 # Call with "make all" to rebuild everything.
 
 %:
-	make -C MyUSB/HelperApps/ $@
+	@echo Executing \"make $@\" on all MyUSB library elements.
+	@echo
 	make -C MyUSB/ $@
 	make -C Demos/ $@
+	@echo
+	@echo MyUSB \"make $@\" operation complete.

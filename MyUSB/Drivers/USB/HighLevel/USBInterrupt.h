@@ -46,8 +46,8 @@
 			#define USB_INT_ENABLE(int)              MACROS{ USB_INT_GET_EN_REG(int)   |=   USB_INT_GET_EN_MASK(int);   }MACROE
 			#define USB_INT_DISABLE(int)             MACROS{ USB_INT_GET_EN_REG(int)   &= ~(USB_INT_GET_EN_MASK(int));  }MACROE
 			#define USB_INT_CLEAR(int)               MACROS{ USB_INT_GET_INT_REG(int)  &= ~(USB_INT_GET_INT_MASK(int)); }MACROE
-			#define USB_INT_ISENABLED(int)                   (USB_INT_GET_EN_REG(int)  &    USB_INT_GET_EN_MASK(int))
-			#define USB_INT_OCCURRED(int)                    (USB_INT_GET_INT_REG(int) &    USB_INT_GET_INT_MASK(int))
+			#define USB_INT_ISENABLED(int)                 ((USB_INT_GET_EN_REG(int)   &    USB_INT_GET_EN_MASK(int)) ? true : false)
+			#define USB_INT_OCCURRED(int)                  ((USB_INT_GET_INT_REG(int)  &    USB_INT_GET_INT_MASK(int)) ? true : false)
 		
 			#define USB_INT_VBUS                             USBCON, (1 << VBUSTE) , USBINT, (1 << VBUSTI)
 			#define USB_INT_IDTI                             USBCON, (1 << IDTE)   , USBINT, (1 << IDTI)

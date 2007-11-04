@@ -47,31 +47,35 @@
 			#define USB_SETUPINTERFACE_OK              true
 			#define USB_SETUPINTERFACE_FAIL            false
 							
-			#define USB_VBUS_GetStatus()               ((USBSTA & (1 << VBUS)) ? true : false)
+			#define USB_VBUS_GetStatus()             ((USBSTA  & (1 << VBUS)) ? true : false)
 
 			#define USB_FIFOCON_Clear()        MACROS{ UEINTX  &= ~(1<<FIFOCON);   }MACROE
 			
 			#define USB_In_Clear()             MACROS{ UEINTX  &= ~(1 << TXINI); USB_FIFOCON_Clear();  }MACROE
-			#define USB_In_IsReady()                   (UEINTX &   (1 << TXINI))
+			#define USB_In_IsReady()                 ((UEINTX  &   (1 << TXINI)) ? true : false)
 			
 			#define USB_Out_Clear()            MACROS{ UEINTX  &= ~(1 << RXOUTI); USB_FIFOCON_Clear(); }MACROE
-			#define USB_Out_IsRecieved()               (UEINTX &   (1 << RXOUTI))
+			#define USB_Out_IsRecieved()             ((UEINTX  &   (1 << RXOUTI)) ? true: false)
 			
 			#define USB_ClearSetupRecieved()   MACROS{ UEINTX  &= ~(1 << RXSTPI);  }MACROE
 			#define USB_Stall_Transaction()    MACROS{ UECONX  |=  (1 << STALLRQ); }MACROE
-			#define USB_IsSetupRecieved()              (UEINTX & (1 << RXSTPI))
-			
+			#define USB_IsSetupRecieved()            ((UEINTX  &   (1 << RXSTPI)) ? true : false)
+	
 			#define USB_Detach()               MACROS{ UDCON   |=  (1 << DETACH);  }MACROE
 			#define USB_Attach()               MACROS{ UDCON   &= ~(1 << DETACH);  }MACROE
 
 		/* Function Prototypes */
 			bool USB_SetupInterface(void);
 
+		/* Throwable Events */
+			RAISES_EVENT(USB_Disconnect);
+			RAISES_EVENT(USB_PowerOnFail);
+
 	/* Private Interface - For use in library only: */
 		/* Macros */
 			#define USB_PLL_On()               MACROS{ PLLCSR   =  (USB_PLL_PSC | (1 << PLLE)); }MACROE
 			#define USB_PLL_Off()              MACROS{ PLLCSR   =  0;              }MACROE
-			#define USB_PLL_IsReady()                  (PLLCSR &  (1 << PLOCK))
+			#define USB_PLL_IsReady()                ((PLLCSR  &   (1 << PLOCK)) ? true : false)
 
 			#define USB_REG_On()               MACROS{ UHWCON  |=  (1 << UVREGE);  }MACROE
 			#define USB_REG_Off()              MACROS{ UHWCON  &= ~(1 << UVREGE);  }MACROE
@@ -91,11 +95,7 @@
 				POWERON_ERR_NoUSBModeSpecified      = 0,
 				POWERON_ERR_EndpointCreationFailed  = 1,
 			};
-		
-		/* Throwable Events */
-			RAISES_EVENT(USB_Disconnect);
-			RAISES_EVENT(USB_PowerOnFail);
-	
+
 		/* Global Variables */
 			extern volatile uint8_t USB_CurrentMode;
 			extern          uint8_t USB_Options;
