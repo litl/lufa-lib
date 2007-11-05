@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef TESTAPP_H
-#define TESTAPP_H
+#ifndef MOUSE_H
+#define MOUSE_H
 
 	/* Includes */
 		#include <avr/io.h>

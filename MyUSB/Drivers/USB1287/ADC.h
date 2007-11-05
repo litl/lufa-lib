@@ -36,7 +36,7 @@
 			
 			static inline void ADC_StartReading(const uint8_t Channel)
 			{
-				ADMUX = ((1 << REFS1) | Channel);
+				ADMUX = ((1 << REFS0) | Channel);
 			
 				ADCSRA |= (1 << ADSC);
 			}

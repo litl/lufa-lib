@@ -13,13 +13,10 @@
 
 	This example is based on the MyUSB Mouse demonstration application,
 	written by Dean Camera.
-
-	Keyboard report descriptor is from the AVR-USB project, used with
-	permission.
 */
 
-#ifndef TESTAPP_H
-#define TESTAPP_H
+#ifndef KEYBOARD_H
+#define KEYBOARD_H
 
 	/* Includes */
 		#include <avr/io.h>

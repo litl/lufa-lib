@@ -13,9 +13,6 @@
 
 	This example is based on the MyUSB Mouse demonstration application,
 	written by Dean Camera.
-
-	Keyboard report descriptor is from the AVR-USB project, used with
-	permission.
 */
 
 #ifndef DESCRIPTORS_H
