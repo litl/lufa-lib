@@ -25,6 +25,19 @@
 	
 	When activated, the USB events will be printed through the
 	serial USART.
+	
+	When the USB subsystem is activated, the USBKEY's status LEDs
+	will show the current USB status, as described in the following
+	table:
+	
+	  COLOUR:          | DESCRIPTION:
+	 ------------------+-------------------------------------------
+	  Red/Red          | USB error.
+	  Red/Off          | USB not activated.
+	  Green/Red        | USB activated, but not connected.
+	  Green/Orange     | USB connected, but not initialized.
+	  Green/Green      | USB initialized.
+	  Orange/Orange    | USB suspended.
 */
 
 #include "TestApp.h"

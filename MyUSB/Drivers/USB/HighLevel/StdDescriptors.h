@@ -19,7 +19,7 @@
 		#include "../../../Common/FunctionAttributes.h"
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define NO_DESCRIPTOR_STRING              0
 			
 			#define USB_CONFIG_POWER_MA(x)            (x >> 1)
@@ -36,7 +36,7 @@
 			#define CONFIGURATIONS                    1
 			#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
 
-		/* Enums */
+		/* Enums: */
 			enum DescriptorTypes
 			{
 				DTYPE_Device            = 1,

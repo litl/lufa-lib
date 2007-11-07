@@ -12,7 +12,7 @@
 #define STDREQ_H
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define FEATURE_ENDPOINT           0b00000000
 			#define FEATURE_ENDPOINT_ENABLED   0b00000001
 			#define FEATURE_REMOTE_WAKEUP      0b00000001		

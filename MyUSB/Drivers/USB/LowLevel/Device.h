@@ -16,11 +16,11 @@
 		#include "../../../Common/FunctionAttributes.h"
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define USB_DEV_LOWSPEED                (1 << 0)
 			#define USB_DEV_HIGHSPEED               (0 << 0)
 
-		/* Inline Functions */
+		/* Inline Functions: */
 			static inline uint8_t USB_Device_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t USB_Device_Read_Byte(void)
 			{
@@ -65,7 +65,7 @@
 			}
 
 	/* Private Interface - For use in library only: */
-		/* Macros */		
+		/* Macros: */		
 			#define USB_DEV_SetLowSpeed()   MACROS{ UDCON |=  (1 << LSM); }MACROE
 			#define USB_DEV_SetHighSpeed()  MACROS{ UDCON &= ~(1 << LSM); }MACROE
 		

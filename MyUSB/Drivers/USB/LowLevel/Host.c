@@ -13,7 +13,9 @@
 bool USB_Host_WaitMS(uint8_t MS)
 {
 	uint8_t MSRemaining = MS;
-				
+
+	SERIAL_STREAM_ASSERT(USB_HOST_SOFGeneration_IsEnabled()); // DEBUG
+	
 	while (MSRemaining)
 	{
 		if (USB_INT_OCCURRED(USB_INT_HSOFI))
@@ -28,4 +30,20 @@ bool USB_Host_WaitMS(uint8_t MS)
 	}
 
 	return true;
+}
+
+void USB_Host_ResetDevice(void)
+{
+	USB_INT_DISABLE(USB_INT_SRPI);
+	USB_INT_DISABLE(USB_INT_DCONNI);
+
+	USB_HOST_ResetBus();
+
+	USB_INT_CLEAR(USB_INT_SRPI);
+	USB_INT_CLEAR(USB_INT_DCONNI);
+
+	while(!(USB_HOST_ResetBus_IsDone()));
+
+	USB_INT_ENABLE(USB_INT_SRPI);
+	USB_INT_ENABLE(USB_INT_DCONNI);
 }

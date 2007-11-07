@@ -41,7 +41,7 @@
 		#endif
    
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define BADISR_vect __vector_default
 			#define reti() asm volatile ("RETI"::)
 
@@ -65,7 +65,7 @@
 			   void vector (void)
 			   
 	/* Private Interface - For use in library only: */
-		/* Macros */
+		/* Macros: */
 			#define __replace_and_string(name) #name
  
 #endif

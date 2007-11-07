@@ -11,13 +11,13 @@
 #ifndef BICOLOUR_H
 #define BICOLOUR_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 
 		#include "../../Common/FunctionAttributes.h"
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define BICOLOUR_LED1_RED    (1 << 4)
 			#define BICOLOUR_LED1_GREEN  (1 << 5)
 			#define BICOLOUR_LED2_RED    (1 << 7)
@@ -26,7 +26,7 @@
 			#define BICOLOUR_LED2_ORANGE (BICOLOUR_LED2_RED | BICOLOUR_LED2_GREEN)
 			#define BICOLOUR_ALL_LEDS    (BICOLOUR_LED1_ORANGE | BICOLOUR_LED2_ORANGE)
 	
-		/* Inline Functions */
+		/* Inline Functions: */
 			static inline void Bicolour_Init(void)
 			{
 				DDRD  |=  BICOLOUR_ALL_LEDS;

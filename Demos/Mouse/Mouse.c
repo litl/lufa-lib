@@ -90,7 +90,7 @@ TASK(USB_Mouse_Report)
 			USB_Device_Write_Byte(MouseReportData.X);
 			USB_Device_Write_Byte(MouseReportData.Y);
 			
-			USB_In_Clear();
+			Endpoint_In_Clear();
 		}
 	}
 }

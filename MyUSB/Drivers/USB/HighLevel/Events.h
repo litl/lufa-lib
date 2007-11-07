@@ -12,12 +12,12 @@
 #define EVENTS_H
 
 	// Includes:
-	#include <avr/io.h>
-	
-	#include "../../../Common/FunctionAttributes.h"
+		#include <avr/io.h>
+		
+		#include "../../../Common/FunctionAttributes.h"
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define RAISE_EVENT(e, ...)           Event_ ## e (__VA_ARGS__)
 			#define EVENT_HANDLER(e)              void Event_ ## e e ## _P
 			#define HANDLES_EVENT(e)              EVENT_HANDLER(e) e ## _M
@@ -25,7 +25,7 @@
 			#define ALIAS_STUB(e)                 EVENT_HANDLER(e) ATTR_WEAK ATTR_ALIAS(__stub)
 
 	/* Private Interface - For use in library only: */
-		/* Macros */
+		/* Macros: */
 			// Event Parameters:
 			#define USB_VBUSChange_P              (void)
 			#define USB_VBUSConnect_P             (void)
@@ -40,6 +40,8 @@
 			#define USB_HostError_P               (const unsigned char ErrorCode)
 			#define USB_UnhandledControlPacket_P  (const uint8_t Request, const uint8_t RequestType)
 			#define USB_CreateEndpoints_P         (void)
+			#define USB_DeviceAttached_P          (void)
+			#define USB_DeviceUnattached_P        (void)
 
 			// Event Modifiers (to deprecate old events):
 			#define USB_VBUSChange_M	          
@@ -55,6 +57,8 @@
 			#define USB_HostError_M               
 			#define USB_UnhandledControlPacket_M  
 			#define USB_CreateEndpoints_M         
+			#define USB_DeviceAttached_M          
+			#define USB_DeviceUnattached_M        
 
 		/* Function Prototypes: */
 			#ifdef INCLUDE_FROM_EVENTS_H
@@ -73,6 +77,8 @@
 				ALIAS_STUB(USB_HostError);
 				ALIAS_STUB(USB_UnhandledControlPacket);
 				ALIAS_STUB(USB_CreateEndpoints);
+				ALIAS_STUB(USB_DeviceAttached);
+				ALIAS_STUB(USB_DeviceUnattached);
 			#endif
 			
 #endif

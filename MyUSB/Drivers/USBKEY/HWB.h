@@ -11,14 +11,14 @@
 #ifndef HWB_H
 #define HWB_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 		#include <stdbool.h>
 
 		#include "../../Common/FunctionAttributes.h"
 		
 	/* Public Interface - May be used in end-application: */
-		/* Inline Functions */
+		/* Inline Functions: */
 			static inline void HWB_Init(void)
 			{
 				DDRE  &= ~(1 << 2);

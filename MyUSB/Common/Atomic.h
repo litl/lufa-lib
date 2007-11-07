@@ -28,7 +28,7 @@
 			#define NONATOMIC_FORCEOFF         uint8_t sreg_save __attribute__((__cleanup__(__iCliParam))) = 0
 
 	/* Private Interface - For use in library only: */
-		/* Inline Functions */
+		/* Inline Functions: */
 		static __inline__ uint8_t __iSeiRetVal(void)               { sei(); return 1; }   
 		static __inline__ uint8_t __iCliRetVal(void)               { cli(); return 1; }   
 		static __inline__ void    __iSeiParam(const uint8_t* __s)  { sei(); __asm__ volatile ("" ::: "memory"); (void)__s; }

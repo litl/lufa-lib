@@ -46,7 +46,7 @@ void USB_DeviceTask(void)
 	{
 		Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 
-		if (USB_IsSetupRecieved())
+		if (Endpoint_IsSetupRecieved())
 		  USB_Device_ProcessControlPacket();
 	}
 }
@@ -56,13 +56,14 @@ void USB_HostTask(void)
 	switch (USB_HostState)
 	{
 		case HOST_STATE_Unattached:
-			USB_INT_CLEAR(USB_INT_BCERRI);
-
 			if (!(USB_Options & USB_HOST_MANUALVBUS))
 			  USB_HOST_AutoVBUS_On();
 
 			if (USB_VBUS_GetStatus())
-			  USB_HostState = HOST_STATE_Attached;
+			{
+				USB_INT_CLEAR(USB_INT_BCERRI);
+				USB_HostState = HOST_STATE_Attached;
+			}
 
 			break;
 		case HOST_STATE_Attached:
@@ -73,6 +74,8 @@ void USB_HostTask(void)
 
 				USB_INT_ENABLE(USB_INT_DDISCI);
 
+				RAISE_EVENT(USB_DeviceAttached);
+
 				USB_IsConnected = true;
 				RAISE_EVENT(USB_Connect);
 				
@@ -80,32 +83,38 @@ void USB_HostTask(void)
 				
 				if (USB_Host_WaitMS(100) == false)
 				{
+					RAISE_EVENT(USB_DeviceUnattached);
 					USB_HostState = HOST_STATE_Unattached;
 					break;
 				}
 				
-				USB_INT_CLEAR(USB_INT_RSTI);
 				USB_HOST_ResetDevice();
-
-				while (!(USB_INT_OCCURRED(USB_INT_RSTI)));
 				
 				if (USB_Host_WaitMS(100) == false)
 				{
+					RAISE_EVENT(USB_DeviceUnattached);
 					USB_HostState = HOST_STATE_Unattached;
 					break;
-				}				
+				}
 
 				USB_HostState = HOST_STATE_Powered;
 			}
 			else if (USB_INT_OCCURRED(USB_INT_BCERRI) || USB_INT_OCCURRED(USB_INT_VBERRI))
 			{
 				if (USB_INT_OCCURRED(USB_INT_VBERRI))
-				  RAISE_EVENT(USB_HostError, HOST_ERROR_VBusVoltageDip);
-			
-				USB_INT_CLEAR(USB_INT_VBERRI);
-					
-				USB_HOST_AutoVBUS_Off();				
-			
+				{
+					RAISE_EVENT(USB_HostError, HOST_ERROR_VBusVoltageDip);
+					USB_INT_CLEAR(USB_INT_VBERRI);
+				}
+
+				if (!(USB_INT_OCCURRED(USB_INT_BCERRI)))
+				{
+					RAISE_EVENT(USB_DeviceUnattached);
+					USB_INT_CLEAR(USB_INT_BCERRI);
+				}
+				
+				USB_HOST_AutoVBUS_Off();		
+
 				USB_HostState = HOST_STATE_Unattached;
 			}
 			
@@ -121,11 +130,11 @@ void USB_HostTask(void)
 		
 			break;
 		case HOST_STATE_Default:
-			USB_HostRequest.bmRequestType = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
-			USB_HostRequest.bRequest      = REQ_GetDescriptor;
-			USB_HostRequest.wValue        = (DTYPE_Device << 8);
-			USB_HostRequest.wIndex        = 0;
-			USB_HostRequest.wLength       = 64;
+			USB_HostRequest.RequestType = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
+			USB_HostRequest.RequestData = REQ_GetDescriptor;
+			USB_HostRequest.Value       = (DTYPE_Device << 8);
+			USB_HostRequest.Index       = 0;
+			USB_HostRequest.Length      = 64;
 			
 			USB_Host_SendControlRequest(NULL);
 

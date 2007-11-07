@@ -11,7 +11,7 @@
 #ifndef USBINT_H
 #define USBINT_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 		
 		#include "../LowLevel/LowLevel.h"
@@ -19,7 +19,7 @@
 		#include "../../../Common/Common.h"
 		
 	/* Public Interface - May be used in end-application: */
-		/* Inline Functions */
+		/* Inline Functions: */
 			static inline void USB_INT_DisableAllInterrupts(void)
 			{
 				UHIEN  = 0;
@@ -27,7 +27,7 @@
 				OTGIEN = 0;
 			}
 		
-		/* Throwable Events */
+		/* Throwable Events: */
 			RAISES_EVENT(USB_VBUSChange);
 			RAISES_EVENT(USB_VBUSConnect);
 			RAISES_EVENT(USB_VBUSDisconnect);
@@ -37,7 +37,7 @@
 			RAISES_EVENT(USB_UIDChange);
 			
 	/* Private Interface - For use in library only: */
-		/* Macros */
+		/* Macros: */
 			#define USB_INT_GET_EN_REG(a, b, c, d)           a
 			#define USB_INT_GET_EN_MASK(a, b, c, d)          b
 			#define USB_INT_GET_INT_REG(a, b, c, d)          c

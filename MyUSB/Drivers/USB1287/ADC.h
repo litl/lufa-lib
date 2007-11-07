@@ -11,14 +11,14 @@
 #ifndef ADC_H
 #define ADC_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 
 		#include "../../Common/FunctionAttributes.h"
 		#include "../../Common/Common.h"
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define  ADC_Init()              MACROS{ ADCSRA = ((1 << ADEN) | (7 << ADPS0)); }MACROE
 			#define  ADC_Off()               MACROS{ ADCSRA = 0;                            }MACROE
 			#define  ADC_On()                MACROS{ ADCSRA = ((1 << ADEN) | (7 << ADPS0)); }MACROE
@@ -27,7 +27,7 @@
 			#define  ADC_IsReadingComplete()         (!(ADCSRA & (1 << ADSC)))
 			#define  ADC_GetReading()                ADC
 
-		/* Inline Functions */
+		/* Inline Functions: */
 			static inline void ADC_SetupChannel(const uint8_t Channel)
 			{
 				DDRD  &= ~(1 << Channel);

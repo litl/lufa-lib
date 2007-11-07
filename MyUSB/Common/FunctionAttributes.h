@@ -12,7 +12,7 @@
 #define FUNCATTR_H
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define ATTR_NO_RETURN            __attribute__ ((noreturn))
 			#define ATTR_INIT_SECTION(x)      __attribute__ ((naked, section (".init" #x )))
 			#define ATTR_WARN_UNUSED_RESULT   __attribute__ ((warn_unused_result))

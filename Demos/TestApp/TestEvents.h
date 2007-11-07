@@ -11,7 +11,7 @@
 #ifndef TESTEVENTS_H
 #define TESTEVENTS_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 
 		#include <MyUSB/Drivers/USB/USB.h>                // USB Functionality
@@ -19,7 +19,7 @@
 		#include <MyUSB/Drivers/USB1287/Serial_Stream.h>  // USART Stream driver
 		#include <MyUSB/Drivers/USB1287/TerminalCodes.h>  // ANSI Terminal Escape Codes
 
-	/* Event Catch List */
+	/* Event Catch List: */
 		HANDLES_EVENT(USB_VBUSChange);
 		HANDLES_EVENT(USB_VBUSConnect);
 		HANDLES_EVENT(USB_VBUSDisconnect);
@@ -33,8 +33,10 @@
 		HANDLES_EVENT(USB_HostError);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 		HANDLES_EVENT(USB_CreateEndpoints);
+		HANDLES_EVENT(USB_DeviceAttached);
+		HANDLES_EVENT(USB_DeviceUnattached);
 
-	/* Defines */
+	/* Defines: */
 		#define EVENT_PREFIX ESC_INVERSE_ON "EVENT:" ESC_INVERSE_OFF " "
 
 #endif

@@ -19,20 +19,20 @@
 		#include "StdRequestType.h"
 
 	/* Private Interface - For use in library only: */
-		/* Type Defines */
+		/* Type Defines: */
 			typedef struct
 			{
-				uint8_t  bmRequestType;
-				uint8_t  bRequest;
-				uint16_t wValue;
-				uint16_t wIndex;
-				uint16_t wLength;
+				uint8_t  RequestType;
+				uint8_t  RequestData;
+				uint16_t Value;
+				uint16_t Index;
+				uint16_t Length;
 			} USB_Host_Request_Header_t;
 		
-		/* Global Variables */
+		/* Global Variables: */
 			extern USB_Host_Request_Header_t USB_HostRequest;
 			
-		/* Function Prototypes */
+		/* Function Prototypes: */
 			void USB_Host_SendControlRequest(const void* Data);
 
 #endif

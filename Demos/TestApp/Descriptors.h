@@ -14,7 +14,7 @@
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
 
-	/* Type Defines */
+	/* Type Defines: */
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;

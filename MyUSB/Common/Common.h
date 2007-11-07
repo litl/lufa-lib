@@ -11,11 +11,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-	/* Includes */
+	/* Includes: */
 		#include <stdio.h>
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define MACROS                  do
 			#define MACROE                  while (0)
 			

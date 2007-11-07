@@ -98,7 +98,7 @@ TASK(USB_Keyboard_Report)
 			USB_Device_Write_Byte(KeyboardReportData.Modifier);
 			USB_Device_Write_Byte(KeyboardReportData.KeyCode);
 			
-			USB_In_Clear();
+			Endpoint_In_Clear();
 		}
 	}
 }

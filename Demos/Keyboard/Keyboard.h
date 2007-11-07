@@ -18,7 +18,7 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 
@@ -29,17 +29,17 @@
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
-	/* Task Definitions */
+	/* Task Definitions: */
 		TASK(USB_Keyboard_Report);
 
-	/* Type Defines */
+	/* Type Defines: */
 		typedef struct
 		{
 			uint8_t Modifier;
 			uint8_t KeyCode;
 		} USB_KeyboardReport_Data_t;
 			
-	/* Event Handlers */
+	/* Event Handlers: */
 		HANDLES_EVENT(USB_CreateEndpoints);
 
 #endif

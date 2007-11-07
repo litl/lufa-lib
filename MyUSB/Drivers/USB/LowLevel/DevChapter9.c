@@ -85,10 +85,10 @@ void USB_Device_ProcessControlPacket(void)
 	if (RequestHandled == false)
 	  RAISE_EVENT(USB_UnhandledControlPacket, Request, RequestType);
 	  
-	if (USB_IsSetupRecieved())
+	if (Endpoint_IsSetupRecieved())
 	{
-		USB_Stall_Transaction();
-		USB_ClearSetupRecieved();		
+		Endpoint_Stall_Transaction();
+		Endpoint_ClearSetupRecieved();		
 	}
 }
 
@@ -98,10 +98,10 @@ void USB_Device_SetAddress(void)
 
 	UDADDR = ((UDADDR & (1 << ADDEN)) | (NewAddress & 0b00111111));
 
-	USB_ClearSetupRecieved();
+	Endpoint_ClearSetupRecieved();
 
-	USB_In_Clear();
-	while (!(USB_In_IsReady()));
+	Endpoint_In_Clear();
+	while (!(Endpoint_In_IsReady()));
 	
 	UDADDR |= (1 << ADDEN);
 
@@ -117,22 +117,22 @@ void USB_Device_SetConfiguration(void)
 	
 	USB_ConfigurationNumber = ConfigNum;
 
-	USB_ClearSetupRecieved();
-	USB_In_Clear();
+	Endpoint_ClearSetupRecieved();
+	Endpoint_In_Clear();
 
 	RAISE_EVENT(USB_CreateEndpoints);
 }
 
 void USB_Device_GetConfiguration(void)
 {
-	USB_ClearSetupRecieved();
+	Endpoint_ClearSetupRecieved();
 	
 	USB_Device_Write_Byte(USB_ConfigurationNumber);
 	
-	USB_In_Clear();
+	Endpoint_In_Clear();
 
-	while(!(USB_Out_IsRecieved()));
-	USB_Out_Clear();
+	while(!(Endpoint_Out_IsRecieved()));
+	Endpoint_Out_Clear();
 }
 
 void USB_Device_GetDescriptor(void)
@@ -153,7 +153,7 @@ void USB_Device_GetDescriptor(void)
 
 	DescriptorLength  = USB_Device_Read_Word();
 	
-	USB_ClearSetupRecieved();
+	Endpoint_ClearSetupRecieved();
 	
 	if (DescriptorLength > DescriptorBytesRem)
 	{
@@ -165,9 +165,9 @@ void USB_Device_GetDescriptor(void)
 		DescriptorBytesRem = DescriptorLength;
 	}
 	
-	while (DescriptorBytesRem && (!(USB_Out_IsRecieved())))
+	while (DescriptorBytesRem && (!(Endpoint_Out_IsRecieved())))
 	{
-		while (!(USB_In_IsReady()));
+		while (!(Endpoint_In_IsReady()));
 		
 		uint8_t BytesInPacket = 0;
 		
@@ -177,23 +177,23 @@ void USB_Device_GetDescriptor(void)
 			DescriptorBytesRem--;
 		}
 		
-		USB_In_Clear();
+		Endpoint_In_Clear();
 	}
 	
-	if (USB_Out_IsRecieved())
+	if (Endpoint_Out_IsRecieved())
 	{
-		USB_Out_Clear();
+		Endpoint_Out_Clear();
 		return;
 	}
 	
 	if(SendZeroPacket == true)
 	{
-		while (!(USB_In_IsReady()));
-		USB_In_Clear();
+		while (!(Endpoint_In_IsReady()));
+		Endpoint_In_Clear();
 	}
 
-   while(!(USB_Out_IsRecieved()));
-   USB_Out_Clear();
+   while(!(Endpoint_Out_IsRecieved()));
+   Endpoint_Out_Clear();
 }
 
 void USB_Device_GetStatus(const uint8_t RequestType)
@@ -230,17 +230,17 @@ void USB_Device_GetStatus(const uint8_t RequestType)
 			return;
 	}
 	
-	USB_ClearSetupRecieved();
+	Endpoint_ClearSetupRecieved();
 	
 	USB_Device_Write_Byte(StatusByte);
 	USB_Device_Write_Byte(0x00);
 
-	USB_In_Clear();
+	Endpoint_In_Clear();
 	
-	while(!(USB_Out_IsRecieved()));
-	USB_Out_Clear();
+	while(!(Endpoint_Out_IsRecieved()));
+	Endpoint_Out_Clear();
 
-	USB_ClearSetupRecieved();
+	Endpoint_ClearSetupRecieved();
 }
 
 void USB_Device_SetFeature(const uint8_t RequestType)
@@ -262,7 +262,7 @@ void USB_Device_SetFeature(const uint8_t RequestType)
 				if (!(Endpoint_IsEnabled()))
 				{
 					Endpoint_EnableEndpoint();
-					USB_ClearSetupRecieved();
+					Endpoint_ClearSetupRecieved();
 				}
 				
 				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);	
@@ -291,7 +291,7 @@ void USB_Device_ClearFeature(const uint8_t RequestType)
 				if (Endpoint_IsEnabled())
 				{
 					Endpoint_DisableEndpoint();
-					USB_ClearSetupRecieved();
+					Endpoint_ClearSetupRecieved();
 				}
 				
 				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);		

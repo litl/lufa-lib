@@ -20,14 +20,17 @@
 		#include "../HighLevel/USBInterrupt.h"
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define USB_HOST_AUTOVBUS             (0 << 1)
 			#define USB_HOST_MANUALVBUS           (1 << 1)
 
 			#define USB_HOST_VBUS_On()            MACROS{ PORTE |=  (1 << 7);             }MACROE
 			#define USB_HOST_VBUS_Off()           MACROS{ PORTE &= ~(1 << 7);             }MACROE
-
-		/* Enums */
+			
+			#define USB_HOST_ResetBus()           MACROS{ UHCON |=  (1 << RESET);         }MACROE
+			#define USB_HOST_ResetBus_IsDone()          ((UHCON &   (1 << RESET)) ? false : true)
+			
+		/* Enums: */
 			enum USB_Host_States
 			{
 				HOST_STATE_Unattached       = 0,
@@ -44,7 +47,7 @@
 				HOST_ERROR_VBusVoltageDip   = 0,
 			};
 		
-		/* Inline Functions */
+		/* Inline Functions: */
 			static inline uint8_t USB_Host_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t USB_Host_Read_Byte(void)
 			{
@@ -89,11 +92,11 @@
 			}
 
 	/* Private Interface - For use in library only: */
-		/* Macros */
+		/* Macros: */
 			#define USB_HOST_HostModeOn()              MACROS{ USBCON |=  (1 << HOST);    }MACROE
 			#define USB_HOST_HostModeOff()             MACROS{ USBCON &= ~(1 << HOST);    }MACROE
 
-			#define USB_HOST_ManualVBUS_Enable()       MACROS{ UHWCON &= ~(1 << UVCONE); OTGCON |=  (1 << VBUSHWC); DDRE |= (1 << 7); }MACROE
+			#define USB_HOST_ManualVBUS_Enable()       MACROS{ UHWCON &= ~(1 << UVCONE); OTGCON |= (1 << VBUSHWC); DDRE |= (1 << 7); }MACROE
 			#define USB_HOST_ManualVBUS_Disable()      MACROS{ OTGCON &= ~(1 << VBUSHWC); }MACROE
 
 			#define USB_HOST_AutoVBUS_On()             MACROS{ UHWCON |=  (1 << UVCONE); OTGCON |= (1 << VBUSREQ); }MACROE
@@ -101,10 +104,12 @@
 
 			#define USB_HOST_SOFGeneration_Enable()    MACROS{ UHCON  |=  (1 << SOFEN);   }MACROE 
 			#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON  &= ~(1 << SOFEN);   }MACROE 
+			#define USB_HOST_SOFGeneration_IsEnabled()       ((UHCON  &   (1 << SOFEN)) ? true : false)
 
 			#define USB_HOST_ResetDevice()             MACROS{ UHCON  |= (1 << RESET);     }MACROE 
 
-		/* Function Prototypes */
+		/* Function Prototypes: */
 			bool USB_Host_WaitMS(uint8_t MS);
+			void USB_Host_ResetDevice(void);
 
 #endif

@@ -11,7 +11,7 @@
 #ifndef JOYSTICK_H
 #define JOYSTICK_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/interrupt.h>
 		#include <stdbool.h>
@@ -20,26 +20,24 @@
 		#include "../../Common/FunctionAttributes.h"
 
 	/* Private Interface - For use in library only: */
-		/* Macros */
+		/* Macros: */
 			#define JOY_BMASK                 ((1 << 5) | (1 << 6) | (1 << 7))
 			#define JOY_EMASK                 ((1 << 4) | (1 << 5))
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define JOY_LEFT                  (1 << 6)
 			#define JOY_RIGHT                 (1 << 3)
 			#define JOY_UP                    (1 << 4)
 			#define JOY_DOWN                  (1 << 7)
 			#define JOY_PRESS                 (1 << 5)
 			
-		/* Inline Functions */
+		/* Inline Functions: */
 			static inline void Joystick_Init(void)
 			{
-				/* Joystick Inputs */
 				DDRB &= ~(JOY_BMASK);
 				DDRE &= ~(JOY_EMASK);
 
-				/* Turn on Joystick pullups */
 				PORTB |= JOY_BMASK;
 				PORTE |= JOY_EMASK;				
 			};

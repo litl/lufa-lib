@@ -28,7 +28,7 @@ EVENT_HANDLER(USB_VBUSDisconnect)
 EVENT_HANDLER(USB_Connect)
 {
 	puts_P(PSTR(EVENT_PREFIX "USB  +\r\n"));
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -74,12 +74,20 @@ EVENT_HANDLER(USB_PowerOnFail)
 	
 	printf_P(PSTR(" -- Mode %S\r\n"), ModeStrPtr);
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
+
+	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+
+	for (;;);
 }
 
 EVENT_HANDLER(USB_HostError)
 {
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Host Mode Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
+
+	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	
+	for (;;);
 }
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
@@ -92,5 +100,16 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 EVENT_HANDLER(USB_CreateEndpoints)
 {
 	puts_P(PSTR(EVENT_PREFIX "Make Endpoints\r\n"));
+
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
 }
 
+EVENT_HANDLER(USB_DeviceAttached)
+{
+	puts_P(PSTR(EVENT_PREFIX ESC_BG_GREEN "Device +\r\n"));
+}
+
+EVENT_HANDLER(USB_DeviceUnattached)
+{
+	puts_P(PSTR(EVENT_PREFIX ESC_BG_YELLOW "Device -\r\n"));
+}

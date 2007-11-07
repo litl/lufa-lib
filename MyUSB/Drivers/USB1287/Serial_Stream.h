@@ -11,19 +11,19 @@
 #ifndef SERIAL_STREAM_H
 #define SERIAL_STREAM_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 		#include <stdio.h>
 
 	/* Public Interface - May be used in end-application: */
-		/* Function Prototypes */
+		/* Function Prototypes: */
 			void Serial_Init(const uint16_t BaudRate);
 
 	/* Private Interface - For use in library only: */
-		/* Macros */
+		/* Macros: */
 			#define SERIAL_UBBRVAL(baud)   (((F_CPU / (baud * 16UL))) - 1)
 		
-		/* Function Prototypes */
+		/* Function Prototypes: */
 			int Serial_TxByte(char DataByte, FILE *Stream);
 			int Serial_RxByte(FILE *Stream);
 

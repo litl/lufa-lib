@@ -11,7 +11,7 @@
 #ifndef TESTAPP_H
 #define TESTAPP_H
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/interrupt.h>
 
@@ -26,7 +26,7 @@
 		#include <MyUSB/Drivers/USBKEY/HWB.h>             // Hardware Button driver for the USBKEY
 		#include <MyUSB/Drivers/USBKEY/Temperature.h>     // Temperature sensor driver
 		
-	/* Task Definitions */
+	/* Task Definitions: */
 		TASK(TestApp_CheckJoystick);
 		TASK(TestApp_CheckHWB);
 		TASK(TestApp_CheckTemp);

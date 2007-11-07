@@ -14,7 +14,7 @@
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
 
-	/* Type Defines */
+	/* Type Defines: */
 		typedef struct
 		{
 			uint8_t Size;
@@ -62,8 +62,8 @@
 		#define MOUSE_INTERFACE_PROTOCOL  0x02
 
 	/* Function Prototypes: */
-	bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
-	                       void** const DescriptorAddr, uint16_t* const Size)
-						   ATTR_WARN_UNUSED_RESULT ATTR_WEAK;
+		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
+							   void** const DescriptorAddr, uint16_t* const Size)
+							   ATTR_WARN_UNUSED_RESULT ATTR_WEAK;
 
 #endif

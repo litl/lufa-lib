@@ -11,7 +11,7 @@
 #ifndef MYUSB_H
 #define MYUSB_H
 
-	/* Includes */
+	/* Includes: */
 		#include "LowLevel/Pipe.h"
 		#include "LowLevel/Endpoint.h"
 		#include "LowLevel/LowLevel.h"
