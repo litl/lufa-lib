@@ -68,7 +68,7 @@ int main(void)
 	Joystick_Init();
 	HWB_Init();
 	Bicolour_Init();
-	Serial_Init(9600);
+	SerialStream_Init(9600);
 	ADC_Init();
 	Temperature_Init();
 	
@@ -128,7 +128,7 @@ TASK(TestApp_CheckTemp)
 
 	if (Scheduler_HasDelayElapsed(10000, &DelayCounter))
 	{
-		printf_P(PSTR("Current temperature: %d Degrees Celcius\r\n\n"),
+		printf_P(PSTR("Current temperature: %d Degrees Celcius\r\n\r\n"),
 		         (int)Temperature_GetTemperature());
 
 		Scheduler_ResetDelay(&DelayCounter);

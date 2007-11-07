@@ -77,6 +77,7 @@ EVENT_HANDLER(USB_PowerOnFail)
 
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 
+	puts_P(PSTR(ESC_INVERSE_ON "PROGRAM ABORT"));
 	for (;;);
 }
 
@@ -87,6 +88,7 @@ EVENT_HANDLER(USB_HostError)
 
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	
+	puts_P(PSTR(ESC_INVERSE_ON "PROGRAM ABORT"));
 	for (;;);
 }
 

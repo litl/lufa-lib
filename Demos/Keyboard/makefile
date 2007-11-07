@@ -83,8 +83,6 @@ OBJDIR = .
 SRC = $(TARGET).c                                           \
 	  Descriptors.c                                         \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
-	  ../../MyUSB/Drivers/USBKEY/Temperature.c              \
-	  ../../MyUSB/Drivers/USB1287/Serial_Stream.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Pipe.c               \

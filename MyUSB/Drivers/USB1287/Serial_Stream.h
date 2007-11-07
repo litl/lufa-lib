@@ -14,17 +14,24 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <stdio.h>
+		
+		#include "Serial.h"
+	
+	/* Private Interface - For use in library only: */		
+		/* External Variables: */
+			extern FILE USARTStream;
+
+		/* Function Prototypes: */
+			int SerialStream_TxByte(char DataByte, FILE *Stream);
+			int SerialStream_RxByte(FILE *Stream);
 
 	/* Public Interface - May be used in end-application: */
-		/* Function Prototypes: */
-			void Serial_Init(const uint16_t BaudRate);
-
-	/* Private Interface - For use in library only: */
-		/* Macros: */
-			#define SERIAL_UBBRVAL(baud)   (((F_CPU / (baud * 16UL))) - 1)
-		
-		/* Function Prototypes: */
-			int Serial_TxByte(char DataByte, FILE *Stream);
-			int Serial_RxByte(FILE *Stream);
+		/* Inline Functions: */
+			static inline void SerialStream_Init(const uint16_t BaudRate)
+			{
+				Serial_Init(BaudRate);
+				
+				stdout = &USARTStream;
+			}
 
 #endif

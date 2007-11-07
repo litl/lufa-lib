@@ -10,30 +10,17 @@
 
 #include "Serial_Stream.h"
 
-static FILE USARTStream = FDEV_SETUP_STREAM(Serial_TxByte, Serial_RxByte, _FDEV_SETUP_RW);
+FILE USARTStream __attribute__((used)) = FDEV_SETUP_STREAM(SerialStream_TxByte, SerialStream_RxByte,
+                                                           _FDEV_SETUP_RW);
 
-void Serial_Init(const uint16_t BaudRate)
+int SerialStream_TxByte(char DataByte, FILE *Stream)
 {
-	UCSR1A = 0;
-	UCSR1B = ((1 << RXEN1) | (1 << TXEN1));
-	UCSR1C = ((1 << UCSZ11) | (1 << UCSZ10));
-	
-	UBRR1  = SERIAL_UBBRVAL(BaudRate);
-
-	stdout = &USARTStream;
-}
-
-int Serial_TxByte(char DataByte, FILE *Stream)
-{
-	while (!(UCSR1A & (1 << UDRE1)));
-	UDR1 = DataByte;
+	Serial_TxByte(DataByte);
 
 	return 0; 
 }
 
-int Serial_RxByte(FILE *Stream)
+int SerialStream_RxByte(FILE *Stream)
 {
-	while (!(UCSR1A & (1 << RXC1)));
-	
-	return UDR1; 
+	return Serial_RxByte();
 }

@@ -53,7 +53,19 @@
 			#define USB_Attach()               MACROS{ UDCON   &= ~(1 << DETACH);  }MACROE
 
 		/* Function Prototypes: */
-			bool USB_SetupInterface(void);
+			void USB_Init(const uint8_t Mode, const uint8_t Options);
+			void USB_ShutDown(void);
+
+		/* Enums: */
+			enum USB_PowerOnErrorCodes
+			{
+				POWERON_ERR_NoUSBModeSpecified      = 0,
+				POWERON_ERR_EndpointCreationFailed  = 1,
+			};
+
+		/* Global Variables: */
+			extern volatile uint8_t USB_CurrentMode;
+			extern          uint8_t USB_Options;
 
 		/* Throwable Events: */
 			RAISES_EVENT(USB_Disconnect);
@@ -77,17 +89,6 @@
 			#define USB_Interface_Enable()     MACROS{ USBCON  |=  (1 << USBE);    }MACROE
 			#define USB_Interface_Disable()    MACROS{ USBCON  &= ~(1 << USBE);    }MACROE
 	
-		/* Enums: */
-			enum USB_PowerOnErrorCodes
-			{
-				POWERON_ERR_NoUSBModeSpecified      = 0,
-				POWERON_ERR_EndpointCreationFailed  = 1,
-			};
-
-		/* Global Variables: */
-			extern volatile uint8_t USB_CurrentMode;
-			extern          uint8_t USB_Options;
-	
 		/* Inline Functions: */		
 			static inline uint8_t USB_GetUSBModeFromUID(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t USB_GetUSBModeFromUID(void)
@@ -99,7 +100,7 @@
 			}
 
 		/* Function Prototypes: */
-			void USB_Init(const uint8_t Mode, const uint8_t Options);
-			void USB_ShutDown(void);
-
+			bool USB_SetupInterface(void);
+			void USB_ResetInterface(void);
+			
 #endif

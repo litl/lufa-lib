@@ -14,7 +14,7 @@ void Serial_Init(const uint16_t BaudRate)
 {
 	UCSR1A = 0;
 	UCSR1B = ((1 << RXEN1) | (1 << TXEN1));
-	UCSR1C = ((1 << UCSZ11) | (1 << UCSZ11));
+	UCSR1C = ((1 << UCSZ11) | (1 << UCSZ10));
 	
 	UBRR1  = SERIAL_UBBRVAL(BaudRate);
 }
@@ -25,7 +25,7 @@ void Serial_TxString_P(const char *FlashStringPtr)
 
 	while ((CurrByte = pgm_read_byte(FlashStringPtr)) != 0x00)
 	{
-		Serial_Tx(CurrByte);
+		Serial_TxByte(CurrByte);
 		FlashStringPtr++;
 	}
 }
@@ -34,7 +34,7 @@ void Serial_TxString(const char *StringPtr)
 {
 	while (*StringPtr != 0x00)
 	{
-		Serial_Tx(*StringPtr);
+		Serial_TxByte(*StringPtr);
 		StringPtr++;
 	}
 }

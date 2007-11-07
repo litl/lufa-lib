@@ -58,19 +58,10 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 
 void USB_ShutDown(void)
 {
-	if (USB_IsConnected)
-	  RAISE_EVENT(USB_Disconnect);
+	USB_ResetInterface();
 
-	USB_INT_DisableAllInterrupts();
-	Endpoint_ClearEndpoints();
-	Pipe_ClearPipes();
-
-	USB_HOST_VBUS_Off();
-	USB_HOST_AutoVBUS_Off();
-	USB_HOST_ManualVBUS_Disable();
-	USB_HOST_HostModeOff();
-	
-	USB_Detach();
+	USB_CurrentMode = USB_MODE_NONE;
+	USB_Options     = 0;
 
 	USB_Interface_Disable();
 	USB_PLL_Off();
@@ -79,17 +70,17 @@ void USB_ShutDown(void)
 
 	USB_INT_DISABLE(USB_INT_IDTI);
 	UHWCON &= ~(1 << UIDE);
-
-	USB_IsConnected   = false;
-	USB_IsInitialized = false;
-	USB_ConfigurationNumber = 0;
 }
 
-bool USB_SetupInterface(void)
-{	
+void USB_ResetInterface(void)
+{
 	if (USB_IsConnected)
 	  RAISE_EVENT(USB_Disconnect);
-	
+
+	USB_INT_DisableAllInterrupts();
+	Endpoint_ClearEndpoints();
+	Pipe_ClearPipes();
+
 	USB_HOST_VBUS_Off();
 	USB_HOST_AutoVBUS_Off();
 	USB_HOST_ManualVBUS_Disable();
@@ -97,14 +88,19 @@ bool USB_SetupInterface(void)
 	
 	USB_Detach();
 
-	USB_INT_DisableAllInterrupts();
-	Endpoint_ClearEndpoints();
-	Pipe_ClearPipes();
-
 	USB_IsConnected         = false;
 	USB_IsInitialized       = false;
 	USB_HostState           = HOST_STATE_Unattached;
 	USB_ConfigurationNumber = 0;
+}
+
+bool USB_SetupInterface(void)
+{	
+	USB_ResetInterface();
+
+	USB_INT_DisableAllInterrupts();
+	Endpoint_ClearEndpoints();
+	Pipe_ClearPipes();
 	
 	if (UHWCON & (1 << UIDE))
 	{

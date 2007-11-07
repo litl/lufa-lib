@@ -12,6 +12,7 @@
 
 MYUSBFILES = ./Scheduler/Scheduler.c                     \
              ./Drivers/USBKEY/Temperature.c              \
+             ./Drivers/USB1287/Serial.c                  \
              ./Drivers/USB1287/Serial_Stream.c           \
              ./Drivers/USB/LowLevel/LowLevel.c           \
              ./Drivers/USB/LowLevel/Endpoint.c           \
