@@ -21,10 +21,19 @@ For code updates, be sure to visit my website, at http://www.fourwalledcubicle. 
 If you have Programmer's Notepad installed (which ships with the latest WinAVR), you can open up the included .pnproj file to view the entire library and demonstration applications easily.
 
 
-To compile and use this library, you will need the latest version of WinAVR, avaliable from http://winavr.sourceforge.net.
+To compile and use this library, you will need the latest version of WinAVR, avaliable from http://winavr.sourceforge.net. The library will compile *only* with AVR-GCC as it makes use of many GCC-only extentions.
 
 
 A number of library demonstration applications are included, in the Demos/ directory. Some of these are contributed or modified by persons other than myself - check the comments at the top of each demonstration application source file.
+
+
+--------------------------------------------
+  HARDWARE:
+--------------------------------------------
+
+Currently the library is designed for the USB1287, however I have plans to port it to the other members of the AT90USB series eventually. I recommend using MyUSB on a USBKEY board, although any board containing a USB1287 will work.
+
+If you are using the USBKEY, I recommend purchasing a set of Tom Deutschman's USBKEY header adaptors (http://www.wizbangdesigns.com/10017_PCB.html) and female-female jumper wires (http://www.wizbangdesigns.com/20003.html) to make the board much easier and plesant to work with.
 
 
 --------------------------------------------

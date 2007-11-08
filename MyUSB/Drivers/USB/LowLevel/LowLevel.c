@@ -18,8 +18,6 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	if (USB_IsInitialized)
 	  USB_ShutDown();
 
-	USB_INT_DISABLE(USB_INT_VBUS);
-
 	if (Mode == USB_MODE_UID)
 	{
 		UHWCON |=  (1 << UIDE);

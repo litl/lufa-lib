@@ -26,24 +26,28 @@
 
 			#define  ADC_IsReadingComplete()         (!(ADCSRA & (1 << ADSC)))
 			#define  ADC_GetReading()                ADC
+			
+			#define  ADC_REFERENCE_AREF              0
+			#define  ADC_REFERENCE_AVCC              (1 << REFS0)
+			#define  ADC_REFERENCE_INT2560MV         ((1 << REFS1)| (1 << REFS0))
 
 		/* Inline Functions: */
 			static inline void ADC_SetupChannel(const uint8_t Channel)
 			{
 				DDRD  &= ~(1 << Channel);
-				DIDR0 |= (1 << Channel);
+				DIDR0 |=  (1 << Channel);
 			}
 			
-			static inline void ADC_StartReading(const uint8_t Channel)
+			static inline void ADC_StartReading(const uint8_t RefAndChannel)
 			{
-				ADMUX = ((1 << REFS0) | Channel);
+				ADMUX = RefAndChannel;
 			
 				ADCSRA |= (1 << ADSC);
 			}
 
-			static inline uint16_t ADC_GetChannelReading(const uint8_t Channel)
+			static inline uint16_t ADC_GetChannelReading(const uint8_t RefAndChannel)
 			{
-				ADC_StartReading(Channel);
+				ADC_StartReading(RefAndChannel);
 	
 				while (!(ADC_IsReadingComplete()));
 	

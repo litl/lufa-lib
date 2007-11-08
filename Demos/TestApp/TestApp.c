@@ -15,7 +15,8 @@
 	position will be indicated via the two Bicolour LEDs on the
 	USBKEY board. Pressing the HWB on the USBKEY will initiate
 	the USB subsystem, enumerating the device (which has no
-	functionality and serves only to demonstrate the USB portion
+	actual functionality beyond enumeration as a device, or as a
+	host in this demo, and serves only to demonstrate the USB portion
 	of the library). It will also suspend the joystick and
 	temperature monitoring tasks.
 	
