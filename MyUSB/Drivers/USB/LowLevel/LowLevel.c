@@ -69,6 +69,7 @@ void USB_ShutDown(void)
 	USB_OTGPAD_Off();
 
 	USB_INT_DISABLE(USB_INT_IDTI);
+	USB_INT_DISABLE(USB_INT_VBUS);
 	UHWCON &= ~(1 << UIDE);
 }
 

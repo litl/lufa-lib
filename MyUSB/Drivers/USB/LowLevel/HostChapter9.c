@@ -26,7 +26,7 @@ void USB_Host_SendControlRequest(const void* Data)
 	  USB_Host_Write_Byte(*(HeaderByte++));
 
 	Pipe_SendPipeData();
-	
+
 	// DEBUG:
 	puts_P(PSTR("Waiting for response.\r\n"));
 	while (!(Pipe_BytesInPipe()));
@@ -34,4 +34,6 @@ void USB_Host_SendControlRequest(const void* Data)
 	puts_P(PSTR("Pipe Data:\r\n"));
 	while(Pipe_BytesInPipe())
 		printf_P(PSTR("%d, "), USB_Host_Read_Byte());
+
+	for (;;);
 };

@@ -56,7 +56,7 @@ EVENT_HANDLER(USB_Reset)
 
 EVENT_HANDLER(USB_UIDChange)
 {
-	puts_P(PSTR(EVENT_PREFIX "UID Change\r\n"));
+	puts_P(PSTR(EVENT_PREFIX "UID Change\r\n"));	
 }
 
 EVENT_HANDLER(USB_PowerOnFail)

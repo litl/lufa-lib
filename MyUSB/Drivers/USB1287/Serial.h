@@ -14,6 +14,8 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
+		
+		#include "TerminalCodes.h"
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

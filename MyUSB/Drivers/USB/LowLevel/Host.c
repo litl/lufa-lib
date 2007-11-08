@@ -14,8 +14,6 @@ bool USB_Host_WaitMS(uint8_t MS)
 {
 	uint8_t MSRemaining = MS;
 
-	SERIAL_STREAM_ASSERT(USB_HOST_SOFGeneration_IsEnabled()); // DEBUG
-	
 	while (MSRemaining)
 	{
 		if (USB_INT_OCCURRED(USB_INT_HSOFI))
