@@ -10,6 +10,12 @@
 
 #include "TestEvents.h"
 
+void Abort_Program(void)
+{
+	puts_P(PSTR(ESC_INVERSE_ON "PROGRAM ABORT"));
+	for (;;);
+}
+
 EVENT_HANDLER(USB_VBUSChange)
 {
 	puts_P(PSTR(EVENT_PREFIX "VBUS Change\r\n"));
@@ -76,9 +82,7 @@ EVENT_HANDLER(USB_PowerOnFail)
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
-
-	puts_P(PSTR(ESC_INVERSE_ON "PROGRAM ABORT"));
-	for (;;);
+	Abort_Program();
 }
 
 EVENT_HANDLER(USB_HostError)
@@ -87,9 +91,16 @@ EVENT_HANDLER(USB_HostError)
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
-	
-	puts_P(PSTR(ESC_INVERSE_ON "PROGRAM ABORT"));
-	for (;;);
+	Abort_Program();
+}
+
+EVENT_HANDLER(USB_DeviceError)
+{
+	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Device Mode Error\r\n"));
+	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
+
+	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	Abort_Program();
 }
 
 EVENT_HANDLER(USB_UnhandledControlPacket)

@@ -77,6 +77,8 @@ void USB_ResetInterface(void)
 	  RAISE_EVENT(USB_Disconnect);
 
 	USB_INT_DisableAllInterrupts();
+	USB_INT_DISABLE(USB_INT_VBUS);
+
 	Endpoint_ClearEndpoints();
 	Pipe_ClearPipes();
 

@@ -36,6 +36,9 @@
 			#define CONFIGURATIONS                    1
 			#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
 
+		/* Events: */
+			RAISES_EVENT(USB_DeviceError);
+
 		/* Enums: */
 			enum DescriptorTypes
 			{

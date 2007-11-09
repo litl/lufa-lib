@@ -452,10 +452,11 @@ sizeafter:
 	2>/dev/null; echo; fi
 
 checkhooks: build
-	@java -classpath ../../MyUSB/HelperApps/CheckLibEventHooks/ CheckLibEventHooks \
-		-E ../../MyUSB/Drivers/USB/HighLevel/Events.h -M $(TARGET).map            \
-        -P ../../MyUSB/Drivers/USB/HighLevel/Events.o
-
+	@echo
+	@echo ------- Unhooked MyUSB Events -------
+	@$(shell) (grep -s '^Event.*MyUSB/.*\.o' $(TARGET).map | cut -d' ' -f1 | grep ".*") || echo "  (None)"
+	@echo ----- End Unhooked MyUSB Events -----
+	
 # Display compiler version information.
 gccversion : 
 	@$(CC) --version

@@ -20,6 +20,12 @@
 			#define USB_DEV_LOWSPEED                (1 << 0)
 			#define USB_DEV_HIGHSPEED               (0 << 0)
 
+		/* Enums: */
+			enum USB_Device_ErrorCodes
+			{
+				DEVICE_ERROR_GetDescriptorNotHooked = 0,
+			};
+
 		/* Inline Functions: */
 			static inline uint8_t USB_Device_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t USB_Device_Read_Byte(void)

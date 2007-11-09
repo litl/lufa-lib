@@ -26,18 +26,6 @@ MYUSBFILES = ./Scheduler/Scheduler.c                     \
              ./Drivers/USB/HighLevel/StdDescriptors.c    \
 
 all:
-	make -C HelperApps $@
-
-	@echo
-	@echo Dumping library method signatures...
-	java -classpath HelperApps/MethodSig MethodSig $(MYUSBFILES) > FunctionSignatures.txt
-
-cleanlib:
-	rm -f $(MYUSBFILES:%.c=%.o)
 
 clean:
-	make -C HelperApps $@
-
 	rm -f $(MYUSBFILES:%.c=%.o)
-
-	rm -f FunctionSignatures.txt

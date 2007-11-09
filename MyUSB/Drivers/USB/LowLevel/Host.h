@@ -110,6 +110,7 @@
 
 		/* Function Prototypes: */
 			bool USB_Host_WaitMS(uint8_t MS);
+			bool USB_Host_WaitOneFrame(void);
 			void USB_Host_ResetDevice(void);
 
 #endif

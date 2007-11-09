@@ -54,14 +54,17 @@
 			#define PIPE_NO_PIPE_INT                       PIPE_MAXPIPES
 
 			#define Pipe_BytesInPipe()                     UPBCX
-			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST = (1 << pipenum); UPRST = 0;                }MACROE
-			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM = (pipenum & PIPE_PIPENUM_MASK);            }MACROE
+			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST     = (1 << pipenum); UPRST = 0;                }MACROE
+			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM     = (pipenum & PIPE_PIPENUM_MASK);            }MACROE
 			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X  |=  (1 << ALLOC);                        }MACROE
 			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X  &= ~(1 << ALLOC);                        }MACROE
 			#define Pipe_EnablePipe()              MACROS{ UPCONX   |=  (1 << PEN);                          }MACROE
 			#define Pipe_DisablePipe()             MACROS{ UPCONX   &= ~(1 << PEN);                          }MACROE
 			#define Pipe_IsEnabled()                     ((UPCONX   &   (1 << PEN)) ? true : false)
-			#define Pipe_SetToken(token)           MACROS{ UPCFG0X = ((UPCFG0X & ~PIPE_TOKEN_MASK) | token); } MACROE
+			#define Pipe_SetToken(token)           MACROS{ UPCFG0X   = ((UPCFG0X & ~PIPE_TOKEN_MASK) | token); }MACROE
+			
+			#define Pipe_SetInfiniteINRequests()   MACROS{ UPCONX   |=  (1 << INMODE);                       }MACROE
+			#define Pipe_SetFiniteINRequests(x)    MACROS{ UPCONX   &= ~(1 << INMODE); INRQX = x;            }MACROE
 			
 			#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
 												   MACROS{ Pipe_ConfigurePipe_P(num,         \
@@ -74,8 +77,9 @@
 			#define Pipe_Unfreeze()                MACROS{ UPCONX &= ~(1 << PFREEZE);                        }MACROE
 			#define Pipe_Freeze()                  MACROS{ UPCONX |=  (1 << PFREEZE);                        }MACROE
 
-			#define Pipe_ClearSetupReady()         MACROS{ UPINTX  &= ~(1 << TXSTPI);                        }MACROE
-
+			#define Pipe_ClearSetupRecieved()      MACROS{ UPINTX  &= ~(1 << TXSTPI);                        }MACROE
+			#define Pipe_IsSetupRecieved()               ((UPINTX  &   (1 << TXSTPI)) ? true : false)
+			
 		/* Function Prototypes: */
 			void    Pipe_ClearPipes(void);
 			uint8_t Pipe_GetInterruptPipeNumber(void) ATTR_WARN_UNUSED_RESULT;

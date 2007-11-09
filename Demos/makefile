@@ -15,7 +15,7 @@
 # custom MyUSB library build options are reflected in the compiled
 # code.
 
-CLEANLIB = make -C ../MyUSB/ cleanlib
+CLEANLIB = make -C ../MyUSB/ clean
 
 all:
 	
@@ -25,11 +25,8 @@ all:
 	make -C Mouse all
 	$(CLEANLIB)
 	make -C Keyboard all
-	$(CLEANLIB)
-	make -C CDC all
 	
 clean:
 	make -C TestApp clean
 	make -C Mouse clean
 	make -C Keyboard clean
-	make -C CDC clean

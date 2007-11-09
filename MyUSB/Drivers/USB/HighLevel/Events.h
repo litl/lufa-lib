@@ -38,6 +38,7 @@
 			#define USB_UIDChange_P               (void)
 			#define USB_PowerOnFail_P             (const unsigned char ErrorCode)
 			#define USB_HostError_P               (const unsigned char ErrorCode)
+			#define USB_DeviceError_P             (const unsigned char ErrorCode)
 			#define USB_UnhandledControlPacket_P  (const uint8_t Request, const uint8_t RequestType)
 			#define USB_CreateEndpoints_P         (void)
 			#define USB_DeviceAttached_P          (void)
@@ -55,6 +56,7 @@
 			#define USB_UIDChange_M               
 			#define USB_PowerOnFail_M             
 			#define USB_HostError_M               
+			#define USB_DeviceError_M             
 			#define USB_UnhandledControlPacket_M  
 			#define USB_CreateEndpoints_M         
 			#define USB_DeviceAttached_M          
@@ -75,6 +77,7 @@
 				ALIAS_STUB(USB_UIDChange);
 				ALIAS_STUB(USB_PowerOnFail);
 				ALIAS_STUB(USB_HostError);
+				ALIAS_STUB(USB_DeviceError);
 				ALIAS_STUB(USB_UnhandledControlPacket);
 				ALIAS_STUB(USB_CreateEndpoints);
 				ALIAS_STUB(USB_DeviceAttached);

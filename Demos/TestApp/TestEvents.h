@@ -31,12 +31,16 @@
 		HANDLES_EVENT(USB_UIDChange);
 		HANDLES_EVENT(USB_PowerOnFail);
 		HANDLES_EVENT(USB_HostError);
+		HANDLES_EVENT(USB_DeviceError);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 		HANDLES_EVENT(USB_CreateEndpoints);
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);
 
-	/* Defines: */
+	/* Macros: */
 		#define EVENT_PREFIX ESC_INVERSE_ON "EVENT:" ESC_INVERSE_OFF " "
+
+	/* Function Prototypes: */
+		void Abort_Program(void);
 
 #endif
