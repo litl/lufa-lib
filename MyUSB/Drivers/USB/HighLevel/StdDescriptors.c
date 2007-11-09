@@ -10,6 +10,7 @@
 
 #include "StdDescriptors.h"
 
+#if !defined(USB_HOST_ONLY)
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 			           void** const DescriptorAddr, uint16_t* const Size)
 {
@@ -17,3 +18,4 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 
 	return false;
 };
+#endif

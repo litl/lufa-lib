@@ -8,6 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
+#if !defined(USB_HOST_ONLY)
 #include "DevChapter9.h"
 
 uint8_t USB_ConfigurationNumber;
@@ -300,3 +301,4 @@ void USB_Device_ClearFeature(const uint8_t RequestType)
 			break;
 	}
 }
+#endif

@@ -37,8 +37,10 @@
 			#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
 
 		/* Events: */
-			RAISES_EVENT(USB_DeviceError);
-
+			#if !defined(USB_HOST_ONLY)
+				RAISES_EVENT(USB_DeviceError);
+			#endif
+			
 		/* Enums: */
 			enum DescriptorTypes
 			{

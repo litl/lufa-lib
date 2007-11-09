@@ -16,15 +16,8 @@
 		#include <avr/interrupt.h>
 		#include <stdbool.h>
 
-		#include "Host.h"
-		#include "Device.h"
-		#include "Endpoint.h"
-		#include "Pipe.h"
-		#include "HostChapter9.h"
-		#include "DevChapter9.h"
-		#include "../HighLevel/Events.h"
-		#include "../HighLevel/USBInterrupt.h"
-		#include "../HighLevel/USBTask.h"
+		#include "../USB.h"
+
 		#include "../../../Common/FunctionAttributes.h"
 		#include "../../../Common/Common.h"
 		
@@ -59,8 +52,8 @@
 		/* Enums: */
 			enum USB_PowerOnErrorCodes
 			{
-				POWERON_ERR_NoUSBModeSpecified      = 0,
-				POWERON_ERR_EndpointCreationFailed  = 1,
+				POWERON_ERROR_NoUSBModeSpecified          = 0,
+				POWERON_ERROR_UnavaliableUSBModeSpecified = 2,
 			};
 
 		/* Global Variables: */

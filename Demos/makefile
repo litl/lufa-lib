@@ -18,7 +18,6 @@
 CLEANLIB = make -C ../MyUSB/ clean
 
 all:
-	
 	$(CLEANLIB)
 	make -C TestApp all
 	$(CLEANLIB)

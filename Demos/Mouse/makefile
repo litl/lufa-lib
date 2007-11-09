@@ -137,7 +137,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL
+CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_DEVICE_ONLY
 
 
 # Place -D or -U options here for ASM sources
@@ -225,8 +225,8 @@ PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
 
 # If this is left blank, then it will use the Standard printf version.
-#PRINTF_LIB = 
-PRINTF_LIB = $(PRINTF_LIB_MIN)
+PRINTF_LIB = 
+#PRINTF_LIB = $(PRINTF_LIB_MIN)
 #PRINTF_LIB = $(PRINTF_LIB_FLOAT)
 
 

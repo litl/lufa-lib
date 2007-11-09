@@ -23,7 +23,8 @@
 		/* Enums: */
 			enum USB_Device_ErrorCodes
 			{
-				DEVICE_ERROR_GetDescriptorNotHooked = 0,
+				DEVICE_ERROR_GetDescriptorNotHooked        = 0,
+				DEVICE_ERROR_ControlEndpointCreationFailed = 1,
 			};
 
 		/* Inline Functions: */

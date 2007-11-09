@@ -8,6 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
+#if !defined(USB_DEVICE_ONLY)
 #include "Host.h"
 
 USB_Host_Request_Header_t USB_HostRequest;
@@ -39,6 +40,8 @@ void USB_Host_SendControlRequest(const void* Data)
 		}
 	}
 
+	// DEBUG: \/\/\/
+
 	puts_P(PSTR("Setup token recieved.\r\n"));
 	// TODO: Get/Set data
 		
@@ -61,6 +64,7 @@ void USB_Host_SendControlRequest(const void* Data)
 
 		for (;;);
 	}
-	
+
 	Pipe_Freeze();
 };
+#endif

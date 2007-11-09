@@ -31,10 +31,16 @@
 			RAISES_EVENT(USB_VBUSChange);
 			RAISES_EVENT(USB_VBUSConnect);
 			RAISES_EVENT(USB_VBUSDisconnect);
-			RAISES_EVENT(USB_Suspend);
-			RAISES_EVENT(USB_WakeUp);
-			RAISES_EVENT(USB_Reset);
-			RAISES_EVENT(USB_UIDChange);
+
+			#if !defined(USB_HOST_ONLY)
+				RAISES_EVENT(USB_Suspend);
+				RAISES_EVENT(USB_WakeUp);
+				RAISES_EVENT(USB_Reset);
+			#endif
+
+			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY)
+				RAISES_EVENT(USB_UIDChange);
+			#endif
 			
 	/* Private Interface - For use in library only: */
 		/* Macros: */

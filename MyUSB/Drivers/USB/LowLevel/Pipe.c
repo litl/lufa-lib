@@ -8,6 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
+#if !defined(USB_DEVICE_ONLY)
 #include "Pipe.h"
 
 bool Pipe_ConfigurePipe_P(const uint8_t PipeNum,
@@ -54,3 +55,4 @@ uint8_t Pipe_GetInterruptPipeNumber(void)
 	
 	return PIPE_NO_PIPE_INT;
 }
+#endif

@@ -8,6 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
+#if !defined(USB_DEVICE_ONLY)
 #include "Host.h"
 
 bool USB_Host_WaitMS(uint8_t MS)
@@ -88,3 +89,4 @@ void USB_Host_ResetDevice(void)
 	USB_INT_ENABLE(USB_INT_SRPI);
 	USB_INT_ENABLE(USB_INT_DCONNI);
 }
+#endif

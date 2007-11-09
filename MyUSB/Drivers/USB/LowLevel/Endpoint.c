@@ -8,6 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
+#if !defined(USB_HOST_ONLY)
 #include "Endpoint.h"
 
 bool Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum,
@@ -34,3 +35,4 @@ void Endpoint_ClearEndpoints(void)
 		Endpoint_DisableEndpoint();
 	}
 }
+#endif

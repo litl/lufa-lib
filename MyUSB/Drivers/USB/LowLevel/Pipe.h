@@ -53,6 +53,8 @@
 			
 			#define PIPE_NO_PIPE_INT                       PIPE_MAXPIPES
 
+			#define PIPE_EPNUM_MASK                        0b111
+
 			#define Pipe_BytesInPipe()                     UPBCX
 			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST     = (1 << pipenum); UPRST = 0;                }MACROE
 			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM     = (pipenum & PIPE_PIPENUM_MASK);            }MACROE
@@ -68,7 +70,7 @@
 			
 			#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
 												   MACROS{ Pipe_ConfigurePipe_P(num,         \
-																			  ((type << PTYPE0) | (token << PTOKEN0) | ((epnum & ENDPOINT_EPNUM_MASK) << PEPNUM0)),   \
+																			  ((type << PTYPE0) | (token << PTOKEN0) | ((epnum & PIPE_EPNUM_MASK) << PEPNUM0)),   \
 																			  ((Pipe_BytesToEPSizeMask(size) << EPSIZE0) | banks)); }MACROE
 			#define Pipe_IsConfigured()                  ((UPSTAX & (1 << CFGOK)) ? PIPE_CONFIG_OK : PIPE_CONFIG_FAIL)
 			#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG1X = ms                                      }MACROE
