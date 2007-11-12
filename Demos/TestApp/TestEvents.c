@@ -12,7 +12,7 @@
 
 void Abort_Program(void)
 {
-	puts_P(PSTR(ESC_INVERSE_ON "PROGRAM ABORT"));
+	puts_P(PSTR(ESC_INVERSE_ON "\r\n**PROGRAM ABORT**"));
 	for (;;);
 }
 

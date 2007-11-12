@@ -44,6 +44,12 @@
 
 #include "TestApp.h"
 
+/* Project Tags, for reading out using the ButtLoad project */
+BUTTLOADTAG(ProjName,  "MyUSB Test App");
+BUTTLOADTAG(BuildTime, __TIME__);
+BUTTLOADTAG(BuildDate, __DATE__);
+
+/* Scheduler Task ID list */
 TASK_ID_LIST
 {
 	TestApp_CheckJoystick_ID,
@@ -52,6 +58,7 @@ TASK_ID_LIST
 	USB_USBTask_ID,
 };
 
+/* Scheduler Task List */
 TASK_LIST
 {
 	{ TaskID: TestApp_CheckJoystick_ID, TaskName: TestApp_CheckJoystick, TaskStatus: TASK_RUN  },

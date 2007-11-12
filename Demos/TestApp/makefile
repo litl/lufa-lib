@@ -465,11 +465,9 @@ checkhooks: build
 checklibmode:
 	@echo
 	@echo ----------- Library Mode -----------
-	@$(shell)  touch __temp.h
-	@$(shell) ($(CC) $(ALL_CFLAGS) -E -dM __temp.h \
+	@$(shell) ($(CC) $(ALL_CFLAGS) -E -dM - < /dev/null \
 	          | grep 'USB_\(DEVICE\|HOST\)_ONLY' | cut -d' ' -f2 | grep ".*") \
 	          || echo "No specific mode (both device and host mode allowable)."
-	@$(REMOVE) __temp.h
 	@echo ------------------------------------
 
 # Display compiler version information.

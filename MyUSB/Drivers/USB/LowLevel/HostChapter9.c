@@ -60,7 +60,7 @@ void USB_Host_SendControlRequest(const void* Data)
 		
 		puts_P(PSTR("Response Data:"));
 		while (Pipe_BytesInPipe())
-			printf_P(PSTR("%d"), USB_Host_Read_Byte());
+			printf_P(PSTR("%d, "), USB_Host_Read_Byte());
 
 		for (;;);
 	}

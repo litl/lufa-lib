@@ -18,16 +18,20 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	if (USB_IsInitialized)
 	  USB_ShutDown();
 
-	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
 	USB_CurrentMode = Mode;
 
+	if (Mode == USB_MODE_NONE)
+	{
+		RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_NoUSBModeSpecified);
+		return;
+	}
+
+	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
 	if (Mode != USB_MODE_DEVICE)
 	  RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_UnavailableUSBModeSpecified);
 	else
 	  UHWCON |=  (1 << UIMOD);
 	#elif defined(USB_HOST_ONLY) // USB_HOST_ONLY
-	USB_CurrentMode = Mode;
-
 	if (Mode != USB_MODE_HOST)
 	  RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_UnavailableUSBModeSpecified);
 	else
@@ -43,14 +47,10 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	else if (Mode == USB_MODE_DEVICE)
 	{
 		UHWCON |=  (1 << UIMOD);
-		
-		USB_CurrentMode = USB_MODE_DEVICE;
 	}
 	else if (Mode == USB_MODE_HOST)			
 	{
 		UHWCON &= ~(1 << UIMOD);
-		
-		USB_CurrentMode = USB_MODE_HOST;
 	}
 
 	if (UHWCON & (1 << UIDE))
@@ -157,12 +157,6 @@ bool USB_SetupInterface(void)
 		USB_CurrentMode = USB_GetUSBModeFromUID();
 	}
 	#endif
-	  
-	if (USB_CurrentMode == USB_MODE_NONE)
-	{
-		RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_NoUSBModeSpecified);
-		return USB_SETUPINTERFACE_FAIL;
-	}
 	
 	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 	if (USB_CurrentMode == USB_MODE_DEVICE)

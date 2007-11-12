@@ -52,7 +52,7 @@
 	
 				while (!(ADC_IsReadingComplete()));
 	
-				return ADC_GetReading();
+				return ADC_GetResult();
 			}
 
 #endif

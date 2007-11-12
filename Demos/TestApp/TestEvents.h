@@ -14,6 +14,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 
+		#include <MyUSB/Common/FunctionAttributes.h>      // GCC Function Attributes
 		#include <MyUSB/Drivers/USB/USB.h>                // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>        // Bicolour LED driver for USBKEY
 		#include <MyUSB/Drivers/USB1287/Serial_Stream.h>  // USART Stream driver
