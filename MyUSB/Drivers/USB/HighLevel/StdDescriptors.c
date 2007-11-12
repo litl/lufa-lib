@@ -8,9 +8,9 @@
  Released under the GPL Licence, Version 3
 */
 
+#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 #include "StdDescriptors.h"
 
-#if !defined(USB_HOST_ONLY)
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 			           void** const DescriptorAddr, uint16_t* const Size)
 {

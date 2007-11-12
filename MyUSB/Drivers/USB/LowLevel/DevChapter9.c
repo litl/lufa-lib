@@ -8,7 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
-#if !defined(USB_HOST_ONLY)
+#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 #include "DevChapter9.h"
 
 uint8_t USB_ConfigurationNumber;

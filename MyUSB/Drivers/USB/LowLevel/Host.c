@@ -8,7 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
-#if !defined(USB_DEVICE_ONLY)
+#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 #include "Host.h"
 
 bool USB_Host_WaitMS(uint8_t MS)

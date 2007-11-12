@@ -13,7 +13,7 @@
 void Serial_Init(const uint16_t BaudRate)
 {
 	UCSR1A = 0;
-	UCSR1B = ((1 << RXEN1) | (1 << TXEN1));
+	UCSR1B = ((1 << RXEN1)  | (1 << TXEN1));
 	UCSR1C = ((1 << UCSZ11) | (1 << UCSZ10));
 	
 	UBRR1  = SERIAL_UBBRVAL(BaudRate);

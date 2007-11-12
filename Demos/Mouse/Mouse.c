@@ -49,16 +49,18 @@ int main(void)
 	/* Initialize USB Subsystem */
 	USB_Init(USB_MODE_DEVICE, USB_DEV_HIGHSPEED);
 
-	/* Scheduling */
-	Scheduler_Start(); // Scheduler never returns, so put this last
+	/* Scheduling - routine never returns, so put this last in the main function */
+	Scheduler_Start();
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
+	/* Setup Mouse Report Endpoint */
 	Endpoint_ConfigureEndpoint(MOUSE_EPNUM, ENDPOINT_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, MOUSE_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
+	/* Double green to indicate USB connected and ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
 }
 
@@ -80,16 +82,21 @@ TASK(USB_Mouse_Report)
 	if (JoyStatus_LCL & JOY_PRESS)
 	  MouseReportData.Button = 0x01;
 
-	if (USB_IsConnected && USB_IsInitialized)
+	/* Check if the USB System is connected to a Host */
+	if (USB_IsConnected)
 	{
+		/* Select the Mouse Report Endpoint */
 		Endpoint_SelectEndpoint(MOUSE_EPNUM);
 
+		/* Check if Mouse Endpoint Ready for Data */
 		if (Endpoint_ReadWriteAllowed())
 		{
+			/* Write Mouse Report Data */
 			USB_Device_Write_Byte(MouseReportData.Button);
 			USB_Device_Write_Byte(MouseReportData.X);
 			USB_Device_Write_Byte(MouseReportData.Y);
 			
+			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_In_Clear();
 		}
 	}

@@ -33,6 +33,7 @@
 	
 	  COLOUR:          | DESCRIPTION:
 	 ------------------+-------------------------------------------
+	  Off/Off          | Joystick monitoring task on, USB off.
 	  Red/Red          | USB error.
 	  Red/Off          | USB not activated.
 	  Green/Red        | USB activated, but not connected.
@@ -86,8 +87,8 @@ int main(void)
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
 	       "MyUSB Demo running.\r\n\n" ESC_INVERSE_OFF));
 
-	/* Scheduling */
-	Scheduler_Start(); // Scheduler never returns, so put this last
+	/* Scheduling - routine never returns, so put this last in the main function */
+	Scheduler_Start();
 }
 
 

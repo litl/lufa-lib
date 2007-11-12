@@ -91,7 +91,8 @@
 			#define Endpoint_IsSetupRecieved()             ((UEINTX  &   (1 << RXSTPI)) ? true : false)
 	
 		/* Inline Functions: */
-			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes) ATTR_CONST;
+			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)
+			                                                 ATTR_WARN_UNUSED_RESULT ATTR_CONST;
 			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)
 			{
 				if (Bytes <= 8)

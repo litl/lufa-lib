@@ -23,12 +23,15 @@
 		/* Global Variables: */
 			extern volatile bool    USB_IsConnected;
 			extern volatile bool    USB_IsInitialized;
+
+			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 			extern volatile uint8_t USB_HostState;
+			#endif
 
 		/* Throwable Events: */
 			RAISES_EVENT(USB_Connect);
 
-			#if !defined(USB_DEVICE_ONLY)
+			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 				RAISES_EVENT(USB_HostError);
 				RAISES_EVENT(USB_DeviceAttached);
 				RAISES_EVENT(USB_DeviceUnattached);
@@ -39,8 +42,11 @@
 
 	/* Private Interface - For use in library only: */
 		/* Function Prototypes: */
-			void USB_InitTaskPointer(void);
 			void USB_DeviceTask(void);
 			void USB_HostTask(void);
+
+			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+			void USB_InitTaskPointer(void);
+			#endif
 
 #endif

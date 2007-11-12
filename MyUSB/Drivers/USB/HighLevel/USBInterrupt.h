@@ -32,13 +32,13 @@
 			RAISES_EVENT(USB_VBUSConnect);
 			RAISES_EVENT(USB_VBUSDisconnect);
 
-			#if !defined(USB_HOST_ONLY)
+			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 				RAISES_EVENT(USB_Suspend);
 				RAISES_EVENT(USB_WakeUp);
 				RAISES_EVENT(USB_Reset);
 			#endif
 
-			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY)
+			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 				RAISES_EVENT(USB_UIDChange);
 			#endif
 			

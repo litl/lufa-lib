@@ -22,8 +22,8 @@
 			extern FILE USARTStream;
 
 		/* Function Prototypes: */
-			int SerialStream_TxByte(char DataByte, FILE *Stream);
-			int SerialStream_RxByte(FILE *Stream);
+			int SerialStream_TxByte(char DataByte, FILE *Stream) ATTR_NON_NULL_PTR_ARG(2);
+			int SerialStream_RxByte(FILE *Stream) ATTR_NON_NULL_PTR_ARG(1);
 
 	/* Public Interface - May be used in end-application: */
 		/* Inline Functions: */

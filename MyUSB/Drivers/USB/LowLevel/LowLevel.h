@@ -17,7 +17,6 @@
 		#include <stdbool.h>
 
 		#include "../USB.h"
-
 		#include "../../../Common/FunctionAttributes.h"
 		#include "../../../Common/Common.h"
 		
@@ -53,7 +52,7 @@
 			enum USB_PowerOnErrorCodes
 			{
 				POWERON_ERROR_NoUSBModeSpecified          = 0,
-				POWERON_ERROR_UnavaliableUSBModeSpecified = 2,
+				POWERON_ERROR_UnavailableUSBModeSpecified = 1,
 			};
 
 		/* Global Variables: */

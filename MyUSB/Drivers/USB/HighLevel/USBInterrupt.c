@@ -12,7 +12,7 @@
 
 ISR(USB_GEN_vect)
 {
-	#if !defined(USB_HOST_ONLY)
+	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 	if (USB_INT_OCCURRED(USB_INT_VBUS) && USB_INT_ISENABLED(USB_INT_VBUS))
 	{
 		USB_INT_CLEAR(USB_INT_VBUS);
@@ -86,7 +86,7 @@ ISR(USB_GEN_vect)
 	}
 	#endif
 	
-	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY)
+	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 	if (USB_INT_OCCURRED(USB_INT_IDTI) && USB_INT_ISENABLED(USB_INT_IDTI))
 	{		
 		USB_INT_CLEAR(USB_INT_IDTI);
@@ -98,7 +98,7 @@ ISR(USB_GEN_vect)
 	}
 	#endif
 	
-	#if !defined(USB_DEVICE_ONLY)
+	#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 	if (USB_INT_OCCURRED(USB_INT_DDISCI) && USB_INT_ISENABLED(USB_INT_DDISCI))
 	{
 		USB_INT_CLEAR(USB_INT_DDISCI);

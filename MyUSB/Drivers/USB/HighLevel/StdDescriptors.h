@@ -37,7 +37,7 @@
 			#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
 
 		/* Events: */
-			#if !defined(USB_HOST_ONLY)
+			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 				RAISES_EVENT(USB_DeviceError);
 			#endif
 			
@@ -155,6 +155,7 @@
 		/* Function Prototypes: */
 			bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 			                       void** const DescriptorAddr, uint16_t* const Size)
-								   ATTR_WARN_UNUSED_RESULT ATTR_WEAK;
+								   ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3)
+								   ATTR_NON_NULL_PTR_ARG(4);
 			
 #endif

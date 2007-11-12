@@ -57,16 +57,18 @@ int main(void)
 	/* Initialize USB Subsystem */
 	USB_Init(USB_MODE_DEVICE, USB_DEV_HIGHSPEED);
 
-	/* Scheduling */
-	Scheduler_Start(); // Scheduler never returns, so put this last
+	/* Scheduling - routine never returns, so put this last in the main function */
+	Scheduler_Start();
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
+	/* Setup Keyboard Report Endpoint */
 	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, ENDPOINT_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
+	/* Double green to indicate USB connected and ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
 }
 
@@ -89,15 +91,20 @@ TASK(USB_Keyboard_Report)
 	if (JoyStatus_LCL & JOY_PRESS)
 		KeyboardReportData.KeyCode = 0x08; // E
 
-	if (USB_IsConnected && USB_IsInitialized)
+	/* Check if the USB System is connected to a Host */
+	if (USB_IsConnected)
 	{
+		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
+		/* Check if Keyboard Endpoint Ready for Data */
 		if (Endpoint_ReadWriteAllowed())
 		{
+			/* Write Keyboard Report Data */
 			USB_Device_Write_Byte(KeyboardReportData.Modifier);
 			USB_Device_Write_Byte(KeyboardReportData.KeyCode);
 			
+			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_In_Clear();
 		}
 	}

@@ -45,7 +45,7 @@
 			static inline uint8_t Joystick_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Joystick_GetStatus(void)
 			{
-				return (~PINB & JOY_BMASK) | ((~PINE & JOY_EMASK) >> 1);		
+				return ((~PINB & JOY_BMASK) | ((~PINE & JOY_EMASK) >> 1));
 			}
 
 #endif

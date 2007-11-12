@@ -20,13 +20,13 @@
 		#include "HighLevel/Events.h"
 		#include "HighLevel/StdDescriptors.h"
 
-		#if !defined(USB_DEVICE_ONLY)
+		#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 			#include "LowLevel/Host.h"
 			#include "LowLevel/HostChapter9.h"
 			#include "LowLevel/Pipe.h"
 		#endif
 		
-		#if !defined(USB_HOST_ONLY)
+		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 			#include "LowLevel/Device.h"
 			#include "LowLevel/DevChapter9.h"
 			#include "LowLevel/Endpoint.h"

@@ -8,7 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
-#if !defined(USB_DEVICE_ONLY)
+#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 #include "Pipe.h"
 
 bool Pipe_ConfigurePipe_P(const uint8_t PipeNum,

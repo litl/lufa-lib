@@ -58,8 +58,8 @@
 		#define KEYBOARD_EPNUM               1
 		#define KEYBOARD_EPSIZE              8
 
-		#define DTYPE_HID                 0x21
-		#define DTYPE_Report              0x22
+		#define DTYPE_HID                    0x21
+		#define DTYPE_Report                 0x22
 
 		#define KEYBOARD_INTERFACE_NUMBER    0
 		#define KEYBOARD_INTERFACE_ALTERNATE 0

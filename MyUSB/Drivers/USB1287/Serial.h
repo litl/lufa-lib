@@ -15,6 +15,7 @@
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 		
+		#include "../../Common/FunctionAttributes.h"
 		#include "TerminalCodes.h"
 
 	/* Public Interface - May be used in end-application: */
@@ -23,8 +24,8 @@
 
 		/* Function Prototypes: */
 			void Serial_Init(const uint16_t BaudRate);
-			void Serial_TxString_P(const char *FlashStringPtr);
-			void Serial_TxString(const char *StringPtr);
+			void Serial_TxString_P(const char *FlashStringPtr) ATTR_NON_NULL_PTR_ARG(1);
+			void Serial_TxString(const char *StringPtr) ATTR_NON_NULL_PTR_ARG(1);
 			void Serial_TxByte(const char Data);
 			char Serial_RxByte(void);
 

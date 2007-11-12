@@ -12,39 +12,37 @@
 
 volatile bool      USB_IsConnected;
 volatile bool      USB_IsInitialized;
-         TaskPtr_t USB_TaskPtr;
 
-#if !defined(USB_DEVICE_ONLY)
+#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+         TaskPtr_t USB_TaskPtr;
+#endif
+
+#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 volatile uint8_t   USB_HostState;
 #endif
 
 TASK(USB_USBTask)
 {
-	#if defined(USB_HOST_ONLY)
-		if (USB_IsInitialized)		
-			USB_HostTask();
-	#elif defined(USB_DEVICE_ONLY)
+	#if defined(USB_HOST_ONLY) // USB_HOST_ONLY
+		if (USB_IsInitialized)
+		  USB_HostTask();
+	#elif defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
 		USB_DeviceTask();
-	#else
+	#else  // All modes
 		if (USB_IsInitialized)
 		  (*USB_TaskPtr)();
 	#endif
 }
 
+#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 void USB_InitTaskPointer(void)
 {
 	if (USB_CurrentMode != USB_MODE_NONE)
 	{
-		#if defined(USB_HOST_ONLY)
-			USB_TaskPtr = (TaskPtr_t)USB_HostTask;
-		#elif defined(USB_DEVICE_ONLY)
-			USB_TaskPtr = (TaskPtr_t)USB_DeviceTask;
-		#else
-			if (USB_CurrentMode == USB_MODE_DEVICE)
-			  USB_TaskPtr = (TaskPtr_t)USB_DeviceTask;
-			else
-			  USB_TaskPtr = (TaskPtr_t)USB_HostTask;
-		#endif
+		if (USB_CurrentMode == USB_MODE_DEVICE)
+		  USB_TaskPtr = (TaskPtr_t)USB_DeviceTask;
+		else
+		  USB_TaskPtr = (TaskPtr_t)USB_HostTask;
 
 		USB_IsInitialized = true;
 	}
@@ -55,8 +53,9 @@ void USB_InitTaskPointer(void)
 
 	USB_IsConnected = false;
 }
+#endif
 
-#if !defined(USB_HOST_ONLY)
+#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 void USB_DeviceTask(void)
 {
 		if (USB_IsConnected)
@@ -69,7 +68,7 @@ void USB_DeviceTask(void)
 }
 #endif
 
-#if !defined(USB_DEVICE_ONLY)
+#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 void USB_HostTask(void)
 {
 	switch (USB_HostState)

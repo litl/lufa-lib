@@ -85,10 +85,7 @@ SRC = $(TARGET).c                                           \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
-	  ../../MyUSB/Drivers/USB/LowLevel/Pipe.c               \
 	  ../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
-	  ../../MyUSB/Drivers/USB/LowLevel/HostChapter9.c       \
-	  ../../MyUSB/Drivers/USB/LowLevel/Host.c               \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
 	  ../../MyUSB/Drivers/USB/HighLevel/Events.c            \
@@ -168,7 +165,7 @@ CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
-#CFLAGS += -mshort-calls
+CFLAGS += -mshort-calls
 CFLAGS += -Wundef
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wunreachable-code
@@ -410,7 +407,7 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: begin gccversion sizebefore build checkhooks sizeafter end
+all: begin gccversion sizebefore build checkhooks checklibmode sizeafter end
 
 # Change the build target to build a HEX file or a library.
 build: elf hex eep lss sym
@@ -454,8 +451,19 @@ sizeafter:
 checkhooks: build
 	@echo
 	@echo ------- Unhooked MyUSB Events -------
-	@$(shell) (grep -s '^Event.*MyUSB/.*\.o' $(TARGET).map | cut -d' ' -f1 | grep ".*") || echo "  (None)"
+	@$(shell) (grep -s '^Event.*MyUSB/.*\\.o' $(TARGET).map | cut -d' ' -f1 | grep ".*") \
+            || echo "(None)"
 	@echo ----- End Unhooked MyUSB Events -----
+	
+checklibmode:
+	@echo
+	@echo ----------- Library Mode -----------
+	@$(shell)  touch __temp.h
+	@$(shell) ($(CC) $(ALL_CFLAGS) -E -dM __temp.h \
+	          | grep 'USB_\(DEVICE\|HOST\)_ONLY' | cut -d' ' -f2 | grep ".*") \
+	          || echo "No specific mode (both device and host mode allowable)."
+	@$(REMOVE) __temp.h
+	@echo ------------------------------------
 
 # Display compiler version information.
 gccversion : 
@@ -632,6 +640,7 @@ $(shell mkdir $(OBJDIR) 2>/dev/null)
 
 
 # Listing of phony targets.
-.PHONY : all checkhooks begin finish end sizebefore sizeafter gccversion \
+.PHONY : all checkhooks checklibmode begin \
+finish end sizebefore sizeafter gccversion \
 build elf hex eep lss sym coff extcoff \
 clean clean_list program debug gdb-config

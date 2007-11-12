@@ -25,7 +25,7 @@
 			#define  ADC_GetStatus()                 (ADCSRA & (1 << ADEN)
 
 			#define  ADC_IsReadingComplete()         (!(ADCSRA & (1 << ADSC)))
-			#define  ADC_GetReading()                ADC
+			#define  ADC_GetResult()                 ADC
 			
 			#define  ADC_REFERENCE_AREF              0
 			#define  ADC_REFERENCE_AVCC              (1 << REFS0)
@@ -45,6 +45,7 @@
 				ADCSRA |= (1 << ADSC);
 			}
 
+			static inline uint16_t ADC_GetChannelReading(const uint8_t RefAndChannel) ATTR_WARN_UNUSED_RESULT;
 			static inline uint16_t ADC_GetChannelReading(const uint8_t RefAndChannel)
 			{
 				ADC_StartReading(RefAndChannel);

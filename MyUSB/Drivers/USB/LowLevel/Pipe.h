@@ -88,7 +88,8 @@
 		
 	/* Private Interface - For use in library only: */
 		/* Inline Functions: */
-			static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes) ATTR_CONST;
+			static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes)
+			                                             ATTR_WARN_UNUSED_RESULT ATTR_CONST;
 			static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes)
 			{
 				if (Bytes <= 8)
