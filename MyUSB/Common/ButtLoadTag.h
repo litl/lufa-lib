@@ -23,20 +23,24 @@
 #ifndef BUTTLOADTAG_H
 #define BUTTLOADTAG_H
 
-	// INCLUDES:
-	#include <avr/io.h>
-	#include <avr/pgmspace.h>
-	
-	// Structures:
-	struct ButtLoadTagData
-	{
-		char MagicString[4];
-		char TagData[];
-	};
-	
-	// Macros:
-	#define BT_TAGHEADER          {'@','(','#',')'}
-	#define BUTTLOADTAG(id, data) const struct ButtLoadTagData BUTTTAG_##id             \
-	                               PROGMEM = {MagicString: BT_TAGHEADER, TagData: data}
+	/* Includes: */
+		#include <avr/io.h>
+		#include <avr/pgmspace.h>
+
+	/* Public Interface - May be used in end-application: */
+		/* Macros: */
+			#define BUTTLOADTAG(id, data) const struct ButtLoadTagData BUTTTAG_##id             \
+										   PROGMEM = {MagicString: BT_TAGHEADER, TagData: data}
+
+	/* Private Interface - For use in library only: */	
+		/* Macros: */
+			#define BT_TAGHEADER          {'@','(','#',')'}
+
+		/* Structures: */
+			struct ButtLoadTagData
+			{
+				char MagicString[4];
+				char TagData[];
+			};
 
 #endif
