@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef TESTEVENTS_H
-#define TESTEVENTS_H
+#ifndef _TESTEVENTS_H_
+#define _TESTEVENTS_H_
 
 	/* Includes: */
 		#include <avr/io.h>

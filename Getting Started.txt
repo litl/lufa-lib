@@ -10,6 +10,13 @@
 
 
 --------------------------------------------
+  DONATE:
+--------------------------------------------
+
+Please consider donating a small amount to myself, to support my future Open Source projects. You can donate any amount via PayPal on my website, http://www.fourwalledcubicle.com. This is by no means mandatory if you wish to use the library, but it is greatly appreciated.
+
+
+--------------------------------------------
   GENERAL INFORMATION:
 --------------------------------------------
 

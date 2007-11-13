@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef STDREQ_H
-#define STDREQ_H
+#ifndef __STDREQ_H__
+#define __STDREQ_H__
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

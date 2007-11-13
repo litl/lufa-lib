@@ -73,21 +73,21 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 TASK(USB_Mouse_Report)
 {
-	USB_MouseReport_Data_t MouseReportData = {Button: 0, X: 0, Y: 0};
+	USB_MouseReport_Data_t MouseReportData = {Button: false, X: 0, Y: 0};
 	uint8_t                JoyStatus_LCL   = Joystick_GetStatus();
 
 	if (JoyStatus_LCL & JOY_UP)
-	  MouseReportData.Y++;
+	  MouseReportData.Y =  1;
 	else if (JoyStatus_LCL & JOY_DOWN)
-	  MouseReportData.Y--;
+	  MouseReportData.Y = -1;
 
 	if (JoyStatus_LCL & JOY_RIGHT)
-	  MouseReportData.X++;
+	  MouseReportData.X =  1;
 	else if (JoyStatus_LCL & JOY_LEFT)
-	  MouseReportData.X--;
+	  MouseReportData.X = -1;
 
 	if (JoyStatus_LCL & JOY_PRESS)
-	  MouseReportData.Button = 0x01;
+	  MouseReportData.Button = true;
 
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)

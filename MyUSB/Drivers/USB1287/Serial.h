@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef SERIAL_H
-#define SERIAL_H
+#ifndef __SERIAL_H__
+#define __SERIAL_H__
 
 	/* Includes: */
 		#include <avr/io.h>

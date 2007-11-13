@@ -20,8 +20,8 @@
      http://www.fourwalledcubicle.com/ButtLoad.php
 */
 
-#ifndef BUTTLOADTAG_H
-#define BUTTLOADTAG_H
+#ifndef __BUTTLOADTAG_H__
+#define __BUTTLOADTAG_H__
 
 	/* Includes: */
 		#include <avr/io.h>

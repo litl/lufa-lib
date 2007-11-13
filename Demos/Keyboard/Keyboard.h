@@ -15,8 +15,8 @@
 	written by Dean Camera.
 */
 
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
+#ifndef _KEYBOARD_H_
+#define _KEYBOARD_H_
 
 	/* Includes: */
 		#include <avr/io.h>

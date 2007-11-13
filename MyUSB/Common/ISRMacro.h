@@ -32,8 +32,8 @@
    ISR will contain a JMP instruction that the non-compat aliased vector does not have.
 */
 
-#ifndef ISRMACRO_H
-#define ISRMACRO_H
+#ifndef __ISRMACRO_H__
+#define __ISRMACRO_H__
 
 	/* Preprocessor Checks and Defines */
 		#if defined(ISR)

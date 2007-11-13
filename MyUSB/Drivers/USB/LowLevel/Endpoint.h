@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef ENDPOINT_H
-#define ENDPOINT_H
+#ifndef __ENDPOINT_H__
+#define __ENDPOINT_H__
 
 	/* Includes: */
 		#include <avr/io.h>

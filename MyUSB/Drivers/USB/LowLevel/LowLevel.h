@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef USBLOWLEVEL_H
-#define USBLOWLEVEL_H
+#ifndef __USBLOWLEVEL_H__
+#define __USBLOWLEVEL_H__
 
 	/* Includes: */
 		#include <avr/io.h>

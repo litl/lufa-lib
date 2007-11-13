@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef PIPE_H
-#define PIPE_H
+#ifndef __PIPE_H__
+#define __PIPE_H__
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -56,31 +56,41 @@
 			#define PIPE_EPNUM_MASK                        0b111
 
 			#define Pipe_BytesInPipe()                     UPBCX
-			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST     = (1 << pipenum); UPRST = 0;                }MACROE
-			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM     = (pipenum & PIPE_PIPENUM_MASK);            }MACROE
+			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST     = (1 << pipenum); UPRST = 0;            }MACROE
+			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM     = (pipenum & PIPE_PIPENUM_MASK);        }MACROE
 			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X  |=  (1 << ALLOC);                        }MACROE
 			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X  &= ~(1 << ALLOC);                        }MACROE
 			#define Pipe_EnablePipe()              MACROS{ UPCONX   |=  (1 << PEN);                          }MACROE
 			#define Pipe_DisablePipe()             MACROS{ UPCONX   &= ~(1 << PEN);                          }MACROE
 			#define Pipe_IsEnabled()                     ((UPCONX   &   (1 << PEN)) ? true : false)
-			#define Pipe_SetToken(token)           MACROS{ UPCFG0X   = ((UPCFG0X & ~PIPE_TOKEN_MASK) | token); }MACROE
+			#define Pipe_SetToken(token)           MACROS{ UPCFG0X   = ((UPCFG0X & ~PIPE_TOKEN_MASK) | (token << PTOKEN0)); }MACROE
 			
 			#define Pipe_SetInfiniteINRequests()   MACROS{ UPCONX   |=  (1 << INMODE);                       }MACROE
-			#define Pipe_SetFiniteINRequests(x)    MACROS{ UPCONX   &= ~(1 << INMODE); INRQX = x;            }MACROE
+			#define Pipe_SetFiniteINRequests(n)    MACROS{ UPCONX   &= ~(1 << INMODE); INRQX = n;            }MACROE
 			
 			#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
 												   MACROS{ Pipe_ConfigurePipe_P(num,         \
 																			  ((type << PTYPE0) | (token << PTOKEN0) | ((epnum & PIPE_EPNUM_MASK) << PEPNUM0)),   \
 																			  ((Pipe_BytesToEPSizeMask(size) << EPSIZE0) | banks)); }MACROE
 			#define Pipe_IsConfigured()                  ((UPSTAX & (1 << CFGOK)) ? PIPE_CONFIG_OK : PIPE_CONFIG_FAIL)
-			#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG1X = ms                                      }MACROE
+			#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG2X = ms;                                     }MACROE
 			#define Pipe_GetPipeInterrupts()               UPINT
+			#define Pipe_ClearPipeInterrupt(n)     MACROS{ UPINT  &= (1 << n);                               }MACROE
 			#define Pipe_SendPipeData()            MACROS{ UPINTX &= ~(1 << FIFOCON);                        }MACROE
 			#define Pipe_Unfreeze()                MACROS{ UPCONX &= ~(1 << PFREEZE);                        }MACROE
 			#define Pipe_Freeze()                  MACROS{ UPCONX |=  (1 << PFREEZE);                        }MACROE
 
-			#define Pipe_ClearSetupRecieved()      MACROS{ UPINTX  &= ~(1 << TXSTPI);                        }MACROE
-			#define Pipe_IsSetupRecieved()               ((UPINTX  &   (1 << TXSTPI)) ? true : false)
+			#define Pipe_ClearError()              MACROS{ UPINTX  &= ~(1 << PERRI);                         }MACROE
+			#define Pipe_IsError()                       ((UPINTX  &   (1 << PERRI)))
+
+			#define Pipe_ClearSetupSent()          MACROS{ UPINTX  &= ~(1 << TXSTPI);                        }MACROE
+			#define Pipe_IsSetupSent()                   ((UPINTX  &   (1 << TXSTPI)) ? true : false)
+			#define Pipe_ClearSetupInRecieved()    MACROS{ UPINTX  &= ~(1 << RXINI);                         }MACROE
+			#define Pipe_IsSetupInRecieved()             ((UPINTX  &   (1 << RXINI)) ? true : false)
+			#define Pipe_ClearSetupOutRecieved()   MACROS{ UPINTX  &= ~(1 << TXOUTI);                        }MACROE
+			#define Pipe_IsSetupOutRecieved()            ((UPINTX  &   (1 << TXOUTI)) ? true : false)
+			#define Pipe_ClearSetupStalled()       MACROS{ UPINTX  &= ~(1 << RXSTALLI);                      }MACROE             
+			#define Pipe_IsSetupStalled()                ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
 			
 		/* Function Prototypes: */
 			void    Pipe_ClearPipes(void);

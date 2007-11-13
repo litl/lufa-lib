@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef HOSTCHAP9_H
-#define HOSTCHAP9_H
+#ifndef __HOSTCHAP9_H__
+#define __HOSTCHAP9_H__
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -18,13 +18,24 @@
 		#include "LowLevel.h"
 		#include "StdRequestType.h"
 
-	/* Private Interface - For use in library only: */
+	/* Public Interface - May be used in end-application: */
 		/* Type Defines: */
 			typedef struct
 			{
 				uint8_t  RequestType;
 				uint8_t  RequestData;
-				uint16_t Value;
+				
+				union
+				{
+					uint16_t Value;
+					
+					struct
+					{
+						uint8_t Value_HighByte;
+						uint8_t Value_LowByte;
+					};
+				};
+
 				uint16_t Index;
 				uint16_t Length;
 			} USB_Host_Request_Header_t;

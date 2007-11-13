@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef ADC_H
-#define ADC_H
+#ifndef __ADC_H__
+#define __ADC_H__
 
 	/* Includes: */
 		#include <avr/io.h>

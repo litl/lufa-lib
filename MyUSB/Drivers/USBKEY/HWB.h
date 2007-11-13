@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef HWB_H
-#define HWB_H
+#ifndef __HWB_H__
+#define __HWB_H__
 
 	/* Includes: */
 		#include <avr/io.h>

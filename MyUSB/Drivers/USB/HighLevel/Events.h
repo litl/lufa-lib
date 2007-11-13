@@ -35,7 +35,7 @@
 			#define USB_PowerOnFail_P                 (const unsigned char ErrorCode)
 
 			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
-				#define USB_UIDChange_P                   (void)
+				#define USB_UIDChange_P               (void)
 			#endif
 
 			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY

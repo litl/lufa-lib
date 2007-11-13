@@ -58,13 +58,13 @@ void USB_InitTaskPointer(void)
 #if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 void USB_DeviceTask(void)
 {
-		if (USB_IsConnected)
-		{
-			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+	if (USB_IsConnected)
+	{
+		Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 
-			if (Endpoint_IsSetupRecieved())
-			  USB_Device_ProcessControlPacket();
-		}
+		if (Endpoint_IsSetupRecieved())
+		  USB_Device_ProcessControlPacket();
+	}
 }
 #endif
 
@@ -99,7 +99,7 @@ void USB_HostTask(void)
 					
 				USB_HOST_SOFGeneration_Enable();
 					
-				if (USB_Host_WaitMS(100) == false)
+				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
 					RAISE_EVENT(USB_DeviceUnattached);
 					USB_HostState = HOST_STATE_Unattached;
@@ -108,7 +108,7 @@ void USB_HostTask(void)
 					
 				USB_HOST_ResetDevice();
 					
-				if (USB_Host_WaitMS(100) == false)
+				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
 					RAISE_EVENT(USB_DeviceUnattached);
 					USB_HostState = HOST_STATE_Unattached;
@@ -148,11 +148,12 @@ void USB_HostTask(void)
 			
 			break;
 		case HOST_STATE_Default:
-			USB_HostRequest.RequestType = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
-			USB_HostRequest.RequestData = REQ_GetDescriptor;
-			USB_HostRequest.Value       = (DTYPE_Device << 8);
-			USB_HostRequest.Index       = 0;
-			USB_HostRequest.Length      = 64;
+			USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
+			USB_HostRequest.RequestData    = REQ_GetDescriptor;
+			USB_HostRequest.Value_HighByte = DTYPE_Device;
+			USB_HostRequest.Value_LowByte  = 0;
+			USB_HostRequest.Index          = 0;
+			USB_HostRequest.Length         = 64;
 				
 			USB_Host_SendControlRequest(NULL);
 

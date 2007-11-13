@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef MOUSE_H
-#define MOUSE_H
+#ifndef _MOUSE_H_
+#define _MOUSE_H_
 
 	/* Includes: */
 		#include <avr/io.h>

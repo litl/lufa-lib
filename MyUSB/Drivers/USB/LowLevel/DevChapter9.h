@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef DEVCHAP9_H
-#define DEVCHAP9_H
+#ifndef __DEVCHAP9_H__
+#define __DEVCHAP9_H__
 
 	/* Includes: */
 		#include <avr/io.h>

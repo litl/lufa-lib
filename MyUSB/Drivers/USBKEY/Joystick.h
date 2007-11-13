@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef JOYSTICK_H
-#define JOYSTICK_H
+#ifndef __JOYSTICK_H__
+#define __JOYSTICK_H__
 
 	/* Includes: */
 		#include <avr/io.h>

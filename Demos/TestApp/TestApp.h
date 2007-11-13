@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef TESTAPP_H
-#define TESTAPP_H
+#ifndef _TESTAPP_H_
+#define _TESTAPP_H_
 
 	/* Includes: */
 		#include <avr/io.h>

@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef TERMINALCODES_H
-#define TERMINALCODES_H
+#ifndef __TERMINALCODES_H__
+#define __TERMINALCODES_H__
 
 	/* Public Interface - May be used in end-application: */
 		/* Defines: */

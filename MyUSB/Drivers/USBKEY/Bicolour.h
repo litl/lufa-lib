@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef BICOLOUR_H
-#define BICOLOUR_H
+#ifndef __BICOLOUR_H__
+#define __BICOLOUR_H__
 
 	/* Includes: */
 		#include <avr/io.h>

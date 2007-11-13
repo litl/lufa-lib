@@ -18,14 +18,20 @@
 CLEANLIB = make -C ../MyUSB/ clean
 
 all:
-	$(CLEANLIB)
+	make -C TestApp clean
 	make -C TestApp all
-	$(CLEANLIB)
+
+	make -C Mouse clean
 	make -C Mouse all
-	$(CLEANLIB)
+
+	make -C Keyboard clean
 	make -C Keyboard all
+
+	make -C Magstripe clean
+	make -C Magstripe all
 	
 clean:
 	make -C TestApp clean
 	make -C Mouse clean
 	make -C Keyboard clean
+	make -C Magstripe clean

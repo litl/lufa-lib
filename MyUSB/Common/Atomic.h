@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef ATOMIC_H
-#define ATOMIC_H
+#ifndef __ATOMIC_H__
+#define __ATOMIC_H__
 
 	/* Includes: */
 		#include <avr/io.h>

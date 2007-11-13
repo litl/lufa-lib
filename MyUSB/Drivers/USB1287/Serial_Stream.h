@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef SERIAL_STREAM_H
-#define SERIAL_STREAM_H
+#ifndef __SERIAL_STREAM_H__
+#define __SERIAL_STREAM_H__
 
 	/* Includes: */
 		#include <avr/io.h>

@@ -10,22 +10,24 @@
 
 # Makefile to build and run various helper applications on the library.
 
-MYUSBFILES = ./Scheduler/Scheduler.c                     \
-             ./Drivers/USBKEY/Temperature.c              \
-             ./Drivers/USB1287/Serial.c                  \
-             ./Drivers/USB1287/Serial_Stream.c           \
-             ./Drivers/USB/LowLevel/LowLevel.c           \
-             ./Drivers/USB/LowLevel/Endpoint.c           \
-             ./Drivers/USB/LowLevel/Pipe.c               \
-             ./Drivers/USB/LowLevel/DevChapter9.c        \
-             ./Drivers/USB/LowLevel/HostChapter9.c       \
-             ./Drivers/USB/LowLevel/Host.c               \
-             ./Drivers/USB/HighLevel/USBTask.c           \
-             ./Drivers/USB/HighLevel/USBInterrupt.c      \
-             ./Drivers/USB/HighLevel/Events.c            \
-             ./Drivers/USB/HighLevel/StdDescriptors.c    \
+MYUSB_USB_FILES =  ./Drivers/USB/LowLevel/LowLevel.c           \
+                   ./Drivers/USB/LowLevel/Endpoint.c           \
+                   ./Drivers/USB/LowLevel/Pipe.c               \
+                   ./Drivers/USB/LowLevel/DevChapter9.c        \
+                   ./Drivers/USB/LowLevel/HostChapter9.c       \
+                   ./Drivers/USB/LowLevel/Host.c               \
+                   ./Drivers/USB/HighLevel/USBTask.c           \
+                   ./Drivers/USB/HighLevel/USBInterrupt.c      \
+                   ./Drivers/USB/HighLevel/Events.c            \
+                   ./Drivers/USB/HighLevel/StdDescriptors.c    \
+				  
+MYUSB_MISC_FILES = ./Scheduler/Scheduler.c                     \
+                   ./Drivers/USBKEY/Temperature.c              \
+                   ./Drivers/USB1287/Serial.c                  \
+                   ./Drivers/USB1287/Serial_Stream.c           \
 
 all:
 
 clean:
-	rm -f $(MYUSBFILES:%.c=%.o)
+	rm -f $(MYUSB_USB_FILES:%.c=%.o)
+	rm -f $(MYUSB_MISC_FILES:%.c=%.o)

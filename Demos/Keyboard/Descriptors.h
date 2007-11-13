@@ -15,8 +15,8 @@
 	written by Dean Camera.
 */
 
-#ifndef DESCRIPTORS_H
-#define DESCRIPTORS_H
+#ifndef _DESCRIPTORS_H_
+#define _DESCRIPTORS_H_
 
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>

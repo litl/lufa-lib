@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef USBDEVICE_H
-#define USBDEVICE_H
+#ifndef __USBDEVICE_H__
+#define __USBDEVICE_H__
 
 	/* Includes: */
 		#include "../../../Common/Common.h"

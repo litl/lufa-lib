@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef FUNCATTR_H
-#define FUNCATTR_H
+#ifndef __FUNCATTR_H__
+#define __FUNCATTR_H__
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
