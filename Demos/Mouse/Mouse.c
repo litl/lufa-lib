@@ -95,7 +95,7 @@ TASK(USB_Mouse_Report)
 		/* Select the Mouse Report Endpoint */
 		Endpoint_SelectEndpoint(MOUSE_EPNUM);
 
-		/* Check if Mouse Endpoint Ready for Data */
+		/* Check if Mouse Endpoint Ready for Read/Write */
 		if (Endpoint_ReadWriteAllowed())
 		{
 			/* Write Mouse Report Data */
@@ -108,4 +108,3 @@ TASK(USB_Mouse_Report)
 		}
 	}
 }
-
