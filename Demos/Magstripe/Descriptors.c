@@ -14,7 +14,7 @@
 	demonstration project website, including construction and support details.
 
 	This example is based on the MyUSB Keyboard demonstration application,
-	written by Dean Camera.
+	written by Denver Gingerich.
 */
 
 #include "Descriptors.h"

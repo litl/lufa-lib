@@ -41,18 +41,18 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-		
+
 		#include "../../Common/FunctionAttributes.h"
-			
+
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define MAG_MASK	(MAG_DATA | MAG_CLOCK | MAG_CLS)
+			#define MAG_MASK    (MAG_DATA | MAG_CLOCK | MAG_CLS)
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define MAG_DATA	(1 << MAG_DATA_PIN)
-			#define MAG_CLOCK	(1 << MAG_CLOCK_PIN)
-			#define MAG_CLS		(1 << MAG_CLS_PIN)
+			#define MAG_DATA    (1 << MAG_DATA_PIN)
+			#define MAG_CLOCK   (1 << MAG_CLOCK_PIN)
+			#define MAG_CLS     (1 << MAG_CLS_PIN)
 
 		/* Inline Functions: */
 			static inline void Magstripe_Init(void)
@@ -63,7 +63,7 @@
 				/* Turn on Magstripe pullups */
 				MAG_PORT |= MAG_MASK;
 			};
-			
+
 			static inline uint8_t Magstripe_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Magstripe_GetStatus(void)
 			{
