@@ -56,7 +56,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
 	VendorID:               0x0000,
-	ProductID:              USB_PRODUCT_ID('K', 'B'),
+	ProductID:              USB_PRODUCT_ID('M', 'C'),
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
@@ -127,30 +127,30 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 
 USB_Descriptor_Language_t LanguageString PROGMEM =
 {
-	Header:                 {Size: sizeof(USB_Descriptor_Language_t), Type: DTYPE_String},
+	Header:                         {Size: sizeof(USB_Descriptor_Language_t), Type: DTYPE_String},
 		
-	LanguageID:             LANGUAGE_ID_ENG
+	LanguageID:                     LANGUAGE_ID_ENG
 };
 
 USB_Descriptor_String_t ManafacturerString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
+	Header:                         {Size: USB_STRING_LEN(16), Type: DTYPE_String},
 		
-	UnicodeString:          {'D','e','n','v','e','r',' ','G','i','n','g','e','r','i','c','h'}
+	UnicodeString:                  {'D','e','n','v','e','r',' ','G','i','n','g','e','r','i','c','h'}
 };
 
 USB_Descriptor_String_t ProductString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(19), Type: DTYPE_String},
+	Header:                         {Size: USB_STRING_LEN(22), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','K','e','y','b','o','a','r','d',' ','D','e','m','o'}
+	UnicodeString:                  {'M','y','U','S','B',' ','C','a','r','d',' ','R','e','a','d','e','r',' ','D','e','m','o'}
 };
 
 USB_Descriptor_String_t VersionString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(5), Type: DTYPE_String},
+	Header:                         {Size: USB_STRING_LEN(5), Type: DTYPE_String},
 		
-	UnicodeString:          {'0','.','1','.','0'}
+	UnicodeString:                  {'0','.','1','.','0'}
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,

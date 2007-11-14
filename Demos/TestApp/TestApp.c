@@ -74,12 +74,12 @@ int main(void)
 	CLKPR = 0;
 
 	/* Hardware initialization */
-	Joystick_Init();
-	HWB_Init();
-	Bicolour_Init();
 	SerialStream_Init(9600);
-	ADC_Init();
 	Temperature_Init();
+	Joystick_Init();
+	Bicolour_Init();
+	HWB_Init();
+	ADC_Init();
 	
 	/* Millisecond timer initialization */
 	OCR0A  = 0x7D;
@@ -92,7 +92,7 @@ int main(void)
 
     /* Startup message via USART */
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
-	       "MyUSB Demo running.\r\n\n" ESC_INVERSE_OFF));
+	       "MyUSB Demo running.\r\n" ESC_INVERSE_OFF));
 
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();

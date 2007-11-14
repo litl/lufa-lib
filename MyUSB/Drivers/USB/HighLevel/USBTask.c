@@ -148,12 +148,12 @@ void USB_HostTask(void)
 			
 			break;
 		case HOST_STATE_Default:
-			USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
+			USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
 			USB_HostRequest.RequestData    = REQ_GetDescriptor;
 			USB_HostRequest.Value_HighByte = DTYPE_Device;
 			USB_HostRequest.Value_LowByte  = 0;
 			USB_HostRequest.Index          = 0;
-			USB_HostRequest.Length         = 64;
+			USB_HostRequest.Length         = PIPE_CONTROLPIPE_SIZE;
 				
 			USB_Host_SendControlRequest(NULL);
 

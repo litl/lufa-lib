@@ -34,7 +34,7 @@
 			#define REQREC_ENDPOINT            (2 << 0)
 			#define REQREC_OTHER               (3 << 0)
 
-		/* Enums */
+		/* Enums: */
 			enum Control_ReqType_Direction
 			{
 				REQDIR_HostToDevice     = 0,

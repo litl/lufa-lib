@@ -31,8 +31,8 @@
 					
 					struct
 					{
-						uint8_t Value_HighByte;
 						uint8_t Value_LowByte;
+						uint8_t Value_HighByte;
 					};
 				};
 
