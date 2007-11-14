@@ -18,7 +18,7 @@ void USB_Host_SendControlRequest(const void* Data)
 	uint8_t* HeaderByte = (uint8_t*)&USB_HostRequest;
 
 	if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
-		return;
+	  return;
 
 	Pipe_SelectPipe(0);
 	Pipe_SetToken(PIPE_TOKEN_SETUP);
@@ -31,7 +31,7 @@ void USB_Host_SendControlRequest(const void* Data)
 
 	Pipe_SendPipeData();
 	
-	while(!(Pipe_IsSetupSent()))
+	while (!(Pipe_IsSetupSent()))
 	{
 		if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
 		{
@@ -66,7 +66,7 @@ void USB_Host_SendControlRequest(const void* Data)
 		
 		puts_P(PSTR("Response Data:"));
 		while (Pipe_BytesInPipe())
-			printf_P(PSTR("%d, "), USB_Host_Read_Byte());
+		  printf_P(PSTR("%d, "), USB_Host_Read_Byte());
 
 		for (;;);
 	}

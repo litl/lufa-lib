@@ -72,11 +72,11 @@ EVENT_HANDLER(USB_PowerOnFail)
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Power On Fail\r\n"));
 
 	if (USB_CurrentMode == USB_MODE_DEVICE)
-		ModeStrPtr = PSTR("DEVICE");
+	  ModeStrPtr = PSTR("DEVICE");
 	else if (USB_CurrentMode == USB_MODE_HOST)
-		ModeStrPtr = PSTR("HOST");
+	  ModeStrPtr = PSTR("HOST");
 	else
-		ModeStrPtr = PSTR("N/A");
+	  ModeStrPtr = PSTR("N/A");
 	
 	printf_P(PSTR(" -- Mode %S\r\n"), ModeStrPtr);
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);

@@ -27,7 +27,7 @@ MYUSB_MISC_FILES = ./Scheduler/Scheduler.c                     \
                    ./Drivers/USB1287/Serial_Stream.c           \
 
 all:
-
+	
 clean:
 	rm -f $(MYUSB_USB_FILES:%.c=%.o)
 	rm -f $(MYUSB_MISC_FILES:%.c=%.o)

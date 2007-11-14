@@ -19,13 +19,12 @@
 
 /*
 	This demo uses a keyboard HID driver to communicate the data collected
-	a TTL magnetic stripe reader to the connected computer.  The raw
-	bitstream obtained from the magnetic stripe reader is "typed" through
-	the keyboard driver as 0's and 1's.  After every card swipe, the demo
-	will send a Return key.
+	a TTL magnetic stripe reader to the connected computer. The raw bitstream
+	obtained from the magnetic stripe reader is "typed" through the keyboard
+	driver as 0's and 1's. After every card swipe, the demo will send a Return key.
 
-	This demo relies on the keyboard demo to compile.  The keyboard demo
-	application files must be located at ../Keyboard.
+	This demo relies on the keyboard demo to compile. The keyboard demo application
+	files must be located at ../Keyboard.
 */
 
 #include "Keyboard.h"
@@ -87,10 +86,9 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 TASK(USB_Keyboard_Report)
 {
-	USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: 0};
-	uint8_t                   MagStatus_LCL      = Magstripe_GetStatus();	
-	uint16_t                  StripeDataLen      = 0;
-	static uint8_t            StripeData[DATA_LEN];
+	uint8_t        MagStatus_LCL       = Magstripe_GetStatus();	
+	uint16_t       StripeDataLen       = 0;
+	static uint8_t StripeData[DATA_LEN];
 
 	if (!(MagStatus_LCL & MAG_CLS))
 	  return;
@@ -113,7 +111,7 @@ TASK(USB_Keyboard_Report)
 		StripeDataLen++;
 
 		if (StripeDataLen >= DATA_LEN)
-			StripeDataLen = 0;		
+		  StripeDataLen = 0;		
 
 		do
 		{
@@ -121,37 +119,37 @@ TASK(USB_Keyboard_Report)
 		} while (!(MagStatus_LCL & MAG_CLOCK) && (MagStatus_LCL & MAG_CLS));
 	}
 
-	for (int i = 0; i < StripeDataLen; i++)
+	for (uint8_t i = 0; i < StripeDataLen; i++)
 	{
-		while (!(Endpoint_In_IsReady()));
-		KeyboardReportData.KeyCode = StripeData[i];
-		Keyboard_SendReport(KeyboardReportData);
-
-		while (!(Endpoint_In_IsReady()));
-		KeyboardReportData.KeyCode = 0;
-		Keyboard_SendReport(KeyboardReportData);
+		Keyboard_SendKeyReport(StripeData[i]);
+		Keyboard_SendKeyReport(0);
 	}
 
-	while (!(Endpoint_In_IsReady()));
-	KeyboardReportData.KeyCode = 40; // Enter
-	Keyboard_SendReport(KeyboardReportData);
-
-	while (!(Endpoint_In_IsReady()));
-	KeyboardReportData.KeyCode = 0;
-	Keyboard_SendReport(KeyboardReportData);
+	Keyboard_SendKeyReport(40);
+	Keyboard_SendKeyReport(0);
 }
 
-void Keyboard_SendReport(USB_KeyboardReport_Data_t KeyboardReportData)
+void Keyboard_SendKeyReport(uint8_t KeyCode)
 {
+	USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: KeyCode};
+
+	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
 	{
+		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
+		/* Check if Keyboard Endpoint Ready for Data */
+		while (!(Endpoint_In_IsReady()));
+
+		/* Check if Keyboard Endpoint Ready for Read/Write */
 		if (Endpoint_ReadWriteAllowed())
 		{
+			/* Write Keyboard Report Data */
 			USB_Device_Write_Byte(KeyboardReportData.Modifier);
 			USB_Device_Write_Byte(KeyboardReportData.KeyCode);
 			
+			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_In_Clear();
 		}
 	}

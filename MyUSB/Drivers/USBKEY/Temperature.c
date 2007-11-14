@@ -33,7 +33,7 @@ int8_t Temperature_GetTemperature(void)
 	for (uint16_t Index = 0; Index < TEMP_TABLE_SIZE; Index++)
 	{
 		if (Temp_ADC > pgm_read_word(&Temperature_Lookup[Index]))
-		 return ((Index - 1) + TEMP_TABLE_OFFSET);
+		  return ((Index - 1) + TEMP_TABLE_OFFSET);
 	}
 
 	return TEMP_MAX_TEMP;

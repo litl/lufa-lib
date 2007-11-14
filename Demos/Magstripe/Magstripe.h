@@ -38,6 +38,6 @@
 		#include <MyUSB/Drivers/Misc/Magstripe.h>     // Magstripe driver
 
 	/* Function Prototypes: */
-		void Keyboard_SendReport(USB_KeyboardReport_Data_t KeyboardReportData);		
+		void Keyboard_SendKeyReport(uint8_t KeyCode);		
 
 #endif

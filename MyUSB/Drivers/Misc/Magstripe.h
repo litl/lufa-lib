@@ -67,7 +67,7 @@
 			static inline uint8_t Magstripe_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Magstripe_GetStatus(void)
 			{
-				return ~MAG_PIN & MAG_MASK;
+				return (~MAG_PIN & MAG_MASK);
 			}
 
 #endif

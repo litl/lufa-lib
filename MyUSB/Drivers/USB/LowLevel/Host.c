@@ -57,7 +57,7 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 	}
 
 	if (!(SOFGenEnabled))
-		USB_HOST_SOFGeneration_Disable();
+	  USB_HOST_SOFGeneration_Disable();
 
 	USB_INT_CLEAR(USB_INT_HSOFI);
 

@@ -86,17 +86,17 @@ TASK(USB_Keyboard_Report)
 
 
 	if (JoyStatus_LCL & JOY_UP)
-		KeyboardReportData.KeyCode = 0x04; // A
+	  KeyboardReportData.KeyCode = 0x04; // A
 	else if (JoyStatus_LCL & JOY_DOWN)
-		KeyboardReportData.KeyCode = 0x05; // B
+	  KeyboardReportData.KeyCode = 0x05; // B
 
 	if (JoyStatus_LCL & JOY_LEFT)
-		KeyboardReportData.KeyCode = 0x06; // C
+	  KeyboardReportData.KeyCode = 0x06; // C
 	else if (JoyStatus_LCL & JOY_RIGHT)
-		KeyboardReportData.KeyCode = 0x07; // D
+	  KeyboardReportData.KeyCode = 0x07; // D
 
 	if (JoyStatus_LCL & JOY_PRESS)
-		KeyboardReportData.KeyCode = 0x08; // E
+	  KeyboardReportData.KeyCode = 0x08; // E
 
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
@@ -104,7 +104,7 @@ TASK(USB_Keyboard_Report)
 		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
-		/* Check if Keyboard Endpoint Ready for Data */
+		/* Check if Keyboard Endpoint Ready for Read/Write */
 		if (Endpoint_ReadWriteAllowed())
 		{
 			/* Write Keyboard Report Data */

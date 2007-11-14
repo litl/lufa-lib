@@ -23,7 +23,7 @@ void Serial_TxString_P(const char *FlashStringPtr)
 {
 	uint8_t CurrByte;
 
-	while ((CurrByte = pgm_read_byte_near(FlashStringPtr)) != 0x00)
+	while ((CurrByte = pgm_read_byte(FlashStringPtr)) != 0x00)
 	{
 		Serial_TxByte(CurrByte);
 		FlashStringPtr++;

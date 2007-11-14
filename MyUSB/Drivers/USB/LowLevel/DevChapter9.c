@@ -17,7 +17,6 @@ void USB_Device_ProcessControlPacket(void)
 {
 	uint8_t RequestType;
 	uint8_t Request;
-	
 	bool    RequestHandled = false;
 	
 	RequestType = USB_Device_Read_Byte();
@@ -114,7 +113,7 @@ void USB_Device_SetConfiguration(void)
 	uint8_t ConfigNum = USB_Device_Read_Byte();
 	
 	if (ConfigNum > CONFIGURATIONS)
-		return;
+	  return;
 	
 	USB_ConfigurationNumber = ConfigNum;
 
@@ -132,7 +131,7 @@ void USB_Device_GetConfiguration(void)
 	
 	Endpoint_In_Clear();
 
-	while(!(Endpoint_Out_IsRecieved()));
+	while (!(Endpoint_Out_IsRecieved()));
 	Endpoint_Out_Clear();
 }
 
@@ -177,7 +176,7 @@ void USB_Device_GetDescriptor(void)
 		
 		while (DescriptorBytesRem && (BytesInPacket++ < ENDPOINT_CONTROLEP_SIZE))
 		{
-			USB_Device_Write_Byte(pgm_read_byte_near(DescriptorPointer++));
+			USB_Device_Write_Byte(pgm_read_byte(DescriptorPointer++));
 			DescriptorBytesRem--;
 		}
 		
@@ -190,13 +189,13 @@ void USB_Device_GetDescriptor(void)
 		return;
 	}
 	
-	if(SendZeroPacket == true)
+	if (SendZeroPacket == true)
 	{
 		while (!(Endpoint_In_IsReady()));
 		Endpoint_In_Clear();
 	}
 
-   while(!(Endpoint_Out_IsRecieved()));
+   while (!(Endpoint_Out_IsRecieved()));
    Endpoint_Out_Clear();
 }
 
@@ -241,7 +240,7 @@ void USB_Device_GetStatus(const uint8_t RequestType)
 
 	Endpoint_In_Clear();
 	
-	while(!(Endpoint_Out_IsRecieved()));
+	while (!(Endpoint_Out_IsRecieved()));
 	Endpoint_Out_Clear();
 
 	Endpoint_ClearSetupRecieved();
