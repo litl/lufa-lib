@@ -145,11 +145,14 @@ void USB_Device_GetDescriptor(void)
 	void*    DescriptorPointer;
 	uint16_t DescriptorBytesRem;
 	
-	bool     SendZeroPacket  = false;
+	bool     SendZeroPacket = false;
 	
-	if (USB_GetDescriptor(DescriptorType, DescriptorIndex, &DescriptorPointer, &DescriptorBytesRem) == false)
+	if (USB_GetDescriptor(DescriptorType, DescriptorIndex,
+	                      &DescriptorPointer, &DescriptorBytesRem) == false)
+	{
 		return;
-
+	}
+	
 	USB_Device_Ignore_Word(); // Ignore language identifier
 
 	DescriptorLength  = USB_Device_Read_Word();

@@ -29,7 +29,7 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define BUTTLOADTAG(id, data) const struct ButtLoadTagData BUTTTAG_##id             \
+			#define BUTTLOADTAG(id, data) const struct ButtLoadTagData BUTTTAG_##id            \
 										   PROGMEM = {MagicString: BT_TAGHEADER, TagData: data}
 
 	/* Private Interface - For use in library only: */	

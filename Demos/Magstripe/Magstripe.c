@@ -25,7 +25,7 @@
 	will send a Return key.
 
 	This demo relies on the keyboard demo to compile.  The keyboard demo
-	must be located at ../Keyboard.
+	application files must be located at ../Keyboard.
 */
 
 #include "Keyboard.h"
@@ -88,65 +88,62 @@ EVENT_HANDLER(USB_CreateEndpoints)
 TASK(USB_Keyboard_Report)
 {
 	USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: 0};
-	uint8_t                   MagStatus_LCL      = Magstripe_GetStatus();
-	uint32_t                  num_entries        = 0;
-	
-	static uint8_t            stripe_data[DATA_LEN];
-	static uint16_t           stripe_idx = 0;
+	uint8_t                   MagStatus_LCL      = Magstripe_GetStatus();	
+	uint16_t                  StripeDataLen      = 0;
+	static uint8_t            StripeData[DATA_LEN];
 
-	if ( (MagStatus_LCL & MAG_CLS) != MAG_CLS ) {
-		return;
-	}
+	if (!(MagStatus_LCL & MAG_CLS))
+	  return;
 
-	// while card present, process card
-	while ( (MagStatus_LCL & MAG_CLS) == MAG_CLS ) {
-		do {
+	while (MagStatus_LCL & MAG_CLS)
+	{
+		do
+		{
 			MagStatus_LCL = Magstripe_GetStatus();
-			if ((MagStatus_LCL & MAG_CLS) != MAG_CLS) {
-				goto loop_end;
-			}
-		} while ( (MagStatus_LCL & MAG_CLOCK) != 0);
+		} while ((MagStatus_LCL & MAG_CLOCK) && (MagStatus_LCL & MAG_CLS));
 
-		if ( (MagStatus_LCL & MAG_DATA) == 0)
-		  stripe_data[stripe_idx] = 39; // 0
+		if (!(MagStatus_LCL & MAG_CLS))
+		  break;
+
+		if (!(MagStatus_LCL & MAG_DATA))
+		  StripeData[StripeDataLen] = 39; // 0
 		else
-		  stripe_data[stripe_idx] = 30; // 1
+		  StripeData[StripeDataLen] = 30; // 1
 
-		stripe_idx++;
-		if (stripe_idx >= DATA_LEN) {
-			stripe_idx = 0;
-		}
-		num_entries++;
+		StripeDataLen++;
 
-		do {
+		if (StripeDataLen >= DATA_LEN)
+			StripeDataLen = 0;		
+
+		do
+		{
 			MagStatus_LCL = Magstripe_GetStatus();
-			if ((MagStatus_LCL & MAG_CLS) != MAG_CLS) {
-				goto loop_end;
-			}
-		} while ( (MagStatus_LCL & MAG_CLOCK) != MAG_CLOCK);
+		} while (!(MagStatus_LCL & MAG_CLOCK) && (MagStatus_LCL & MAG_CLS));
 	}
-loop_end:
 
-	for (int i = 0; i < stripe_idx; i++) {
-		KeyboardReportData.KeyCode = stripe_data[i];
+	for (int i = 0; i < StripeDataLen; i++)
+	{
+		while (!(Endpoint_In_IsReady()));
+		KeyboardReportData.KeyCode = StripeData[i];
 		Keyboard_SendReport(KeyboardReportData);
-		_delay_ms(5);
+
+		while (!(Endpoint_In_IsReady()));
 		KeyboardReportData.KeyCode = 0;
 		Keyboard_SendReport(KeyboardReportData);
-		_delay_ms(5);
 	}
+
+	while (!(Endpoint_In_IsReady()));
 	KeyboardReportData.KeyCode = 40; // Enter
 	Keyboard_SendReport(KeyboardReportData);
-	_delay_ms(5);
+
+	while (!(Endpoint_In_IsReady()));
 	KeyboardReportData.KeyCode = 0;
 	Keyboard_SendReport(KeyboardReportData);
-
-	stripe_idx = 0;
 }
 
 void Keyboard_SendReport(USB_KeyboardReport_Data_t KeyboardReportData)
 {
-	if (USB_IsConnected && USB_IsInitialized)
+	if (USB_IsConnected)
 	{
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 

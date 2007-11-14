@@ -160,12 +160,10 @@ CFLAGS += $(CDEFS)
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
-CFLAGS += -ffunction-sections
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
-CFLAGS += -mshort-calls
 CFLAGS += -Wundef
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wunreachable-code
@@ -269,7 +267,6 @@ EXTMEMOPTS =
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(TARGET).map,--cref
-LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--relax 
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(EXTRALIBDIRS))

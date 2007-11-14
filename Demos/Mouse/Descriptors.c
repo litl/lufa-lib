@@ -177,15 +177,15 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 					return true;
 				case 0x01:
 					*DescriptorAddr = (void*)&ManafacturerString;
-					*Size           = pgm_read_byte(&ManafacturerString.Header.Size);
+					*Size           = pgm_read_byte_near(&ManafacturerString.Header.Size);
 					return true;
 				case 0x02:
 					*DescriptorAddr = (void*)&ProductString;
-					*Size           = pgm_read_byte(&ProductString.Header.Size);
+					*Size           = pgm_read_byte_near(&ProductString.Header.Size);
 					return true;
 				case 0x03:
 					*DescriptorAddr = (void*)&VersionString;
-					*Size           = pgm_read_byte(&VersionString.Header.Size);
+					*Size           = pgm_read_byte_near(&VersionString.Header.Size);
 					return true;
 			}
 			

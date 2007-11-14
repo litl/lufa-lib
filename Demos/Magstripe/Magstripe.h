@@ -32,7 +32,6 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-		#include <util/delay.h>
 
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
