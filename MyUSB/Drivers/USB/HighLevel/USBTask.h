@@ -14,6 +14,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <stdbool.h>
+		#include <stddef.h>
 		
 		#include "../HighLevel/Events.h"
 		#include "../../../Scheduler/Scheduler.h"

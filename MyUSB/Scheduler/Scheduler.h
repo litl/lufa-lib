@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#ifndef __SCHEDULER_H__
+#define __SCHEDULER_H__
 
 	/* Includes */
 		#include <avr/io.h>

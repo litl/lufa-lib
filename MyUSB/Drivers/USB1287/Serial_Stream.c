@@ -10,8 +10,7 @@
 
 #include "Serial_Stream.h"
 
-FILE USARTStream __attribute__((used)) = FDEV_SETUP_STREAM(SerialStream_TxByte, SerialStream_RxByte,
-                                                           _FDEV_SETUP_RW);
+FILE USARTStream = FDEV_SETUP_STREAM(SerialStream_TxByte, SerialStream_RxByte, _FDEV_SETUP_RW);
 
 int SerialStream_TxByte(char DataByte, FILE *Stream)
 {

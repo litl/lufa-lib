@@ -46,7 +46,7 @@
 			#define PIPE_BANK_DOUBLE                       (1 << EPBK0)
 			
 			#define PIPE_CONTROLPIPE                       0
-			#define PIPE_CONTROLPIPE_SIZE                  64
+			#define PIPE_CONTROLPIPE_SIZE                  8
 			
 			#define PIPE_PIPENUM_MASK                      0b111
 			#define PIPE_MAXPIPES                          7

@@ -25,6 +25,7 @@
 			#define BICOLOUR_LED1_ORANGE (BICOLOUR_LED1_RED | BICOLOUR_LED1_GREEN)
 			#define BICOLOUR_LED2_ORANGE (BICOLOUR_LED2_RED | BICOLOUR_LED2_GREEN)
 			#define BICOLOUR_ALL_LEDS    (BICOLOUR_LED1_ORANGE | BICOLOUR_LED2_ORANGE)
+			#define BICOLOUR_NO_LEDS     0
 	
 		/* Inline Functions: */
 			static inline void Bicolour_Init(void)

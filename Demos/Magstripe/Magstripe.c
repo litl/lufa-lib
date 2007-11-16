@@ -110,7 +110,7 @@ TASK(USB_Keyboard_Report)
 
 		StripeDataLen++;
 
-		if (StripeDataLen >= DATA_LEN)
+		if (StripeDataLen == DATA_LEN)
 		  StripeDataLen = 0;		
 
 		do

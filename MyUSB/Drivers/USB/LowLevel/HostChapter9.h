@@ -19,6 +19,10 @@
 		#include "StdRequestType.h"
 
 	/* Public Interface - May be used in end-application: */
+		/* Macros: */
+			#define SEND_CONTROL_OK      0
+			#define SEND_CONTROL_ERROR   1
+	
 		/* Type Defines: */
 			typedef struct
 			{
@@ -44,6 +48,6 @@
 			extern USB_Host_Request_Header_t USB_HostRequest;
 			
 		/* Function Prototypes: */
-			void USB_Host_SendControlRequest(const void* Data);
+			uint8_t USB_Host_SendControlRequest(const void* Data);
 
 #endif

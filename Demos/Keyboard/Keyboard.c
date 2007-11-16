@@ -23,7 +23,7 @@
 	On startup the system will automatically enumerate and function
 	as a keyboard when the USB connection to a host is present. To use
 	the keyboard example, manipulate the joystick to send the letters
-	A, B, C, D and E. See the USB HID documentation for more information
+	a, b, c, d and e. See the USB HID documentation for more information
 	on sending keyboard event and keypresses.
 */
 
@@ -83,7 +83,6 @@ TASK(USB_Keyboard_Report)
 {
 	USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: 0};
 	uint8_t                   JoyStatus_LCL      = Joystick_GetStatus();
-
 
 	if (JoyStatus_LCL & JOY_UP)
 	  KeyboardReportData.KeyCode = 0x04; // A

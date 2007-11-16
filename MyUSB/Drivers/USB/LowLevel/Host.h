@@ -21,6 +21,8 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
+			#define USB_HOST_DEVICEADDRESS        1
+		
 			#define USB_HOST_AUTOVBUS             (0 << 1)
 			#define USB_HOST_MANUALVBUS           (1 << 1)
 
@@ -101,20 +103,21 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define USB_HOST_HostModeOn()              MACROS{ USBCON |=  (1 << HOST);    }MACROE
-			#define USB_HOST_HostModeOff()             MACROS{ USBCON &= ~(1 << HOST);    }MACROE
+			#define USB_HOST_HostModeOn()              MACROS{ USBCON |=  (1 << HOST);           }MACROE
+			#define USB_HOST_HostModeOff()             MACROS{ USBCON &= ~(1 << HOST);           }MACROE
 
 			#define USB_HOST_ManualVBUS_Enable()       MACROS{ UHWCON &= ~(1 << UVCONE); OTGCON |= (1 << VBUSHWC); DDRE |= (1 << 7); }MACROE
-			#define USB_HOST_ManualVBUS_Disable()      MACROS{ OTGCON &= ~(1 << VBUSHWC); }MACROE
+			#define USB_HOST_ManualVBUS_Disable()      MACROS{ OTGCON &= ~(1 << VBUSHWC);        }MACROE
 
 			#define USB_HOST_AutoVBUS_On()             MACROS{ UHWCON |=  (1 << UVCONE); OTGCON |= (1 << VBUSREQ); }MACROE
-			#define USB_HOST_AutoVBUS_Off()            MACROS{ OTGCON |=  (1 << VBUSRQC); }MACROE 
+			#define USB_HOST_AutoVBUS_Off()            MACROS{ OTGCON |=  (1 << VBUSRQC);        }MACROE 
 
-			#define USB_HOST_SOFGeneration_Enable()    MACROS{ UHCON  |=  (1 << SOFEN);   }MACROE 
-			#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON  &= ~(1 << SOFEN);   }MACROE 
+			#define USB_HOST_SOFGeneration_Enable()    MACROS{ UHCON  |=  (1 << SOFEN);          }MACROE 
+			#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON  &= ~(1 << SOFEN);          }MACROE 
 			#define USB_HOST_SOFGeneration_IsEnabled()       ((UHCON  &   (1 << SOFEN)) ? true : false)
 
-			#define USB_HOST_ResetDevice()             MACROS{ UHCON  |= (1 << RESET);     }MACROE 
+			#define USB_HOST_ResetDevice()             MACROS{ UHCON  |=  (1 << RESET);          }MACROE
+			#define USB_HOST_SetDeviceAddress(addr)    MACROS{ UHADDR  =  (addr & 0b00111111);   }MACROE
 
 		/* Function Prototypes: */
 			uint8_t USB_Host_WaitMS(uint8_t MS);

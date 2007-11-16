@@ -13,12 +13,12 @@
 
 USB_Host_Request_Header_t USB_HostRequest;
 
-void USB_Host_SendControlRequest(const void* Data)
+uint8_t USB_Host_SendControlRequest(const void* Data)
 {
 	uint8_t* HeaderByte = (uint8_t*)&USB_HostRequest;
 
 	if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
-	  return;
+	  return SEND_CONTROL_ERROR;
 
 	Pipe_SelectPipe(0);
 	Pipe_SetToken(PIPE_TOKEN_SETUP);
@@ -36,23 +36,16 @@ void USB_Host_SendControlRequest(const void* Data)
 		if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
 		{
 			Pipe_Freeze();
-			return;
+			return SEND_CONTROL_ERROR;
 		}
-	}
-
-	// DEBUG: \/\/\/
-		
-	HeaderByte = (uint8_t*)&USB_HostRequest;
-	puts_P(PSTR("Sending data:\r\n"));
-	for (uint8_t i = 0; i < sizeof(USB_Host_Request_Header_t); i++)
-		printf_P(PSTR("%d, ") , *(HeaderByte++));
-		
+	}	
 
 	if ((USB_HostRequest.RequestType & CONTROL_REQTYPE_DIRECTION) == REQDIR_HOSTTODEVICE)
 	{
 		Pipe_SetToken(PIPE_TOKEN_OUT);
 		Pipe_Unfreeze();
 
+		while (!(Pipe_IsSetupOutRecieved()) && !(Pipe_IsSetupStalled()));		
 	}
 	else
 	{
@@ -60,23 +53,17 @@ void USB_Host_SendControlRequest(const void* Data)
 		Pipe_SetToken(PIPE_TOKEN_IN);
 		Pipe_Unfreeze();
 		
-		puts_P(PSTR("Waiting for IN data.\r\n"));
-		while (!(Pipe_IsSetupInRecieved()) && !(Pipe_IsSetupStalled()));
-		
-		if (Pipe_IsSetupStalled())
-		{
-			Pipe_ClearSetupStalled();
-			puts_P(PSTR("Transaction Stalled.\r\n"));
-			for (;;);
-		}
-		
-		puts_P(PSTR("Response Data:\r\n"));
-		while (Pipe_BytesInPipe())
-		  printf_P(PSTR("%d, "), USB_Host_Read_Byte());
+		while (!(Pipe_IsSetupInRecieved()) && !(Pipe_IsSetupStalled()));		
+	}
 
-		for (;;);
+	if (Pipe_IsSetupStalled())
+	{
+		Pipe_ClearSetupStalled();
+		return SEND_CONTROL_ERROR;
 	}
 
 	Pipe_Freeze();
+	
+	return SEND_CONTROL_OK;
 };
 #endif

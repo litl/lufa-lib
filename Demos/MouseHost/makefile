@@ -70,7 +70,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = TestApp
+TARGET = MouseHost
 
 
 # Object files directory
@@ -81,22 +81,14 @@ OBJDIR = .
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                           \
-	  TestEvents.c                                          \
-	  Descriptors.c                                         \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
-	  ../../MyUSB/Drivers/USBKEY/Temperature.c              \
-	  ../../MyUSB/Drivers/USB1287/Serial_Stream.c           \
-	  ../../MyUSB/Drivers/USB1287/Serial.c                  \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
-	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Pipe.c               \
-	  ../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
-	  ../../MyUSB/Drivers/USB/LowLevel/HostChapter9.c       \
 	  ../../MyUSB/Drivers/USB/LowLevel/Host.c               \
+	  ../../MyUSB/Drivers/USB/LowLevel/HostChapter9.c       \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
 	  ../../MyUSB/Drivers/USB/HighLevel/Events.c            \
-	  ../../MyUSB/Drivers/USB/HighLevel/StdDescriptors.c    \
 	  
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -141,7 +133,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL
+CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_HOST_ONLY
 
 
 # Place -D or -U options here for ASM sources
@@ -172,6 +164,7 @@ CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
+#CFLAGS += -mshort-calls
 CFLAGS += -Wundef
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wunreachable-code
@@ -228,8 +221,8 @@ PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
 
 # If this is left blank, then it will use the Standard printf version.
-#PRINTF_LIB = 
-PRINTF_LIB = $(PRINTF_LIB_MIN)
+PRINTF_LIB = 
+#PRINTF_LIB = $(PRINTF_LIB_MIN)
 #PRINTF_LIB = $(PRINTF_LIB_FLOAT)
 
 
@@ -275,7 +268,7 @@ EXTMEMOPTS =
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(TARGET).map,--cref
-LDFLAGS += -Wl,--relax
+LDFLAGS += -Wl,--relax 
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(EXTRALIBDIRS))
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
@@ -459,7 +452,7 @@ checkhooks: build
 	@$(shell) (grep -s '^Event.*MyUSB/.*\\.o' $(TARGET).map | cut -d' ' -f1 | grep ".*") \
             || echo "(None)"
 	@echo ----- End Unhooked MyUSB Events -----
-
+	
 checklibmode:
 	@echo
 	@echo ----------- Library Mode -----------
