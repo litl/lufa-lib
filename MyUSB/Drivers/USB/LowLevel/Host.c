@@ -29,9 +29,8 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 			MSRemaining--;
 		}
 					
-		if (USB_INT_OCCURRED(USB_INT_DDISCI) ||
-		    USB_INT_OCCURRED(USB_INT_BCERRI) ||
-		    (USB_CurrentMode == USB_MODE_DEVICE))
+		if (USB_INT_OCCURRED(USB_INT_DDISCI) || (USB_IsConnected == false) ||
+		    USB_INT_OCCURRED(USB_INT_BCERRI) || (USB_CurrentMode == USB_MODE_DEVICE))
 		{
 			ErrorCode = HOST_WAITERROR_DeviceDisconnect;
 			

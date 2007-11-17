@@ -23,8 +23,8 @@
 		/* Macros: */
 			#define USB_HOST_DEVICEADDRESS        1
 		
-			#define USB_HOST_AUTOVBUS             (0 << 1)
-			#define USB_HOST_MANUALVBUS           (1 << 1)
+			#define USB_HOST_OPT_AUTOVBUS         (0 << 1)
+			#define USB_HOST_OPT_MANUALVBUS       (1 << 1)
 
 			#define USB_HOST_VBUS_On()            MACROS{ PORTE |=  (1 << 7);             }MACROE
 			#define USB_HOST_VBUS_Off()           MACROS{ PORTE &= ~(1 << 7);             }MACROE

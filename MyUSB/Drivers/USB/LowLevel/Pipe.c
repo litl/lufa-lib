@@ -11,6 +11,8 @@
 #if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 #include "Pipe.h"
 
+uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
+
 bool Pipe_ConfigurePipe_P(const uint8_t PipeNum,
                           const uint8_t UPCFG0Xdata,
                           const uint8_t UPCFG1Xdata)

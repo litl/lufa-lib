@@ -34,7 +34,10 @@ ISR(USB_GEN_vect)
 		else
 		{
 			if (USB_CurrentMode == USB_MODE_DEVICE)
+			{
 				USB_Detach();
+				USB_REG_Off();
+			}
 			
 			RAISE_EVENT(USB_VBUSDisconnect);
 		

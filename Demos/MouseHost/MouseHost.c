@@ -52,7 +52,7 @@ int main(void)
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	
 	/* Initialize USB Subsystem */
-	USB_Init(USB_MODE_HOST, USB_HOST_AUTOVBUS);
+	USB_Init(USB_MODE_HOST, USB_HOST_OPT_AUTOVBUS | USB_OPT_REG_ENABLED);
 
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
@@ -76,6 +76,24 @@ TASK(USB_Mouse_Host)
 		{
 			case HOST_STATE_Addressed:
 				// Get device class, compare against mouse HID and switch to HOST_STATE_Configured if valid
+
+				USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
+				USB_HostRequest.RequestData    = REQ_GetDescriptor;
+				USB_HostRequest.Value_HighByte = DTYPE_Configuration;
+				USB_HostRequest.Value_LowByte  = 0;
+				USB_HostRequest.Index          = 0;
+				USB_HostRequest.Length         = USB_ControlPipeSize;
+
+				if (USB_Host_SendControlRequest() == SEND_CONTROL_ERROR)
+				{
+					Bicolour_SetLeds(BICOLOUR_LED1_RED);
+					while (USB_IsConnected); // Wait for device detatch
+					break;
+				}
+
+				
+				
+
 				break;
 			case HOST_STATE_Configured:
 				// Get mouse endpoint data here, set bicolour LEDs

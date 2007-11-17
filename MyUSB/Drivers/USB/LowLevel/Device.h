@@ -17,8 +17,8 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define USB_DEV_LOWSPEED                (1 << 0)
-			#define USB_DEV_HIGHSPEED               (0 << 0)
+			#define USB_DEV_OPT_LOWSPEED            (1 << 0)
+			#define USB_DEV_OPT_HIGHSPEED           (0 << 0)
 
 		/* Enums: */
 			enum USB_Device_ErrorCodes

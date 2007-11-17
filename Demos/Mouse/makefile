@@ -610,7 +610,6 @@ $(OBJDIR)/%.o : %.S
 clean: begin clean_list end
 
 clean_list :
-	@echo
 	@echo $(MSG_CLEANING)
 	$(REMOVE) $(TARGET).hex
 	$(REMOVE) $(TARGET).eep

@@ -46,7 +46,7 @@
 			#define PIPE_BANK_DOUBLE                       (1 << EPBK0)
 			
 			#define PIPE_CONTROLPIPE                       0
-			#define PIPE_CONTROLPIPE_SIZE                  8
+			#define PIPE_CONTROLPIPE_DEFAULT_SIZE          8
 			
 			#define PIPE_PIPENUM_MASK                      0b111
 			#define PIPE_MAXPIPES                          7
@@ -91,7 +91,10 @@
 			#define Pipe_IsSetupOutRecieved()            ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 			#define Pipe_ClearSetupStalled()       MACROS{ UPINTX  &= ~(1 << RXSTALLI);                      }MACROE             
 			#define Pipe_IsSetupStalled()                ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
-			
+		
+		/* External Variables: */
+			uint8_t USB_ControlPipeSize;
+
 		/* Function Prototypes: */
 			void    Pipe_ClearPipes(void);
 			uint8_t Pipe_GetInterruptPipeNumber(void) ATTR_WARN_UNUSED_RESULT;

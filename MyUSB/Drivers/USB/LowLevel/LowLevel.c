@@ -59,9 +59,13 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 
 	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 	USB_InitTaskPointer();
-	#else
+	#else // USB_HOST_ONLY or USB_DEVICE_ONLY
 	USB_IsInitialized = true;
 	USB_IsConnected   = false;
+	#endif
+
+	#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+	USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 	#endif
 	
 	USB_OTGPAD_On();
@@ -123,6 +127,7 @@ void USB_ResetInterface(void)
 	#endif
 	
 	USB_Detach();
+	USB_REG_Off();
 
 	USB_IsConnected         = false;
 	USB_IsInitialized       = false;
@@ -161,7 +166,7 @@ bool USB_SetupInterface(void)
 	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
-		if (USB_Options & USB_DEV_LOWSPEED)
+		if (USB_Options & USB_DEV_OPT_LOWSPEED)
 		  USB_DEV_SetLowSpeed();
 		else
 		  USB_DEV_SetHighSpeed();
@@ -170,7 +175,9 @@ bool USB_SetupInterface(void)
 	}
 	#endif
 	
-	USB_REG_On();
+	if (!(USB_Options & USB_OPT_REG_DISABLED))
+	  USB_REG_On();
+	
 	USB_PLL_On();
 			
 	while (!(USB_PLL_IsReady()));
@@ -198,7 +205,7 @@ bool USB_SetupInterface(void)
 	USB_Attach();
 	USB_HOST_HostModeOn();
 
-	if (USB_Options & USB_HOST_MANUALVBUS)
+	if (USB_Options & USB_HOST_OPT_MANUALVBUS)
 	{
 		USB_INT_CLEAR(USB_INT_SRPI);
 		USB_HOST_ManualVBUS_Enable();
@@ -226,7 +233,7 @@ bool USB_SetupInterface(void)
 		USB_Attach();
 		USB_HOST_HostModeOn();
 
-		if (USB_Options & USB_HOST_MANUALVBUS)
+		if (USB_Options & USB_HOST_OPT_MANUALVBUS)
 		{
 			USB_INT_CLEAR(USB_INT_SRPI);
 			USB_HOST_ManualVBUS_Enable();

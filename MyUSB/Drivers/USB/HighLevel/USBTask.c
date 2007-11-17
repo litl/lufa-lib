@@ -74,7 +74,7 @@ void USB_HostTask(void)
 	switch (USB_HostState)
 	{
 		case HOST_STATE_Unattached:
-			if (!(USB_Options & USB_HOST_MANUALVBUS))
+			if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 			  USB_HOST_AutoVBUS_On();
 
 			if (USB_VBUS_GetStatus())
@@ -101,7 +101,7 @@ void USB_HostTask(void)
 					
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
-					if (!(USB_Options & USB_HOST_MANUALVBUS))
+					if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 					  USB_HOST_AutoVBUS_Off();
 
 					RAISE_EVENT(USB_DeviceUnattached);
@@ -114,7 +114,7 @@ void USB_HostTask(void)
 					
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
-					if (!(USB_Options & USB_HOST_MANUALVBUS))
+					if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 					  USB_HOST_AutoVBUS_Off();
 
 					RAISE_EVENT(USB_DeviceUnattached);
@@ -127,7 +127,7 @@ void USB_HostTask(void)
 			}
 			else if (USB_INT_OCCURRED(USB_INT_BCERRI) || USB_INT_OCCURRED(USB_INT_VBERRI))
 			{
-				if (!(USB_Options & USB_HOST_MANUALVBUS))
+				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
 
 				if (USB_INT_OCCURRED(USB_INT_VBERRI))
@@ -150,7 +150,7 @@ void USB_HostTask(void)
 		case HOST_STATE_Powered:
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
 							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
-							   PIPE_CONTROLPIPE_SIZE, PIPE_BANK_SINGLE);
+							   PIPE_CONTROLPIPE_DEFAULT_SIZE, PIPE_BANK_SINGLE);
 
 			USB_HostState = HOST_STATE_Default;
 			
@@ -161,11 +161,11 @@ void USB_HostTask(void)
 			USB_HostRequest.Value_HighByte = DTYPE_Device;
 			USB_HostRequest.Value_LowByte  = 0;
 			USB_HostRequest.Index          = 0;
-			USB_HostRequest.Length         = PIPE_CONTROLPIPE_SIZE;
+			USB_HostRequest.Length         = USB_ControlPipeSize;
 
-			if (USB_Host_SendControlRequest(NULL) == SEND_CONTROL_ERROR)
+			if (USB_Host_SendControlRequest() == SEND_CONTROL_ERROR)
 			{
-				if (!(USB_Options & USB_HOST_MANUALVBUS))
+				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
 
 				RAISE_EVENT(USB_DeviceUnattached);
@@ -180,20 +180,18 @@ void USB_HostTask(void)
 				USB_Host_Ignore_Byte(); // Ignore all bytes leading up to device control EP size
 			}
 			
-			uint8_t DeviceControlEPSize = USB_Host_Read_Byte();
+			USB_ControlPipeSize = USB_Host_Read_Byte();
 			
 			Pipe_DisablePipe();
 			Pipe_DeallocateMemory();
 			
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
 							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
-							   DeviceControlEPSize, PIPE_BANK_SINGLE);			
-
-			USB_HOST_ResetDevice();
+							   USB_ControlPipeSize, PIPE_BANK_SINGLE);
 					
 			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 			{
-				if (!(USB_Options & USB_HOST_MANUALVBUS))
+				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
 
 				RAISE_EVENT(USB_DeviceUnattached);
@@ -208,9 +206,9 @@ void USB_HostTask(void)
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = 0;
 
-			if (USB_Host_SendControlRequest(NULL) == SEND_CONTROL_ERROR)
+			if (USB_Host_SendControlRequest() == SEND_CONTROL_ERROR)
 			{
-				if (!(USB_Options & USB_HOST_MANUALVBUS))
+				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
 
 				RAISE_EVENT(USB_DeviceUnattached);
@@ -223,18 +221,6 @@ void USB_HostTask(void)
 			
 			USB_HostState = HOST_STATE_Addressed;
 
-			break;
-		case HOST_STATE_Addressed:
-			
-			puts_P(PSTR("Device Addressed!"));
-			for (;;);
-			
-			break;
-		case HOST_STATE_Configured:
-				
-			break;
-		case HOST_STATE_Suspended:
-				
 			break;
 	}
 }

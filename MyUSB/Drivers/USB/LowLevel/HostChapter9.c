@@ -13,7 +13,7 @@
 
 USB_Host_Request_Header_t USB_HostRequest;
 
-uint8_t USB_Host_SendControlRequest(const void* Data)
+uint8_t USB_Host_SendControlRequest(void)
 {
 	uint8_t* HeaderByte = (uint8_t*)&USB_HostRequest;
 
@@ -38,7 +38,8 @@ uint8_t USB_Host_SendControlRequest(const void* Data)
 			Pipe_Freeze();
 			return SEND_CONTROL_ERROR;
 		}
-	}	
+	}
+	
 
 	if ((USB_HostRequest.RequestType & CONTROL_REQTYPE_DIRECTION) == REQDIR_HOSTTODEVICE)
 	{

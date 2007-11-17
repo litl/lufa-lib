@@ -54,7 +54,7 @@ int main(void)
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	
 	/* Initialize USB Subsystem */
-	USB_Init(USB_MODE_DEVICE, USB_DEV_HIGHSPEED);
+	USB_Init(USB_MODE_DEVICE, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
 
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
