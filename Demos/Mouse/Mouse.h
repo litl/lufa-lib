@@ -30,8 +30,8 @@
 		typedef struct
 		{
 			uint8_t Button;
-			uint8_t X;
-			uint8_t Y;
+			int8_t  X;
+			int8_t  Y;
 		} USB_MouseReport_Data_t;
 			
 	/* Event Handlers: */

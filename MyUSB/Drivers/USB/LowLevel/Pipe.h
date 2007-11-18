@@ -56,8 +56,8 @@
 			#define PIPE_EPNUM_MASK                        0b111
 
 			#define Pipe_BytesInPipe()                     UPBCX
-			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST     = (1 << pipenum); UPRST = 0;            }MACROE
-			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM     = (pipenum & PIPE_PIPENUM_MASK);        }MACROE
+			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST     =  (1 << pipenum); UPRST = 0;           }MACROE
+			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM     =  (pipenum & PIPE_PIPENUM_MASK);       }MACROE
 			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X  |=  (1 << ALLOC);                        }MACROE
 			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X  &= ~(1 << ALLOC);                        }MACROE
 			#define Pipe_EnablePipe()              MACROS{ UPCONX   |=  (1 << PEN);                          }MACROE
@@ -81,16 +81,17 @@
 			#define Pipe_Freeze()                  MACROS{ UPCONX |=  (1 << PFREEZE);                        }MACROE
 
 			#define Pipe_ClearError()              MACROS{ UPINTX  &= ~(1 << PERRI);                         }MACROE
-			#define Pipe_IsError()                       ((UPINTX  &   (1 << PERRI)))
+			#define Pipe_IsError()                       ((UPINTX  &   (1 << PERRI)) ? true : false)
 
 			#define Pipe_ClearSetupSent()          MACROS{ UPINTX  &= ~(1 << TXSTPI);                        }MACROE
 			#define Pipe_IsSetupSent()                   ((UPINTX  &   (1 << TXSTPI)) ? true : false)
-			#define Pipe_ClearSetupInRecieved()    MACROS{ UPINTX  &= ~(1 << RXINI);                         }MACROE
-			#define Pipe_IsSetupInRecieved()             ((UPINTX  &   (1 << RXINI)) ? true : false)
-			#define Pipe_ClearSetupOutRecieved()   MACROS{ UPINTX  &= ~(1 << TXOUTI);                        }MACROE
-			#define Pipe_IsSetupOutRecieved()            ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 			#define Pipe_ClearSetupStalled()       MACROS{ UPINTX  &= ~(1 << RXSTALLI);                      }MACROE             
 			#define Pipe_IsSetupStalled()                ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
+
+			#define Pipe_In_Clear()                MACROS{ UPINTX  &= ~(1 << RXINI);                         }MACROE
+			#define Pipe_In_IsRecieved()                 ((UPINTX  &   (1 << RXINI)) ? true : false)
+			#define Pipe_Out_Clear()               MACROS{ UPINTX  &= ~(1 << TXOUTI);                        }MACROE
+			#define Pipe_Out_IsReady()                   ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 		
 		/* External Variables: */
 			uint8_t USB_ControlPipeSize;

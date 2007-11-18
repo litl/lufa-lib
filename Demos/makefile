@@ -15,8 +15,6 @@
 # custom MyUSB library build options are reflected in the compiled
 # code.
 
-CLEANLIB = make -C ../MyUSB/ clean
-
 all:
 	make -C TestApp clean
 	make -C TestApp all

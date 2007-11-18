@@ -174,22 +174,30 @@ void USB_HostTask(void)
 				break;
 			}
 			
-			for (uint8_t SkipByte = 0; SkipByte < offsetof(USB_Descriptor_Device_t,
-			                                               Endpoint0Size);          SkipByte++)
+			/*
+			Pipe_In_Clear();
+			
+			for (uint8_t SkipByte = 0; SkipByte <= offsetof(USB_Descriptor_Device_t,
+			                                               Endpoint0Size);           SkipByte++)
 			{
 				USB_Host_Ignore_Byte(); // Ignore all bytes leading up to device control EP size
 			}
 			
 			USB_ControlPipeSize = USB_Host_Read_Byte();
+			*/
+			
+			USB_ControlPipeSize = 0x08; // TODO: Data stage
 			
 			Pipe_DisablePipe();
 			Pipe_DeallocateMemory();
+			Pipe_ResetPipe(PIPE_CONTROLPIPE);
 			
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
-							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
-							   USB_ControlPipeSize, PIPE_BANK_SINGLE);
-					
-			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
+			                   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
+			                   USB_ControlPipeSize, PIPE_BANK_SINGLE);
+
+			if ((Pipe_IsConfigured() == PIPE_CONFIG_FAIL) ||
+			   (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful))
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
@@ -216,7 +224,7 @@ void USB_HostTask(void)
 				USB_HostState = HOST_STATE_Unattached;
 				break;
 			}
-			
+
 			USB_HOST_SetDeviceAddress(USB_HOST_DEVICEADDRESS);
 			
 			USB_HostState = HOST_STATE_Addressed;

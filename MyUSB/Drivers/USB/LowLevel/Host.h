@@ -41,7 +41,8 @@
 				HOST_STATE_Default              = 3,
 				HOST_STATE_Addressed            = 4,
 				HOST_STATE_Configured           = 5,
-				HOST_STATE_Suspended            = 6,
+				HOST_STATE_Ready                = 6,
+				HOST_STATE_Suspended            = 7,
 			};
 			
 			enum USB_Host_ErrorCodes
