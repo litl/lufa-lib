@@ -9,19 +9,22 @@
 */
 
 /*
-	Mouse host demonstration application. This gives a simple reference
-	application for implementing a USB Mouse host, for USB mice using
-	the standard mouse HID profile.	
+	Keyboard host demonstration application. This gives a simple reference
+	application for implementing a USB Keyboard host, for USB keyboards using
+	the standard Keyboard HID profile.
+	
+	Pressed alpha-numeric. enter or space key is transmitted through the serial
+	USART at serial settings 9600, 8, N, 1.
 */
 
 /*
 	========= INCOMPLETE =========
 */
 
-#include "MouseHost.h"
+#include "KeyboardHost.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,  "MyUSB Mouse Host App");
+BUTTLOADTAG(ProjName,  "MyUSB Keyboard Host App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
@@ -29,14 +32,14 @@ BUTTLOADTAG(BuildDate, __DATE__);
 TASK_ID_LIST
 {
 	USB_USBTask_ID,
-	USB_Mouse_Host_ID,
+	USB_Keyboard_Host_ID,
 };
 
 /* Scheduler Task List */
 TASK_LIST
 {
 	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ TaskID: USB_Mouse_Host_ID       , TaskName: USB_Mouse_Host       , TaskStatus: TASK_RUN  },
+	{ TaskID: USB_Keyboard_Host_ID    , TaskName: USB_Keyboard_Host    , TaskStatus: TASK_RUN  },
 };
 
 int main(void)
@@ -75,7 +78,7 @@ EVENT_HANDLER(USB_DeviceUnattached)
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 }
 		
-TASK(USB_Mouse_Host)
+TASK(USB_Keyboard_Host)
 {
 	if (USB_IsConnected)
 	{
@@ -101,7 +104,7 @@ TASK(USB_Mouse_Host)
 				Pipe_In_Clear();
 */				
 
-				// Check to ensure connected device is a mouse here
+				// Check to ensure connected device is a Keyboard here
 
 				USB_HostState = HOST_STATE_Configured;
 				break;
@@ -131,25 +134,47 @@ TASK(USB_Mouse_Host)
 
 				if (Pipe_In_IsRecieved())
 				{
-					USB_MouseReport_Data_t MouseReport;
+					USB_KeyboardReport_Data_t KeyboardReport;
 					
-					MouseReport.Button = USB_Host_Read_Byte();
-					MouseReport.X      = USB_Host_Read_Byte();
-					MouseReport.Y      = USB_Host_Read_Byte();
+					KeyboardReport.Modifier = USB_Host_Read_Byte();
+					USB_Host_Ignore_Byte();
+					KeyboardReport.KeyCode  = USB_Host_Read_Byte();
 					
-					if (MouseReport.X > 0)
-						Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
-					else if (MouseReport.X < 0)
-						Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);						
+					Bicolour_SetLed(BICOLOUR_LED1, (KeyboardReport.Modifier) ? BICOLOUR_LED1_RED
+					                                                         : BICOLOUR_LED1_OFF);
 					
-					if (MouseReport.Y > 0)
-						Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
-					else if (MouseReport.Y < 0)
-						Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);						
+					if (KeyboardReport.KeyCode)
+					{
+						if (Bicolour_GetLeds() & BICOLOUR_LED2_GREEN)
+						  Bicolour_TurnOffLeds(BICOLOUR_LED2_GREEN);
+						else
+						  Bicolour_TurnOnLeds(BICOLOUR_LED2_GREEN);
+						  
+						char PressedKey = 0;
 
-					if (MouseReport.Button)
-						Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
-						
+						if ((KeyboardReport.KeyCode >= 0x04) &&
+						    (KeyboardReport.KeyCode <= 0x1D))
+						{
+							PressedKey = (KeyboardReport.KeyCode - 0x04) + 'A';
+						}
+						else if ((KeyboardReport.KeyCode >= 0x1E) &&
+						         (KeyboardReport.KeyCode <= 0x27))
+						{
+							PressedKey = (KeyboardReport.KeyCode - 0x1E) + '0';
+						}
+						else if (KeyboardReport.KeyCode == 0x2C)
+						{
+							PressedKey = ' ';						
+						}
+						else if (KeyboardReport.KeyCode == 0x28)
+						{
+							PressedKey = '\n';
+						}
+						 
+						if (PressedKey)
+						  printf_P(PSTR("%c"), PressedKey);
+					}
+					
 					Pipe_In_Clear();
 					Pipe_ResetFIFO();
 				}

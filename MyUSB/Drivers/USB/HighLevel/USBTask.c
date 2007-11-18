@@ -163,7 +163,10 @@ void USB_HostTask(void)
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = USB_ControlPipeSize;
 
-			if (USB_Host_SendControlRequest() == SEND_CONTROL_ERROR)
+			uint8_t DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1];
+			
+			if (USB_Host_SendControlRequest(DataBuffer, sizeof(DataBuffer))
+			    == HOST_SEND_CONTROL_ERROR)
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
@@ -174,19 +177,7 @@ void USB_HostTask(void)
 				break;
 			}
 			
-			/*
-			Pipe_In_Clear();
-			
-			for (uint8_t SkipByte = 0; SkipByte <= offsetof(USB_Descriptor_Device_t,
-			                                               Endpoint0Size);           SkipByte++)
-			{
-				USB_Host_Ignore_Byte(); // Ignore all bytes leading up to device control EP size
-			}
-			
-			USB_ControlPipeSize = USB_Host_Read_Byte();
-			*/
-			
-			USB_ControlPipeSize = 0x08; // TODO: Data stage
+			USB_ControlPipeSize = DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size)];
 			
 			Pipe_DisablePipe();
 			Pipe_DeallocateMemory();
@@ -214,7 +205,7 @@ void USB_HostTask(void)
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = 0;
 
-			if (USB_Host_SendControlRequest() == SEND_CONTROL_ERROR)
+			if (USB_Host_SendControlRequest(NULL, 0) == HOST_SEND_CONTROL_ERROR)
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();

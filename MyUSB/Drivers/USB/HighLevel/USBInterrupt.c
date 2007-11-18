@@ -107,6 +107,8 @@ ISR(USB_GEN_vect)
 		USB_INT_CLEAR(USB_INT_DDISCI);
 
 		USB_IsConnected = false;
+		
+		RAISE_EVENT(USB_DeviceUnattached);
 		RAISE_EVENT(USB_Disconnect);
 
 		USB_HostState = HOST_STATE_Unattached;

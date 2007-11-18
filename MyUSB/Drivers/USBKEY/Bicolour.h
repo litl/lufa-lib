@@ -21,6 +21,8 @@
 			#define BICOLOUR_LED1        1
 			#define BICOLOUR_LED2        2
 		
+			#define BICOLOUR_LED1_OFF    0
+			#define BICOLOUR_LED2_OFF    0
 			#define BICOLOUR_LED1_RED    (1 << 4)
 			#define BICOLOUR_LED1_GREEN  (1 << 5)
 			#define BICOLOUR_LED2_RED    (1 << 7)

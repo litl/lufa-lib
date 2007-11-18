@@ -37,6 +37,10 @@
 				RAISES_EVENT(USB_WakeUp);
 				RAISES_EVENT(USB_Reset);
 			#endif
+			
+			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+				RAISES_EVENT(USB_DeviceUnattached);
+			#endif
 
 			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 				RAISES_EVENT(USB_UIDChange);

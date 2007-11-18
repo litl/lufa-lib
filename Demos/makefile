@@ -30,6 +30,9 @@ all:
 
 	make -C MouseHost clean
 	make -C MouseHost all
+
+	make -C KeyboardHost clean
+	make -C KeyboardHost all
 	
 clean:
 	make -C TestApp clean
@@ -37,3 +40,4 @@ clean:
 	make -C Keyboard clean
 	make -C Magstripe clean
 	make -C MouseHost clean
+	make -C KeyboardHost clean

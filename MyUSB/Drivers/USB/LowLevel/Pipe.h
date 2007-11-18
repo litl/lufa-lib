@@ -76,7 +76,8 @@
 			#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG2X = ms;                                     }MACROE
 			#define Pipe_GetPipeInterrupts()               UPINT
 			#define Pipe_ClearPipeInterrupt(n)     MACROS{ UPINT  &= (1 << n);                               }MACROE
-			#define Pipe_SendPipeData()            MACROS{ UPINTX &= ~(1 << FIFOCON);                        }MACROE
+			#define Pipe_SendPipeData()            Pipe_ResetFIFO()
+			#define Pipe_ResetFIFO()               MACROS{ UPINTX &= ~(1 << FIFOCON);                        }MACROE
 			#define Pipe_Unfreeze()                MACROS{ UPCONX &= ~(1 << PFREEZE);                        }MACROE
 			#define Pipe_Freeze()                  MACROS{ UPCONX |=  (1 << PFREEZE);                        }MACROE
 
