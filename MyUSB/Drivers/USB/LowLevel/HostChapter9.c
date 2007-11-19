@@ -13,12 +13,17 @@
 
 USB_Host_Request_Header_t USB_HostRequest;
 
-uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
+bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 {
-	uint8_t* HeaderByte = (uint8_t*)&USB_HostRequest;
+	uint8_t* HeaderByte     = (uint8_t*)&USB_HostRequest;
+	uint8_t  DataLen        = USB_HostRequest.Length;
+	bool     SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
+	uint8_t  TimeoutCounter;
 
 	if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
 	  return HOST_SEND_CONTROL_ERROR;
+
+	USB_HOST_SOFGeneration_Enable();
 
 	Pipe_SelectPipe(0);
 	Pipe_SetToken(PIPE_TOKEN_SETUP);
@@ -31,11 +36,17 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 
 	Pipe_SendPipeData();
 	
+	TimeoutCounter = 0;
 	while (!(Pipe_IsSetupSent()))
 	{
-		if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
+		if ((USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful) ||
+		    (TimeoutCounter++ == USB_HOST_TIMEOUT_MS))
 		{
 			Pipe_Freeze();
+
+			if (!(SOFGenEnabled))
+			  USB_HOST_SOFGeneration_Disable();
+	  
 			return HOST_SEND_CONTROL_ERROR;
 		}
 	}
@@ -46,6 +57,10 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 	if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
 	{
 		Pipe_Freeze();
+
+		if (!(SOFGenEnabled))
+		  USB_HOST_SOFGeneration_Disable();
+
 		return HOST_SEND_CONTROL_ERROR;
 	}
 
@@ -58,14 +73,19 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 		{
 			Pipe_Unfreeze();
 		
+			TimeoutCounter = 0;
 			while (!(Pipe_In_IsRecieved()) && !(Pipe_IsSetupStalled()))
 			{
-				if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
+				if ((USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful) ||
+				    (TimeoutCounter++ == USB_HOST_TIMEOUT_MS))
 				{
 					Pipe_Freeze();
 
 					if (Pipe_IsSetupStalled())
 					  Pipe_ClearSetupStalled();
+
+					if (!(SOFGenEnabled))
+					  USB_HOST_SOFGeneration_Disable();
 
 					return HOST_SEND_CONTROL_ERROR;
 				}
@@ -95,14 +115,19 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 		Pipe_Unfreeze();
 		Pipe_ResetFIFO();
 		
+		TimeoutCounter = 0;
 		while (!(Pipe_Out_IsReady()) && !(Pipe_IsSetupStalled()))
 		{
-			if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
+			if ((USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful) ||
+			    (TimeoutCounter++ == USB_HOST_TIMEOUT_MS))
 			{
 				Pipe_Freeze();
 
 				if (Pipe_IsSetupStalled())
 				  Pipe_ClearSetupStalled();
+
+				if (!(SOFGenEnabled))
+				  USB_HOST_SOFGeneration_Disable();
 
 				return HOST_SEND_CONTROL_ERROR;
 			}
@@ -133,14 +158,19 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 			
 			Pipe_SendPipeData();
 			
+			TimeoutCounter = 0;
 			while (!(Pipe_Out_IsReady()) && !(Pipe_IsSetupStalled()))
 			{
-				if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
+				if ((USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful) ||
+				    (TimeoutCounter++ == USB_HOST_TIMEOUT_MS))
 				{
 					Pipe_Freeze();
 
 					if (Pipe_IsSetupStalled())
 					  Pipe_ClearSetupStalled();
+
+					if (!(SOFGenEnabled))
+					  USB_HOST_SOFGeneration_Disable();
 
 					return HOST_SEND_CONTROL_ERROR;
 				}
@@ -159,14 +189,19 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 		Pipe_SetToken(PIPE_TOKEN_IN);
 		Pipe_Unfreeze();
 
+		TimeoutCounter = 0;
 		while (!(Pipe_In_IsRecieved()) && !(Pipe_IsSetupStalled()))
 		{
-			if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
+			if ((USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful) ||
+			    (TimeoutCounter++ == USB_HOST_TIMEOUT_MS))
 			{
 				Pipe_Freeze();
 
 				if (Pipe_IsSetupStalled())
 				  Pipe_ClearSetupStalled();
+
+				if (!(SOFGenEnabled))
+				  USB_HOST_SOFGeneration_Disable();
 
 				return HOST_SEND_CONTROL_ERROR;
 			}
@@ -182,9 +217,16 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 	if (Pipe_IsSetupStalled())
 	{
 		Pipe_ClearSetupStalled();
+
+		if (!(SOFGenEnabled))
+		  USB_HOST_SOFGeneration_Disable();
+
 		return HOST_SEND_CONTROL_ERROR;
 	}
 	
+	if (!(SOFGenEnabled))
+	  USB_HOST_SOFGeneration_Disable();
+
 	return HOST_SEND_CONTROL_OK;
-};
+}
 #endif

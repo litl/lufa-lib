@@ -21,16 +21,21 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define USB_HOST_DEVICEADDRESS        1
+			#define USB_HOST_DEVICEADDRESS             1
+			#define USB_HOST_TIMEOUT_MS                100
 		
-			#define USB_HOST_OPT_AUTOVBUS         (0 << 1)
-			#define USB_HOST_OPT_MANUALVBUS       (1 << 1)
+			#define USB_HOST_OPT_AUTOVBUS              (0 << 1)
+			#define USB_HOST_OPT_MANUALVBUS            (1 << 1)
 
-			#define USB_HOST_VBUS_On()            MACROS{ PORTE |=  (1 << 7);             }MACROE
-			#define USB_HOST_VBUS_Off()           MACROS{ PORTE &= ~(1 << 7);             }MACROE
+			#define USB_HOST_VBUS_On()                 MACROS{ PORTE |=  (1 << 7);             }MACROE
+			#define USB_HOST_VBUS_Off()                MACROS{ PORTE &= ~(1 << 7);             }MACROE
 			
-			#define USB_HOST_ResetBus()           MACROS{ UHCON |=  (1 << RESET);         }MACROE
-			#define USB_HOST_ResetBus_IsDone()          ((UHCON &   (1 << RESET)) ? false : true)
+			#define USB_HOST_ResetBus()                MACROS{ UHCON |=  (1 << RESET);         }MACROE
+			#define USB_HOST_ResetBus_IsDone()               ((UHCON &   (1 << RESET)) ? false : true)
+			
+			#define USB_HOST_SOFGeneration_Enable()    MACROS{ UHCON  |=  (1 << SOFEN);          }MACROE 
+			#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON  &= ~(1 << SOFEN);          }MACROE 
+			#define USB_HOST_SOFGeneration_IsEnabled()       ((UHCON  &   (1 << SOFEN)) ? true : false)
 			
 		/* Enums: */
 			enum USB_Host_States
@@ -112,10 +117,6 @@
 
 			#define USB_HOST_AutoVBUS_On()             MACROS{ UHWCON |=  (1 << UVCONE); OTGCON |= (1 << VBUSREQ); }MACROE
 			#define USB_HOST_AutoVBUS_Off()            MACROS{ OTGCON |=  (1 << VBUSRQC);        }MACROE 
-
-			#define USB_HOST_SOFGeneration_Enable()    MACROS{ UHCON  |=  (1 << SOFEN);          }MACROE 
-			#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON  &= ~(1 << SOFEN);          }MACROE 
-			#define USB_HOST_SOFGeneration_IsEnabled()       ((UHCON  &   (1 << SOFEN)) ? true : false)
 
 			#define USB_HOST_ResetDevice()             MACROS{ UHCON  |=  (1 << RESET);          }MACROE
 			#define USB_HOST_SetDeviceAddress(addr)    MACROS{ UHADDR  =  (addr & 0b00111111);   }MACROE

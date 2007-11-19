@@ -39,6 +39,7 @@
 			#endif
 			
 			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+				RAISES_EVENT(USB_HostError);
 				RAISES_EVENT(USB_DeviceUnattached);
 			#endif
 

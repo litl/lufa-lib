@@ -163,7 +163,7 @@ bool USB_SetupInterface(void)
 	}
 	#endif
 	
-	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
 		if (USB_Options & USB_DEV_OPT_LOWSPEED)
@@ -173,8 +173,15 @@ bool USB_SetupInterface(void)
 		  
 		USB_INT_ENABLE(USB_INT_VBUS);
 	}
+	#elif defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
+	if (USB_Options & USB_DEV_OPT_LOWSPEED)
+	  USB_DEV_SetLowSpeed();
+	else
+	  USB_DEV_SetHighSpeed();
+		  
+	USB_INT_ENABLE(USB_INT_VBUS);
 	#endif
-	
+		
 	if (!(USB_Options & USB_OPT_REG_DISABLED))
 	  USB_REG_On();
 	
@@ -186,6 +193,10 @@ bool USB_SetupInterface(void)
 	USB_Interface_Enable();
 	USB_CLK_Unfreeze();
 
+	#if !defined(USB_DEVICE_ONLY)
+	USB_INT_ENABLE(USB_INT_VBERRI);
+	#endif
+	
 	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
 	if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, ENDPOINT_TYPE_CONTROL,
 	                               ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,

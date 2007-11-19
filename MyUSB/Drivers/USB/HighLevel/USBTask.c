@@ -125,23 +125,13 @@ void USB_HostTask(void)
 
 				USB_HostState = HOST_STATE_Powered;
 			}
-			else if (USB_INT_OCCURRED(USB_INT_BCERRI) || USB_INT_OCCURRED(USB_INT_VBERRI))
+			else if (USB_INT_OCCURRED(USB_INT_BCERRI))
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
 
-				if (USB_INT_OCCURRED(USB_INT_VBERRI))
-				{
-					RAISE_EVENT(USB_HostError, HOST_ERROR_VBusVoltageDip);
-					RAISE_EVENT(USB_DeviceUnattached);
-					USB_INT_CLEAR(USB_INT_VBERRI);
-				}
-
-				if (!(USB_INT_OCCURRED(USB_INT_BCERRI)))
-				{
-					RAISE_EVENT(USB_DeviceUnattached);
-					USB_INT_CLEAR(USB_INT_BCERRI);
-				}
+				RAISE_EVENT(USB_DeviceUnattached);
+				USB_INT_CLEAR(USB_INT_BCERRI);
 
 				USB_HostState = HOST_STATE_Unattached;
 			}
@@ -167,7 +157,7 @@ void USB_HostTask(void)
 
 			uint8_t DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1];
 			
-			if (USB_Host_SendControlRequest(DataBuffer, sizeof(DataBuffer))
+			if (USB_Host_SendControlRequest(DataBuffer)
 			    == HOST_SEND_CONTROL_ERROR)
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
@@ -207,7 +197,7 @@ void USB_HostTask(void)
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = 0;
 
-			if (USB_Host_SendControlRequest(NULL, 0) == HOST_SEND_CONTROL_ERROR)
+			if (USB_Host_SendControlRequest(NULL) == HOST_SEND_CONTROL_ERROR)
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();

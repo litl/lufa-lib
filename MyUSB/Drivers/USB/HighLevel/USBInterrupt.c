@@ -113,5 +113,16 @@ ISR(USB_GEN_vect)
 
 		USB_HostState = HOST_STATE_Unattached;
 	}
+	
+	if (USB_INT_OCCURRED(USB_INT_VBERRI) && USB_INT_ISENABLED(USB_INT_VBERRI))
+	{
+		USB_INT_CLEAR(USB_INT_VBERRI);
+
+		RAISE_EVENT(USB_HostError, HOST_ERROR_VBusVoltageDip);
+		RAISE_EVENT(USB_DeviceUnattached);
+			
+		USB_IsConnected = false;
+		USB_HostState   = HOST_STATE_Unattached;
+	}
 	#endif
 }

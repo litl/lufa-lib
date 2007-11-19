@@ -12,6 +12,8 @@
 
 void Abort_Program(void)
 {
+	USB_ShutDown();
+
 	puts_P(PSTR(ESC_INVERSE_ON "\r\n**PROGRAM ABORT**"));
 	for (;;);
 }

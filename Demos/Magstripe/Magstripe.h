@@ -36,6 +36,8 @@
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/Misc/Magstripe.h>     // Magstripe driver
+		
+		#include "Keyboard.h"
 
 	/* Function Prototypes: */
 		void Keyboard_SendKeyReport(uint8_t KeyCode);		

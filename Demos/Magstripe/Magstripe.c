@@ -27,7 +27,6 @@
 	files must be located at ../Keyboard.
 */
 
-#include "Keyboard.h"
 #include "Magstripe.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

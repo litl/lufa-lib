@@ -15,6 +15,8 @@
 	
 	Pressed alpha-numeric. enter or space key is transmitted through the serial
 	USART at serial settings 9600, 8, N, 1.
+
+	Currently only single-interface keyboards are supported.
 */
 
 #include "KeyboardHost.h"
@@ -56,7 +58,7 @@ int main(void)
 
 	/* Startup message */
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
-	       "MyUSB Host Demo running.\r\n" ESC_INVERSE_OFF));
+	       "Keyboard Host Demo running.\r\n" ESC_INVERSE_OFF));
 		   
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
@@ -76,6 +78,8 @@ EVENT_HANDLER(USB_DeviceUnattached)
 
 EVENT_HANDLER(USB_HostError)
 {
+	USB_ShutDown();
+
 	puts_P(PSTR(ESC_BG_RED "Host Mode Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
@@ -99,7 +103,7 @@ TASK(USB_Keyboard_Host)
 				USB_HostRequest.Index          = 0;
 				USB_HostRequest.Length         = USB_ControlPipeSize;
 
-				if (USB_Host_SendControlRequest(NULL, 0) == HOST_SEND_CONTROL_ERROR)
+				if (USB_Host_SendControlRequest(NULL) == HOST_SEND_CONTROL_ERROR)
 				{
 					Bicolour_SetLeds(BICOLOUR_LED1_RED);
 					while (USB_IsConnected); // Wait for device detatch
@@ -120,7 +124,7 @@ TASK(USB_Keyboard_Host)
 				USB_HostRequest.Index          = 0;
 				USB_HostRequest.Length         = sizeof(DataBuffer);
 
-				if (USB_Host_SendControlRequest(DataBuffer, sizeof(DataBuffer))
+				if (USB_Host_SendControlRequest(DataBuffer)
 				    == HOST_SEND_CONTROL_ERROR)
 				{
 					puts_P(PSTR("Control error."));
@@ -150,7 +154,7 @@ TASK(USB_Keyboard_Host)
 					break;
 				}
 
-				puts_P(PSTR("Device Enumerated.\r\n"));
+				puts_P(PSTR("Keyboard Enumerated.\r\n"));
 				
 				USB_HostState = HOST_STATE_Ready;
 				break;

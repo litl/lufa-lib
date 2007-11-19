@@ -14,14 +14,15 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
+		#include <stdbool.h>
 		
 		#include "LowLevel.h"
 		#include "StdRequestType.h"
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define HOST_SEND_CONTROL_OK      0
-			#define HOST_SEND_CONTROL_ERROR   1
+			#define HOST_SEND_CONTROL_OK      false
+			#define HOST_SEND_CONTROL_ERROR   true
 	
 		/* Type Defines: */
 			typedef struct
@@ -48,6 +49,6 @@
 			extern USB_Host_Request_Header_t USB_HostRequest;
 			
 		/* Function Prototypes: */
-			uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen);
+			bool USB_Host_SendControlRequest(uint8_t* DataBuffer);
 
 #endif
