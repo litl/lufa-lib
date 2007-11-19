@@ -14,10 +14,6 @@
 	the standard mouse HID profile.	
 */
 
-/*
-	========= INCOMPLETE =========
-*/
-
 #include "MouseHost.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -74,38 +70,26 @@ EVENT_HANDLER(USB_DeviceUnattached)
 	puts_P(PSTR("Device Unattached.\r\n"));
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 }
-		
+
+EVENT_HANDLER(USB_HostError)
+{
+	puts_P(PSTR(ESC_BG_RED "Host Mode Error\r\n"));
+	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
+
+	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	for(;;);
+}
+
 TASK(USB_Mouse_Host)
 {
+	static uint8_t DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
+				              sizeof(USB_Descriptor_Interface_t)];
+
 	if (USB_IsConnected)
 	{
 		switch (USB_HostState)
 		{
 			case HOST_STATE_Addressed:
-/*
-				USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
-				USB_HostRequest.RequestData    = REQ_GetDescriptor;
-				USB_HostRequest.Value_HighByte = DTYPE_Configuration;
-				USB_HostRequest.Value_LowByte  = 0;
-				USB_HostRequest.Index          = 0;
-				USB_HostRequest.Length         = USB_ControlPipeSize;
-
-				if (USB_Host_SendControlRequest() == SEND_CONTROL_ERROR)
-				{
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					JTAG_DEBUG_BREAK(); // TEMP
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
-
-				Pipe_In_Clear();
-*/				
-
-				// Check to ensure connected device is a mouse here
-
-				USB_HostState = HOST_STATE_Configured;
-				break;
-			case HOST_STATE_Configured:
 				USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
 				USB_HostRequest.RequestData    = REQ_SetConfiguration;
 				USB_HostRequest.Value          = 1;
@@ -119,14 +103,56 @@ TASK(USB_Mouse_Host)
 					break;
 				}
 				
-				Pipe_ConfigurePipe(1, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
-				Pipe_SelectPipe(1);
-				Pipe_SetInfiniteINRequests();		
+				Pipe_ConfigurePipe(MOUSE_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
+				Pipe_SelectPipe(MOUSE_DATAPIPE);
+				Pipe_SetInfiniteINRequests();
+		
+				USB_HostState = HOST_STATE_Configured;
+				break;
+			case HOST_STATE_Configured:
+				USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
+				USB_HostRequest.RequestData    = REQ_GetDescriptor;
+				USB_HostRequest.Value_HighByte = DTYPE_Configuration;
+				USB_HostRequest.Value_LowByte  = 0;
+				USB_HostRequest.Index          = 0;
+				USB_HostRequest.Length         = sizeof(DataBuffer);
 
+				if (USB_Host_SendControlRequest(DataBuffer, sizeof(DataBuffer))
+				    == HOST_SEND_CONTROL_ERROR)
+				{
+					puts_P(PSTR("Control error."));
+				
+					Bicolour_SetLeds(BICOLOUR_LED1_RED);
+					while (USB_IsConnected); // Wait for device detatch
+					break;
+				}
+
+				if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
+				               offsetof(USB_Descriptor_Interface_t, Class)] != MOUSE_CLASS)
+				{
+					puts_P(PSTR("Incorrect device class."));
+
+					Bicolour_SetLeds(BICOLOUR_LED1_RED);
+					while (USB_IsConnected); // Wait for device detatch
+					break;
+				}
+				
+				if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
+				               offsetof(USB_Descriptor_Interface_t, Protocol)] != MOUSE_PROTOCOL)
+				{
+					puts_P(PSTR("Incorrect device protocol."));
+
+					Bicolour_SetLeds(BICOLOUR_LED1_RED);
+					while (USB_IsConnected); // Wait for device detatch
+					break;
+				}
+
+				puts_P(PSTR("Device Enumerated.\r\n"));
+				
 				USB_HostState = HOST_STATE_Ready;
 				break;
 			case HOST_STATE_Ready:
-				Pipe_SelectPipe(1);	
+				Pipe_SelectPipe(MOUSE_DATAPIPE);	
 				Pipe_Unfreeze();
 
 				if (Pipe_In_IsRecieved())
@@ -136,6 +162,8 @@ TASK(USB_Mouse_Host)
 					MouseReport.Button = USB_Host_Read_Byte();
 					MouseReport.X      = USB_Host_Read_Byte();
 					MouseReport.Y      = USB_Host_Read_Byte();
+					
+					Bicolour_SetLeds(BICOLOUR_NO_LEDS);
 					
 					if (MouseReport.X > 0)
 						Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);

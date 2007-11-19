@@ -148,6 +148,8 @@ void USB_HostTask(void)
 				
 			break;
 		case HOST_STATE_Powered:
+			Pipe_ClearPipes();
+		 
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
 							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 							   PIPE_CONTROLPIPE_DEFAULT_SIZE, PIPE_BANK_SINGLE);

@@ -49,7 +49,68 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 		return HOST_SEND_CONTROL_ERROR;
 	}
 
-	if ((USB_HostRequest.RequestType & CONTROL_REQTYPE_DIRECTION) == REQDIR_HOSTTODEVICE)
+	if ((USB_HostRequest.RequestType & CONTROL_REQTYPE_DIRECTION) == REQDIR_DEVICETOHOST)
+	{
+		Pipe_SetInfiniteINRequests();
+		Pipe_SetToken(PIPE_TOKEN_IN);
+		
+		while ((DataBuffer != NULL) && DataLen)
+		{
+			Pipe_Unfreeze();
+		
+			while (!(Pipe_In_IsRecieved()) && !(Pipe_IsSetupStalled()))
+			{
+				if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
+				{
+					Pipe_Freeze();
+
+					if (Pipe_IsSetupStalled())
+					  Pipe_ClearSetupStalled();
+
+					return HOST_SEND_CONTROL_ERROR;
+				}
+			}
+			
+			if (Pipe_IsSetupStalled())
+			{
+				Pipe_ClearSetupStalled();
+				break;
+			}
+			
+			if (Pipe_BytesInPipe() == 0)
+			  DataLen = 0;
+			
+			while (Pipe_BytesInPipe() && DataLen)
+			{
+				*(DataBuffer++) = USB_Host_Read_Byte();
+				DataLen--;
+			}
+		
+			Pipe_Freeze();
+			Pipe_In_Clear();
+			Pipe_ResetFIFO();
+		}
+
+		Pipe_SetToken(PIPE_TOKEN_OUT);
+		Pipe_Unfreeze();
+		Pipe_ResetFIFO();
+		
+		while (!(Pipe_Out_IsReady()) && !(Pipe_IsSetupStalled()))
+		{
+			if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
+			{
+				Pipe_Freeze();
+
+				if (Pipe_IsSetupStalled())
+				  Pipe_ClearSetupStalled();
+
+				return HOST_SEND_CONTROL_ERROR;
+			}
+		}
+
+		Pipe_Out_Clear();
+	}
+	else
 	{
 		Pipe_SetToken(PIPE_TOKEN_OUT);
 
@@ -61,8 +122,6 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 			{
 				while (DataLen--)
 				  USB_Host_Write_Byte(*(DataBuffer++));
-
-				DataLen = 0;
 			}
 			else
 			{
@@ -85,6 +144,12 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 
 					return HOST_SEND_CONTROL_ERROR;
 				}
+			}
+			
+			if (Pipe_IsSetupStalled())
+			{
+				Pipe_ClearSetupStalled();
+				break;
 			}
 			
 			Pipe_Out_Clear();
@@ -110,55 +175,6 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer, uint16_t DataLen)
 		Pipe_Freeze();
 		Pipe_In_Clear();
 		Pipe_ResetFIFO();
-	}
-	else
-	{
-		Pipe_SetInfiniteINRequests();
-		Pipe_SetToken(PIPE_TOKEN_IN);
-
-		while ((DataBuffer != NULL) && DataLen)
-		{
-			Pipe_Unfreeze();
-		
-			while (!(Pipe_In_IsRecieved()) && !(Pipe_IsSetupStalled()))
-			{
-				if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
-				{
-					Pipe_Freeze();
-
-					if (Pipe_IsSetupStalled())
-					  Pipe_ClearSetupStalled();
-
-					return HOST_SEND_CONTROL_ERROR;
-				}
-			}
-			
-			while (Pipe_BytesInPipe() && DataLen--)
-			  *(DataBuffer++) = USB_Host_Read_Byte();
-		
-			Pipe_Freeze();
-			Pipe_In_Clear();
-			Pipe_ResetFIFO();
-		}
-
-		Pipe_SetToken(PIPE_TOKEN_OUT);
-		Pipe_Unfreeze();
-		Pipe_ResetFIFO();
-		
-		while (!(Pipe_Out_IsReady()) && !(Pipe_IsSetupStalled()))
-		{
-			if (USB_Host_WaitMS(1) != HOST_WAITERROR_Sucessful)
-			{
-				Pipe_Freeze();
-
-				if (Pipe_IsSetupStalled())
-				  Pipe_ClearSetupStalled();
-
-				return HOST_SEND_CONTROL_ERROR;
-			}
-		}
-
-		Pipe_Out_Clear();
 	}
 
 	Pipe_Freeze();
