@@ -103,9 +103,9 @@ TASK(USB_Keyboard_Report)
 		  break;
 
 		if (!(MagStatus_LCL & MAG_DATA))
-		  StripeData[StripeDataLen] = 39; // 0
+		  StripeData[StripeDataLen] = 39; // 0 Key
 		else
-		  StripeData[StripeDataLen] = 30; // 1
+		  StripeData[StripeDataLen] = 30; // 1 Key
 
 		StripeDataLen++;
 
@@ -124,7 +124,7 @@ TASK(USB_Keyboard_Report)
 		Keyboard_SendKeyReport(0);
 	}
 
-	Keyboard_SendKeyReport(40);
+	Keyboard_SendKeyReport(40); // Enter Key
 	Keyboard_SendKeyReport(0);
 }
 
