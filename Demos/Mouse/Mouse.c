@@ -16,7 +16,8 @@
 	On startup the system will automatically enumerate and function
 	as a mouse when the USB connection to a host is present. To use
 	the mouse, move the joystick to move the pointer, and push the
-	joystick inwards to simulate a left-button click.
+	joystick inwards to simulate a left-button click. The HWB on the
+	USBKEY board serves as the right mouse button.
 */
 
 #include "Mouse.h"
@@ -49,6 +50,7 @@ int main(void)
 	/* Hardware Initialization */
 	Joystick_Init();
 	Bicolour_Init();
+	HWB_Init();
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
@@ -73,7 +75,7 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 TASK(USB_Mouse_Report)
 {
-	USB_MouseReport_Data_t MouseReportData = {Button: false, X: 0, Y: 0};
+	USB_MouseReport_Data_t MouseReportData = {Button: 0, X: 0, Y: 0};
 	uint8_t                JoyStatus_LCL   = Joystick_GetStatus();
 
 	if (JoyStatus_LCL & JOY_UP)
@@ -87,7 +89,10 @@ TASK(USB_Mouse_Report)
 	  MouseReportData.X = -1;
 
 	if (JoyStatus_LCL & JOY_PRESS)
-	  MouseReportData.Button = true;
+	  MouseReportData.Button |= (1 << 0);
+	  
+	if (HWB_GetStatus())
+	  MouseReportData.Button |= (1 << 1);
 
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
