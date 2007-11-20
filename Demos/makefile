@@ -8,8 +8,8 @@
 # Released under the GPL Licence, Version 3
 #
 
-# Makefile to build the MyUSB Demos. Call with "make all" to rebuild
-# all demos.
+# Makefile to build all the MyUSB Demos. Call with "make all" to
+# rebuild all demos.
 
 # Projects are pre-cleaned before each one is built, to ensure any
 # custom MyUSB library build options are reflected in the compiled

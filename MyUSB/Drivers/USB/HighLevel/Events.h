@@ -26,20 +26,22 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
+			#define NO_EVENT_ATTRIBUTES
+		
 			// Event Parameters:
 			#define USB_VBUSChange_P                  (void)
 			#define USB_VBUSConnect_P                 (void)
 			#define USB_VBUSDisconnect_P              (void)
 			#define USB_Connect_P                     (void)
 			#define USB_Disconnect_P                  (void)
-			#define USB_PowerOnFail_P                 (const unsigned char ErrorCode)
+			#define USB_PowerOnFail_P                 (const uint8_t ErrorCode)
 
 			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 				#define USB_UIDChange_P               (void)
 			#endif
 
 			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
-				#define USB_HostError_P               (const unsigned char ErrorCode)
+				#define USB_HostError_P               (const uint8_t ErrorCode)
 				#define USB_DeviceAttached_P          (void)
 				#define USB_DeviceUnattached_P        (void)
 			#endif
@@ -50,34 +52,34 @@
 				#define USB_Suspend_P                 (void)
 				#define USB_WakeUp_P                  (void)
 				#define USB_Reset_P                   (void)
-				#define USB_DeviceError_P             (const unsigned char ErrorCode)
+				#define USB_DeviceError_P             (const uint8_t ErrorCode)
 			#endif
 
 			// Event Modifiers (to deprecate old events):
-			#define USB_VBUSChange_M	          
-			#define USB_VBUSConnect_M             
-			#define USB_VBUSDisconnect_M          
-			#define USB_Connect_M                 
-			#define USB_Disconnect_M              
-			#define USB_PowerOnFail_M             
+			#define USB_VBUSChange_M	              NO_EVENT_ATTRIBUTES
+			#define USB_VBUSConnect_M                 NO_EVENT_ATTRIBUTES
+			#define USB_VBUSDisconnect_M              NO_EVENT_ATTRIBUTES
+			#define USB_Connect_M                     NO_EVENT_ATTRIBUTES
+			#define USB_Disconnect_M                  NO_EVENT_ATTRIBUTES
+			#define USB_PowerOnFail_M                 NO_EVENT_ATTRIBUTES
 
 			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 				#define USB_UIDChange_M               
 			#endif
 
 			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
-				#define USB_HostError_M           
-				#define USB_DeviceAttached_M          
-				#define USB_DeviceUnattached_M   
+				#define USB_HostError_M               NO_EVENT_ATTRIBUTES
+				#define USB_DeviceAttached_M          NO_EVENT_ATTRIBUTES 
+				#define USB_DeviceUnattached_M        NO_EVENT_ATTRIBUTES
 			#endif
 			
 			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
-				#define USB_CreateEndpoints_M         
-				#define USB_UnhandledControlPacket_M  
-				#define USB_Suspend_M                 
-				#define USB_WakeUp_M                  
-				#define USB_Reset_M                   
-				#define USB_DeviceError_M           
+				#define USB_CreateEndpoints_M         NO_EVENT_ATTRIBUTES
+				#define USB_UnhandledControlPacket_M  NO_EVENT_ATTRIBUTES
+				#define USB_Suspend_M                 NO_EVENT_ATTRIBUTES
+				#define USB_WakeUp_M                  NO_EVENT_ATTRIBUTES
+				#define USB_Reset_M                   NO_EVENT_ATTRIBUTES
+				#define USB_DeviceError_M             NO_EVENT_ATTRIBUTES
 			#endif
 
 		/* Function Prototypes: */

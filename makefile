@@ -8,7 +8,7 @@
 # Released under the GPL Licence, Version 3
 #
 
-# Makefile to build the MyUSB Helper Applications and Demos.
+# Makefile to build the MyUSB library and Demos.
 # Call with "make all" to rebuild everything.
 
 # It is suggested that for the master build, the --quiet switch

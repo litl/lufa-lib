@@ -13,20 +13,19 @@
 
 uint8_t USB_Host_WaitMS(uint8_t MS)
 {
-	uint8_t MSRemaining    = MS;
 	bool    SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
 	uint8_t ErrorCode      = HOST_WAITERROR_Sucessful;
 	
 	USB_INT_CLEAR(USB_INT_HSOFI);
 	USB_HOST_SOFGeneration_Enable();
 
-	while (MSRemaining)
+	while (MS)
 	{
 		if (USB_INT_OCCURRED(USB_INT_HSOFI))
 		{
 			USB_INT_CLEAR(USB_INT_HSOFI);
 						
-			MSRemaining--;
+			MS--;
 		}
 					
 		if (USB_INT_OCCURRED(USB_INT_DDISCI) || (USB_IsConnected == false) ||

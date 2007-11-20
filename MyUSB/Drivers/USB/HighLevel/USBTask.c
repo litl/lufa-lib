@@ -89,7 +89,8 @@ void USB_HostTask(void)
 			{
 				USB_INT_CLEAR(USB_INT_SRPI);
 				USB_INT_CLEAR(USB_INT_DCONNI);
-
+				USB_INT_CLEAR(USB_INT_DDISCI);
+				
 				USB_INT_ENABLE(USB_INT_DDISCI);
 
 				RAISE_EVENT(USB_DeviceAttached);

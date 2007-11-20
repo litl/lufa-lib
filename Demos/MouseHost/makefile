@@ -451,8 +451,9 @@ sizeafter:
 checkhooks: build
 	@echo
 	@echo ------- Unhooked MyUSB Events -------
-	@$(shell) (grep -s '^Event.*MyUSB/.*\\.o' $(TARGET).map | cut -d' ' -f1 | grep ".*") \
-            || echo "(None)"
+	@$(shell) (grep -s '^Event.*MyUSB/.*\\.o' $(TARGET).map | \
+	           cut -d' ' -f1 | cut -d'_' -f2- | grep ".*") || \
+			   echo "(None)"
 	@echo ----- End Unhooked MyUSB Events -----
 	
 checklibmode:

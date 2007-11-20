@@ -26,7 +26,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 
 	USB_HOST_SOFGeneration_Enable();
 
-	Pipe_SelectPipe(0);
+	Pipe_SelectPipe(PIPE_CONTROLPIPE);
 	Pipe_SetToken(PIPE_TOKEN_SETUP);
 	Pipe_ClearSetupSent();
 
@@ -185,6 +185,8 @@ End_Of_Control_Send:
 	
 	if (!(SOFGenEnabled))
 	  USB_HOST_SOFGeneration_Disable();
+
+	Pipe_ResetPipe(PIPE_CONTROLPIPE);
 
 	return ReturnStatus;
 }
