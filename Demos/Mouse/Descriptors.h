@@ -36,7 +36,7 @@
 
 		typedef struct
 		{
-			uint8_t ReportData[0x34];
+			uint8_t ReportData[52];
 		} USB_Descriptor_HID_Mouse_Report_t;
 
 		typedef struct

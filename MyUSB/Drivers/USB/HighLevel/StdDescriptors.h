@@ -32,7 +32,6 @@
 			#define USB_CONFIG_ATTR_SELFPOWERED       0b11000000
 			#define USB_CONFIG_ATTR_REMOTEWAKEUP      0b10100000
 
-			// Descriptor Settings:
 			#define CONFIGURATIONS                    1
 			#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
 

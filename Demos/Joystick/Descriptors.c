@@ -71,11 +71,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
-			TotalConfigurationSize: (  sizeof(USB_Descriptor_Configuration_Header_t)
-			                         + sizeof(USB_Descriptor_Interface_t)
-									 + sizeof(USB_Descriptor_HID_t) 
-	                                 + sizeof(USB_Descriptor_Endpoint_t)
-			                        ),
+			TotalConfigurationSize: sizeof(USB_Descriptor_Configuration_t),
 			TotalInterfaces:        1,
 				
 			ConfigurationNumber:    1,
@@ -104,8 +100,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 
 	JoystickHID:
 		{
-			Header:                 {Size: sizeof(USB_Descriptor_HID_t),
-									 Type: DTYPE_HID},
+			Header:                 {Size: sizeof(USB_Descriptor_HID_t), Type: DTYPE_HID},
 									 
 			HIDSpec:          		0x1001,
 			CountryCode:      		0x00,
@@ -116,11 +111,10 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 
 	JoystickEndpoint:
 		{
-			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t),
-									 Type: DTYPE_Endpoint},
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 										 
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | JOYSTICK_EPNUM),
-			Attributes:       		0x03,
+			Attributes:       		ENDPOINT_TYPE_INTERRUPT,
 			EndpointSize:           JOYSTICK_EPSIZE,
 			PollingIntervalMS:		0x02
 		}	
