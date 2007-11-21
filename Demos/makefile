@@ -28,6 +28,9 @@ all:
 	make -C Magstripe clean
 	make -C Magstripe all
 
+	make -C Joystick clean
+	make -C Joystick all
+
 	make -C MouseHost clean
 	make -C MouseHost all
 
@@ -39,5 +42,6 @@ clean:
 	make -C Mouse clean
 	make -C Keyboard clean
 	make -C Magstripe clean
+	make -C Joystick clean
 	make -C MouseHost clean
 	make -C KeyboardHost clean
