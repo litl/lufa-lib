@@ -43,6 +43,12 @@ TASK_LIST
 	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
 };
 
+/* Globals: */
+CDC_Line_Coding_t LineCoding = { BaudRateBPS: 9600,
+                                 CharFormat:  0,
+                                 ParityType:  0,
+                                 DataBits:    0     };
+
 int main(void)
 {
 	/* Disable Clock Division */
@@ -65,6 +71,58 @@ int main(void)
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
+	/* Setup CDC Notification, RX and TX Endpoints */
+	Endpoint_ConfigureEndpoint(CDC_NOTIFICATION_EPNUM, ENDPOINT_TYPE_INTERRUPT,
+		                       ENDPOINT_DIR_IN, CDC_NOTIFICATION_EPSIZE,
+	                           ENDPOINT_BANK_SINGLE);
+
+	Endpoint_ConfigureEndpoint(CDC_TX_EPNUM, ENDPOINT_TYPE_BULK,
+		                       ENDPOINT_DIR_IN, CDC_TXRX_EPSIZE,
+	                           ENDPOINT_BANK_SINGLE);
+
+	Endpoint_ConfigureEndpoint(CDC_RX_EPNUM, ENDPOINT_TYPE_BULK,
+		                       ENDPOINT_DIR_OUT, CDC_TXRX_EPSIZE,
+	                           ENDPOINT_BANK_SINGLE);
+
 	/* Double green to indicate USB connected and ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+}
+
+EVENT_HANDLER(USB_UnhandledControlPacket)
+{
+	/* Process CDC specific control requests */
+	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
+
+	switch (Request)
+	{
+		case GET_LINE_CODING:
+			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
+			  USB_Device_Write_Byte(*(LineCodingData++));	
+			
+			Endpoint_ClearSetupRecieved();
+			Endpoint_In_Clear();
+			
+			while (!(Endpoint_Out_IsRecieved()));
+			Endpoint_Out_Clear();
+		
+			break;
+		case SET_LINE_CODING:
+			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
+			  *(LineCodingData++) = USB_Device_Read_Byte();
+
+			Endpoint_ClearSetupRecieved();
+			Endpoint_Out_Clear();
+
+			Endpoint_In_Clear();
+			while (!(Endpoint_In_IsReady()));
+	
+			break;
+		case SET_CONTROL_LINE_STATE:
+			Endpoint_ClearSetupRecieved();
+			
+			Endpoint_In_Clear();
+			while (!(Endpoint_In_IsReady()));
+	
+			break;
+	}
 }

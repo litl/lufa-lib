@@ -24,7 +24,7 @@
 #include "Joystick.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,  "MyUSB Joytick App");
+BUTTLOADTAG(ProjName,  "MyUSB Joystick App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
@@ -90,7 +90,7 @@ TASK(USB_Joystick_Report)
 	  JoystickReportData.X = -100;
 
 	if (JoyStatus_LCL & JOY_PRESS)
-	  JoystickReportData.Button |= (1 << 1);
+	  JoystickReportData.Button  = (1 << 1);
 	  
 	if (HWB_GetStatus())
 	  JoystickReportData.Button |= (1 << 0);

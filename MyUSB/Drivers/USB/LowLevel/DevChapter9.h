@@ -27,8 +27,7 @@
 		/* Throwable Events: */
 			RAISES_EVENT(USB_UnhandledControlPacket);
 			RAISES_EVENT(USB_CreateEndpoints);
-
-	/* Private Interface - For use in library only: */	
+	
 		/* Function Prototypes: */
 			void USB_Device_ProcessControlPacket(void);
 			void USB_Device_SetAddress(void);

@@ -89,7 +89,7 @@ TASK(USB_Mouse_Report)
 	  MouseReportData.X = -1;
 
 	if (JoyStatus_LCL & JOY_PRESS)
-	  MouseReportData.Button |= (1 << 0);
+	  MouseReportData.Button  = (1 << 0);
 	  
 	if (HWB_GetStatus())
 	  MouseReportData.Button |= (1 << 1);

@@ -82,6 +82,7 @@ OBJDIR = .
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                           \
 	  Descriptors.c                                         \
+	  CDC_Serial_Stream.c                                   \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
 	  ../../MyUSB/Drivers/USB1287/Serial.c                  \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
@@ -164,9 +165,9 @@ CFLAGS += -funsigned-bitfields
 CFLAGS += -ffunction-sections
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
+CFLAGS += -finline-limit=20
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
-#CFLAGS += -mshort-calls
 CFLAGS += -Wundef
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wunreachable-code

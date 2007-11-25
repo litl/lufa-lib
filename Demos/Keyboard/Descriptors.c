@@ -46,7 +46,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
-	USBSpecification:       0x0200,
+	USBSpecification:       0x0101,
 	Class:                  0x00,
 	SubClass:               0x00,	
 	Protocol:               0x00,

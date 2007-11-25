@@ -89,106 +89,105 @@ TASK(USB_Mouse_Host)
 	static uint8_t DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
 				              sizeof(USB_Descriptor_Interface_t)];
 
-	if (USB_IsConnected)
+	if (!(USB_IsConnected)) // Block on device not connected
+		return;
+
+	switch (USB_HostState)
 	{
-		switch (USB_HostState)
-		{
-			case HOST_STATE_Addressed:
-				USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
-				USB_HostRequest.RequestData    = REQ_SetConfiguration;
-				USB_HostRequest.Value          = 1;
-				USB_HostRequest.Index          = 0;
-				USB_HostRequest.Length         = USB_ControlPipeSize;
+		case HOST_STATE_Addressed:
+			USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
+			USB_HostRequest.RequestData    = REQ_SetConfiguration;
+			USB_HostRequest.Value          = 1;
+			USB_HostRequest.Index          = 0;
+			USB_HostRequest.Length         = USB_ControlPipeSize;
 
-				if (USB_Host_SendControlRequest(NULL) == HOST_SEND_CONTROL_ERROR)
-				{
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
-				
-				Pipe_ConfigurePipe(MOUSE_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
-				Pipe_SelectPipe(MOUSE_DATAPIPE);
-				Pipe_SetInfiniteINRequests();
+			if (USB_Host_SendControlRequest(NULL) == HOST_SEND_CONTROL_ERROR)
+			{
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				while (USB_IsConnected); // Wait for device detatch
+				break;
+			}
+			
+			Pipe_ConfigurePipe(MOUSE_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
+			Pipe_SelectPipe(MOUSE_DATAPIPE);
+			Pipe_SetInfiniteINRequests();
 		
-				USB_HostState = HOST_STATE_Configured;
+			USB_HostState = HOST_STATE_Configured;
+			break;
+		case HOST_STATE_Configured:
+			USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
+			USB_HostRequest.RequestData    = REQ_GetDescriptor;
+			USB_HostRequest.Value_HighByte = DTYPE_Configuration;
+			USB_HostRequest.Value_LowByte  = 0;
+			USB_HostRequest.Index          = 0;
+			USB_HostRequest.Length         = sizeof(DataBuffer);
+
+			if (USB_Host_SendControlRequest(DataBuffer)
+			    == HOST_SEND_CONTROL_ERROR)
+			{
+				puts_P(PSTR("Control error."));
+			
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				while (USB_IsConnected); // Wait for device detatch
 				break;
-			case HOST_STATE_Configured:
-				USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
-				USB_HostRequest.RequestData    = REQ_GetDescriptor;
-				USB_HostRequest.Value_HighByte = DTYPE_Configuration;
-				USB_HostRequest.Value_LowByte  = 0;
-				USB_HostRequest.Index          = 0;
-				USB_HostRequest.Length         = sizeof(DataBuffer);
+			}
 
-				if (USB_Host_SendControlRequest(DataBuffer)
-				    == HOST_SEND_CONTROL_ERROR)
-				{
-					puts_P(PSTR("Control error."));
-				
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
+			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
+			               offsetof(USB_Descriptor_Interface_t, Class)] != MOUSE_CLASS)
+			{
+				puts_P(PSTR("Incorrect device class."));
 
-				if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
-				               offsetof(USB_Descriptor_Interface_t, Class)] != MOUSE_CLASS)
-				{
-					puts_P(PSTR("Incorrect device class."));
-
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
-				
-				if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
-				               offsetof(USB_Descriptor_Interface_t, Protocol)] != MOUSE_PROTOCOL)
-				{
-					puts_P(PSTR("Incorrect device protocol."));
-
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
-
-				puts_P(PSTR("Mouse Enumerated.\r\n"));
-				
-				USB_HostState = HOST_STATE_Ready;
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				while (USB_IsConnected); // Wait for device detatch
 				break;
-			case HOST_STATE_Ready:
-				Pipe_SelectPipe(MOUSE_DATAPIPE);	
-				Pipe_Unfreeze();
+			}
+				
+			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
+			               offsetof(USB_Descriptor_Interface_t, Protocol)] != MOUSE_PROTOCOL)
+			{
+				puts_P(PSTR("Incorrect device protocol."));
 
-				if (Pipe_In_IsRecieved())
-				{
-					USB_MouseReport_Data_t MouseReport;
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				while (USB_IsConnected); // Wait for device detatch
+				break;
+			}
+
+			puts_P(PSTR("Mouse Enumerated.\r\n"));
+				
+			USB_HostState = HOST_STATE_Ready;
+			break;
+		case HOST_STATE_Ready:
+			Pipe_SelectPipe(MOUSE_DATAPIPE);	
+			Pipe_Unfreeze();
+
+			if (Pipe_In_IsRecieved())
+			{
+				USB_MouseReport_Data_t MouseReport;
 					
-					MouseReport.Button = USB_Host_Read_Byte();
-					MouseReport.X      = USB_Host_Read_Byte();
-					MouseReport.Y      = USB_Host_Read_Byte();
+				MouseReport.Button = USB_Host_Read_Byte();
+				MouseReport.X      = USB_Host_Read_Byte();
+				MouseReport.Y      = USB_Host_Read_Byte();
 					
-					Bicolour_SetLeds(BICOLOUR_NO_LEDS);
+				Bicolour_SetLeds(BICOLOUR_NO_LEDS);
 					
-					if (MouseReport.X > 0)
-						Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
-					else if (MouseReport.X < 0)
-						Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);						
-					
-					if (MouseReport.Y > 0)
-						Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
-					else if (MouseReport.Y < 0)
+				if (MouseReport.X > 0)
+					Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
+				else if (MouseReport.X < 0)
+					Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);						
+				
+				if (MouseReport.Y > 0)
+					Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
+				else if (MouseReport.Y < 0)
 						Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);						
 
-					if (MouseReport.Button)
-						Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
-						
-					Pipe_In_Clear();
-					Pipe_ResetFIFO();
-				}
+				if (MouseReport.Button)
+					Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
+					
+				Pipe_In_Clear();
+				Pipe_ResetFIFO();
+			}
 
-				Pipe_Freeze();
-
-				break;
-		}
+			Pipe_Freeze();
+			break;
 	}
 }

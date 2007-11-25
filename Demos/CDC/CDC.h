@@ -16,14 +16,47 @@
 		#include <avr/pgmspace.h>
 
 		#include "Descriptors.h"
+		#include "CDC_Serial_Stream.h"
 
 		#include <MyUSB/Common/ButtLoadTag.h>        // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>           // USB Functionality
 		#include <MyUSB/Drivers/USB1287/Serial.h>    // USART driver
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>   // Bicolour LEDs driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>       // Simple scheduler for task management
-			
+
+	/* Macros: */
+		#define GET_LINE_CODING              0x21
+		#define SET_LINE_CODING              0x20
+		#define SET_CONTROL_LINE_STATE       0x22
+
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_CreateEndpoints);
+		HANDLES_EVENT(USB_UnhandledControlPacket);
+		
+	/* Type Defines: */
+		typedef struct
+		{
+			uint32_t BaudRateBPS;
+			uint8_t  CharFormat;
+			uint8_t  ParityType;
+			uint8_t  DataBits;
+		} CDC_Line_Coding_t;
+		
+	/* Enums: */
+		enum
+		{
+			OneStopBit          = 0,
+			OneAndAHalfStopBits = 1,
+			TwoStopBits         = 2,
+		} CDC_Line_Coding_Format;
+		
+		enum
+		{
+			None                = 0,
+			Odd                 = 1,
+			Even                = 2,
+			Mark                = 3,
+			Space               = 4,
+		} CDC_Line_Codeing_Parity;
 
 #endif

@@ -14,7 +14,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
-	USBSpecification: 		0x0200,
+	USBSpecification: 		0x0101,
 	Class:            		0x02,
 	SubClass:         		0x00,	
 	Protocol:         		0x00,
@@ -60,18 +60,58 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 				
 			Class:                  0x02,
 			SubClass:               0x02,
-			Protocol:               0x00,
+			Protocol:               0x01,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
 
-	ControlEndpoint:
+	CDC_Functional_IntHeader:
+		{
+			FuncHeader:             {Header:
+										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
+										 Type: 0x24},
+									 SubType: 0x00},
+			
+			Data:                   {0x10, 0x01}
+		},
+
+	CDC_Functional_CallManagement:
+		{
+			FuncHeader:             {Header:
+										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
+										 Type: 0x24},
+									 SubType: 0x01},
+			
+			Data:                   {0x03, 0x01}
+		},
+
+	CDC_Functional_AbstractControlManagement:
+		{
+			FuncHeader:             {Header:
+										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(1)),
+										 Type: 0x24},
+									 SubType: 0x02},
+			
+			Data:                   {0x06}
+		},
+		
+	CDC_Functional_Union:
+		{
+			FuncHeader:             {Header:
+										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
+										 Type: 0x24},
+									 SubType: 0x06},
+			
+			Data:                   {0x00, 0x01}
+		},	
+
+	ManagementEndpoint:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 										 
-			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | 3),
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | CDC_NOTIFICATION_EPNUM),
 			Attributes:       		ENDPOINT_TYPE_INTERRUPT,
-			EndpointSize:           8,
+			EndpointSize:           CDC_NOTIFICATION_EPSIZE,
 			PollingIntervalMS:		0x02
 		},
 
@@ -84,7 +124,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			
 			TotalEndpoints:         2,
 				
-			Class:                  0,
+			Class:                  0x0A,
 			SubClass:               0,
 			Protocol:               0,
 				
@@ -95,9 +135,9 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 										 
-			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | 1),
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | CDC_RX_EPNUM),
 			Attributes:       		ENDPOINT_TYPE_BULK,
-			EndpointSize:           64,
+			EndpointSize:           CDC_TXRX_EPSIZE,
 			PollingIntervalMS:		0x02
 		},
 		
@@ -105,9 +145,9 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 										 
-			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | 2),
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | CDC_RX_EPNUM),
 			Attributes:       		ENDPOINT_TYPE_BULK,
-			EndpointSize:           64,
+			EndpointSize:           CDC_TXRX_EPSIZE,
 			PollingIntervalMS:		0x02
 		}
 };
@@ -162,15 +202,15 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 					return true;
 				case 0x01:
 					*DescriptorAddr = (void*)&ManafacturerString;
-					*Size           = pgm_read_byte_near(&ManafacturerString.Header.Size);
+					*Size           = pgm_read_byte(&ManafacturerString.Header.Size);
 					return true;
 				case 0x02:
 					*DescriptorAddr = (void*)&ProductString;
-					*Size           = pgm_read_byte_near(&ProductString.Header.Size);
+					*Size           = pgm_read_byte(&ProductString.Header.Size);
 					return true;
 				case 0x03:
 					*DescriptorAddr = (void*)&VersionString;
-					*Size           = pgm_read_byte_near(&VersionString.Header.Size);
+					*Size           = pgm_read_byte(&VersionString.Header.Size);
 					return true;
 			}
 			

@@ -92,126 +92,125 @@ TASK(USB_Keyboard_Host)
 	static uint8_t DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
 				              sizeof(USB_Descriptor_Interface_t)];
 
-	if (USB_IsConnected)
+	if (!(USB_IsConnected)) // Block on device not connected
+		return;
+
+	switch (USB_HostState)
 	{
-		switch (USB_HostState)
-		{
-			case HOST_STATE_Addressed:
-				USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
-				USB_HostRequest.RequestData    = REQ_SetConfiguration;
-				USB_HostRequest.Value          = 1;
-				USB_HostRequest.Index          = 0;
-				USB_HostRequest.Length         = USB_ControlPipeSize;
+		case HOST_STATE_Addressed:
+			USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
+			USB_HostRequest.RequestData    = REQ_SetConfiguration;
+			USB_HostRequest.Value          = 1;
+			USB_HostRequest.Index          = 0;
+			USB_HostRequest.Length         = USB_ControlPipeSize;
 
-				if (USB_Host_SendControlRequest(NULL) == HOST_SEND_CONTROL_ERROR)
-				{
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
+			if (USB_Host_SendControlRequest(NULL) == HOST_SEND_CONTROL_ERROR)
+			{
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				while (USB_IsConnected); // Wait for device detatch
+				break;
+			}
 				
-				Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
-				Pipe_SelectPipe(KEYBOARD_DATAPIPE);
-				Pipe_SetInfiniteINRequests();
+			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
+			Pipe_SelectPipe(KEYBOARD_DATAPIPE);
+			Pipe_SetInfiniteINRequests();
 		
-				USB_HostState = HOST_STATE_Configured;
+			USB_HostState = HOST_STATE_Configured;
+			break;
+		case HOST_STATE_Configured:
+			USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
+			USB_HostRequest.RequestData    = REQ_GetDescriptor;
+			USB_HostRequest.Value_HighByte = DTYPE_Configuration;
+			USB_HostRequest.Value_LowByte  = 0;
+			USB_HostRequest.Index          = 0;
+			USB_HostRequest.Length         = sizeof(DataBuffer);
+
+			if (USB_Host_SendControlRequest(DataBuffer)
+			    == HOST_SEND_CONTROL_ERROR)
+			{
+				puts_P(PSTR("Control error."));
+			
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				while (USB_IsConnected); // Wait for device detatch
 				break;
-			case HOST_STATE_Configured:
-				USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
-				USB_HostRequest.RequestData    = REQ_GetDescriptor;
-				USB_HostRequest.Value_HighByte = DTYPE_Configuration;
-				USB_HostRequest.Value_LowByte  = 0;
-				USB_HostRequest.Index          = 0;
-				USB_HostRequest.Length         = sizeof(DataBuffer);
+			}
 
-				if (USB_Host_SendControlRequest(DataBuffer)
-				    == HOST_SEND_CONTROL_ERROR)
-				{
-					puts_P(PSTR("Control error."));
-				
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
+			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
+			               offsetof(USB_Descriptor_Interface_t, Class)] != KEYBOARD_CLASS)
+			{
+				puts_P(PSTR("Incorrect device class."));
 
-				if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
-				               offsetof(USB_Descriptor_Interface_t, Class)] != KEYBOARD_CLASS)
-				{
-					puts_P(PSTR("Incorrect device class."));
-
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
-				
-				if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
-				               offsetof(USB_Descriptor_Interface_t, Protocol)] != KEYBOARD_PROTOCOL)
-				{
-					puts_P(PSTR("Incorrect device protocol."));
-
-					Bicolour_SetLeds(BICOLOUR_LED1_RED);
-					while (USB_IsConnected); // Wait for device detatch
-					break;
-				}
-
-				puts_P(PSTR("Keyboard Enumerated.\r\n"));
-				
-				USB_HostState = HOST_STATE_Ready;
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				while (USB_IsConnected); // Wait for device detatch
 				break;
-			case HOST_STATE_Ready:
-				Pipe_SelectPipe(KEYBOARD_DATAPIPE);	
-				Pipe_Unfreeze();
+			}
+				
+			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
+			               offsetof(USB_Descriptor_Interface_t, Protocol)] != KEYBOARD_PROTOCOL)
+			{
+				puts_P(PSTR("Incorrect device protocol."));
 
-				if (Pipe_In_IsRecieved())
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				while (USB_IsConnected); // Wait for device detatch
+				break;
+			}
+
+			puts_P(PSTR("Keyboard Enumerated.\r\n"));
+				
+			USB_HostState = HOST_STATE_Ready;
+			break;
+		case HOST_STATE_Ready:
+			Pipe_SelectPipe(KEYBOARD_DATAPIPE);	
+			Pipe_Unfreeze();
+
+			if (Pipe_In_IsRecieved())
+			{
+				USB_KeyboardReport_Data_t KeyboardReport;
+					
+				KeyboardReport.Modifier = USB_Host_Read_Byte();
+				USB_Host_Ignore_Byte();
+				KeyboardReport.KeyCode  = USB_Host_Read_Byte();
+					
+				Bicolour_SetLed(BICOLOUR_LED1, (KeyboardReport.Modifier) ? BICOLOUR_LED1_RED
+				                                                         : BICOLOUR_LED1_OFF);
+					
+				if (KeyboardReport.KeyCode)
 				{
-					USB_KeyboardReport_Data_t KeyboardReport;
-					
-					KeyboardReport.Modifier = USB_Host_Read_Byte();
-					USB_Host_Ignore_Byte();
-					KeyboardReport.KeyCode  = USB_Host_Read_Byte();
-					
-					Bicolour_SetLed(BICOLOUR_LED1, (KeyboardReport.Modifier) ? BICOLOUR_LED1_RED
-					                                                         : BICOLOUR_LED1_OFF);
-					
-					if (KeyboardReport.KeyCode)
-					{
-						if (Bicolour_GetLeds() & BICOLOUR_LED2_GREEN)
-						  Bicolour_TurnOffLeds(BICOLOUR_LED2_GREEN);
-						else
-						  Bicolour_TurnOnLeds(BICOLOUR_LED2_GREEN);
+					if (Bicolour_GetLeds() & BICOLOUR_LED2_GREEN)
+					  Bicolour_TurnOffLeds(BICOLOUR_LED2_GREEN);
+					else
+					  Bicolour_TurnOnLeds(BICOLOUR_LED2_GREEN);
 						  
-						char PressedKey = 0;
+					char PressedKey = 0;
 
-						if ((KeyboardReport.KeyCode >= 0x04) &&
-						    (KeyboardReport.KeyCode <= 0x1D))
-						{
-							PressedKey = (KeyboardReport.KeyCode - 0x04) + 'A';
-						}
-						else if ((KeyboardReport.KeyCode >= 0x1E) &&
-						         (KeyboardReport.KeyCode <= 0x27))
-						{
-							PressedKey = (KeyboardReport.KeyCode - 0x1E) + '0';
-						}
-						else if (KeyboardReport.KeyCode == 0x2C)
-						{
-							PressedKey = ' ';						
-						}
-						else if (KeyboardReport.KeyCode == 0x28)
-						{
-							PressedKey = '\n';
-						}
-						 
-						if (PressedKey)
-						  printf_P(PSTR("%c"), PressedKey);
+					if ((KeyboardReport.KeyCode >= 0x04) &&
+					    (KeyboardReport.KeyCode <= 0x1D))
+					{
+						PressedKey = (KeyboardReport.KeyCode - 0x04) + 'A';
 					}
-					
-					Pipe_In_Clear();
-					Pipe_ResetFIFO();
+					else if ((KeyboardReport.KeyCode >= 0x1E) &&
+					         (KeyboardReport.KeyCode <= 0x27))
+					{
+						PressedKey = (KeyboardReport.KeyCode - 0x1E) + '0';
+					}
+					else if (KeyboardReport.KeyCode == 0x2C)
+					{
+						PressedKey = ' ';						
+					}
+					else if (KeyboardReport.KeyCode == 0x28)
+					{
+						PressedKey = '\n';
+					}
+						 
+					if (PressedKey)
+					  printf_P(PSTR("%c"), PressedKey);
 				}
+				
+				Pipe_In_Clear();
+				Pipe_ResetFIFO();
+			}
 
-				Pipe_Freeze();
-
-				break;
-		}
+			Pipe_Freeze();
+			break;
 	}
 }

@@ -211,7 +211,7 @@ void USB_Device_GetStatus(const uint8_t RequestType)
 	{
 		case REQREC_DEVICE:
 			if (CONFIG_ATTRIBUTES & USB_CONFIG_ATTR_SELFPOWERED)
-			  StatusByte |= FEATURE_SELFPOWERED;
+			  StatusByte  = FEATURE_SELFPOWERED;
 			
 			if (CONFIG_ATTRIBUTES & USB_CONFIG_ATTR_REMOTEWAKEUP)
 			  StatusByte |= FEATURE_REMOTE_WAKEUP;

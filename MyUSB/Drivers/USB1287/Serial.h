@@ -26,11 +26,22 @@
 			void Serial_Init(const uint16_t BaudRate);
 			void Serial_TxString_P(const char *FlashStringPtr) ATTR_NON_NULL_PTR_ARG(1);
 			void Serial_TxString(const char *StringPtr) ATTR_NON_NULL_PTR_ARG(1);
-			void Serial_TxByte(const char Data);
-			char Serial_RxByte(void);
+
+		/* Inline Functions: */
+			static inline void Serial_TxByte(const char DataByte)
+			{
+				while (!(UCSR1A & (1 << UDRE1)));
+				UDR1 = DataByte;
+			}
+
+			static inline char Serial_RxByte(void)
+			{
+				while (!(UCSR1A & (1 << RXC1)));
+				return UDR1; 
+			}
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define SERIAL_UBBRVAL(baud)    (((F_CPU / (baud * 16UL))) - 1)
+			#define SERIAL_UBBRVAL(baud)    (((F_CPU / 16) / baud) - 1)
 
 #endif
