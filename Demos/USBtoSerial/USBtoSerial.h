@@ -14,9 +14,9 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
+		#include <avr/interrupt.h>
 
 		#include "Descriptors.h"
-		#include "CDC_Serial.h"
 		#include "RingBuff.h"
 
 		#include <MyUSB/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project
@@ -29,6 +29,8 @@
 		#define GET_LINE_CODING              0x21
 		#define SET_LINE_CODING              0x20
 		#define SET_CONTROL_LINE_STATE       0x22
+
+		#define SERIAL_2X_UBBRVAL(baud)      (((F_CPU / 8) / baud) - 1)
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_CreateEndpoints);
@@ -59,9 +61,6 @@
 			Parity_Mark         = 3,
 			Parity_Space        = 4,
 		} CDC_Line_Codeing_Parity;
-		
-	/* External Variables: */
-		extern CDC_Line_Coding_t LineCoding;
 
 	/* Function Prototypes: */
 		void ReconfigureUSART(void);

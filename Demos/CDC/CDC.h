@@ -57,12 +57,9 @@
 			Parity_Mark         = 3,
 			Parity_Space        = 4,
 		} CDC_Line_Codeing_Parity;
-		
-	/* External Variables: */
-		extern CDC_Line_Coding_t LineCoding;
 
 	/* Function Prototypes: */
-		void ReconfigureUSART(void);
+		void SendStringViaCDC(char* FlashString);
 
 	/* Tasks: */
 		TASK(CDC_Task);

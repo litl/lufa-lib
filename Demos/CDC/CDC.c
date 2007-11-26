@@ -98,6 +98,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
 
+	USB_Device_Ignore_Word();
+
 	/* Process CDC specific control requests */
 	switch (Request)
 	{
@@ -161,17 +163,16 @@ TASK(CDC_Task)
 	if (ReportString == NULL)
 	{
 		ActionSent = false;
-		return;
 	}
 	else if (ActionSent == false)
 	{
 		ActionSent = true;
+		SendStringViaCDC(ReportString);
 	}
-	else
-	{
-		return;
-	}
+}
 
+void SendStringViaCDC(char* FlashString)
+{
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
 	{
@@ -184,11 +185,10 @@ TASK(CDC_Task)
 		while (!(Endpoint_ReadWriteAllowed()));
 		
 		/* Write the String to the Endpoint */
-		while ((StringByte = pgm_read_byte(ReportString++)) != 0x00)
+		while ((StringByte = pgm_read_byte(FlashString++)) != 0x00)
 		  USB_Device_Write_Byte(StringByte);
 	  
 		/* Send the data */
 		Endpoint_In_Clear();
 	}
 }
-

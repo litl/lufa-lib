@@ -14,7 +14,7 @@
 	 #define BUFF_STATICSIZE 64       // Set to the static ringbuffer size for all ringbuffers (place size after define)
 
    /* Volatile mode - uncomment to make buffers volatile, for use in ISRs, etc: */
-	 // #define BUFF_VOLATILE         // Uncomment to cause all ring buffers to become volatile (and atomic if multi-byte) in access
+	 #define BUFF_VOLATILE            // Uncomment to cause all ring buffers to become volatile (and atomic if multi-byte) in access
 
    /* Drop mode - select behaviour when Buffer_StoreElement called on a full buffer: */
      #define BUFF_DROPOLD             // Uncomment to cause full ring buffers to drop the oldest character to make space when full
@@ -55,7 +55,7 @@
 #endif
 
 #if (defined(BUFF_VOLATILE) && (BUFF_STATICSIZE > CHAR_MAX))
-	#define BUFF_MODE volatile
+	#define BUFF_MODE            volatile
 	#define BUFF_ATOMIC_BLOCK    ATOMIC_BLOCK
 #else
 	#define BUFF_MODE
