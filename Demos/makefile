@@ -43,6 +43,9 @@ all:
 	make -C USBtoSerial clean
 	make -C USBtoSerial all
 	
+	make -C MassStorage clean
+	make -C MassStorage all
+
 clean:
 	make -C TestApp clean
 	make -C Mouse clean
@@ -53,3 +56,4 @@ clean:
 	make -C KeyboardHost clean
 	make -C CDC clean
 	make -C USBtoSerial clean
+	make -C MassStorage clean

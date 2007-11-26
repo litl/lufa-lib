@@ -11,7 +11,7 @@
 /*
 	Mass Storage demonstration application. This gives a simple reference
 	application for implementing a USB Mass Storage device using the basic
-	USB MSD drivers in all modern OSes (i.e. no special drivers required).
+	USB UFI drivers in all modern OSes (i.e. no special drivers required).
 	
 	On startup the system will automatically enumerate and function as an
 	external mass storage device which may be formatted and used as normal.
@@ -24,7 +24,7 @@
 #include "MassStorage.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,  "MyUSB Mass Storage App");
+BUTTLOADTAG(ProjName,  "MyUSB MassStore App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 

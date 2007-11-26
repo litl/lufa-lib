@@ -22,7 +22,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
 	VendorID:         		0x0000,
-	ProductID:              USB_PRODUCT_ID('M', 'U'),
+	ProductID:              USB_PRODUCT_ID('S', 'D'),
 	ReleaseNumber:    		0x0000,
 		
 	ManafacturerStrIndex:   0x01,
@@ -53,17 +53,37 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
-			InterfaceNumber:        MSTORAGE_INTERFACE_NUMBER,
-			AlternateSetting:       MSTORAGE_INTERFACE_ALTERNATE,
+			InterfaceNumber:        0,
+			AlternateSetting:       0,
 			
-			TotalEndpoints:         MSTORAGE_INTERFACE_ENDPOINTS,
+			TotalEndpoints:         2,
 				
-			Class:                  MSTORAGE_INTERFACE_CLASS,
-			SubClass:               MSTORAGE_INTERFACE_SUBCLASS,
-			Protocol:               MSTORAGE_INTERFACE_PROTOCOL,
+			Class:                  0x08,
+			SubClass:               0x06,
+			Protocol:               0x50,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
+
+		DataInEndpoint:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | MASS_STORAGE_IN_EPNUM),
+			Attributes:             ENDPOINT_TYPE_BULK,
+			EndpointSize:           MASS_STORAGE_IO_EPSIZE,
+			PollingIntervalMS:      0x00
+		},
+
+		DataOutEndpoint:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | MASS_STORAGE_OUT_EPNUM),
+			Attributes:             ENDPOINT_TYPE_BULK,
+			EndpointSize:           MASS_STORAGE_IO_EPSIZE,
+			PollingIntervalMS:      0x00
+		}
 };
 
 USB_Descriptor_Language_t LanguageString PROGMEM =

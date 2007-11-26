@@ -14,20 +14,19 @@
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
 
+	/* Macros: */
+		#define MASS_STORAGE_IN_EPNUM          1	
+		#define MASS_STORAGE_OUT_EPNUM         2	
+		#define MASS_STORAGE_IO_EPSIZE         64	
+		
 	/* Type Defines: */
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;
 			USB_Descriptor_Interface_t            Interface;
+			USB_Descriptor_Endpoint_t             DataInEndpoint;
+			USB_Descriptor_Endpoint_t             DataOutEndpoint;
 		} USB_Descriptor_Configuration_t;
-					
-	/* Macros: */
-		#define MSTORAGE_INTERFACE_NUMBER    0
-		#define MSTORAGE_INTERFACE_ALTERNATE 0
-		#define MSTORAGE_INTERFACE_ENDPOINTS 1
-		#define MSTORAGE_INTERFACE_CLASS     0x03
-		#define MSTORAGE_INTERFACE_SUBCLASS  0x00
-		#define MSTORAGE_INTERFACE_PROTOCOL  0x02
 
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
