@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef _CDC_H_
-#define _CDC_H_
+#ifndef _USB_SERIAL_H_
+#define _USB_SERIAL_H_
 
 	/* Includes: */
 		#include <avr/io.h>

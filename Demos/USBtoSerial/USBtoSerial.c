@@ -24,7 +24,7 @@
 #include "USBtoSerial.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,  "MyUSB CDC App");
+BUTTLOADTAG(ProjName,  "MyUSB USB RS232 App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
