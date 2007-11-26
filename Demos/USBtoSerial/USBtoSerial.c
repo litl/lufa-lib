@@ -11,9 +11,8 @@
 /*
 	Communications Device Class demonstration application.
 	This gives a simple reference application for implementing
-	a CDC device acting as a virtual serial port. Joystick
-	actions on the USBKEY board are transmitted to the host
-	as strings.
+	a USB to Serial converter. Sent and recieved data on the
+	serial port is communicated to the USB host.
 	
 	Before running, you will need to install the INF file that
 	is located in the CDC project directory. This will enable
@@ -22,7 +21,11 @@
 	right-click the .INF file and choose the Install option.
 */
 
-#include "CDC.h"
+/*
+	====== INCOMPLETE, NOT CURRENTLY FUNCTIONAL ======
+*/
+
+#include "USBtoSerial.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
 BUTTLOADTAG(ProjName,  "MyUSB CDC App");
@@ -49,11 +52,8 @@ CDC_Line_Coding_t LineCoding = { BaudRateBPS: 9600,
                                  ParityType:  Parity_None,
                                  DataBits:    8            };
 
-char JoystickUpString[]      PROGMEM = "Joystick Up\r\n";
-char JoystickDownString[]    PROGMEM = "Joystick Down\r\n";
-char JoystickLeftString[]    PROGMEM = "Joystick Left\r\n";
-char JoystickRightString[]   PROGMEM = "Joystick Right\r\n";
-char JoystickPressedString[] PROGMEM = "Joystick Pressed\r\n";
+RingBuff_t CDC_Buffer;
+RingBuff_t USART_Buffer;
 
 int main(void)
 {
@@ -62,14 +62,18 @@ int main(void)
 	CLKPR = 0;
 
 	/* Hardware Initialization */
-	Joystick_Init();
 	Bicolour_Init();
+	Serial_Init(LineCoding.BaudRateBPS);
+	CDC_Serial_Init();
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	
 	/* Initialize USB Subsystem */
 	USB_Init(USB_MODE_DEVICE, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
+			
+	/* Reconfigure USART to use default line coding options */
+	ReconfigureUSART();
 
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
@@ -96,9 +100,9 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
+	/* Process CDC specific control requests */
 	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
 
-	/* Process CDC specific control requests */
 	switch (Request)
 	{
 		case GET_LINE_CODING:
@@ -125,6 +129,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 			Endpoint_In_Clear();
 			while (!(Endpoint_In_IsReady()));
+						
+			ReconfigureUSART();
 	
 			break;
 		case SET_CONTROL_LINE_STATE:
@@ -139,56 +145,47 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 TASK(CDC_Task)
 {
-	char*       ReportString    = NULL;
-	uint8_t     JoyStatus_LCL   = Joystick_GetStatus();
-	static bool ActionSent      = false;
-
-	/* Determine if a joystick action has occured */
-	if (JoyStatus_LCL & JOY_UP)
-	  ReportString = JoystickUpString;
-	else if (JoyStatus_LCL & JOY_DOWN)
-	  ReportString = JoystickDownString;
+	Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 	
-	if (JoyStatus_LCL & JOY_LEFT)
-	  ReportString = JoystickLeftString;
-	else if (JoyStatus_LCL & JOY_RIGHT)
-	  ReportString = JoystickRightString;
-	
-	if (JoyStatus_LCL & JOY_PRESS)
-	  ReportString = JoystickPressedString;
-
-	/* Flag management - Only allow one string to be sent per action */
-	if (ReportString == NULL)
+	if (Endpoint_Out_IsRecieved())
 	{
-		ActionSent = false;
-		return;
-	}
-	else if (ActionSent == false)
-	{
-		ActionSent = true;
-	}
-	else
-	{
-		return;
-	}
-
-	/* Check if the USB System is connected to a Host */
-	if (USB_IsConnected)
-	{
-		char StringByte;
-
-		/* Select the Serial Tx Endpoint */
-		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
-
-		/* Wait until Serial Tx Endpoint Ready for Read/Write */
-		while (!(Endpoint_ReadWriteAllowed()));
-		
-		/* Write the String to the Endpoint */
-		while ((StringByte = pgm_read_byte(ReportString++)) != 0x00)
-		  USB_Device_Write_Byte(StringByte);
-	  
-		/* Send the data */
-		Endpoint_In_Clear();
+		while (Endpoint_BytesInEndpoint())
+		  Serial_TxByte(USB_Device_Read_Byte());
+		  
+		Endpoint_Out_Clear();
 	}
 }
 
+void ReconfigureUSART(void)
+{
+	uint8_t ConfigMask = 0;
+
+	/* Determine parity - non odd/even parity mode defaults to no parity */
+	if (LineCoding.ParityType == Parity_Odd)
+	  ConfigMask = ((1 << UPM11) | (1 << UPM10));
+	else if (LineCoding.ParityType == Parity_Even)
+	  ConfigMask = (1 << UPM11);
+
+	/* Determine stop bits - 1.5 stop bits is set as 1 stop bit due to hardware limitations */
+	if (LineCoding.CharFormat == TwoStopBits)
+	  ConfigMask |= (1 << USBS1);
+
+	/* Determine data size - 5, 6, 7, 8 or 9 bits are supported */
+	if (LineCoding.DataBits == 6)
+	  ConfigMask |= (1 << UCSZ10);
+	else if (LineCoding.DataBits == 7)
+	  ConfigMask |= (1 << UCSZ11);
+	else if (LineCoding.DataBits == 8)
+	  ConfigMask |= ((1 << UCSZ11) | (1 << UCSZ10));
+	else if (LineCoding.DataBits == 9)
+	  ConfigMask |= ((1 << UCSZ12) | (1 << UCSZ11) | (1 << UCSZ10));
+	
+	/* Enable double speed, gives better error percentages at 8MHz */
+	UCSR1A |= (1 << U2X1);
+
+	/* Set the USART mode to the mask generated by the Line Coding options */
+	UCSR1C  = ConfigMask;
+
+	/* Set the USART baud rate register to the desired baud rate value */
+	UBRR1   = SERIAL_2X_UBBRVAL((uint16_t)LineCoding.BaudRateBPS);
+}

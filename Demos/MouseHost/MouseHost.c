@@ -171,14 +171,14 @@ TASK(USB_Mouse_Host)
 				Bicolour_SetLeds(BICOLOUR_NO_LEDS);
 					
 				if (MouseReport.X > 0)
-					Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
+				  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
 				else if (MouseReport.X < 0)
-					Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);						
+				  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);						
 				
 				if (MouseReport.Y > 0)
-					Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
+				  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
 				else if (MouseReport.Y < 0)
-						Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);						
+				  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);						
 
 				if (MouseReport.Button)
 					Bicolour_SetLeds(BICOLOUR_ALL_LEDS);

@@ -40,6 +40,9 @@ all:
 	make -C CDC clean
 	make -C CDC all
 	
+	make -C USBtoSerial clean
+	make -C USBtoSerial all
+	
 clean:
 	make -C TestApp clean
 	make -C Mouse clean
@@ -49,3 +52,4 @@ clean:
 	make -C MouseHost clean
 	make -C KeyboardHost clean
 	make -C CDC clean
+	make -C USBtoSerial clean
