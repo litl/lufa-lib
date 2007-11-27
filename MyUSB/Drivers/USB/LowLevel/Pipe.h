@@ -23,6 +23,12 @@
 			#define PIPE_CONFIG_OK                         true
 			#define PIPE_CONFIG_FAIL                       false
 
+			#define PIPE_ERRORFLAG_CRC16                   (1 << 4)
+			#define PIPE_ERRORFLAG_TIMEOUT                 (1 << 3)
+			#define PIPE_ERRORFLAG_PID                     (1 << 2)
+			#define PIPE_ERRORFLAG_DATAPID                 (1 << 1)
+			#define PIPE_ERRORFLAG_DATATGL                 (1 << 0)
+			
 			#define PIPE_TYPE_CONTROL                      0b00
 			#define PIPE_TYPE_ISOCHRONOUS                  0b01
 			#define PIPE_TYPE_BULK                         0b10
@@ -83,6 +89,8 @@
 
 			#define Pipe_ClearError()              MACROS{ UPINTX  &= ~(1 << PERRI);                         }MACROE
 			#define Pipe_IsError()                       ((UPINTX  &   (1 << PERRI)) ? true : false)
+			#define Pipe_ClearErrorFlags()         MACROS{ UPERRX = 0;                                       }MACROE
+			#define Pipe_GetErrorFlags()                   UPERRX
 
 			#define Pipe_ClearSetupSent()          MACROS{ UPINTX  &= ~(1 << TXSTPI);                        }MACROE
 			#define Pipe_IsSetupSent()                   ((UPINTX  &   (1 << TXSTPI)) ? true : false)

@@ -14,7 +14,8 @@
 	USB UFI drivers in all modern OSes (i.e. no special drivers required).
 	
 	On startup the system will automatically enumerate and function as an
-	external mass storage device which may be formatted and used as normal.
+	external mass storage device which may be formatted and used in the
+	same manner as commercial USB Mass Storage devices.
 */
 
 /*
@@ -63,10 +64,25 @@ int main(void)
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
+	/* Setup Mass Storage In and Out Endpoints */
+	Endpoint_ConfigureEndpoint(MASS_STORAGE_IN_EPNUM, ENDPOINT_TYPE_BULK,
+		                       ENDPOINT_DIR_IN, MASS_STORAGE_IO_EPSIZE,
+	                           ENDPOINT_BANK_DOUBLE);
+
+	Endpoint_ConfigureEndpoint(MASS_STORAGE_OUT_EPNUM, ENDPOINT_TYPE_BULK,
+		                       ENDPOINT_DIR_OUT, MASS_STORAGE_IO_EPSIZE,
+	                           ENDPOINT_BANK_DOUBLE);
+
 	/* Double green to indicate USB connected and ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
 }
 
+EVENT_HANDLER(USB_UnhandledControlPacket)
+{
+	/* Process UFI specific control requests */
+
+}
+	
 TASK(USB_MassStorage)
 {
 

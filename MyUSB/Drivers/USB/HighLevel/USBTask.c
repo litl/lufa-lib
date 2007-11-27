@@ -159,7 +159,7 @@ void USB_HostTask(void)
 			uint8_t DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1];
 			
 			if (USB_Host_SendControlRequest(DataBuffer)
-			    == HOST_SEND_CONTROL_ERROR)
+			    != HOST_SENDCONTROL_Sucessful)
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
@@ -198,7 +198,7 @@ void USB_HostTask(void)
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = 0;
 
-			if (USB_Host_SendControlRequest(NULL) == HOST_SEND_CONTROL_ERROR)
+			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();

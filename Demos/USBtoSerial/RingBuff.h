@@ -11,7 +11,7 @@
 // Configuration:
 
    /* Buffer length - select static size of created ringbuffers: */
-	 #define BUFF_STATICSIZE 64       // Set to the static ringbuffer size for all ringbuffers (place size after define)
+	 #define BUFF_STATICSIZE 128       // Set to the static ringbuffer size for all ringbuffers (place size after define)
 
    /* Volatile mode - uncomment to make buffers volatile, for use in ISRs, etc: */
 	 #define BUFF_VOLATILE            // Uncomment to cause all ring buffers to become volatile (and atomic if multi-byte) in access
@@ -22,8 +22,8 @@
      // #define BUFF_NODROPCHECK      // Uncomment to ignore full ring buffer checks - checking left to user!
 
    /* Underflow behaviour - select behaviour when Buffer_GetElement is called with an empty ringbuffer: */
-      #define BUFF_EMPTYRETURNSZERO   // Uncomment to return 0 when an empty ringbuffer is read
-     //#define BUFF_NOEMPTYCHECK      // Uncomment to disable checking of empty ringbuffers - checking left to user!
+     //#define BUFF_EMPTYRETURNSZERO   // Uncomment to return 0 when an empty ringbuffer is read
+     #define BUFF_NOEMPTYCHECK      // Uncomment to disable checking of empty ringbuffers - checking left to user!
 	
    /* Buffer storage type - set the datatype for the stored data */
      #define BUFF_DATATYPE uint8_t    // Change to the data type that is going to be stored into the buffer

@@ -84,11 +84,11 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 	Endpoint_ConfigureEndpoint(CDC_TX_EPNUM, ENDPOINT_TYPE_BULK,
 		                       ENDPOINT_DIR_IN, CDC_TXRX_EPSIZE,
-	                           ENDPOINT_BANK_SINGLE);
+	                           ENDPOINT_BANK_DOUBLE);
 
 	Endpoint_ConfigureEndpoint(CDC_RX_EPNUM, ENDPOINT_TYPE_BULK,
 		                       ENDPOINT_DIR_OUT, CDC_TXRX_EPSIZE,
-	                           ENDPOINT_BANK_SINGLE);
+	                           ENDPOINT_BANK_DOUBLE);
 
 	/* Double green to indicate USB connected and ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);

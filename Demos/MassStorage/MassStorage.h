@@ -26,5 +26,6 @@
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_CreateEndpoints);
+		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 #endif

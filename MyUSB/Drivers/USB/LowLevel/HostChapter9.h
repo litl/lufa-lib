@@ -20,10 +20,6 @@
 		#include "StdRequestType.h"
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			#define HOST_SEND_CONTROL_OK      false
-			#define HOST_SEND_CONTROL_ERROR   true
-	
 		/* Type Defines: */
 			typedef struct
 			{
@@ -44,7 +40,17 @@
 				uint16_t Index;
 				uint16_t Length;
 			} USB_Host_Request_Header_t;
-		
+
+		/* Enums: */
+			enum USB_Host_SendControlErrorCodes
+			{
+				HOST_SENDCONTROL_Sucessful        = 0,
+				HOST_SENDCONTROL_DeviceDisconnect = 1,
+				HOST_SENDCONTROL_PipeError        = 2,
+				HOST_SENDCONTROL_SetupStalled     = 3,
+				HOST_SENDCONTROL_SoftwareTimeOut  = 4,				
+			};
+			
 		/* Global Variables: */
 			extern USB_Host_Request_Header_t USB_HostRequest;
 			

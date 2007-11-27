@@ -104,7 +104,7 @@ TASK(USB_Keyboard_Host)
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = USB_ControlPipeSize;
 
-			if (USB_Host_SendControlRequest(NULL) == HOST_SEND_CONTROL_ERROR)
+			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
 				while (USB_IsConnected); // Wait for device detatch
@@ -126,7 +126,7 @@ TASK(USB_Keyboard_Host)
 			USB_HostRequest.Length         = sizeof(DataBuffer);
 
 			if (USB_Host_SendControlRequest(DataBuffer)
-			    == HOST_SEND_CONTROL_ERROR)
+			    != HOST_SENDCONTROL_Sucessful)
 			{
 				puts_P(PSTR("Control error."));
 			
