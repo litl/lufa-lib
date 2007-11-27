@@ -18,15 +18,7 @@
 		#include "../HighLevel/Events.h"
 		#include "../../../Common/Common.h"
 		
-	/* Public Interface - May be used in end-application: */
-		/* Inline Functions: */
-			static inline void USB_INT_DisableAllInterrupts(void)
-			{
-				UHIEN  = 0;
-				UDIEN  = 0;
-				OTGIEN = 0;
-			}
-		
+	/* Public Interface - May be used in end-application: */		
 		/* Throwable Events: */
 			RAISES_EVENT(USB_VBUSChange);
 			RAISES_EVENT(USB_VBUSConnect);
@@ -48,6 +40,15 @@
 			#endif
 			
 	/* Private Interface - For use in library only: */
+		/* Inline Functions: */
+			static inline void USB_INT_DisableAllInterrupts(void)
+			{
+				USBCON &= ~((1 << VBUSTE) | (1 << IDTE));
+				UHIEN   = 0;
+				UDIEN   = 0;
+				OTGIEN  = 0;
+			}
+
 		/* Macros: */
 			#define USB_INT_GET_EN_REG(a, b, c, d)           a
 			#define USB_INT_GET_EN_MASK(a, b, c, d)          b

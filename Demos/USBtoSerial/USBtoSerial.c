@@ -144,40 +144,43 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 TASK(CDC_Task)
 {
-	/* Select the Serial Rx Endpoint */
-	Endpoint_SelectEndpoint(CDC_RX_EPNUM);
-	
-	if (Endpoint_Out_IsRecieved())
+	if (USB_IsConnected)
 	{
-		/* Read the recieved data endpoint into the transmission buffer */
-		while (Endpoint_BytesInEndpoint())
-		  Buffer_StoreElement(&Rx_Buffer, USB_Device_Read_Byte());
+		/* Select the Serial Rx Endpoint */
+		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 		
-		/* Clear the endpoint buffer */
-		Endpoint_Out_Clear();
-
-		/* Initiate the transmission of the buffer contents if USART idle */
-		if (UCSR1A & (1 << UDRE1))
+		if (Endpoint_Out_IsRecieved())
 		{
-			UCSR1A &= ~(1 << UDRE1);
-			Serial_TxByte(Buffer_GetElement(&Rx_Buffer));
+			/* Read the recieved data endpoint into the transmission buffer */
+			while (Endpoint_BytesInEndpoint())
+			  Buffer_StoreElement(&Rx_Buffer, USB_Device_Read_Byte());
+			
+			/* Clear the endpoint buffer */
+			Endpoint_Out_Clear();
+
+			/* Initiate the transmission of the buffer contents if USART idle */
+			if (UCSR1A & (1 << UDRE1))
+			{
+				UCSR1A &= ~(1 << UDRE1);
+				Serial_TxByte(Buffer_GetElement(&Rx_Buffer));
+			}
 		}
-	}
 
-	/* Select the Serial Tx Endpoint */
-	Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+		/* Select the Serial Tx Endpoint */
+		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 
-	if (Tx_Buffer.Elements)
-	{
-		/* Wait until Serial Tx Endpoint Ready for Read/Write */
-		while (!(Endpoint_ReadWriteAllowed()));
-		
-		/* Write the transmission buffer contents to the recieved data endpoint */
-		while (Tx_Buffer.Elements)
-		  USB_Device_Write_Byte(Buffer_GetElement(&Tx_Buffer));
-	  
-		/* Send the data */
-		Endpoint_In_Clear();	
+		if (Tx_Buffer.Elements)
+		{
+			/* Wait until Serial Tx Endpoint Ready for Read/Write */
+			while (!(Endpoint_ReadWriteAllowed()));
+			
+			/* Write the transmission buffer contents to the recieved data endpoint */
+			while (Tx_Buffer.Elements)
+			  USB_Device_Write_Byte(Buffer_GetElement(&Tx_Buffer));
+		  
+			/* Send the data */
+			Endpoint_In_Clear();	
+		}
 	}
 }
 

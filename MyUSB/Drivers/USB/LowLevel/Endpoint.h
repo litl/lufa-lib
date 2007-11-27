@@ -58,9 +58,7 @@
 			#define Endpoint_EnableEndpoint()        MACROS{ UECONX |=  (1 << EPEN);                  }MACROE
 			#define Endpoint_DisableEndpoint()       MACROS{ UECONX &= ~(1 << EPEN);                  }MACROE
 			#define Endpoint_IsEnabled()                     ((UECONX &   (1 << EPEN)) ? true : false)
-			#define Endpoint_Reset(epnum)            MACROS{ Endpoint_SelectEndpoint(epnum);          \
-														 Endpoint_EnableEndpoint();                   \
-														 Endpoint_DisableEndpoint();                  }MACROE
+			#define Endpoint_Reset(epnum)            MACROS{ UENUM = epnum; uint8_t temp = UECONX; UECONX = (temp | (1 << EPEN)); UECONX = (temp & ~(1 << EPEN)); }MACROE
 			#define Endpoint_AllocateMemory()        MACROS{ UECFG1X |=  (1 << ALLOC);                }MACROE
 			#define Endpoint_DeallocateMemory()      MACROS{ UECFG1X &= ~(1 << ALLOC);                }MACROE
 			

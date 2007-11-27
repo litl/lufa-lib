@@ -98,9 +98,6 @@ void USB_ShutDown(void)
 	USB_REG_Off();
 	USB_OTGPAD_Off();
 
-	USB_INT_DISABLE(USB_INT_IDTI);
-	USB_INT_DISABLE(USB_INT_VBUS);
-
 	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 	UHWCON &= ~(1 << UIDE);
 	#endif
@@ -112,7 +109,6 @@ void USB_ResetInterface(void)
 	  RAISE_EVENT(USB_Disconnect);
 
 	USB_INT_DisableAllInterrupts();
-	USB_INT_DISABLE(USB_INT_VBUS);
 
 	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 	Endpoint_ClearEndpoints();
@@ -145,7 +141,13 @@ bool USB_SetupInterface(void)
 {	
 	USB_ResetInterface();
 
-	USB_INT_DisableAllInterrupts();
+	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+	if (UHWCON & (1 << UIDE))
+	{
+		USB_INT_CLEAR(USB_INT_IDTI);
+		USB_INT_ENABLE(USB_INT_IDTI);
+	}
+	#endif
 
 	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 	Endpoint_ClearEndpoints();

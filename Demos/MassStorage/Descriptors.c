@@ -65,7 +65,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
 
-		DataInEndpoint:
+	DataInEndpoint:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 
@@ -75,7 +75,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			PollingIntervalMS:      0x00
 		},
 
-		DataOutEndpoint:
+	DataOutEndpoint:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 

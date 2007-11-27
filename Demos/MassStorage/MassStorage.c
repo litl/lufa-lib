@@ -85,5 +85,18 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	
 TASK(USB_MassStorage)
 {
+	if (USB_IsConnected)
+	{
+		/* Select the Data Out Endpoint */
+		Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
+		
+		if (Endpoint_Out_IsRecieved())
+		{	
+			/* Process command block */
 
+			/* Return command status */
+
+			Endpoint_Out_Clear();
+		}
+	}
 }
