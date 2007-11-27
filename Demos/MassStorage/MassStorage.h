@@ -41,17 +41,17 @@
 				uint32_t DataTransferLength;
 				uint8_t  Flags;
 				uint8_t  LUN;
-				uint8_t  CommandLength;			
+				uint8_t  SCSICommandLength;			
 			} Header;
 			
-			uint8_t CommandData[16];
+			uint8_t SCSICommandData[16];
 		} CommandBlockWrapper_t;
 		
 		typedef struct
 		{
 			uint32_t Signature;
 			uint32_t Tag;
-			uint32_t CommandResidue;
+			uint32_t SCSICommandResidue;
 			uint8_t  Status;			
 		} CommandStatusWrapper_t;
 		

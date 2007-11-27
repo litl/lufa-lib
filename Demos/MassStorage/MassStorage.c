@@ -118,6 +118,9 @@ TASK(USB_MassStorage)
 			/* Process sent command block from the host */
 			ProcessCommandBlock();
 
+			/* Load in the CBW tag into the CSW to link them together */
+			CommandStatus.Tag = CommandBlock.Header.Tag;
+
 			/* Return command status block to the host */
 			ReturnCommandStatus();
 		}
@@ -138,7 +141,7 @@ void ProcessCommandBlock(void)
 	/* Verify the command block - abort if invalid */
 	if ((CommandBlock.Header.Signature != CBW_SIGNATURE) ||
 	    (CommandBlock.Header.LUN != 0x00) ||
-		(CommandBlock.Header.CommandLength > 16))
+		(CommandBlock.Header.SCSICommandLength > 16))
 	{
 		/* Bicolour LEDs to green/red - error */
 		Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
@@ -152,7 +155,7 @@ void ProcessCommandBlock(void)
 	}
 
 	/* Read in command block command data */
-	for (uint8_t b = 0; b < CommandBlock.Header.CommandLength; b++)
+	for (uint8_t b = 0; b < CommandBlock.Header.SCSICommandLength; b++)
 	  *(CommandBlockPtr++) = USB_Device_Read_Byte();
 	  
 	/* Clear the endpoint */
@@ -166,12 +169,29 @@ void ReturnCommandStatus(void)
 {
 	uint8_t* CommandStatusPtr = (uint8_t*)&CommandStatus;
 
+	/* Select the Data Out endpoint */
+	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
+
+	/* While data pipe is stalled, process control requests */
+	while (Endpoint_IsStalled())
+	{
+		USB_USBTask();
+		Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
+	}	
+
 	/* Select the Data In endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 
-	/* Load in the CBW tag into the CSW */
-	CommandStatus.Tag = CommandBlock.Header.Tag;
+	/* While data pipe is stalled, process control requests */
+	while (Endpoint_IsStalled())
+	{
+		USB_USBTask();
+		Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
+	}
 	
+	/* Wait until read/write to IN data endpoint allowed */
+	while (!(Endpoint_ReadWriteAllowed()));
+		
 	/* Write the CSW to the endpoint */
 	for (uint8_t i = 0; i < sizeof(CommandStatus); i++)
 	  USB_Device_Write_Byte(*(CommandStatusPtr++));

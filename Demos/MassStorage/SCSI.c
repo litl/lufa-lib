@@ -12,5 +12,10 @@
 
 void DecodeSCSICommand(void)
 {
-
+	switch (CommandBlock.SCSICommandData[0])
+	{
+		
+		default:
+			CommandStatus.Status = Command_Fail;
+	}
 }

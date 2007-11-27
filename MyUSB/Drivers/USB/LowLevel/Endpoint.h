@@ -81,6 +81,10 @@
 			
 			#define Endpoint_ClearSetupRecieved()    MACROS{ UEINTX  &= ~(1 << RXSTPI);               }MACROE
 			#define Endpoint_Stall_Transaction()     MACROS{ UECONX  |=  (1 << STALLRQ);              }MACROE
+			#define Endpoint_ClearStall()            MACROS{ UECONX  &= ~(1 << STALLRQ);              }MACROE
+			#define Endpoint_IsStalled()                   ((UECONX  &   (1 << STALLRQ)) ? true : false)
+
+			#define Endpoint_ResetDataToggle()       MACROS{ UECONX |= (1 << RSTDT);                  }MACROE
 			
 		/* Function Prototypes: */
 			void Endpoint_ClearEndpoints(void);

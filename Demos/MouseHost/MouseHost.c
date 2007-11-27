@@ -181,7 +181,7 @@ TASK(USB_Mouse_Host)
 				  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);						
 
 				if (MouseReport.Button)
-					Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
+				  Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
 					
 				Pipe_In_Clear();
 				Pipe_ResetFIFO();

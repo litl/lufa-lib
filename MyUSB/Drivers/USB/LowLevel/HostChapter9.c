@@ -15,10 +15,10 @@ USB_Host_Request_Header_t USB_HostRequest;
 
 bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 {
+	bool     SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
 	uint8_t* HeaderByte     = (uint8_t*)&USB_HostRequest;
 	uint8_t  DataLen        = USB_HostRequest.Length;
-	bool     SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
 	uint8_t  TimeoutCounter;
 
 	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
@@ -51,7 +51,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			goto End_Of_Control_Send;
 		}
 	}
-	
+
 	Pipe_ClearSetupSent();
 	Pipe_Freeze();
 
@@ -68,7 +68,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			Pipe_Unfreeze();
 		
 			TimeoutCounter = 0;
-			while (!(Pipe_In_IsRecieved()) && !(Pipe_IsSetupStalled()))
+			while (!(Pipe_In_IsRecieved()))
 			{
 				if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 				  goto End_Of_Control_Send;
@@ -79,13 +79,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 					goto End_Of_Control_Send;
 				}
 			}
-			
-			if (Pipe_IsSetupStalled())
-			{
-				Pipe_ClearSetupStalled();
-				break;
-			}
-			
+						
 			if (Pipe_BytesInPipe() == 0)
 			  DataLen = 0;
 			
@@ -105,7 +99,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		Pipe_ResetFIFO();
 		
 		TimeoutCounter = 0;
-		while (!(Pipe_Out_IsReady()) && !(Pipe_IsSetupStalled()))
+		while (!(Pipe_Out_IsReady()))
 		{
 			if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 			  goto End_Of_Control_Send;
@@ -143,7 +137,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			Pipe_SendPipeData();
 			
 			TimeoutCounter = 0;
-			while (!(Pipe_Out_IsReady()) && !(Pipe_IsSetupStalled()))
+			while (!(Pipe_Out_IsReady()))
 			{
 				if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 				  goto End_Of_Control_Send;
@@ -155,12 +149,6 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 				}
 			}
 			
-			if (Pipe_IsSetupStalled())
-			{
-				Pipe_ClearSetupStalled();
-				break;
-			}
-			
 			Pipe_Out_Clear();
 		}
 		
@@ -169,7 +157,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		Pipe_Unfreeze();
 
 		TimeoutCounter = 0;
-		while (!(Pipe_In_IsRecieved()) && !(Pipe_IsSetupStalled()))
+		while (!(Pipe_In_IsRecieved()))
 		{
 			if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 			  goto End_Of_Control_Send;
@@ -188,9 +176,6 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 
 End_Of_Control_Send:
 	Pipe_Freeze();
-
-	if (Pipe_IsSetupStalled())
-	  ReturnStatus = HOST_SENDCONTROL_SetupStalled;
 	
 	if (!(SOFGenEnabled))
 	  USB_HOST_SOFGeneration_Disable();
