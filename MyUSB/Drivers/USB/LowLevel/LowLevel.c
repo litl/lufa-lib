@@ -109,6 +109,7 @@ void USB_ResetInterface(void)
 	  RAISE_EVENT(USB_Disconnect);
 
 	USB_INT_DisableAllInterrupts();
+	USB_INT_ClearAllInterrupts();
 
 	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 	Endpoint_ClearEndpoints();

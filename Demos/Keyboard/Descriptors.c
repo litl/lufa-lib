@@ -140,11 +140,11 @@ USB_Descriptor_String_t ProductString PROGMEM =
 	UnicodeString:          {'M','y','U','S','B',' ','K','e','y','b','o','a','r','d',' ','D','e','m','o'}
 };
 
-USB_Descriptor_String_t VersionString PROGMEM =
+USB_Descriptor_String_t SerialNumberString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(5), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(13), Type: DTYPE_String},
 		
-	UnicodeString:          {'0','.','1','.','0'}
+	UnicodeString:          {'0','.','0','.','0','.','0','.','0','.','0','.','0'}
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
@@ -176,8 +176,8 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 					*Size           = pgm_read_byte(&ProductString.Header.Size);
 					return true;
 				case 0x03:
-					*DescriptorAddr = (void*)&VersionString;
-					*Size           = pgm_read_byte(&VersionString.Header.Size);
+					*DescriptorAddr = (void*)&SerialNumberString;
+					*Size           = pgm_read_byte(&SerialNumberString.Header.Size);
 					return true;
 			}
 			

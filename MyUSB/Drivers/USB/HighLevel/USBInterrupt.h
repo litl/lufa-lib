@@ -49,6 +49,14 @@
 				OTGIEN  = 0;
 			}
 
+			static inline void USB_INT_ClearAllInterrupts(void)
+			{
+				USBINT  = 0;
+				UHINT   = 0;
+				UDINT   = 0;
+				OTGINT  = 0;
+			}
+
 		/* Macros: */
 			#define USB_INT_GET_EN_REG(a, b, c, d)           a
 			#define USB_INT_GET_EN_MASK(a, b, c, d)          b

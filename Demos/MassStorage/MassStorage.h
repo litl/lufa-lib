@@ -15,17 +15,67 @@
 		#include <avr/io.h>
 
 		#include "Descriptors.h"
+		#include "SCSI.h"
 
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
+
+	/* Macros: */
+		#define MASS_STORAGE_RESET      0xFF
 		
+		#define CBW_SIGNATURE           0x43425355UL // USBC
+		#define CSW_SIGNATURE           0x53425355UL // USBS
+		
+		#define DATA_OUT                (0 << 7)
+		#define DATA_IN                 (1 << 7)
+
+	/* Type defines: */
+		typedef struct
+		{
+			struct
+			{
+				uint32_t Signature;
+				uint32_t Tag;
+				uint32_t DataTransferLength;
+				uint8_t  Flags;
+				uint8_t  LUN;
+				uint8_t  CommandLength;			
+			} Header;
+			
+			uint8_t CommandData[16];
+		} CommandBlockWrapper_t;
+		
+		typedef struct
+		{
+			uint32_t Signature;
+			uint32_t Tag;
+			uint32_t CommandResidue;
+			uint8_t  Status;			
+		} CommandStatusWrapper_t;
+		
+	/* Enums: */
+		enum
+		{
+			Command_Pass = 0,
+			Command_Fail = 1,
+			Phase_Error  = 2
+		} CommandStatusCodes;
+		
+	/* Global Variables: */
+		extern CommandBlockWrapper_t  CommandBlock;
+		extern CommandStatusWrapper_t CommandStatus;
+
 	/* Task Definitions: */
 		TASK(USB_MassStorage);
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_CreateEndpoints);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
+
+	/* Function Prototypes: */
+		void ProcessCommandBlock(void);
+		void ReturnCommandStatus(void);
 
 #endif

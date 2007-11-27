@@ -16,6 +16,9 @@
 	On startup the system will automatically enumerate and function as an
 	external mass storage device which may be formatted and used in the
 	same manner as commercial USB Mass Storage devices.
+	
+	Only one Logical Unit (LUN) is currently supported, allowing for one
+	external storage device.
 */
 
 /*
@@ -42,6 +45,10 @@ TASK_LIST
 	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
 	{ TaskID: USB_MassStorage_ID      , TaskName: USB_MassStorage      , TaskStatus: TASK_RUN  },
 };
+
+/* Global Variables */
+CommandBlockWrapper_t  CommandBlock;
+CommandStatusWrapper_t CommandStatus = { Signature: CSW_SIGNATURE };
 
 int main(void)
 {
@@ -79,24 +86,100 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	/* Process UFI specific control requests */
+	USB_Device_Ignore_Word();
 
+	/* Process UFI specific control requests */
+	switch (Request)
+	{
+		case MASS_STORAGE_RESET:
+			Endpoint_ClearSetupRecieved();
+			
+			Endpoint_In_Clear();
+			while (!(Endpoint_In_IsReady()));
+
+			break;
+	}
 }
 	
 TASK(USB_MassStorage)
 {
+	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
 	{
 		/* Select the Data Out Endpoint */
 		Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 		
+		/* Check to see if a command from the host has been issued */
 		if (Endpoint_Out_IsRecieved())
 		{	
-			/* Process command block */
+			/* Bicolour LEDs to green/orange - busy */
+			Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
 
-			/* Return command status */
+			/* Process sent command block from the host */
+			ProcessCommandBlock();
 
-			Endpoint_Out_Clear();
+			/* Return command status block to the host */
+			ReturnCommandStatus();
 		}
 	}
 }
+
+void ProcessCommandBlock(void)
+{
+	uint8_t* CommandBlockPtr = (uint8_t*)&CommandBlock;
+
+	/* Select the Data Out endpoint */
+	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
+
+	/* Read in command block header */
+	for (uint8_t i = 0; i < sizeof(CommandBlock.Header); i++)
+	  *(CommandBlockPtr++) = USB_Device_Read_Byte();
+
+	/* Verify the command block - abort if invalid */
+	if ((CommandBlock.Header.Signature != CBW_SIGNATURE) ||
+	    (CommandBlock.Header.LUN != 0x00) ||
+		(CommandBlock.Header.CommandLength > 16))
+	{
+		/* Bicolour LEDs to green/red - error */
+		Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+
+		/* Stall both data pipes until reset by host */
+		Endpoint_Stall_Transaction();
+		Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
+		Endpoint_Stall_Transaction();
+		
+		return;
+	}
+
+	/* Read in command block command data */
+	for (uint8_t b = 0; b < CommandBlock.Header.CommandLength; b++)
+	  *(CommandBlockPtr++) = USB_Device_Read_Byte();
+	  
+	/* Clear the endpoint */
+	Endpoint_Out_Clear();
+
+	/* Decode the recieved SCSI command */
+	DecodeSCSICommand();
+}
+
+void ReturnCommandStatus(void)
+{
+	uint8_t* CommandStatusPtr = (uint8_t*)&CommandStatus;
+
+	/* Select the Data In endpoint */
+	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
+
+	/* Load in the CBW tag into the CSW */
+	CommandStatus.Tag = CommandBlock.Header.Tag;
+	
+	/* Write the CSW to the endpoint */
+	for (uint8_t i = 0; i < sizeof(CommandStatus); i++)
+	  USB_Device_Write_Byte(*(CommandStatusPtr++));
+	
+	/* Send the CSW */
+	Endpoint_In_Clear();
+
+	/* Bicolour LEDs to green/green - ready */
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+}
+
