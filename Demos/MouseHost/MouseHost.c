@@ -13,7 +13,11 @@
 	application for implementing a USB Mouse host, for USB mice using
 	the standard mouse HID profile.
 	
-	Currently only single-interface mice are supported.
+	Mouse movement is displayed both on the bicolour LEDs, as well as
+	printed out the serial terminal as formatted dY, dY and button
+	status information.
+
+	Currently only single-interface mice are supported.	
 */
 
 #include "MouseHost.h"
@@ -185,6 +189,10 @@ TASK(USB_Mouse_Host)
 
 				if (MouseReport.Button)
 				  Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
+				  
+				printf_P(PSTR("dX:%2d dY:%2d Button:%d\r\n"), MouseReport.X,
+				                                              MouseReport.Y,
+				                                              MouseReport.Button);
 					
 				Pipe_In_Clear();
 				Pipe_ResetFIFO();

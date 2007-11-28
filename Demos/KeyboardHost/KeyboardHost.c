@@ -13,7 +13,7 @@
 	application for implementing a USB Keyboard host, for USB keyboards using
 	the standard Keyboard HID profile.
 	
-	Pressed alpha-numeric. enter or space key is transmitted through the serial
+	Pressed alpha-numeric, enter or space key is transmitted through the serial
 	USART at serial settings 9600, 8, N, 1.
 
 	Currently only single-interface keyboards are supported.
