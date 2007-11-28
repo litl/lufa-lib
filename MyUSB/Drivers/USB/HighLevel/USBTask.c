@@ -181,8 +181,9 @@ static void USB_HostTask(void)
 			                   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 			                   USB_ControlPipeSize, PIPE_BANK_SINGLE);
 
-			if ((Pipe_IsConfigured() == PIPE_CONFIG_FAIL) ||
-			   (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful))
+			USB_Host_WaitMS(100);
+
+			if (Pipe_IsConfigured() == PIPE_CONFIG_FAIL)
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();

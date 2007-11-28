@@ -89,7 +89,8 @@ TASK(USB_Mouse_Host)
 	static uint8_t DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
 				              sizeof(USB_Descriptor_Interface_t)];
 
-	if (!(USB_IsConnected)) // Block on device not connected
+	/* Block task if device not connected */
+	if (!(USB_IsConnected))
 		return;
 
 	switch (USB_HostState)
@@ -103,6 +104,8 @@ TASK(USB_Mouse_Host)
 
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
+				puts_P(PSTR("Control error."));
+
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
 				while (USB_IsConnected); // Wait for device detatch
 				break;

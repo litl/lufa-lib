@@ -22,7 +22,7 @@ Please consider donating a small amount to myself, to support my future Open Sou
 
 This library is currently in its development stages and thus is not complete in several areas. For the latest documentation, check out the project entry on the Four Walled Cubicle site Wiki, at http://wiki.fourwalledcubicle.com.
 
-For code updates, be sure to visit my website, at http://www.fourwalledcubicle. MyUSB developments are frequently discussed on my development blog, at http://blog.fourwalledcubicle.com
+For code updates, be sure to visit my website, at http://www.fourwalledcubicle. MyUSB developments are frequently discussed on my development blog, at http://blog.fourwalledcubicle.com.
 
 
 If you have Programmer's Notepad installed (which ships with the latest WinAVR), you can open up the included .pnproj file to view the entire library and demonstration applications easily.
@@ -38,9 +38,9 @@ A number of library demonstration applications are included, in the Demos/ direc
   HARDWARE:
 --------------------------------------------
 
-Currently the library is designed for the USB1287, however I have plans to port it to the other members of the AT90USB series eventually. I recommend using MyUSB on a USBKEY board, although any board containing a USB1287 will work.
+Currently the library is designed for the AT90USB1287, however I have plans to port it to the other members of the AT90USB series eventually. I recommend using MyUSB on a USBKEY board, although any board containing a USB1287 will work.
 
-If you are using the USBKEY, I recommend purchasing a set of Tom Deutschman's USBKEY header adaptors (http://www.wizbangdesigns.com/10017_PCB.html) and female-female jumper wires (http://www.wizbangdesigns.com/20003.html) to make the board much easier and plesant to work with.
+If you are using the USBKEY, I recommend purchasing a set of Tom Deutschman's USBKEY header adaptors (http://www.wizbangdesigns.com/10017_PCB.html) and female-female jumper wires (http://www.wizbangdesigns.com/20003.html) to make the board much easier and more plesant to work with.
 
 
 --------------------------------------------
