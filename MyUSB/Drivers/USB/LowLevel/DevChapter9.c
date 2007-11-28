@@ -9,6 +9,7 @@
 */
 
 #if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+#define  INCLUDE_FROM_DECCHAPTER9_C
 #include "DevChapter9.h"
 
 uint8_t USB_ConfigurationNumber;
@@ -92,7 +93,7 @@ void USB_Device_ProcessControlPacket(void)
 	}
 }
 
-void USB_Device_SetAddress(void)
+static void USB_Device_SetAddress(void)
 {
 	uint8_t NewAddress = USB_Device_Read_Byte();
 
@@ -108,7 +109,7 @@ void USB_Device_SetAddress(void)
 	return;
 }
 
-void USB_Device_SetConfiguration(void)
+static void USB_Device_SetConfiguration(void)
 {
 	uint8_t ConfigNum = USB_Device_Read_Byte();
 	
@@ -135,7 +136,7 @@ void USB_Device_GetConfiguration(void)
 	Endpoint_Out_Clear();
 }
 
-void USB_Device_GetDescriptor(void)
+static void USB_Device_GetDescriptor(void)
 {
 	uint8_t  DescriptorIndex = USB_Device_Read_Byte();
 	uint8_t  DescriptorType  = USB_Device_Read_Byte();
@@ -199,7 +200,7 @@ void USB_Device_GetDescriptor(void)
    Endpoint_Out_Clear();
 }
 
-void USB_Device_GetStatus(const uint8_t RequestType)
+static void USB_Device_GetStatus(const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t StatusByte = 0;
@@ -246,7 +247,7 @@ void USB_Device_GetStatus(const uint8_t RequestType)
 	Endpoint_ClearSetupRecieved();
 }
 
-void USB_Device_SetFeature(const uint8_t RequestType)
+static void USB_Device_SetFeature(const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t Feature;
@@ -277,7 +278,7 @@ void USB_Device_SetFeature(const uint8_t RequestType)
 	}
 }
 
-void USB_Device_ClearFeature(const uint8_t RequestType)
+static void USB_Device_ClearFeature(const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t Feature;

@@ -75,11 +75,11 @@ int main(void)
 
 	/* Hardware initialization */
 	SerialStream_Init(9600);
+	ADC_Init();
 	Temperature_Init();
 	Joystick_Init();
 	Bicolour_Init();
 	HWB_Init();
-	ADC_Init();
 	
 	/* Millisecond timer initialization */
 	OCR0A  = 0x7D;

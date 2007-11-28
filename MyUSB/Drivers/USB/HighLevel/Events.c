@@ -8,7 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
-#define INCLUDE_FROM_EVENTS_H
+#define INCLUDE_FROM_EVENTS_C
 #include "Events.h"
 
 static void __stub (void)

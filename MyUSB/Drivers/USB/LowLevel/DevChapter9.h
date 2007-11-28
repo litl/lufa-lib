@@ -28,14 +28,18 @@
 			RAISES_EVENT(USB_UnhandledControlPacket);
 			RAISES_EVENT(USB_CreateEndpoints);
 	
+	/* Private Interface - For use in library only: */
 		/* Function Prototypes: */
 			void USB_Device_ProcessControlPacket(void);
-			void USB_Device_SetAddress(void);
-			void USB_Device_SetConfiguration(void);
-			void USB_Device_GetConfiguration(void);
-			void USB_Device_GetDescriptor(void);
-			void USB_Device_GetStatus(const uint8_t RequestType);
-			void USB_Device_SetFeature(const uint8_t RequestType);
-			void USB_Device_ClearFeature(const uint8_t RequestType);
+			
+			#if defined(INCLUDE_FROM_DECCHAPTER9_C)
+				static void USB_Device_SetAddress(void);
+				static void USB_Device_SetConfiguration(void);
+				static void USB_Device_GetConfiguration(void);
+				static void USB_Device_GetDescriptor(void);
+				static void USB_Device_GetStatus(const uint8_t RequestType);
+				static void USB_Device_SetFeature(const uint8_t RequestType);
+				static void USB_Device_ClearFeature(const uint8_t RequestType);
+			#endif
 		
 #endif

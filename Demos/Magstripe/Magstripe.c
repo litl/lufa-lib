@@ -13,6 +13,14 @@
 	Omron V3B-4K) by Denver Gingerich. See http://ossguy.com/ss_usb/ for the
 	demonstration project website, including construction and support details.
 
+	To use, connect your magentic card reader device to the AT90USB1289 IC as
+	follows:
+	
+	 ---- Signal ---+--- AVR Port ----
+	    DATA        |   PORTC, Pin 0
+	    CLOCK       |   PORTC, Pin 3
+	    CARD LOAD   |   PORTC, Pin 4
+
 	This example is based on the MyUSB Keyboard demonstration application,
 	written by Denver Gingerich.
 */
@@ -87,43 +95,46 @@ TASK(USB_Keyboard_Report)
 {
 	uint8_t        MagStatus_LCL       = Magstripe_GetStatus();	
 	uint16_t       StripeDataLen       = 0;
-	static uint8_t StripeData[DATA_LEN];
+	static uint8_t StripeData[DATA_LENGTH];
 
+	/* Abort task if no card inserted */
 	if (!(MagStatus_LCL & MAG_CLS))
 	  return;
 
+	/* While card is inserted, read the data */
 	while (MagStatus_LCL & MAG_CLS)
 	{
+		/* Read card reader pins until clock pin becomes high or the card is removed */
 		do
 		{
 			MagStatus_LCL = Magstripe_GetStatus();
 		} while ((MagStatus_LCL & MAG_CLOCK) && (MagStatus_LCL & MAG_CLS));
 
+		/* Abort if card has been removed */
 		if (!(MagStatus_LCL & MAG_CLS))
 		  break;
 
-		if (!(MagStatus_LCL & MAG_DATA))
-		  StripeData[StripeDataLen] = 39; // 0 Key
-		else
-		  StripeData[StripeDataLen] = 30; // 1 Key
+		/* Data bit sucessfully retrieved, load the keyboard key code into the buffer */
+		StripeData[StripeDataLen++] = ((!(MagStatus_LCL & MAG_DATA)) ? 39 : 30);
+		
+		/* If buffer full, go back to the beginning */
+		StripeDataLen %= DATA_LENGTH;
 
-		StripeDataLen++;
-
-		if (StripeDataLen == DATA_LEN)
-		  StripeDataLen = 0;		
-
+		/* Read card reader pins until clock pin becomes low or the card is removed */
 		do
 		{
 			MagStatus_LCL = Magstripe_GetStatus();
 		} while (!(MagStatus_LCL & MAG_CLOCK) && (MagStatus_LCL & MAG_CLS));
 	}
 
+	/* Send the decoded card data from the buffer to the host as a stream of keyboard keycodes */
 	for (uint8_t i = 0; i < StripeDataLen; i++)
 	{
 		Keyboard_SendKeyReport(StripeData[i]);
 		Keyboard_SendKeyReport(0);
 	}
 
+	/* Terminate data with a newline (return) keycode */
 	Keyboard_SendKeyReport(40); // Enter Key
 	Keyboard_SendKeyReport(0);
 }

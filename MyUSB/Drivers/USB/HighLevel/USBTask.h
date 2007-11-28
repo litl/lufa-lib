@@ -43,8 +43,15 @@
 
 	/* Private Interface - For use in library only: */
 		/* Function Prototypes: */
-			void USB_DeviceTask(void);
-			void USB_HostTask(void);
+			#if defined(INCLUDE_FROM_USBTASK_C)
+				#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+					static void USB_HostTask(void);
+				#endif
+				
+				#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+					static void USB_DeviceTask(void);
+				#endif
+			#endif
 
 			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 			void USB_InitTaskPointer(void);

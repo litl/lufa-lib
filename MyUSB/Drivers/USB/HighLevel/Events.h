@@ -83,7 +83,7 @@
 			#endif
 
 		/* Function Prototypes: */
-			#ifdef INCLUDE_FROM_EVENTS_H
+			#if defined(INCLUDE_FROM_EVENTS_C)
 				static void __stub (void);
 
 				ALIAS_STUB(USB_VBUSChange);

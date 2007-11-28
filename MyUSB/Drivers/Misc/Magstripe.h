@@ -20,9 +20,9 @@
 	NOTE: The user of this include file MUST define the following macros
 	prior to including the file:
 
-	MAG_DATA_PIN    pin connected to data wire (ie. PORTC0)
-	MAG_CLOCK_PIN   pin connected to clock wire (ie. PORTC3)
-	MAG_CLS_PIN     pin connected to card loaded wire (ie. PORTC4)
+	MAG_DATA_PIN    Pin connected to data wire (ie. PORTC0)
+	MAG_CLOCK_PIN   Pin connected to clock wire (ie. PORTC3)
+	MAG_CLS_PIN     Pin connected to card loaded wire (ie. PORTC4)
 	MAG_PIN         PIN macro for the reader's port (ie. PINC)
 	MAG_DDR         DDR macro for the reader's port (ie. DDRC)
 	MAG_PORT        PORT macro for the reader's port (ie. PORTC)

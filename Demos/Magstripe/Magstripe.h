@@ -28,7 +28,7 @@
 		#define MAG_DDR		    DDRC
 		#define MAG_PORT	    PORTC
 
-		#define DATA_LEN        1024
+		#define DATA_LENGTH     1024
 
 	/* Includes: */
 		#include <avr/io.h>

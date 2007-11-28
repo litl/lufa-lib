@@ -8,6 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
+#define INCLUDE_FROM_USBTASK_C
 #include "USBTask.h"
 
 volatile bool      USB_IsConnected;
@@ -56,7 +57,7 @@ void USB_InitTaskPointer(void)
 #endif
 
 #if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
-void USB_DeviceTask(void)
+static void USB_DeviceTask(void)
 {
 	if (USB_IsConnected)
 	{
@@ -69,7 +70,7 @@ void USB_DeviceTask(void)
 #endif
 
 #if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
-void USB_HostTask(void)
+static void USB_HostTask(void)
 {
 	switch (USB_HostState)
 	{
