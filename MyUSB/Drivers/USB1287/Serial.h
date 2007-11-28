@@ -16,7 +16,7 @@
 		#include <avr/pgmspace.h>
 		
 		#include "../../Common/FunctionAttributes.h"
-		#include "TerminalCodes.h"
+		#include "../Misc/TerminalCodes.h"
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

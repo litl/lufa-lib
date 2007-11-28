@@ -62,7 +62,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	ProductStrIndex:  		0x02,
 	SerialNumStrIndex:		0x03,
 		
-	NumberOfConfigurations: CONFIGURATIONS
+	NumberOfConfigurations: 1
 };
 	
 USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
@@ -77,7 +77,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			ConfigurationNumber:    1,
 			ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
 				
-			ConfigAttributes:       CONFIG_ATTRIBUTES,
+			ConfigAttributes:       (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
 			
 			MaxPowerConsumption:    USB_CONFIG_POWER_MA(100)
 		},

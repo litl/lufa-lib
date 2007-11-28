@@ -32,9 +32,6 @@
 			#define USB_CONFIG_ATTR_SELFPOWERED       0b11000000
 			#define USB_CONFIG_ATTR_REMOTEWAKEUP      0b10100000
 
-			#define CONFIGURATIONS                    1
-			#define CONFIG_ATTRIBUTES                 (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED)
-
 		/* Events: */
 			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 				RAISES_EVENT(USB_DeviceError);

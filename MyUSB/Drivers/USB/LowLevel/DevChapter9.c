@@ -111,9 +111,14 @@ static void USB_Device_SetAddress(void)
 
 static void USB_Device_SetConfiguration(void)
 {
-	uint8_t ConfigNum = USB_Device_Read_Byte();
+	uint8_t                  ConfigNum = USB_Device_Read_Byte();
+	USB_Descriptor_Device_t* DevDescriptorPtr;
+	uint16_t                 DevDescriptorSize;
+
+	if (USB_GetDescriptor(DTYPE_Device, 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false)
+	  return;
 	
-	if (ConfigNum > CONFIGURATIONS)
+	if (ConfigNum > pgm_read_byte(&DevDescriptorPtr->NumberOfConfigurations))
 	  return;
 	
 	USB_ConfigurationNumber = ConfigNum;
@@ -205,16 +210,25 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 	uint8_t EndpointIndex;
 	uint8_t StatusByte = 0;
 	
+	USB_Descriptor_Configuration_Header_t* ConfigDescriptorPtr;
+	uint16_t                               ConfigDescriptorSize;
+	uint8_t                                ConfigAttributes;
+
 	USB_Device_Ignore_Word(); // Ignore unused Value word
 	EndpointIndex = (USB_Device_Read_Byte() & ENDPOINT_EPNUM_MASK);
 	
 	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
 		case REQREC_DEVICE:
-			if (CONFIG_ATTRIBUTES & USB_CONFIG_ATTR_SELFPOWERED)
+			if (USB_GetDescriptor(DTYPE_Configuration, USB_ConfigurationNumber, (void*)&ConfigDescriptorPtr, &ConfigDescriptorSize) == false)
+			  return;
+			
+			ConfigAttributes = pgm_read_byte(&ConfigDescriptorPtr->ConfigAttributes);
+
+			if (ConfigAttributes & USB_CONFIG_ATTR_SELFPOWERED)
 			  StatusByte  = FEATURE_SELFPOWERED;
 			
-			if (CONFIG_ATTRIBUTES & USB_CONFIG_ATTR_REMOTEWAKEUP)
+			if (ConfigAttributes & USB_CONFIG_ATTR_REMOTEWAKEUP)
 			  StatusByte |= FEATURE_REMOTE_WAKEUP;
 			
 			break;

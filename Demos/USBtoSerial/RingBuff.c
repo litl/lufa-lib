@@ -33,7 +33,9 @@ void Buffer_StoreElement(RingBuff_t* Buffer, RingBuff_Data_t Data)
 			  Buffer->OutPtr = (RingBuff_Data_t*)&Buffer->Buffer;
 		}
 		else
-		  Buffer->Elements++;
+		{
+			Buffer->Elements++;
+		}
 	#elif defined(BUFF_DROPNEW)
 		if (Buffer->Elements == BUFF_LENGTH)
 		  return;
@@ -53,7 +55,7 @@ void Buffer_StoreElement(RingBuff_t* Buffer, RingBuff_Data_t Data)
 
 RingBuff_Data_t Buffer_GetElement(RingBuff_t* Buffer)
 {
-	volatile RingBuff_Data_t BuffData;
+	RingBuff_Data_t BuffData;
 	
 	BUFF_ATOMIC_BLOCK
 	{
@@ -77,9 +79,9 @@ RingBuff_Data_t Buffer_GetElement(RingBuff_t* Buffer)
 }
 
 #if defined(BUFF_USEPEEK)
-RingBuff_Data_t Buffer_PeekElement(RingBuff_t* Buffer)
+RingBuff_Data_t Buffer_PeekElement(const RingBuff_t* Buffer)
 {
-	volatile RingBuff_Data_t BuffData;
+	RingBuff_Data_t BuffData;
 
 	BUFF_ATOMIC_BLOCK
 	{
