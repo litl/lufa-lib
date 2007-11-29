@@ -98,14 +98,14 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
 
-	USB_Device_Ignore_Word();
+	Endpoint_Ignore_Word();
 
 	/* Process CDC specific control requests */
 	switch (Request)
 	{
 		case GET_LINE_CODING:
 			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-			  USB_Device_Write_Byte(*(LineCodingData++));	
+			  Endpoint_Write_Byte(*(LineCodingData++));	
 			
 			Endpoint_ClearSetupRecieved();
 
@@ -121,7 +121,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			while (!(Endpoint_Out_IsRecieved()));
 
 			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-			  *(LineCodingData++) = USB_Device_Read_Byte();
+			  *(LineCodingData++) = Endpoint_Read_Byte();
 
 			Endpoint_Out_Clear();
 
@@ -186,7 +186,7 @@ void SendStringViaCDC(char* FlashString)
 		
 		/* Write the String to the Endpoint */
 		while ((StringByte = pgm_read_byte(FlashString++)) != 0x00)
-		  USB_Device_Write_Byte(StringByte);
+		  Endpoint_Write_Byte(StringByte);
 	  
 		/* Send the data */
 		Endpoint_In_Clear();

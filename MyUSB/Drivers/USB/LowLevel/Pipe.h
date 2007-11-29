@@ -102,6 +102,83 @@
 			#define Pipe_Out_Clear()               MACROS{ UPINTX  &= ~(1 << TXOUTI);                        }MACROE
 			#define Pipe_Out_IsReady()                   ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 		
+		/* Inline Functions: */
+			static inline uint8_t Pipe_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint8_t Pipe_Read_Byte(void)
+			{
+				return UPDATX;
+			}
+
+			static inline void Pipe_Write_Byte(const uint8_t Byte)
+			{
+				UPDATX = Byte;
+			}
+
+			static inline void Pipe_Ignore_Byte(void)
+			{
+				volatile uint8_t Dummy;
+				
+				Dummy = UPDATX;
+			}
+			
+			static inline uint16_t Pipe_Read_Word(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint16_t Pipe_Read_Word(void)
+			{
+				uint16_t Data;
+				
+				Data  = UPDATX;
+				Data |= (((uint16_t)UPDATX) << 8);
+			
+				return Data;
+			}
+
+			static inline void Pipe_Write_Word(const uint16_t Word)
+			{
+				UPDATX = (Word & 0xFF);
+				UPDATX = (Word >> 8);
+			}
+			
+			static inline void Pipe_Ignore_Word(void)
+			{
+				volatile uint8_t Dummy;
+				
+				Dummy = UPDATX;
+				Dummy = UPDATX;
+			}
+
+			static inline uint32_t Pipe_Read_DWord(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint32_t Pipe_Read_DWord(void)
+			{
+				union
+				{
+					uint32_t DWord;
+					uint8_t  Bytes[4];
+				} Data;
+				
+				Data.Bytes[0] = UPDATX;
+				Data.Bytes[1] = UPDATX;
+				Data.Bytes[2] = UPDATX;
+				Data.Bytes[3] = UPDATX;
+			
+				return Data.DWord;
+			}
+
+			static inline void Pipe_Write_DWord(const uint32_t DWord)
+			{
+				Pipe_Write_Word(DWord);
+				Pipe_Write_Word(DWord >> 16);
+			}
+			
+			static inline void Pipe_Ignore_DWord(void)
+			{
+				volatile uint8_t Dummy;
+				
+				Dummy = UPDATX;
+				Dummy = UPDATX;
+				Dummy = UPDATX;
+				Dummy = UPDATX;
+			}
+
 		/* External Variables: */
 			uint8_t USB_ControlPipeSize;
 

@@ -20,8 +20,8 @@ void USB_Device_ProcessControlPacket(void)
 	uint8_t Request;
 	bool    RequestHandled = false;
 	
-	RequestType = USB_Device_Read_Byte();
-	Request     = USB_Device_Read_Byte();
+	RequestType = Endpoint_Read_Byte();
+	Request     = Endpoint_Read_Byte();
 	
 	switch (Request)
 	{
@@ -95,7 +95,7 @@ void USB_Device_ProcessControlPacket(void)
 
 static void USB_Device_SetAddress(void)
 {
-	uint8_t NewAddress = USB_Device_Read_Byte();
+	uint8_t NewAddress = Endpoint_Read_Byte();
 
 	UDADDR = ((UDADDR & (1 << ADDEN)) | (NewAddress & 0b00111111));
 
@@ -111,7 +111,7 @@ static void USB_Device_SetAddress(void)
 
 static void USB_Device_SetConfiguration(void)
 {
-	uint8_t                  ConfigNum = USB_Device_Read_Byte();
+	uint8_t                  ConfigNum = Endpoint_Read_Byte();
 	USB_Descriptor_Device_t* DevDescriptorPtr;
 	uint16_t                 DevDescriptorSize;
 
@@ -133,7 +133,7 @@ void USB_Device_GetConfiguration(void)
 {
 	Endpoint_ClearSetupRecieved();
 	
-	USB_Device_Write_Byte(USB_ConfigurationNumber);
+	Endpoint_Write_Byte(USB_ConfigurationNumber);
 	
 	Endpoint_In_Clear();
 
@@ -143,8 +143,8 @@ void USB_Device_GetConfiguration(void)
 
 static void USB_Device_GetDescriptor(void)
 {
-	uint8_t  DescriptorIndex = USB_Device_Read_Byte();
-	uint8_t  DescriptorType  = USB_Device_Read_Byte();
+	uint8_t  DescriptorIndex = Endpoint_Read_Byte();
+	uint8_t  DescriptorType  = Endpoint_Read_Byte();
 	uint16_t DescriptorLength;
 	
 	void*    DescriptorPointer;
@@ -158,9 +158,9 @@ static void USB_Device_GetDescriptor(void)
 		return;
 	}
 	
-	USB_Device_Ignore_Word(); // Ignore language identifier
+	Endpoint_Ignore_Word(); // Ignore language identifier
 
-	DescriptorLength = USB_Device_Read_Word();
+	DescriptorLength = Endpoint_Read_Word();
 	
 	Endpoint_ClearSetupRecieved();
 	
@@ -182,7 +182,7 @@ static void USB_Device_GetDescriptor(void)
 		
 		while (DescriptorBytesRem && (BytesInPacket++ < ENDPOINT_CONTROLEP_SIZE))
 		{
-			USB_Device_Write_Byte(pgm_read_byte(DescriptorPointer++));
+			Endpoint_Write_Byte(pgm_read_byte(DescriptorPointer++));
 			DescriptorBytesRem--;
 		}
 		
@@ -214,8 +214,8 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 	uint16_t                               ConfigDescriptorSize;
 	uint8_t                                ConfigAttributes;
 
-	USB_Device_Ignore_Word(); // Ignore unused Value word
-	EndpointIndex = (USB_Device_Read_Byte() & ENDPOINT_EPNUM_MASK);
+	Endpoint_Ignore_Word(); // Ignore unused Value word
+	EndpointIndex = (Endpoint_Read_Byte() & ENDPOINT_EPNUM_MASK);
 	
 	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
@@ -250,8 +250,8 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 	
 	Endpoint_ClearSetupRecieved();
 	
-	USB_Device_Write_Byte(StatusByte);
-	USB_Device_Write_Byte(0x00);
+	Endpoint_Write_Byte(StatusByte);
+	Endpoint_Write_Byte(0x00);
 
 	Endpoint_In_Clear();
 	
@@ -266,9 +266,9 @@ static void USB_Device_SetFeature(const uint8_t RequestType)
 	uint8_t EndpointIndex;
 	uint8_t Feature;
 
-	Feature       = USB_Device_Read_Byte();
-	USB_Device_Ignore_Byte();
-	EndpointIndex = (USB_Device_Read_Byte() & ENDPOINT_EPNUM_MASK);
+	Feature       = Endpoint_Read_Byte();
+	Endpoint_Ignore_Byte();
+	EndpointIndex = (Endpoint_Read_Byte() & ENDPOINT_EPNUM_MASK);
 
 	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
@@ -297,9 +297,9 @@ static void USB_Device_ClearFeature(const uint8_t RequestType)
 	uint8_t EndpointIndex;
 	uint8_t Feature;
 
-	Feature       = USB_Device_Read_Byte();
-	USB_Device_Ignore_Byte();
-	EndpointIndex = (USB_Device_Read_Byte() & ENDPOINT_EPNUM_MASK);
+	Feature       = Endpoint_Read_Byte();
+	Endpoint_Ignore_Byte();
+	EndpointIndex = (Endpoint_Read_Byte() & ENDPOINT_EPNUM_MASK);
 
 	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
 	{

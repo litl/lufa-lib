@@ -59,6 +59,7 @@ int main(void)
 	/* Hardware Initialization */
 	Bicolour_Init();
 	Dataflash_Init();
+	SerialStream_Init(9600); // DEBUG
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
@@ -87,13 +88,22 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	USB_Device_Ignore_Word();
+	Endpoint_Ignore_Word();
 
 	/* Process UFI specific control requests */
 	switch (Request)
 	{
 		case MASS_STORAGE_RESET:
 			Endpoint_ClearSetupRecieved();
+			
+			Endpoint_In_Clear();
+			while (!(Endpoint_In_IsReady()));
+
+			break;
+		case GET_NUMBER_OF_LUNS:
+			Endpoint_ClearSetupRecieved();
+			
+			Endpoint_Write_Byte(0x00);
 			
 			Endpoint_In_Clear();
 			while (!(Endpoint_In_IsReady()));
@@ -121,6 +131,9 @@ TASK(USB_MassStorage)
 
 			/* Load in the CBW tag into the CSW to link them together */
 			CommandStatus.Tag = CommandBlock.Header.Tag;
+			
+			/* Load in the Command Data residue into the CSW */
+			CommandStatus.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
 
 			/* Return command status block to the host */
 			ReturnCommandStatus();
@@ -137,7 +150,7 @@ void ProcessCommandBlock(void)
 
 	/* Read in command block header */
 	for (uint8_t i = 0; i < sizeof(CommandBlock.Header); i++)
-	  *(CommandBlockPtr++) = USB_Device_Read_Byte();
+	  *(CommandBlockPtr++) = Endpoint_Read_Byte();
 
 	/* Verify the command block - abort if invalid */
 	if ((CommandBlock.Header.Signature != CBW_SIGNATURE) ||
@@ -157,13 +170,13 @@ void ProcessCommandBlock(void)
 
 	/* Read in command block command data */
 	for (uint8_t b = 0; b < CommandBlock.Header.SCSICommandLength; b++)
-	  *(CommandBlockPtr++) = USB_Device_Read_Byte();
+	  *(CommandBlockPtr++) = Endpoint_Read_Byte();
 	  
 	/* Clear the endpoint */
 	Endpoint_Out_Clear();
 
 	/* Decode the recieved SCSI command */
-	DecodeSCSICommand();
+	SCSI_DecodeSCSICommand();
 }
 
 void ReturnCommandStatus(void)
@@ -195,7 +208,7 @@ void ReturnCommandStatus(void)
 		
 	/* Write the CSW to the endpoint */
 	for (uint8_t i = 0; i < sizeof(CommandStatus); i++)
-	  USB_Device_Write_Byte(*(CommandStatusPtr++));
+	  Endpoint_Write_Byte(*(CommandStatusPtr++));
 	
 	/* Send the CSW */
 	Endpoint_In_Clear();

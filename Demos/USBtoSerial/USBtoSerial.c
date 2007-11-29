@@ -99,7 +99,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	/* Process CDC specific control requests */
 	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
 
-	USB_Device_Ignore_Word();
+	Endpoint_Ignore_Word();
 
 	switch (Request)
 	{
@@ -107,7 +107,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			Endpoint_ClearSetupRecieved();
 
 			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-			  USB_Device_Write_Byte(*(LineCodingData++));	
+			  Endpoint_Write_Byte(*(LineCodingData++));	
 			
 			Endpoint_In_Clear();
 			while (!(Endpoint_In_IsReady()));
@@ -122,7 +122,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			while (!(Endpoint_Out_IsRecieved()));
 
 			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-			  *(LineCodingData++) = USB_Device_Read_Byte();
+			  *(LineCodingData++) = Endpoint_Read_Byte();
 
 			Endpoint_Out_Clear();
 
@@ -153,7 +153,7 @@ TASK(CDC_Task)
 		{
 			/* Read the recieved data endpoint into the transmission buffer */
 			while (Endpoint_BytesInEndpoint())
-			  Buffer_StoreElement(&Rx_Buffer, USB_Device_Read_Byte());
+			  Buffer_StoreElement(&Rx_Buffer, Endpoint_Read_Byte());
 			
 			/* Clear the endpoint buffer */
 			Endpoint_Out_Clear();
@@ -176,7 +176,7 @@ TASK(CDC_Task)
 			
 			/* Write the transmission buffer contents to the recieved data endpoint */
 			while (Tx_Buffer.Elements)
-			  USB_Device_Write_Byte(Buffer_GetElement(&Tx_Buffer));
+			  Endpoint_Write_Byte(Buffer_GetElement(&Tx_Buffer));
 		  
 			/* Send the data */
 			Endpoint_In_Clear();	

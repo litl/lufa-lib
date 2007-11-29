@@ -107,8 +107,8 @@ TASK(USB_Keyboard_Report)
 		if (Endpoint_ReadWriteAllowed())
 		{
 			/* Write Keyboard Report Data */
-			USB_Device_Write_Byte(KeyboardReportData.Modifier);
-			USB_Device_Write_Byte(KeyboardReportData.KeyCode);
+			Endpoint_Write_Byte(KeyboardReportData.Modifier);
+			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_In_Clear();

@@ -171,9 +171,9 @@ TASK(USB_Mouse_Host)
 			{
 				USB_MouseReport_Data_t MouseReport;
 					
-				MouseReport.Button = USB_Host_Read_Byte();
-				MouseReport.X      = USB_Host_Read_Byte();
-				MouseReport.Y      = USB_Host_Read_Byte();
+				MouseReport.Button = Pipe_Read_Byte();
+				MouseReport.X      = Pipe_Read_Byte();
+				MouseReport.Y      = Pipe_Read_Byte();
 					
 				Bicolour_SetLeds(BICOLOUR_NO_LEDS);
 					

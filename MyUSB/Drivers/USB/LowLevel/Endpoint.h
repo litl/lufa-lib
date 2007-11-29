@@ -86,6 +86,83 @@
 
 			#define Endpoint_ResetDataToggle()       MACROS{ UECONX |= (1 << RSTDT);                  }MACROE
 			
+		/* Inline Functions: */
+			static inline uint8_t Endpoint_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint8_t Endpoint_Read_Byte(void)
+			{
+				return UEDATX;
+			}
+
+			static inline void Endpoint_Write_Byte(const uint8_t Byte)
+			{
+				UEDATX = Byte;
+			}
+
+			static inline void Endpoint_Ignore_Byte(void)
+			{
+				volatile uint8_t Dummy;
+				
+				Dummy = UEDATX;
+			}
+			
+			static inline uint16_t Endpoint_Read_Word(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint16_t Endpoint_Read_Word(void)
+			{
+				uint16_t Data;
+				
+				Data  = UEDATX;
+				Data |= (((uint16_t)UEDATX) << 8);
+			
+				return Data;
+			}
+
+			static inline void Endpoint_Write_Word(const uint16_t Word)
+			{
+				UEDATX = (Word & 0xFF);
+				UEDATX = (Word >> 8);
+			}
+			
+			static inline void Endpoint_Ignore_Word(void)
+			{
+				volatile uint8_t Dummy;
+				
+				Dummy = UEDATX;
+				Dummy = UEDATX;
+			}
+
+			static inline uint32_t Endpoint_Read_DWord(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint32_t Endpoint_Read_DWord(void)
+			{
+				union
+				{
+					uint32_t DWord;
+					uint8_t  Bytes[4];
+				} Data;
+				
+				Data.Bytes[0] = UEDATX;
+				Data.Bytes[1] = UEDATX;
+				Data.Bytes[2] = UEDATX;
+				Data.Bytes[3] = UEDATX;
+			
+				return Data.DWord;
+			}
+
+			static inline void Endpoint_Write_DWord(const uint32_t DWord)
+			{
+				Endpoint_Write_Word(DWord);
+				Endpoint_Write_Word(DWord >> 16);
+			}
+			
+			static inline void Endpoint_Ignore_DWord(void)
+			{
+				volatile uint8_t Dummy;
+				
+				Dummy = UEDATX;
+				Dummy = UEDATX;
+				Dummy = UEDATX;
+				Dummy = UEDATX;
+			}
+
 		/* Function Prototypes: */
 			void Endpoint_ClearEndpoints(void);
 

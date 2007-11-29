@@ -19,12 +19,14 @@
 
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
+		#include <MyUSB/Drivers/USB1287/Serial_Stream.h> // DEBUG
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
 		#include <MyUSB/Drivers/USBKEY/Dataflash.h>   // Dataflash chip driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 
 	/* Macros: */
 		#define MASS_STORAGE_RESET      0xFF
+		#define GET_NUMBER_OF_LUNS      0xFE
 
 		#define MAX_SCSI_COMMAND_LENGTH 16
 		

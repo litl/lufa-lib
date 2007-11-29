@@ -105,9 +105,9 @@ TASK(USB_Joystick_Report)
 		if (Endpoint_ReadWriteAllowed())
 		{
 			/* Write Joystick Report Data */
-			USB_Device_Write_Byte(JoystickReportData.X);
-			USB_Device_Write_Byte(JoystickReportData.Y);
-			USB_Device_Write_Byte(JoystickReportData.Button);
+			Endpoint_Write_Byte(JoystickReportData.X);
+			Endpoint_Write_Byte(JoystickReportData.Y);
+			Endpoint_Write_Byte(JoystickReportData.Button);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_In_Clear();

@@ -170,9 +170,9 @@ TASK(USB_Keyboard_Host)
 			{
 				USB_KeyboardReport_Data_t KeyboardReport;
 					
-				KeyboardReport.Modifier = USB_Host_Read_Byte();
-				USB_Host_Ignore_Byte();
-				KeyboardReport.KeyCode  = USB_Host_Read_Byte();
+				KeyboardReport.Modifier = Pipe_Read_Byte();
+				Pipe_Ignore_Byte();
+				KeyboardReport.KeyCode  = Pipe_Read_Byte();
 					
 				Bicolour_SetLed(BICOLOUR_LED1, (KeyboardReport.Modifier) ? BICOLOUR_LED1_RED
 				                                                         : BICOLOUR_LED1_OFF);

@@ -35,7 +35,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 	Pipe_Unfreeze();
 
 	for (uint8_t i = 0; i < sizeof(USB_Host_Request_Header_t); i++)
-	  USB_Host_Write_Byte(*(HeaderByte++));
+	  Pipe_Write_Byte(*(HeaderByte++));
 
 	Pipe_SendPipeData();
 	
@@ -85,7 +85,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			
 			while (Pipe_BytesInPipe() && DataLen)
 			{
-				*(DataBuffer++) = USB_Host_Read_Byte();
+				*(DataBuffer++) = Pipe_Read_Byte();
 				DataLen--;
 			}
 		
@@ -124,12 +124,12 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			if (DataLen <= USB_ControlPipeSize)
 			{
 				while (DataLen--)
-				  USB_Host_Write_Byte(*(DataBuffer++));
+				  Pipe_Write_Byte(*(DataBuffer++));
 			}
 			else
 			{
 				for (uint16_t PipeByte = 0; PipeByte < USB_ControlPipeSize; PipeByte++)
-				  USB_Host_Write_Byte(*(DataBuffer++));
+				  Pipe_Write_Byte(*(DataBuffer++));
 
 				DataLen -= USB_ControlPipeSize;			
 			}

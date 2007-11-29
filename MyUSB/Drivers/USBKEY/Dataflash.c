@@ -24,7 +24,7 @@ void Dataflash_WaitWhileBusy(void)
 {
 	Dataflash_SendByte(DF_CMD_GETSTATUS);
 	
-	while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));	
+	while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
 }
 
 uint8_t Dataflash_SendByte(const uint8_t Byte)

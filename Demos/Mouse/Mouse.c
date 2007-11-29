@@ -104,9 +104,9 @@ TASK(USB_Mouse_Report)
 		if (Endpoint_ReadWriteAllowed())
 		{
 			/* Write Mouse Report Data */
-			USB_Device_Write_Byte(MouseReportData.Button);
-			USB_Device_Write_Byte(MouseReportData.X);
-			USB_Device_Write_Byte(MouseReportData.Y);
+			Endpoint_Write_Byte(MouseReportData.Button);
+			Endpoint_Write_Byte(MouseReportData.X);
+			Endpoint_Write_Byte(MouseReportData.Y);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_In_Clear();
