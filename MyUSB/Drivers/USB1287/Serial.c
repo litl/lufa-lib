@@ -32,9 +32,11 @@ void Serial_TxString_P(const char *FlashStringPtr)
 
 void Serial_TxString(const char *StringPtr)
 {
-	while (*StringPtr != 0x00)
+	uint8_t CurrByte;
+
+	while ((CurrByte = *StringPtr) != 0x00)
 	{
-		Serial_TxByte(*StringPtr);
+		Serial_TxByte(CurrByte);
 		StringPtr++;
 	}
 }

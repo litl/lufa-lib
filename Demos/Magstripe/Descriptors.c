@@ -50,7 +50,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 		
 	USBSpecification:       0x0101,
 	Class:                  0x00,
-	SubClass:               0x00,	
+	SubClass:               0x00,
 	Protocol:               0x00,
 				
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,

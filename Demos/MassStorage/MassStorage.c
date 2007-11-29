@@ -142,7 +142,7 @@ void ProcessCommandBlock(void)
 	/* Verify the command block - abort if invalid */
 	if ((CommandBlock.Header.Signature != CBW_SIGNATURE) ||
 	    (CommandBlock.Header.LUN != 0x00) ||
-		(CommandBlock.Header.SCSICommandLength > 16))
+		(CommandBlock.Header.SCSICommandLength > MAX_SCSI_COMMAND_LENGTH))
 	{
 		/* Bicolour LEDs to green/red - error */
 		Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);

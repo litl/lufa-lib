@@ -25,6 +25,8 @@
 
 	/* Macros: */
 		#define MASS_STORAGE_RESET      0xFF
+
+		#define MAX_SCSI_COMMAND_LENGTH 16
 		
 		#define CBW_SIGNATURE           0x43425355UL // USBC
 		#define CSW_SIGNATURE           0x53425355UL // USBS

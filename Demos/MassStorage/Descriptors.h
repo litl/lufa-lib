@@ -27,6 +27,9 @@
 			USB_Descriptor_Endpoint_t             DataInEndpoint;
 			USB_Descriptor_Endpoint_t             DataOutEndpoint;
 		} USB_Descriptor_Configuration_t;
+		
+	/* External Variables: */
+		extern USB_Descriptor_Configuration_t ConfigurationDescriptor;
 
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,

@@ -47,20 +47,20 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
-	USBSpecification: 		0x0101,
-	Class:            		0x00,
-	SubClass:         		0x00,	
-	Protocol:         		0x00,
+	USBSpecification:       0x0101,
+	Class:                  0x00,
+	SubClass:               0x00,
+	Protocol:               0x00,
 				
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
-	VendorID:         		0x0000,
+	VendorID:               0x0000,
 	ProductID:              USB_PRODUCT_ID('J', 'S'),
-	ReleaseNumber:    		0x0000,
+	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
-	ProductStrIndex:  		0x02,
-	SerialNumStrIndex:		0x03,
+	ProductStrIndex:        0x02,
+	SerialNumStrIndex:      0x03,
 		
 	NumberOfConfigurations: 1
 };
