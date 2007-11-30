@@ -54,7 +54,7 @@ void SCSI_DecodeSCSICommand(void)
 	
 	bool CommandSuccess = false;
 
-	printf_P(PSTR("SC: %d\r\n"), CommandBlock.SCSICommandData[0]); // DEBUG
+	printf_P(PSTR("SC: %X"), CommandBlock.SCSICommandData[0]); // DEBUG
 
 	switch (CommandBlock.SCSICommandData[0])
 	{
@@ -72,7 +72,9 @@ void SCSI_DecodeSCSICommand(void)
 			CommandSuccess = SCSI_Command_Read_Capacity();			
 			break;
 		default:
-			printf_P(PSTR("UC: %d\r\n"), CommandBlock.SCSICommandData[0]); // DEBUG
+			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
+		                   SCSI_ASENSE_INVALID_COMMAND,
+		                   SCSI_ASENSEQ_NO_QUALIFIER);
 	}
 	
 	if (CommandSuccess)
@@ -81,7 +83,7 @@ void SCSI_DecodeSCSICommand(void)
 		
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_NO_SENSE,
 		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
-		               SCSI_ASENSEQ_NO_QUALIFIER);
+		               SCSI_ASENSEQ_NO_QUALIFIER);					   
 	}
 	else
 	{
@@ -116,14 +118,14 @@ bool SCSI_Command_Inquiry(void)
 		Endpoint_Write_Byte(pgm_read_byte(InquiryDataPtr++));
 		BytesTransferred++;
 	}
-			
+
 	while (BytesTransferred < AllocationLength)
 	{
 		if (!(BytesTransferred % ConfigurationDescriptor.DataInEndpoint.EndpointSize))
 		  Endpoint_In_Clear();
 					
-		BytesTransferred++;
 		Endpoint_Write_Byte(0x00);
+		BytesTransferred++;
 	}
 	
 	Endpoint_In_Clear();
@@ -136,6 +138,7 @@ bool SCSI_Command_Request_Sense(void)
 {
 	uint8_t  AllocationLength = CommandBlock.SCSICommandData[4];
 	uint8_t* SenseDataPtr     = (uint8_t*)&SenseData;
+	uint8_t  BytesTransferred = 0;
 	
 	for (uint8_t i = 0; i < sizeof(SenseData); i++)
 	{
@@ -143,11 +146,12 @@ bool SCSI_Command_Request_Sense(void)
 		  break;
 					  
 		Endpoint_Write_Byte(*(SenseDataPtr++));
+		BytesTransferred++;
 	}
 	
 	Endpoint_In_Clear();
 
-	CommandBlock.Header.DataTransferLength -= sizeof(SenseData);
+	CommandBlock.Header.DataTransferLength -= BytesTransferred;
 	return true;
 }
 

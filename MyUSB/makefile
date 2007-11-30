@@ -31,3 +31,5 @@ all:
 clean:
 	rm -f $(MYUSB_USB_FILES:%.c=%.o)
 	rm -f $(MYUSB_DRIVER_FILES:%.c=%.o)
+	
+clean_list:

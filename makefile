@@ -9,7 +9,10 @@
 #
 
 # Makefile to build the MyUSB library and Demos.
-# Call with "make all" to rebuild everything.
+# Call with "make all" to rebuild everything,
+# "make clean" to clean everything, and
+# "make clean_list" to remove all intermediatary
+# files but preserve any binaries.
 
 # It is suggested that for the master build, the --quiet switch
 # is passed to make, to remove all the commands from the output.

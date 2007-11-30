@@ -609,11 +609,13 @@ $(OBJDIR)/%.o : %.S
 	
 
 # Target: clean project.
-clean: begin clean_list end
+clean: begin clean_list clean_binary end
 
-clean_list :
-	@echo $(MSG_CLEANING)
+clean_binary:
 	$(REMOVE) $(TARGET).hex
+
+clean_list:
+	@echo $(MSG_CLEANING)
 	$(REMOVE) $(TARGET).eep
 	$(REMOVE) $(TARGET).cof
 	$(REMOVE) $(TARGET).elf
@@ -638,7 +640,8 @@ $(shell mkdir $(OBJDIR) 2>/dev/null)
 
 
 # Listing of phony targets.
-.PHONY : all checkhooks checklibmode begin \
-finish end sizebefore sizeafter gccversion \
-build elf hex eep lss sym coff extcoff \
-clean clean_list program debug gdb-config
+.PHONY : all checkhooks checklibmode begin  \
+finish end sizebefore sizeafter gccversion  \
+build elf hex eep lss sym coff extcoff      \
+clean clean_list clean_binary program debug \
+gdb-config

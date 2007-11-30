@@ -54,10 +54,10 @@
 		
 		typedef struct
 		{
-			uint32_t Signature;
-			uint32_t Tag;
-			uint32_t SCSICommandResidue;
-			uint8_t  Status;			
+			const uint32_t Signature;
+			      uint32_t Tag;
+			      uint32_t SCSICommandResidue;
+			      uint8_t  Status;			
 		} CommandStatusWrapper_t;
 		
 	/* Enums: */

@@ -17,12 +17,41 @@
 	external mass storage device which may be formatted and used in the
 	same manner as commercial USB Mass Storage devices.
 	
-	Only one Logical Unit (LUN) is currently supported, allowing for one
-	external storage device.
+	Only one Logical Unit (LUN) is currently supported by this example,
+	allowing for one external storage device.
 */
 
 /*
-		---=== UNFINISHED AND NON-OPERATIONAL ===---
+                            _,.-------.,_
+                        ,;~'             '~;, 
+                      ,;                     ;,
+                     ;                         ;
+                    ,'                         ',
+                   ,;                           ;,
+                   ; ;      .           .      ; ;
+                   | ;   ______       ______   ; | 
+                   |  `/~"     ~" . "~     "~\'  |
+                   |  ~  ,-~~~^~, | ,~^~~~-,  ~  |
+                    |   |        }:{        |   | 
+                    |   l       / | \       !   |
+                    .~  (__,.--" .^. "--.,__)  ~. 
+                    |     ---;' / | \ `;---     |  
+                     \__.       \/^\/       .__/  
+                      V| \                 / |V  
+                       | |T~\___!___!___/~T| |  
+                       | |`IIII_I_I_I_IIII'| |  
+                       |  \,III I I I III,/  |  
+                        \   `~~~~~~~~~~'    /
+                          \   .       .   /     -dcau (4/15/95)
+                            \.    ^    ./   
+                              ^~~~^~~~^   
+
+                           **** DANGER *****
+
+                   UNFINISHED AND NON-OPERATIONAL
+
+	This USB device is incomplete, and may cause system instability including
+	blue-screen, driver failure or host freezes if used. For development only!
 */
 
 #include "MassStorage.h"
@@ -95,20 +124,21 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	{
 		case MASS_STORAGE_RESET:
 			Endpoint_ClearSetupRecieved();
-			
 			Endpoint_In_Clear();
-			while (!(Endpoint_In_IsReady()));
+
+			puts_P(PSTR("SRST\r\n")); // DEBUG
 
 			break;
 		case GET_NUMBER_OF_LUNS:
-			Endpoint_ClearSetupRecieved();
-			
-			Endpoint_Write_Byte(0x00);
-			
+			Endpoint_ClearSetupRecieved();			
+			Endpoint_Write_Byte(0x00);			
 			Endpoint_In_Clear();
-			while (!(Endpoint_In_IsReady()));
+
+			puts_P(PSTR("GNOL\r\n")); // DEBUG
 
 			break;
+		default:
+			printf_P(PSTR("\r\nUCP: %d\r\n"), Request); // DEBUG
 	}
 }
 	
@@ -131,9 +161,6 @@ TASK(USB_MassStorage)
 
 			/* Load in the CBW tag into the CSW to link them together */
 			CommandStatus.Tag = CommandBlock.Header.Tag;
-			
-			/* Load in the Command Data residue into the CSW */
-			CommandStatus.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
 
 			/* Return command status block to the host */
 			ReturnCommandStatus();
@@ -175,8 +202,28 @@ void ProcessCommandBlock(void)
 	/* Clear the endpoint */
 	Endpoint_Out_Clear();
 
+	/* Check direction of command, select Data IN endpoint if command is to the device */
+	if (CommandBlock.Header.Flags & (1 << 7))
+	  Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
+
 	/* Decode the recieved SCSI command */
 	SCSI_DecodeSCSICommand();
+
+	/* Load in the Command Data residue into the CSW */
+	CommandStatus.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
+
+	/* Stall data pipe if command failed */
+	if ((CommandStatus.Status == Command_Fail) &&
+	    (CommandStatus.SCSICommandResidue))
+	{
+		// DEBUG:
+		if (Endpoint_GetCurrentEndpoint() == MASS_STORAGE_IN_EPNUM)
+		  puts_P(PSTR(" - SIN"));
+		else
+		  puts_P(PSTR(" - SOUT"));
+	
+		Endpoint_Stall_Transaction();
+	}
 }
 
 void ReturnCommandStatus(void)
@@ -191,7 +238,7 @@ void ReturnCommandStatus(void)
 	{
 		USB_USBTask();
 		Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
-	}	
+	}
 
 	/* Select the Data In endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
@@ -205,7 +252,12 @@ void ReturnCommandStatus(void)
 	
 	/* Wait until read/write to IN data endpoint allowed */
 	while (!(Endpoint_ReadWriteAllowed()));
-		
+	
+	if (CommandStatus.Status == Command_Pass)
+	  puts_P(PSTR("  OK\r\n")); // DEBUG
+	else
+	  puts_P(PSTR("  FAIL\r\n")); // DEBUG
+
 	/* Write the CSW to the endpoint */
 	for (uint8_t i = 0; i < sizeof(CommandStatus); i++)
 	  Endpoint_Write_Byte(*(CommandStatusPtr++));

@@ -57,3 +57,15 @@ clean:
 	make -C CDC clean
 	make -C USBtoSerial clean
 	make -C MassStorage clean
+	
+clean_list:
+	make -C TestApp clean_list
+	make -C Mouse clean_list
+	make -C Keyboard clean_list
+	make -C Magstripe clean_list
+	make -C Joystick clean_list
+	make -C MouseHost clean_list
+	make -C KeyboardHost clean_list
+	make -C CDC clean_list
+	make -C USBtoSerial clean_list
+	make -C MassStorage clean_list
