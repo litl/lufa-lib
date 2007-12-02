@@ -207,8 +207,10 @@ bool SCSI_Command_PreventAllowMediumRemoval(void)
 
 bool SCSI_Command_Write_10(void)
 {
-	uint32_t BlockAddress = *(uint32_t*)&CommandBlock.SCSICommandData[2];
-	uint16_t TotalBlocks  = *(uint32_t*)&CommandBlock.SCSICommandData[7];
+	uint32_t BlockAddress   = *(uint32_t*)&CommandBlock.SCSICommandData[2];
+	uint16_t TotalBlocks    = *(uint16_t*)&CommandBlock.SCSICommandData[7];
+	uint16_t BlocksRem      = TotalBlocks;
+	uint16_t AddressInBlock = 0;
 	
 	if (BlockAddress >= (DATAFLASH_PAGE_SIZE * 2))
 	{
@@ -216,22 +218,67 @@ bool SCSI_Command_Write_10(void)
 		return false;
 	}
 
-	if (BlockAddress < DATAFLASH_PAGE_SIZE)
-	  Dataflash_SelectChip(DATAFLASH_CHIP1);
-	else
-	  Dataflash_SelectChip(DATAFLASH_CHIP2);
+	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 
-	// TODO - write to dataflash
+	Dataflash_SelectChipFromPage(BlockAddress);
+	
+	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
+	Dataflash_SendByte(0);
+	Dataflash_SendByte(0);
+	Dataflash_SendByte(0);
+
+	while (BlocksRem)
+	{
+		if (AddressInBlock == DATAFLASH_PAGE_SIZE)
+		{
+			Dataflash_ToggleSelectedChipCS();
+			
+			Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
+			Dataflash_SendByte(BlockAddress >> 8);
+			Dataflash_SendByte((BlockAddress & 0xFF) << 5);
+			Dataflash_SendByte(0);
+
+			Dataflash_ToggleSelectedChipCS();
+			Dataflash_SendByte(DF_CMD_GETSTATUS);
+			
+			while (!(Dataflash_SendByte(0) & DF_STATUS_READY));
+
+			Dataflash_SelectChip(DATAFLASH_NO_CHIP);			
+			
+			AddressInBlock = 0;
+			BlocksRem--;
+			BlockAddress++;
+			
+			Dataflash_SelectChipFromPage(BlockAddress);
+
+			Dataflash_SendByte(DF_CMD_BUFF1WRITE);
+			Dataflash_SendByte(0);
+			Dataflash_SendByte(0);
+			Dataflash_SendByte(0);
+		}
+
+		Dataflash_SendByte(Endpoint_Read_Byte());
+
+		AddressInBlock++;
+	}
 
 	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+
+	Endpoint_Out_Clear();
+
+	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
+	
+	CommandBlock.Header.DataTransferLength -= (DATAFLASH_PAGE_SIZE * TotalBlocks);
 
 	return true;
 }
 
 bool SCSI_Command_Read_10(void)
 {
-	uint32_t BlockAddress = *(uint32_t*)&CommandBlock.SCSICommandData[2];
-	uint16_t TotalBlocks  = *(uint32_t*)&CommandBlock.SCSICommandData[7];
+	uint32_t BlockAddress   = *(uint32_t*)&CommandBlock.SCSICommandData[2];
+	uint16_t TotalBlocks    = *(uint16_t*)&CommandBlock.SCSICommandData[7];
+	uint16_t BlocksRem      = TotalBlocks;
+	uint16_t AddressInBlock = 0;
 
 	if (BlockAddress >= (DATAFLASH_PAGE_SIZE * 2))
 	{
@@ -239,14 +286,47 @@ bool SCSI_Command_Read_10(void)
 		return false;
 	}
 
-	if (BlockAddress < DATAFLASH_PAGE_SIZE)
-	  Dataflash_SelectChip(DATAFLASH_CHIP1);
-	else
-	  Dataflash_SelectChip(DATAFLASH_CHIP2);
+	Dataflash_SelectChipFromPage(BlockAddress);
 
-	// TODO - read from dataflash
+	Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
+	Dataflash_SendByte(BlockAddress >> 8);
+	Dataflash_SendByte((BlockAddress & 0xFF) << 5);
+	Dataflash_SendByte(0);
 
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	Dataflash_SendByte(0);
+	Dataflash_SendByte(0);
+	Dataflash_SendByte(0);
+	Dataflash_SendByte(0);
+
+	while (BlocksRem)
+	{
+		if (AddressInBlock == DATAFLASH_PAGE_SIZE)
+		{
+			Dataflash_SelectChip(DATAFLASH_NO_CHIP);			
+			Dataflash_SelectChipFromPage(BlockAddress);
+
+			Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
+			Dataflash_SendByte(BlockAddress >> 8);
+			Dataflash_SendByte((BlockAddress & 0xFF) << 5);
+			Dataflash_SendByte(0);
+
+			Dataflash_SendByte(0);
+			Dataflash_SendByte(0);
+			Dataflash_SendByte(0);
+			Dataflash_SendByte(0);			
+
+			AddressInBlock = 0;
+			BlocksRem--;
+			BlockAddress++;
+		}
+		
+		Endpoint_Write_Byte(Dataflash_SendByte(0));
+		AddressInBlock++;
+	}
+	
+	CommandBlock.Header.DataTransferLength -= (DATAFLASH_PAGE_SIZE * TotalBlocks);
+
+	Endpoint_In_Clear();
 
 	return true;
 }

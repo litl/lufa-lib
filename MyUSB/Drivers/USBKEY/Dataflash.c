@@ -33,3 +33,30 @@ uint8_t Dataflash_SendByte(const uint8_t Byte)
 	while (!(SPSR & (1 << SPIF)));
 	return SPDR;
 }
+
+bool Dataflash_SelectChipFromPage(uint16_t PageAddress)
+{
+	if (PageAddress < DATAFLASH_PAGE_SIZE)
+	{
+		Dataflash_SelectChip(DATAFLASH_CHIP1);
+		return true;
+	}
+	else if (PageAddress < (DATAFLASH_PAGE_SIZE * 2))
+	{
+		Dataflash_SelectChip(DATAFLASH_CHIP2);
+		return true;
+	}
+	else
+	{
+		Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+		return false;
+	}
+}
+
+void Dataflash_ToggleSelectedChipCS(void)
+{
+	uint8_t SelectedChipMask = Dataflash_GetSelectedChip();
+	
+	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	Dataflash_SelectChip(SelectedChipMask);
+}

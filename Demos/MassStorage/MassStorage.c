@@ -273,6 +273,6 @@ void ReturnCommandStatus(void)
 	Endpoint_In_Clear();
 
 	/* Bicolour LED2 to green - ready */
-	Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);
+	Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
 }
 

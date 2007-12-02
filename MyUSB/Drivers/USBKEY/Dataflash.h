@@ -13,6 +13,7 @@
 
 	/* Includes: */
 		#include <avr/io.h>
+		#include <stdbool.h>
 		
 		#include "../../Common/Common.h"
 		#include "../Misc/DataflashCommandBytes.h"
@@ -34,6 +35,8 @@
 			void    Dataflash_Init(void);
 			void    Dataflash_WaitWhileBusy(void);
 			uint8_t Dataflash_SendByte(const uint8_t Byte);
+			bool    Dataflash_SelectChipFromPage(uint16_t PageAddress);
+			void    Dataflash_ToggleSelectedChipCS(void);
 			
 	/* Private Interface - For use in library only: */
 		/* Macros */
