@@ -68,9 +68,21 @@ void SCSI_DecodeSCSICommand(void)
 			CommandSuccess = true;
 			CommandBlock.Header.DataTransferLength = 0;
 			break;
-		case SCSI_CMD_READ_CAPACITY:
-			CommandSuccess = SCSI_Command_Read_Capacity();			
+		case SCSI_CMD_READ_CAPACITY_10:
+			CommandSuccess = SCSI_Command_Read_Capacity_10();			
 			break;
+		case SCSI_CMD_SEND_DIAGNOSTIC:
+			CommandSuccess = SCSI_Command_Send_Diagnostic();
+			break;
+		case SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL:
+			CommandSuccess = SCSI_Command_PreventAllowMediumRemoval();
+			break;
+		case SCSI_CMD_WRITE_10:
+			CommandSuccess = SCSI_Command_Write_10();
+			break;
+		case SCSI_CMD_READ_10:
+			CommandSuccess = SCSI_Command_Read_10();
+			break;	
 		default:
 			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
 		                   SCSI_ASENSE_INVALID_COMMAND,
@@ -81,7 +93,7 @@ void SCSI_DecodeSCSICommand(void)
 	{
 		CommandStatus.Status = Command_Pass;
 		
-		SCSI_SET_SENSE(SCSI_SENSE_KEY_NO_SENSE,
+		SCSI_SET_SENSE(SCSI_SENSE_KEY_GOOD,
 		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
 		               SCSI_ASENSEQ_NO_QUALIFIER);					   
 	}
@@ -155,16 +167,86 @@ bool SCSI_Command_Request_Sense(void)
 	return true;
 }
 
-bool SCSI_Command_Read_Capacity(void)
+bool SCSI_Command_Read_Capacity_10(void)
 {
-	uint32_t Blocks    = 0x000000FF; // TEMP
-	uint32_t BlockSize = 512;
+	uint32_t BlockAddress = *(uint32_t*)&CommandBlock.SCSICommandData[2];
 
-	Endpoint_Write_DWord(Blocks);
-	Endpoint_Write_DWord(BlockSize);
+	Endpoint_Write_DWord(BlockAddress);
+	Endpoint_Write_DWord(DATAFLASH_PAGE_SIZE);
 
 	Endpoint_In_Clear();
 
 	CommandBlock.Header.DataTransferLength -= 8;
+	return true;
+}
+
+bool SCSI_Command_Send_Diagnostic(void)
+{
+	if (!(CommandBlock.SCSICommandData[1] & (1 << 2))) // Only self-test supported
+	{
+		SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
+		               SCSI_ASENSE_INVALID_FIELD_IN_CDB,
+		               SCSI_ASENSEQ_NO_QUALIFIER);
+
+		return false;
+	}
+
+	return true;
+}
+
+bool SCSI_Command_PreventAllowMediumRemoval(void)
+{
+	if (CommandBlock.SCSICommandData[4] & (1 << 0))
+	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED2_RED);
+	else
+	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED2_GREEN);
+	
+	CommandBlock.Header.DataTransferLength = 0;
+	return true;
+}
+
+bool SCSI_Command_Write_10(void)
+{
+	uint32_t BlockAddress = *(uint32_t*)&CommandBlock.SCSICommandData[2];
+	uint16_t TotalBlocks  = *(uint32_t*)&CommandBlock.SCSICommandData[7];
+	
+	if (BlockAddress >= (DATAFLASH_PAGE_SIZE * 2))
+	{
+		// TODO - set sense data
+		return false;
+	}
+
+	if (BlockAddress < DATAFLASH_PAGE_SIZE)
+	  Dataflash_SelectChip(DATAFLASH_CHIP1);
+	else
+	  Dataflash_SelectChip(DATAFLASH_CHIP2);
+
+	// TODO - write to dataflash
+
+	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+
+	return true;
+}
+
+bool SCSI_Command_Read_10(void)
+{
+	uint32_t BlockAddress = *(uint32_t*)&CommandBlock.SCSICommandData[2];
+	uint16_t TotalBlocks  = *(uint32_t*)&CommandBlock.SCSICommandData[7];
+
+	if (BlockAddress >= (DATAFLASH_PAGE_SIZE * 2))
+	{
+		// TODO - set sense data
+		return false;
+	}
+
+	if (BlockAddress < DATAFLASH_PAGE_SIZE)
+	  Dataflash_SelectChip(DATAFLASH_CHIP1);
+	else
+	  Dataflash_SelectChip(DATAFLASH_CHIP2);
+
+	// TODO - read from dataflash
+
+	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+
 	return true;
 }

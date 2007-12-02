@@ -15,6 +15,9 @@
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 
+		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
+		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
+
 		#include "MassStorage.h"
 		#include "Descriptors.h"
 	
@@ -26,9 +29,13 @@
 		#define SCSI_CMD_INQUIRY                           0x12
 		#define SCSI_CMD_REQUEST_SENSE                     0x03
 		#define SCSI_CMD_TEST_UNIT_READY                   0x00
-		#define SCSI_CMD_READ_CAPACITY                     0x25
+		#define SCSI_CMD_READ_CAPACITY_10                  0x25
+		#define SCSI_CMD_SEND_DIAGNOSTIC                   0x1D
+		#define SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL      0x1E
+		#define SCSI_CMD_WRITE_10                          0x2A
+		#define SCSI_CMD_READ_10                           0x28
 
-		#define SCSI_SENSE_KEY_NO_SENSE                    0x00
+		#define SCSI_SENSE_KEY_GOOD                        0x00
 		#define SCSI_SENSE_KEY_RECOVERED_ERROR             0x01
 		#define SCSI_SENSE_KEY_NOT_READY                   0x02
 		#define SCSI_SENSE_KEY_MEDIUM_ERROR                0x03
@@ -120,6 +127,10 @@
 		void SCSI_DecodeSCSICommand(void);
 		bool SCSI_Command_Inquiry(void);
 		bool SCSI_Command_Request_Sense(void);
-		bool SCSI_Command_Read_Capacity(void);
+		bool SCSI_Command_Read_Capacity_10(void);
+		bool SCSI_Command_Send_Diagnostic(void);
+		bool SCSI_Command_PreventAllowMediumRemoval(void);
+		bool SCSI_Command_Write_10(void);
+		bool SCSI_Command_Read_10(void);
 
 #endif

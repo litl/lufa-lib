@@ -18,7 +18,14 @@
 	same manner as commercial USB Mass Storage devices.
 	
 	Only one Logical Unit (LUN) is currently supported by this example,
-	allowing for one external storage device.
+	allowing for one external storage device to be enumerated by the host.
+	
+	The two USB status LEDs indicate the status of the device. The first
+	LED is lit in green when the device may be removed from the host, and
+	red when the host has requested that it not be removed (i.e., while
+	the host I/O cache is non-empty or the device is busy). The second LED
+	is lit in green when idling, orange when executing a command from the
+	host and red when the host send an invalid USB command.
 */
 
 /*
@@ -48,7 +55,7 @@
 
                            **** DANGER *****
 
-                   UNFINISHED AND NON-OPERATIONAL
+                     UNFINISHED AND NON-OPERATIONAL
 
 	This USB device is incomplete, and may cause system instability including
 	blue-screen, driver failure or host freezes if used. For development only!
@@ -153,8 +160,8 @@ TASK(USB_MassStorage)
 		/* Check to see if a command from the host has been issued */
 		if (Endpoint_Out_IsRecieved())
 		{	
-			/* Bicolour LEDs to green/orange - busy */
-			Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
+			/* Set LED2 orange - busy */
+			Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_ORANGE);
 
 			/* Process sent command block from the host */
 			ProcessCommandBlock();
@@ -184,8 +191,8 @@ void ProcessCommandBlock(void)
 	    (CommandBlock.Header.LUN != 0x00) ||
 		(CommandBlock.Header.SCSICommandLength > MAX_SCSI_COMMAND_LENGTH))
 	{
-		/* Bicolour LEDs to green/red - error */
-		Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+		/* Bicolour LED2 to red - error */
+			Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);
 
 		/* Stall both data pipes until reset by host */
 		Endpoint_Stall_Transaction();
@@ -265,7 +272,7 @@ void ReturnCommandStatus(void)
 	/* Send the CSW */
 	Endpoint_In_Clear();
 
-	/* Bicolour LEDs to green/green - ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+	/* Bicolour LED2 to green - ready */
+	Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);
 }
 
