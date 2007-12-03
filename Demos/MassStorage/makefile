@@ -83,6 +83,7 @@ OBJDIR = .
 SRC = $(TARGET).c                                           \
 	  Descriptors.c                                         \
 	  SCSI.c                                                \
+	  DataflashManager.c                                    \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
 	  ../../MyUSB/Drivers/USBKEY/Dataflash.c                \
 	  ../../MyUSB/Drivers/USB1287/Serial.c                  \

@@ -95,7 +95,6 @@ int main(void)
 	/* Hardware Initialization */
 	Bicolour_Init();
 	Dataflash_Init();
-	SerialStream_Init(9600); // DEBUG
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
@@ -133,19 +132,13 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			Endpoint_ClearSetupRecieved();
 			Endpoint_In_Clear();
 
-			puts_P(PSTR("SRST\r\n")); // DEBUG
-
 			break;
 		case GET_NUMBER_OF_LUNS:
 			Endpoint_ClearSetupRecieved();			
 			Endpoint_Write_Byte(0x00);			
 			Endpoint_In_Clear();
 
-			puts_P(PSTR("GNOL\r\n")); // DEBUG
-
 			break;
-		default:
-			printf_P(PSTR("\r\nUCP: %d\r\n"), Request); // DEBUG
 	}
 }
 	
@@ -223,12 +216,6 @@ void ProcessCommandBlock(void)
 	if ((CommandStatus.Status == Command_Fail) &&
 	    (CommandStatus.SCSICommandResidue))
 	{
-		// DEBUG:
-		if (Endpoint_GetCurrentEndpoint() == MASS_STORAGE_IN_EPNUM)
-		  puts_P(PSTR(" - SIN"));
-		else
-		  puts_P(PSTR(" - SOUT"));
-	
 		Endpoint_Stall_Transaction();
 	}
 }
@@ -259,11 +246,6 @@ void ReturnCommandStatus(void)
 	
 	/* Wait until read/write to IN data endpoint allowed */
 	while (!(Endpoint_ReadWriteAllowed()));
-	
-	if (CommandStatus.Status == Command_Pass)
-	  puts_P(PSTR("  OK\r\n")); // DEBUG
-	else
-	  puts_P(PSTR("  FAIL\r\n")); // DEBUG
 
 	/* Write the CSW to the endpoint */
 	for (uint8_t i = 0; i < sizeof(CommandStatus); i++)
@@ -275,4 +257,3 @@ void ReturnCommandStatus(void)
 	/* Bicolour LED2 to green - ready */
 	Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
 }
-

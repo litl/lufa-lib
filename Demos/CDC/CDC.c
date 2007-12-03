@@ -13,7 +13,8 @@
 	This gives a simple reference application for implementing
 	a CDC device acting as a virtual serial port. Joystick
 	actions on the USBKEY board are transmitted to the host
-	as strings.
+	as strings. The device does not respond to serial data
+	sent from the host.
 	
 	Before running, you will need to install the INF file that
 	is located in the CDC project directory. This will enable
@@ -169,6 +170,13 @@ TASK(CDC_Task)
 		ActionSent = true;
 		SendStringViaCDC(ReportString);
 	}
+
+	/* Select the Serial Rx Endpoint */
+	Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+	
+	/* Throw away any recieved data from the host */
+	if (Endpoint_Out_IsRecieved())
+	  Endpoint_Out_Clear();
 }
 
 void SendStringViaCDC(char* FlashString)

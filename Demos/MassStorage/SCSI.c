@@ -54,8 +54,6 @@ void SCSI_DecodeSCSICommand(void)
 	
 	bool CommandSuccess = false;
 
-	printf_P(PSTR("SC: %X"), CommandBlock.SCSICommandData[0]); // DEBUG
-
 	switch (CommandBlock.SCSICommandData[0])
 	{
 		case SCSI_CMD_INQUIRY:
@@ -108,6 +106,7 @@ bool SCSI_Command_Inquiry(void)
 	uint8_t  AllocationLength = CommandBlock.SCSICommandData[4];
 	uint8_t* InquiryDataPtr   = (uint8_t*)&InquiryData;
 	uint8_t  BytesTransferred = 0;
+	uint8_t  BytesInEndpoint  = 0;
 
 	if ((CommandBlock.SCSICommandData[1] & ((1 << 0) | (1 << 1))) ||
 	     CommandBlock.SCSICommandData[2])
@@ -133,11 +132,15 @@ bool SCSI_Command_Inquiry(void)
 
 	while (BytesTransferred < AllocationLength)
 	{
-		if (!(BytesTransferred % ConfigurationDescriptor.DataInEndpoint.EndpointSize))
-		  Endpoint_In_Clear();
+		if (BytesInEndpoint == ConfigurationDescriptor.DataInEndpoint.EndpointSize)
+		{
+			Endpoint_In_Clear();
+			BytesInEndpoint = 0;
+		}
 					
 		Endpoint_Write_Byte(0x00);
 		BytesTransferred++;
+		BytesInEndpoint++;
 	}
 	
 	Endpoint_In_Clear();
@@ -172,7 +175,7 @@ bool SCSI_Command_Read_Capacity_10(void)
 	uint32_t BlockAddress = *(uint32_t*)&CommandBlock.SCSICommandData[2];
 
 	Endpoint_Write_DWord(BlockAddress);
-	Endpoint_Write_DWord(DATAFLASH_PAGE_SIZE);
+	Endpoint_Write_DWord(VIRTUAL_MEMORY_BLOCK_SIZE);
 
 	Endpoint_In_Clear();
 
@@ -209,67 +212,19 @@ bool SCSI_Command_Write_10(void)
 {
 	uint32_t BlockAddress   = *(uint32_t*)&CommandBlock.SCSICommandData[2];
 	uint16_t TotalBlocks    = *(uint16_t*)&CommandBlock.SCSICommandData[7];
-	uint16_t BlocksRem      = TotalBlocks;
-	uint16_t AddressInBlock = 0;
 	
-	if (BlockAddress >= (DATAFLASH_PAGE_SIZE * 2))
+	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
 	{
 		// TODO - set sense data
 		return false;
 	}
 
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
-
-	Dataflash_SelectChipFromPage(BlockAddress);
-	
-	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
-	Dataflash_SendByte(0);
-	Dataflash_SendByte(0);
-	Dataflash_SendByte(0);
-
-	while (BlocksRem)
-	{
-		if (AddressInBlock == DATAFLASH_PAGE_SIZE)
-		{
-			Dataflash_ToggleSelectedChipCS();
-			
-			Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
-			Dataflash_SendByte(BlockAddress >> 8);
-			Dataflash_SendByte((BlockAddress & 0xFF) << 5);
-			Dataflash_SendByte(0);
-
-			Dataflash_ToggleSelectedChipCS();
-			Dataflash_SendByte(DF_CMD_GETSTATUS);
-			
-			while (!(Dataflash_SendByte(0) & DF_STATUS_READY));
-
-			Dataflash_SelectChip(DATAFLASH_NO_CHIP);			
-			
-			AddressInBlock = 0;
-			BlocksRem--;
-			BlockAddress++;
-			
-			Dataflash_SelectChipFromPage(BlockAddress);
-
-			Dataflash_SendByte(DF_CMD_BUFF1WRITE);
-			Dataflash_SendByte(0);
-			Dataflash_SendByte(0);
-			Dataflash_SendByte(0);
-		}
-
-		Dataflash_SendByte(Endpoint_Read_Byte());
-
-		AddressInBlock++;
-	}
-
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-
+	VirtualMemory_WriteBlocks(&BlockAddress, &TotalBlocks);
 	Endpoint_Out_Clear();
-
 	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
-	
-	CommandBlock.Header.DataTransferLength -= (DATAFLASH_PAGE_SIZE * TotalBlocks);
 
+	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
 	return true;
 }
 
@@ -277,56 +232,16 @@ bool SCSI_Command_Read_10(void)
 {
 	uint32_t BlockAddress   = *(uint32_t*)&CommandBlock.SCSICommandData[2];
 	uint16_t TotalBlocks    = *(uint16_t*)&CommandBlock.SCSICommandData[7];
-	uint16_t BlocksRem      = TotalBlocks;
-	uint16_t AddressInBlock = 0;
 
-	if (BlockAddress >= (DATAFLASH_PAGE_SIZE * 2))
+	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
 	{
 		// TODO - set sense data
 		return false;
 	}
 
-	Dataflash_SelectChipFromPage(BlockAddress);
-
-	Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
-	Dataflash_SendByte(BlockAddress >> 8);
-	Dataflash_SendByte((BlockAddress & 0xFF) << 5);
-	Dataflash_SendByte(0);
-
-	Dataflash_SendByte(0);
-	Dataflash_SendByte(0);
-	Dataflash_SendByte(0);
-	Dataflash_SendByte(0);
-
-	while (BlocksRem)
-	{
-		if (AddressInBlock == DATAFLASH_PAGE_SIZE)
-		{
-			Dataflash_SelectChip(DATAFLASH_NO_CHIP);			
-			Dataflash_SelectChipFromPage(BlockAddress);
-
-			Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
-			Dataflash_SendByte(BlockAddress >> 8);
-			Dataflash_SendByte((BlockAddress & 0xFF) << 5);
-			Dataflash_SendByte(0);
-
-			Dataflash_SendByte(0);
-			Dataflash_SendByte(0);
-			Dataflash_SendByte(0);
-			Dataflash_SendByte(0);			
-
-			AddressInBlock = 0;
-			BlocksRem--;
-			BlockAddress++;
-		}
-		
-		Endpoint_Write_Byte(Dataflash_SendByte(0));
-		AddressInBlock++;
-	}
-	
-	CommandBlock.Header.DataTransferLength -= (DATAFLASH_PAGE_SIZE * TotalBlocks);
-
+	VirtualMemory_ReadBlocks(&BlockAddress, &TotalBlocks);	
 	Endpoint_In_Clear();
 
+	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
 	return true;
 }

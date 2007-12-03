@@ -20,6 +20,7 @@
 
 		#include "MassStorage.h"
 		#include "Descriptors.h"
+		#include "DataflashManager.h"
 	
 	/* Macros: */
 		#define SCSI_SET_SENSE(key, acode, aqual)  		   MACROS{ SenseData.SenseKey = key;              \
