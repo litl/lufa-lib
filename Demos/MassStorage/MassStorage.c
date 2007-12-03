@@ -95,6 +95,7 @@ int main(void)
 	/* Hardware Initialization */
 	Bicolour_Init();
 	Dataflash_Init();
+	SerialStream_Init(9600); // DEBUG
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);

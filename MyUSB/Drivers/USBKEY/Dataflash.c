@@ -12,11 +12,12 @@
 
 void Dataflash_Init(void)
 {
-	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << SPR1) | (1 << SPR0));
-	SPSR  = (1 << SPI2X);
-	
+	PINB |= (1 << 0);
 	DDRE |= DATAFLASH_CHIPCS_MASK;
-	
+
+	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << SPR1) | (1 << SPR0));
+	SPSR  = (1 << SPI2X);	
+		
 	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
 }
 

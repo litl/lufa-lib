@@ -71,7 +71,7 @@
 			unsigned int DeviceType          : 5;
 			unsigned int PeripheralQualifier : 3;
 			
-			unsigned int _RESERVED1          : 6;
+			unsigned int _RESERVED1          : 7;
 			unsigned int Removable           : 1;
 			
 			unsigned int ANSI_Version        : 3;
@@ -99,7 +99,6 @@
 			uint8_t      VendorID[8];
 			uint8_t      ProductID[16];
 			uint8_t      RevisionID[4];
-			
 		} SCSI_Inquiry_Response_t;
 		
 		typedef struct

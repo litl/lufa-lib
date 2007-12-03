@@ -21,8 +21,8 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define DATAFLASH_NO_CHIP            DATAFLASH_CHIPCS_MASK
-			#define DATAFLASH_CHIP1              (1 << 1)
-			#define DATAFLASH_CHIP2              (1 << 0)
+			#define DATAFLASH_CHIP1              (1 << 0)
+			#define DATAFLASH_CHIP2              (1 << 1)
 			
 			#define DATAFLASH_PAGE_SIZE          1056
 			#define DATAFLASH_PAGES              8192

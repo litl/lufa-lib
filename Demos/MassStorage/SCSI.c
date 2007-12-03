@@ -85,18 +85,23 @@ void SCSI_DecodeSCSICommand(void)
 			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
 		                   SCSI_ASENSE_INVALID_COMMAND,
 		                   SCSI_ASENSEQ_NO_QUALIFIER);
+			break;
 	}
 	
 	if (CommandSuccess)
 	{
 		CommandStatus.Status = Command_Pass;
 		
+		printf("(PASS: %x) ", CommandBlock.SCSICommandData[0]);
+
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_GOOD,
 		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
 		               SCSI_ASENSEQ_NO_QUALIFIER);					   
 	}
 	else
 	{
+		printf("(FAIL: %x) ", CommandBlock.SCSICommandData[0]);
+
 		CommandStatus.Status = Command_Fail;
 	}
 }
@@ -117,10 +122,10 @@ bool SCSI_Command_Inquiry(void)
 
 		return false;
 	}
-		
+	
 	if (AllocationLength > 96)
 	  AllocationLength = 96;
-				
+
 	for (uint8_t i = 0; i < sizeof(InquiryData); i++)
 	{
 		if (i == AllocationLength)
@@ -135,10 +140,13 @@ bool SCSI_Command_Inquiry(void)
 		if (BytesInEndpoint == ConfigurationDescriptor.DataInEndpoint.EndpointSize)
 		{
 			Endpoint_In_Clear();
+			while (!(Endpoint_ReadWriteAllowed()));
+
 			BytesInEndpoint = 0;
 		}
 					
 		Endpoint_Write_Byte(0x00);
+		
 		BytesTransferred++;
 		BytesInEndpoint++;
 	}
@@ -215,13 +223,15 @@ bool SCSI_Command_Write_10(void)
 	
 	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
 	{
-		// TODO - set sense data
+		SCSI_SET_SENSE(SCSI_SENSE_KEY_HARDWARE_ERROR,
+		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
+		               SCSI_ASENSEQ_NO_QUALIFIER);
+
 		return false;
 	}
 
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
-	VirtualMemory_WriteBlocks(&BlockAddress, &TotalBlocks);
-	Endpoint_Out_Clear();
+	VirtualMemory_WriteBlocks(BlockAddress, TotalBlocks);
 	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 
 	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
@@ -235,12 +245,14 @@ bool SCSI_Command_Read_10(void)
 
 	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
 	{
-		// TODO - set sense data
+		SCSI_SET_SENSE(SCSI_SENSE_KEY_HARDWARE_ERROR,
+		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
+		               SCSI_ASENSEQ_NO_QUALIFIER);
+
 		return false;
 	}
-
-	VirtualMemory_ReadBlocks(&BlockAddress, &TotalBlocks);	
-	Endpoint_In_Clear();
+	
+	VirtualMemory_ReadBlocks(BlockAddress, TotalBlocks);	
 
 	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
 	return true;

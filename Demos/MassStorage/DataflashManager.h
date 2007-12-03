@@ -13,7 +13,11 @@
 
 	// Includes:
 		#include <avr/io.h>
+		
+		#include "MassStorage.h"
+		#include "Descriptors.h"
 
+		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Dataflash.h>   // Dataflash chip driver for the USBKEY
 
 	// Defines:
@@ -23,7 +27,9 @@
 		                                            / VIRTUAL_MEMORY_BLOCK_SIZE)
 													
 	// Function Prototypes:
-		void VirtualMemory_WriteBlocks(uint32_t* BlockAddress, uint16_t* TotalBlocks);
-		void VirtualMemory_ReadBlocks(uint32_t* BlockAddress, uint16_t* TotalBlocks);
+		void     VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks);
+		void     VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks);
+		uint16_t VirtualMemory_DFPageFromBlock(uint32_t BlockAddress);
+		uint16_t VirtualMemory_DFPageOffsetFromBlock(uint32_t BlockAddress);
 
 #endif
