@@ -12,13 +12,13 @@
 
 void Dataflash_Init(void)
 {
-	PINB |= (1 << 0);
-	DDRE |= DATAFLASH_CHIPCS_MASK;
+	PINB  |= (1 << 0);
+	DDRB  |= (1 << 1);
+	DDRE  |= DATAFLASH_CHIPCS_MASK;
+	PORTE |= DATAFLASH_CHIPCS_MASK;
 
-	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << SPR0));
-	SPSR  = (1 << SPI2X);	
-		
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << SPR0) | (1 << CPOL) | (1 << CPHA));
+	SPSR  = (1 << SPI2X);
 }
 
 void Dataflash_WaitWhileBusy(void)

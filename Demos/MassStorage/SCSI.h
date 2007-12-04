@@ -29,6 +29,9 @@
 
 		#define DATA_READ                                  true
 		#define DATA_WRITE                                 false
+		
+		#define MODE_10                                    true
+		#define MODE_6                                     false
 	
 		#define SCSI_CMD_INQUIRY                           0x12
 		#define SCSI_CMD_REQUEST_SENSE                     0x03
@@ -38,6 +41,13 @@
 		#define SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL      0x1E
 		#define SCSI_CMD_WRITE_10                          0x2A
 		#define SCSI_CMD_READ_10                           0x28
+		#define SCSI_CMD_VERIFY_10                         0x2F
+		#define SCSI_CMD_MODE_SENSE_6                      0x1A
+		#define SCSI_CMD_MODE_SENSE_10                     0x5A
+		
+		#define SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY    0x01
+		#define SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS   0x1C
+		#define SCSI_SENSE_PAGE_ALL                        0x3F
 
 		#define SCSI_SENSE_KEY_GOOD                        0x00
 		#define SCSI_SENSE_KEY_RECOVERED_ERROR             0x01
@@ -125,7 +135,46 @@
 			uint8_t      FieldReplaceableUnitCode;
 			uint8_t      SenseKeySpecific[3];
 		} SCSI_Request_Sense_Response_t;
-	
+		
+		typedef struct
+		{
+			unsigned int DCR  : 1;
+			unsigned int DTE  : 1;
+			unsigned int PER  : 1;
+			unsigned int EER  : 1;
+			unsigned int RC   : 1;
+			unsigned int TB   : 1;
+			unsigned int ARRE : 1;
+			unsigned int AWRE : 1;
+
+			uint8_t      ReadRetryCount;
+			
+			uint8_t      _RESERVED1[4];
+			
+			uint8_t      WriteRetryCount;
+			
+			uint8_t      _RESERVED2;
+
+			uint16_t     RecoveryTimeLimit;
+		} SCSI_Read_Write_Error_Recovery_Sense_Page_t;
+		
+		typedef struct
+		{
+			unsigned int LogErr      : 1;
+			unsigned int _RESERVED1  : 1;
+			unsigned int Test        : 1;
+			unsigned int Dexcpt      : 1;
+			unsigned int _RESERVED2  : 3;
+			unsigned int Perf        : 1;
+			
+			unsigned int MRIE        : 4;
+			unsigned int _RESERVED3  : 4;
+
+			uint32_t     IntervalTimer;
+		
+			uint32_t     ReportCount;
+		} SCSI_Informational_Exceptions_Sense_Page_t;
+		
 	/* Function Prototypes: */
 		void SCSI_DecodeSCSICommand(void);
 		bool SCSI_Command_Inquiry(void);
@@ -133,6 +182,10 @@
 		bool SCSI_Command_Read_Capacity_10(void);
 		bool SCSI_Command_Send_Diagnostic(void);
 		bool SCSI_Command_PreventAllowMediumRemoval(void);
-		bool SCSI_Command_ReadWrite_10(bool IsDataRead);
+		bool SCSI_Command_ReadWrite_10(const bool IsDataRead);
+		bool SCSI_Command_Mode_Sense_610(const bool IsMode10);
+		void SCSI_WriteSensePage(const bool IsMode10, const uint8_t PageCode, const uint8_t PageSize,
+								 const uint8_t* PageDataPtr, const uint8_t AllocationLength);
+		void SCSI_WriteAllSensePages(const bool IsMode10, const uint8_t AllocationLength);
 
 #endif
