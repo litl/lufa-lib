@@ -73,8 +73,8 @@
 
 			#define Endpoint_FIFOCON_Clear()         MACROS{ UEINTX  &= ~(1 << FIFOCON);              }MACROE
 			
-			#define Endpoint_In_Clear()              MACROS{ uint8_t temp = UEINTX; UEINTX = (temp & ~(1 << TXINI)); UEINTX = (temp & ~(1 << FIFOCON));  }MACROE
-			#define Endpoint_Out_Clear()             MACROS{ uint8_t temp = UEINTX; UEINTX = (temp & ~(1 << RXOUTI)); UEINTX = (temp & ~(1 << FIFOCON)); }MACROE
+			#define Endpoint_In_Clear()              MACROS{ UEINTX &= ~(1 << TXINI); UEINTX &= ~(1 << FIFOCON); }MACROE
+			#define Endpoint_Out_Clear()             MACROS{ UEINTX &= ~(1 << RXOUTI); UEINTX &= ~(1 << FIFOCON); }MACROE
 
 			#define Endpoint_In_IsReady()                  ((UEINTX  &   (1 << TXINI)) ? true : false)
 			#define Endpoint_Out_IsRecieved()              ((UEINTX  &   (1 << RXOUTI)) ? true: false)

@@ -26,6 +26,9 @@
 		#define SCSI_SET_SENSE(key, acode, aqual)  		   MACROS{ SenseData.SenseKey = key;              \
 		                                                           SenseData.AdditionalSenseCode = acode; \
 		                                                           SenseData.AdditionalSenseQualifier = aqual; }MACROE
+
+		#define DATA_READ                                  true
+		#define DATA_WRITE                                 false
 	
 		#define SCSI_CMD_INQUIRY                           0x12
 		#define SCSI_CMD_REQUEST_SENSE                     0x03
@@ -130,7 +133,6 @@
 		bool SCSI_Command_Read_Capacity_10(void);
 		bool SCSI_Command_Send_Diagnostic(void);
 		bool SCSI_Command_PreventAllowMediumRemoval(void);
-		bool SCSI_Command_Write_10(void);
-		bool SCSI_Command_Read_10(void);
+		bool SCSI_Command_ReadWrite_10(bool IsDataRead);
 
 #endif

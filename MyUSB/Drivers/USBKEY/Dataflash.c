@@ -15,7 +15,7 @@ void Dataflash_Init(void)
 	PINB |= (1 << 0);
 	DDRE |= DATAFLASH_CHIPCS_MASK;
 
-	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << SPR1) | (1 << SPR0));
+	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << SPR0));
 	SPSR  = (1 << SPI2X);	
 		
 	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
@@ -35,7 +35,7 @@ uint8_t Dataflash_SendByte(const uint8_t Byte)
 	return SPDR;
 }
 
-bool Dataflash_SelectChipFromPage(uint16_t PageAddress)
+bool Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 {
 	if (PageAddress < DATAFLASH_PAGE_SIZE)
 	{
@@ -52,6 +52,13 @@ bool Dataflash_SelectChipFromPage(uint16_t PageAddress)
 		Dataflash_SelectChip(DATAFLASH_NO_CHIP);
 		return false;
 	}
+}
+
+void Dataflash_SendAddressBytes(const uint16_t PageAddress, const uint16_t BufferByte)
+{
+	Dataflash_SendByte(PageAddress >> 5);
+	Dataflash_SendByte((PageAddress << 3) | (BufferByte >> 8));
+	Dataflash_SendByte(BufferByte);
 }
 
 void Dataflash_ToggleSelectedChipCS(void)

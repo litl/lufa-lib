@@ -50,8 +50,6 @@ SCSI_Request_Sense_Response_t SenseData =
 
 void SCSI_DecodeSCSICommand(void)
 {
-	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
-	
 	bool CommandSuccess = false;
 
 	switch (CommandBlock.SCSICommandData[0])
@@ -76,10 +74,10 @@ void SCSI_DecodeSCSICommand(void)
 			CommandSuccess = SCSI_Command_PreventAllowMediumRemoval();
 			break;
 		case SCSI_CMD_WRITE_10:
-			CommandSuccess = SCSI_Command_Write_10();
+			CommandSuccess = SCSI_Command_ReadWrite_10(DATA_WRITE);
 			break;
 		case SCSI_CMD_READ_10:
-			CommandSuccess = SCSI_Command_Read_10();
+			CommandSuccess = SCSI_Command_ReadWrite_10(DATA_READ);
 			break;	
 		default:
 			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
@@ -137,7 +135,7 @@ bool SCSI_Command_Inquiry(void)
 
 	while (BytesTransferred < AllocationLength)
 	{
-		if (BytesInEndpoint == ConfigurationDescriptor.DataInEndpoint.EndpointSize)
+		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
 		{
 			Endpoint_In_Clear();
 			while (!(Endpoint_ReadWriteAllowed()));
@@ -176,7 +174,7 @@ bool SCSI_Command_Request_Sense(void)
 	
 	while (BytesTransferred < AllocationLength)
 	{
-		if (BytesInEndpoint == ConfigurationDescriptor.DataInEndpoint.EndpointSize)
+		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
 		{
 			Endpoint_In_Clear();
 			while (!(Endpoint_ReadWriteAllowed()));
@@ -198,9 +196,7 @@ bool SCSI_Command_Request_Sense(void)
 
 bool SCSI_Command_Read_Capacity_10(void)
 {
-	uint32_t BlockAddress = *(uint32_t*)&CommandBlock.SCSICommandData[2];
-
-	Endpoint_Write_DWord_BE(BlockAddress);
+	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCKS - 1);
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCK_SIZE);
 
 	Endpoint_In_Clear();
@@ -234,10 +230,18 @@ bool SCSI_Command_PreventAllowMediumRemoval(void)
 	return true;
 }
 
-bool SCSI_Command_Write_10(void)
+bool SCSI_Command_ReadWrite_10(bool IsDataRead)
 {
-	uint32_t BlockAddress   = *(uint32_t*)&CommandBlock.SCSICommandData[2];
-	uint16_t TotalBlocks    = *(uint16_t*)&CommandBlock.SCSICommandData[7];
+	uint32_t BlockAddress;
+	uint16_t TotalBlocks;
+
+	((uint8_t*)&BlockAddress)[3] = CommandBlock.SCSICommandData[2];
+	((uint8_t*)&BlockAddress)[2] = CommandBlock.SCSICommandData[3];
+	((uint8_t*)&BlockAddress)[1] = CommandBlock.SCSICommandData[4];
+	((uint8_t*)&BlockAddress)[0] = CommandBlock.SCSICommandData[5];
+
+	((uint8_t*)&TotalBlocks)[1] = CommandBlock.SCSICommandData[7];
+	((uint8_t*)&TotalBlocks)[0] = CommandBlock.SCSICommandData[8];
 	
 	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
 	{
@@ -248,29 +252,10 @@ bool SCSI_Command_Write_10(void)
 		return false;
 	}
 
-	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
-	VirtualMemory_WriteBlocks(BlockAddress, TotalBlocks);
-	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
-
-	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
-	return true;
-}
-
-bool SCSI_Command_Read_10(void)
-{
-	uint32_t BlockAddress   = *(uint32_t*)&CommandBlock.SCSICommandData[2];
-	uint16_t TotalBlocks    = *(uint16_t*)&CommandBlock.SCSICommandData[7];
-
-	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
-	{
-		SCSI_SET_SENSE(SCSI_SENSE_KEY_HARDWARE_ERROR,
-		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
-		               SCSI_ASENSEQ_NO_QUALIFIER);
-
-		return false;
-	}
-	
-	VirtualMemory_ReadBlocks(BlockAddress, TotalBlocks);	
+	if (IsDataRead == true)
+	  VirtualMemory_ReadBlocks(BlockAddress, TotalBlocks);	
+	else
+	  VirtualMemory_WriteBlocks(BlockAddress, TotalBlocks);
 
 	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
 	return true;

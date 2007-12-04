@@ -35,7 +35,8 @@
 			void    Dataflash_Init(void);
 			void    Dataflash_WaitWhileBusy(void);
 			uint8_t Dataflash_SendByte(const uint8_t Byte);
-			bool    Dataflash_SelectChipFromPage(uint16_t PageAddress);
+			bool    Dataflash_SelectChipFromPage(const uint16_t PageAddress);
+			void    Dataflash_SendAddressBytes(const uint16_t PageAddress, const uint16_t BufferByte);
 			void    Dataflash_ToggleSelectedChipCS(void);
 			
 	/* Private Interface - For use in library only: */
