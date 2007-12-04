@@ -85,6 +85,12 @@
 			#define Endpoint_IsStalled()                   ((UECONX  &   (1 << STALLRQ)) ? true : false)
 
 			#define Endpoint_ResetDataToggle()       MACROS{ UECONX |= (1 << RSTDT);                  }MACROE
+
+		/* Function Aliases */
+			static inline uint16_t Endpoint_Read_Word(void)            ATTR_ALIAS(Endpoint_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
+			static inline void     Endpoint_Write_Word(uint16_t Word)  ATTR_ALIAS(Endpoint_Write_Word_LE);
+			static inline uint32_t Endpoint_Read_DWord(void)           ATTR_ALIAS(Endpoint_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;
+			static inline void     Endpoint_Write_DWord(uint32_t Word) ATTR_ALIAS(Endpoint_Write_DWord_LE);
 			
 		/* Inline Functions: */
 			static inline uint8_t Endpoint_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
@@ -105,8 +111,8 @@
 				Dummy = UEDATX;
 			}
 			
-			static inline uint16_t Endpoint_Read_Word(void) ATTR_WARN_UNUSED_RESULT;
-			static inline uint16_t Endpoint_Read_Word(void)
+			static inline uint16_t Endpoint_Read_Word_LE(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint16_t Endpoint_Read_Word_LE(void)
 			{
 				uint16_t Data;
 				
@@ -116,12 +122,29 @@
 				return Data;
 			}
 
-			static inline void Endpoint_Write_Word(const uint16_t Word)
+			static inline uint16_t Endpoint_Read_Word_BE(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint16_t Endpoint_Read_Word_BE(void)
+			{
+				uint16_t Data;
+				
+				Data  = (((uint16_t)UEDATX) << 8);
+				Data |= UEDATX;
+			
+				return Data;
+			}
+
+			static inline void Endpoint_Write_Word_LE(const uint16_t Word)
 			{
 				UEDATX = (Word & 0xFF);
 				UEDATX = (Word >> 8);
 			}
 			
+			static inline void Endpoint_Write_Word_BE(const uint16_t Word)
+			{
+				UEDATX = (Word >> 8);
+				UEDATX = (Word & 0xFF);
+			}
+
 			static inline void Endpoint_Ignore_Word(void)
 			{
 				volatile uint8_t Dummy;
@@ -130,8 +153,8 @@
 				Dummy = UEDATX;
 			}
 
-			static inline uint32_t Endpoint_Read_DWord(void) ATTR_WARN_UNUSED_RESULT;
-			static inline uint32_t Endpoint_Read_DWord(void)
+			static inline uint32_t Endpoint_Read_DWord_LE(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint32_t Endpoint_Read_DWord_LE(void)
 			{
 				union
 				{
@@ -147,12 +170,35 @@
 				return Data.DWord;
 			}
 
-			static inline void Endpoint_Write_DWord(const uint32_t DWord)
+			static inline uint32_t Endpoint_Read_DWord_BE(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint32_t Endpoint_Read_DWord_BE(void)
 			{
-				Endpoint_Write_Word(DWord);
-				Endpoint_Write_Word(DWord >> 16);
+				union
+				{
+					uint32_t DWord;
+					uint8_t  Bytes[4];
+				} Data;
+				
+				Data.Bytes[3] = UEDATX;
+				Data.Bytes[2] = UEDATX;
+				Data.Bytes[1] = UEDATX;
+				Data.Bytes[0] = UEDATX;
+			
+				return Data.DWord;
+			}
+
+			static inline void Endpoint_Write_DWord_LE(const uint32_t DWord)
+			{
+				Endpoint_Write_Word_LE(DWord);
+				Endpoint_Write_Word_LE(DWord >> 16);
 			}
 			
+			static inline void Endpoint_Write_DWord_BE(const uint32_t DWord)
+			{
+				Endpoint_Write_Word_BE(DWord >> 16);
+				Endpoint_Write_Word_BE(DWord);
+			}
+
 			static inline void Endpoint_Ignore_DWord(void)
 			{
 				volatile uint8_t Dummy;

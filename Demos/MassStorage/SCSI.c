@@ -60,7 +60,7 @@ void SCSI_DecodeSCSICommand(void)
 			CommandSuccess = SCSI_Command_Inquiry();			
 			break;
 		case SCSI_CMD_REQUEST_SENSE:
-			CommandSuccess = SCSI_Command_Request_Sense();	
+			CommandSuccess = SCSI_Command_Request_Sense();
 			break;
 		case SCSI_CMD_TEST_UNIT_READY:
 			CommandSuccess = true;
@@ -162,6 +162,7 @@ bool SCSI_Command_Request_Sense(void)
 	uint8_t  AllocationLength = CommandBlock.SCSICommandData[4];
 	uint8_t* SenseDataPtr     = (uint8_t*)&SenseData;
 	uint8_t  BytesTransferred = 0;
+	uint8_t  BytesInEndpoint  = 0;	
 	
 	for (uint8_t i = 0; i < sizeof(SenseData); i++)
 	{
@@ -170,8 +171,25 @@ bool SCSI_Command_Request_Sense(void)
 					  
 		Endpoint_Write_Byte(*(SenseDataPtr++));
 		BytesTransferred++;
+		BytesInEndpoint++;
 	}
 	
+	while (BytesTransferred < AllocationLength)
+	{
+		if (BytesInEndpoint == ConfigurationDescriptor.DataInEndpoint.EndpointSize)
+		{
+			Endpoint_In_Clear();
+			while (!(Endpoint_ReadWriteAllowed()));
+
+			BytesInEndpoint = 0;
+		}
+					
+		Endpoint_Write_Byte(0x00);
+		
+		BytesTransferred++;
+		BytesInEndpoint++;
+	}
+
 	Endpoint_In_Clear();
 
 	CommandBlock.Header.DataTransferLength -= BytesTransferred;
@@ -182,8 +200,8 @@ bool SCSI_Command_Read_Capacity_10(void)
 {
 	uint32_t BlockAddress = *(uint32_t*)&CommandBlock.SCSICommandData[2];
 
-	Endpoint_Write_DWord(BlockAddress);
-	Endpoint_Write_DWord(VIRTUAL_MEMORY_BLOCK_SIZE);
+	Endpoint_Write_DWord_BE(BlockAddress);
+	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCK_SIZE);
 
 	Endpoint_In_Clear();
 
@@ -208,9 +226,9 @@ bool SCSI_Command_Send_Diagnostic(void)
 bool SCSI_Command_PreventAllowMediumRemoval(void)
 {
 	if (CommandBlock.SCSICommandData[4] & (1 << 0))
-	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED2_RED);
+	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);
 	else
-	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED2_GREEN);
+	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
 	
 	CommandBlock.Header.DataTransferLength = 0;
 	return true;

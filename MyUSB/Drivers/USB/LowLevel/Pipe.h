@@ -102,6 +102,12 @@
 			#define Pipe_Out_Clear()               MACROS{ UPINTX  &= ~(1 << TXOUTI);                        }MACROE
 			#define Pipe_Out_IsReady()                   ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 		
+		/* Function Aliases */
+			static inline uint16_t Pipe_Read_Word(void)            ATTR_ALIAS(Pipe_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
+			static inline void     Pipe_Write_Word(uint16_t Word)  ATTR_ALIAS(Pipe_Write_Word_LE);
+			static inline uint32_t Pipe_Read_DWord(void)           ATTR_ALIAS(Pipe_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;
+			static inline void     Pipe_Write_DWord(uint32_t Word) ATTR_ALIAS(Pipe_Write_DWord_LE);
+
 		/* Inline Functions: */
 			static inline uint8_t Pipe_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Pipe_Read_Byte(void)
@@ -121,8 +127,8 @@
 				Dummy = UPDATX;
 			}
 			
-			static inline uint16_t Pipe_Read_Word(void) ATTR_WARN_UNUSED_RESULT;
-			static inline uint16_t Pipe_Read_Word(void)
+			static inline uint16_t Pipe_Read_Word_LE(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint16_t Pipe_Read_Word_LE(void)
 			{
 				uint16_t Data;
 				
@@ -132,12 +138,29 @@
 				return Data;
 			}
 
-			static inline void Pipe_Write_Word(const uint16_t Word)
+			static inline uint16_t Pipe_Read_Word_BE(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint16_t Pipe_Read_Word_BE(void)
+			{
+				uint16_t Data;
+				
+				Data  = (((uint16_t)UPDATX) << 8);
+				Data |= UPDATX;
+			
+				return Data;
+			}
+			
+			static inline void Pipe_Write_Word_LE(const uint16_t Word)
 			{
 				UPDATX = (Word & 0xFF);
 				UPDATX = (Word >> 8);
 			}
 			
+			static inline void Pipe_Write_Word_BE(const uint16_t Word)
+			{
+				UPDATX = (Word >> 8);
+				UPDATX = (Word & 0xFF);
+			}
+
 			static inline void Pipe_Ignore_Word(void)
 			{
 				volatile uint8_t Dummy;
@@ -146,8 +169,8 @@
 				Dummy = UPDATX;
 			}
 
-			static inline uint32_t Pipe_Read_DWord(void) ATTR_WARN_UNUSED_RESULT;
-			static inline uint32_t Pipe_Read_DWord(void)
+			static inline uint32_t Pipe_Read_DWord_LE(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint32_t Pipe_Read_DWord_LE(void)
 			{
 				union
 				{
@@ -163,11 +186,34 @@
 				return Data.DWord;
 			}
 
-			static inline void Pipe_Write_DWord(const uint32_t DWord)
+			static inline uint32_t Pipe_Read_DWord_BE(void) ATTR_WARN_UNUSED_RESULT;
+			static inline uint32_t Pipe_Read_DWord_BE(void)
 			{
-				Pipe_Write_Word(DWord);
-				Pipe_Write_Word(DWord >> 16);
+				union
+				{
+					uint32_t DWord;
+					uint8_t  Bytes[4];
+				} Data;
+				
+				Data.Bytes[3] = UPDATX;
+				Data.Bytes[2] = UPDATX;
+				Data.Bytes[1] = UPDATX;
+				Data.Bytes[0] = UPDATX;
+			
+				return Data.DWord;
 			}
+
+			static inline void Pipe_Write_DWord_LE(const uint32_t DWord)
+			{
+				Pipe_Write_Word_LE(DWord);
+				Pipe_Write_Word_LE(DWord >> 16);
+			}
+			
+			static inline void Pipe_Write_DWord_BE(const uint32_t DWord)
+			{
+				Pipe_Write_Word_BE(DWord >> 16);
+				Pipe_Write_Word_BE(DWord);
+			}			
 			
 			static inline void Pipe_Ignore_DWord(void)
 			{

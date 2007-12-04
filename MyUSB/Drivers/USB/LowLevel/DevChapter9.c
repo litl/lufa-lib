@@ -160,7 +160,7 @@ static void USB_Device_GetDescriptor(void)
 	
 	Endpoint_Ignore_Word(); // Ignore language identifier
 
-	DescriptorLength = Endpoint_Read_Word();
+	DescriptorLength = Endpoint_Read_Word_LE();
 	
 	Endpoint_ClearSetupRecieved();
 	
