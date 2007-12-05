@@ -173,14 +173,18 @@
 		
 	/* Function Prototypes: */
 		void SCSI_DecodeSCSICommand(void);
-		bool SCSI_Command_Inquiry(void);
-		bool SCSI_Command_Request_Sense(void);
-		bool SCSI_Command_Read_Capacity_10(void);
-		bool SCSI_Command_Send_Diagnostic(void);
-		bool SCSI_Command_PreventAllowMediumRemoval(void);
-		bool SCSI_Command_ReadWrite_10(const bool IsDataRead);
-		bool SCSI_Command_Mode_Sense_6(void);
-		void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
-								 const uint8_t* PageDataPtr, const int16_t AllocationLength);
-
+		
+		#if defined(INCLUDE_FROM_SCSI_C)
+			static bool SCSI_Command_Inquiry(void);
+			static bool SCSI_Command_Request_Sense(void);
+			static bool SCSI_Command_Read_Capacity_10(void);
+			static bool SCSI_Command_Send_Diagnostic(void);
+			static bool SCSI_Command_PreventAllowMediumRemoval(void);
+			static bool SCSI_Command_ReadWrite_10(const bool IsDataRead);
+			static bool SCSI_Command_Mode_Sense_6(void);
+			static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
+											const uint8_t* PageDataPtr,
+			                                const int16_t AllocationLength);
+		#endif
+		
 #endif

@@ -20,7 +20,6 @@
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
-		#include <MyUSB/Drivers/USB1287/Serial_Stream.h> // DEBUG
 		#include <MyUSB/Drivers/USBKEY/Dataflash.h>   // Dataflash chip driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 
@@ -80,7 +79,9 @@
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Function Prototypes: */
-		void ProcessCommandBlock(void);
-		void ReturnCommandStatus(void);
+		#if defined(INCLUDE_FROM_MASSSTORAGE_C)
+			static void ProcessCommandBlock(void);
+			static void ReturnCommandStatus(void);
+		#endif
 
 #endif

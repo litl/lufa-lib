@@ -8,6 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
+#define INCLUDE_FROM_DATAFLASHMANAGER_C
 #include "DataflashManager.h"
 
 void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
@@ -157,7 +158,7 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
 }
 
-void VirtualMemory_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferAddress)
+static void VirtualMemory_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferAddress)
 {
 	if (Dataflash_GetSelectedChip() == DATAFLASH_CHIP2)
 	  PageAddress -= DATAFLASH_PAGES;
@@ -165,12 +166,12 @@ void VirtualMemory_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferA
 	Dataflash_SendAddressBytes(PageAddress, BufferAddress);
 }
 
-uint16_t VirtualMemory_DFPageFromBlock(const uint32_t BlockAddress)
+static uint16_t VirtualMemory_DFPageFromBlock(const uint32_t BlockAddress)
 {
 	return ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
 }
 
-uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint32_t BlockAddress)
+static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint32_t BlockAddress)
 {
 	return ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 }

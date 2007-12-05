@@ -8,6 +8,7 @@
  Released under the GPL Licence, Version 3
 */
 
+#define INCLUDE_FROM_SCSI_C
 #include "SCSI.h"
 
 SCSI_Inquiry_Response_t InquiryData PROGMEM = 
@@ -119,7 +120,7 @@ void SCSI_DecodeSCSICommand(void)
 	}
 }
 
-bool SCSI_Command_Inquiry(void)
+static bool SCSI_Command_Inquiry(void)
 {
 	uint8_t  AllocationLength = CommandBlock.SCSICommandData[4];
 	uint8_t* InquiryDataPtr   = (uint8_t*)&InquiryData;
@@ -170,7 +171,7 @@ bool SCSI_Command_Inquiry(void)
 	return true;
 }
 
-bool SCSI_Command_Request_Sense(void)
+static bool SCSI_Command_Request_Sense(void)
 {
 	uint8_t  AllocationLength = CommandBlock.SCSICommandData[4];
 	uint8_t* SenseDataPtr     = (uint8_t*)&SenseData;
@@ -209,7 +210,7 @@ bool SCSI_Command_Request_Sense(void)
 	return true;
 }
 
-bool SCSI_Command_Read_Capacity_10(void)
+static bool SCSI_Command_Read_Capacity_10(void)
 {
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCKS);
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCK_SIZE);
@@ -220,7 +221,7 @@ bool SCSI_Command_Read_Capacity_10(void)
 	return true;
 }
 
-bool SCSI_Command_Send_Diagnostic(void)
+static bool SCSI_Command_Send_Diagnostic(void)
 {
 	if (!(CommandBlock.SCSICommandData[1] & (1 << 2))) // Only self-test supported
 	{
@@ -234,7 +235,7 @@ bool SCSI_Command_Send_Diagnostic(void)
 	return true;
 }
 
-bool SCSI_Command_PreventAllowMediumRemoval(void)
+static bool SCSI_Command_PreventAllowMediumRemoval(void)
 {
 	if (CommandBlock.SCSICommandData[4] & (1 << 0))
 	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);
@@ -245,7 +246,7 @@ bool SCSI_Command_PreventAllowMediumRemoval(void)
 	return true;
 }
 
-bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
+static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 {
 	uint32_t BlockAddress;
 	uint16_t TotalBlocks;
@@ -276,7 +277,7 @@ bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	return true;
 }
 
-bool SCSI_Command_Mode_Sense_6(void)
+static bool SCSI_Command_Mode_Sense_6(void)
 {
 	uint8_t  AllocationLength =  CommandBlock.SCSICommandData[4];							   
 	uint8_t  PageCode         = (CommandBlock.SCSICommandData[2] & 0x3F);
@@ -334,7 +335,7 @@ bool SCSI_Command_Mode_Sense_6(void)
 	return true;
 }
 
-void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
+static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
                          const uint8_t* PageDataPtr, const int16_t AllocationLength)
 {
 	uint8_t BytesTransferred;

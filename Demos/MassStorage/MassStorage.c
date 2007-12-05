@@ -26,6 +26,11 @@
 	the host I/O cache is non-empty or the device is busy). The second LED
 	is lit in green when idling, orange when executing a command from the
 	host and red when the host send an invalid USB command.
+	
+	You will need to format the mass storage device upon first run of this
+	demonstration.
+	
+	This demonstration application is compiled for speed, rather than size.
 */
 
 /*
@@ -61,6 +66,7 @@
 	blue-screen, driver failure or host freezes if used. For development only!
 */
 
+#define INCLUDE_FROM_MASSSTORAGE_C
 #include "MassStorage.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -95,7 +101,6 @@ int main(void)
 	/* Hardware Initialization */
 	Bicolour_Init();
 	Dataflash_Init();
-	SerialStream_Init(9600); // DEBUG
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
@@ -169,7 +174,7 @@ TASK(USB_MassStorage)
 	}
 }
 
-void ProcessCommandBlock(void)
+static void ProcessCommandBlock(void)
 {
 	uint8_t* CommandBlockPtr = (uint8_t*)&CommandBlock;
 
@@ -221,7 +226,7 @@ void ProcessCommandBlock(void)
 	}
 }
 
-void ReturnCommandStatus(void)
+static void ReturnCommandStatus(void)
 {
 	uint8_t* CommandStatusPtr = (uint8_t*)&CommandStatus;
 
