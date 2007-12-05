@@ -13,7 +13,7 @@
 void Dataflash_Init(void)
 {
 	PINB  |= (1 << 0);
-	DDRB  |= (1 << 1);
+	DDRB  |= ((1 << 1) | (1 << 2));
 	DDRE  |= DATAFLASH_CHIPCS_MASK;
 	PORTE |= DATAFLASH_CHIPCS_MASK;
 

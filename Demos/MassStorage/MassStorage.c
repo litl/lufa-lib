@@ -186,7 +186,7 @@ void ProcessCommandBlock(void)
 		(CommandBlock.Header.SCSICommandLength > MAX_SCSI_COMMAND_LENGTH))
 	{
 		/* Bicolour LED2 to red - error */
-			Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);
+		Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);
 
 		/* Stall both data pipes until reset by host */
 		Endpoint_Stall_Transaction();

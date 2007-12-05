@@ -24,7 +24,7 @@
 			#define DATAFLASH_CHIP1              (1 << 1)
 			#define DATAFLASH_CHIP2              (1 << 0)
 			
-			#define DATAFLASH_PAGE_SIZE          1056
+			#define DATAFLASH_PAGE_SIZE          1024
 			#define DATAFLASH_PAGES              8192
 					
 			#define Dataflash_GetSelectedChip()         (PORTE & DATAFLASH_CHIPCS_MASK)

@@ -217,7 +217,7 @@ bool SCSI_Command_Request_Sense(void)
 
 bool SCSI_Command_Read_Capacity_10(void)
 {
-	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCKS - 1);
+	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCKS);
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCK_SIZE);
 
 	Endpoint_In_Clear();
@@ -313,7 +313,6 @@ bool SCSI_Command_Mode_Sense_6(void)
 			Endpoint_Write_Byte(sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t)
 			                  + sizeof(SCSI_Informational_Exceptions_Sense_Page_t)
 			                  + 7);
-
 			Endpoint_Write_Word_BE(0x0000);
 			Endpoint_Write_Byte(0x00);
 			
