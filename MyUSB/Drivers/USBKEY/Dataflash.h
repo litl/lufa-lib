@@ -33,12 +33,25 @@
 
 		/* Function Prototypes: */
 			void    Dataflash_Init(void);
-			void    Dataflash_WaitWhileBusy(void);
-			uint8_t Dataflash_SendByte(const uint8_t Byte);
 			bool    Dataflash_SelectChipFromPage(const uint16_t PageAddress);
 			void    Dataflash_SendAddressBytes(const uint16_t PageAddress, const uint16_t BufferByte);
 			void    Dataflash_ToggleSelectedChipCS(void);
 			
+		/* Inline Functions: */
+			static inline uint8_t Dataflash_SendByte(const uint8_t Byte)
+			{
+				SPDR = Byte;
+				while (!(SPSR & (1 << SPIF)));
+				return SPDR;
+			}
+
+			static inline void Dataflash_WaitWhileBusy(void)
+			{
+				Dataflash_ToggleSelectedChipCS();			
+				Dataflash_SendByte(DF_CMD_GETSTATUS);
+				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
+			}
+
 	/* Private Interface - For use in library only: */
 		/* Macros */
 			#define DATAFLASH_CHIPCS_MASK        (DATAFLASH_CHIP1 | DATAFLASH_CHIP2)

@@ -67,8 +67,6 @@ void SCSI_DecodeSCSICommand(void)
 {
 	bool CommandSuccess = false;
 
-//	printf("(CMD: %x) ", CommandBlock.SCSICommandData[0]);
-
 	switch (CommandBlock.SCSICommandData[0])
 	{
 		case SCSI_CMD_INQUIRY:
@@ -111,16 +109,12 @@ void SCSI_DecodeSCSICommand(void)
 	{
 		CommandStatus.Status = Command_Pass;
 		
-//		printf("(PASS: %x) ", CommandBlock.SCSICommandData[0]);
-
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_GOOD,
 		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
 		               SCSI_ASENSEQ_NO_QUALIFIER);					   
 	}
 	else
 	{
-//		printf("(FAIL: %x) ", CommandBlock.SCSICommandData[0]);
-
 		CommandStatus.Status = Command_Fail;
 	}
 }

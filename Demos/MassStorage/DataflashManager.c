@@ -20,14 +20,9 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	
 	Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
 	VirtualMemory_SendAddressBytes(CurrDFPage, 0);
+	Dataflash_WaitWhileBusy();	
 
 	Dataflash_ToggleSelectedChipCS();
-		
-	Dataflash_SendByte(DF_CMD_GETSTATUS);
-	while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
-	
-	Dataflash_ToggleSelectedChipCS();
-
 	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
 	VirtualMemory_SendAddressBytes(0, CurrDFByte);
 
@@ -38,14 +33,9 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 		if (CurrDFByte == DATAFLASH_PAGE_SIZE)
 		{
 			Dataflash_ToggleSelectedChipCS();
-
 			Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
 			VirtualMemory_SendAddressBytes(CurrDFPage, 0);
-			
-			Dataflash_ToggleSelectedChipCS();
-
-			Dataflash_SendByte(DF_CMD_GETSTATUS);	
-			while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
+			Dataflash_WaitWhileBusy();
 
 			CurrDFByte = 0;
 			CurrDFPage++;
@@ -55,14 +45,9 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 
 			Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
 			VirtualMemory_SendAddressBytes(CurrDFPage, 0);
+			Dataflash_WaitWhileBusy();
 
 			Dataflash_ToggleSelectedChipCS();
-
-			Dataflash_SendByte(DF_CMD_GETSTATUS);	
-			while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
-
-			Dataflash_ToggleSelectedChipCS();
-
 			Dataflash_SendByte(DF_CMD_BUFF1WRITE);
 			VirtualMemory_SendAddressBytes(0, 0);
 		}
@@ -95,14 +80,9 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	}
 
 	Dataflash_ToggleSelectedChipCS();
-			
 	Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
 	VirtualMemory_SendAddressBytes(CurrDFPage, 0x00);
-			
-	Dataflash_ToggleSelectedChipCS();
-
-	Dataflash_SendByte(DF_CMD_GETSTATUS);	
-	while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
+	Dataflash_WaitWhileBusy();
 
 	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
 }

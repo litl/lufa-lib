@@ -20,20 +20,6 @@ void Dataflash_Init(void)
 	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA));
 }
 
-void Dataflash_WaitWhileBusy(void)
-{
-	Dataflash_SendByte(DF_CMD_GETSTATUS);
-	
-	while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
-}
-
-uint8_t Dataflash_SendByte(const uint8_t Byte)
-{
-	SPDR = Byte;
-	while (!(SPSR & (1 << SPIF)));
-	return SPDR;
-}
-
 bool Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 {
 	if (PageAddress < DATAFLASH_PAGE_SIZE)
