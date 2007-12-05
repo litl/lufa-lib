@@ -10,163 +10,6 @@
 
 #include "DataflashManager.h"
 
-/* SIMPLE VERSIONS - One block = One dataflash page */
-
-void VirtualMemory_WriteBlocksSimple(uint32_t BlockAddress, uint16_t TotalBlocks)
-{
-	uint16_t BytesInCurrBlock = 0;
-
-	Dataflash_SelectChip(DATAFLASH_CHIP1);
-	
-	Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
-	VirtualMemory_SendAddressBytes(BlockAddress, 0);
-
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-	Dataflash_SelectChip(DATAFLASH_CHIP1);
-		
-	Dataflash_SendByte(DF_CMD_GETSTATUS);
-	while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
-
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-	Dataflash_SelectChip(DATAFLASH_CHIP1);
-
-	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
-	VirtualMemory_SendAddressBytes(0, 0);
-
-	printf("Write %d from %d\r\n", TotalBlocks, (uint16_t)BlockAddress);
-
-	while (TotalBlocks)
-	{
-		Dataflash_SendByte(Endpoint_Read_Byte());
-		
-		BytesInCurrBlock++;
-
-		if (BytesInCurrBlock == VIRTUAL_MEMORY_BLOCK_SIZE)
-		{
-			TotalBlocks--;
-			BytesInCurrBlock = 0;
-
-			if (TotalBlocks)
-			{
-				Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-				Dataflash_SelectChip(DATAFLASH_CHIP1);
-
-				Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
-				VirtualMemory_SendAddressBytes(BlockAddress, 0);
-				
-				Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-				Dataflash_SelectChip(DATAFLASH_CHIP1);
-
-				Dataflash_SendByte(DF_CMD_GETSTATUS);	
-				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
-
-				BlockAddress++;
-
-				Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-				Dataflash_SelectChip(DATAFLASH_CHIP1);
-
-				Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
-				VirtualMemory_SendAddressBytes(BlockAddress, 0);
-
-				Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-				Dataflash_SelectChip(DATAFLASH_CHIP1);
-
-				Dataflash_SendByte(DF_CMD_GETSTATUS);	
-				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
-
-				Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-				Dataflash_SelectChip(DATAFLASH_CHIP1);
-
-				Dataflash_SendByte(DF_CMD_BUFF1WRITE);
-				VirtualMemory_SendAddressBytes(0, 0);
-			}
-		}
-
-		if (!(Endpoint_BytesInEndpoint()))
-		{
-			Endpoint_Out_Clear();
-
-			if (TotalBlocks)
-			  while (!(Endpoint_Out_IsRecieved()));
-		}
-	}
-
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-	Dataflash_SelectChip(DATAFLASH_CHIP1);
-			
-	Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
-	VirtualMemory_SendAddressBytes(BlockAddress, 0x00);
-			
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-	Dataflash_SelectChip(DATAFLASH_CHIP1);
-
-	Dataflash_SendByte(DF_CMD_GETSTATUS);	
-	while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
-
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);	
-}
-
-void VirtualMemory_ReadBlocksSimple(uint32_t BlockAddress, uint16_t TotalBlocks)
-{
-	uint16_t BytesInCurrBlock = 0;
-	uint8_t  BytesInEndpoint  = 0;
-
-	Dataflash_SelectChip(DATAFLASH_CHIP1);
-	
-	Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
-	VirtualMemory_SendAddressBytes(BlockAddress, 0);
-
-	Dataflash_SendByte(0);
-	Dataflash_SendByte(0);
-	Dataflash_SendByte(0);
-	Dataflash_SendByte(0);
-	
-//	printf("Read %d from %d\r\n", TotalBlocks, (uint16_t)BlockAddress);
-
-	while (TotalBlocks)
-	{
-		Endpoint_Write_Byte(Dataflash_SendByte(0));
-		
-		BytesInCurrBlock++;
-		BytesInEndpoint++;
-
-		if (BytesInCurrBlock == VIRTUAL_MEMORY_BLOCK_SIZE)
-		{
-			TotalBlocks--;
-			BytesInCurrBlock = 0;
-
-			if (TotalBlocks)
-			{
-				BlockAddress++;
-
-				Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-				Dataflash_SelectChip(DATAFLASH_CHIP1);
-
-				Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
-				VirtualMemory_SendAddressBytes(BlockAddress, 0);
-
-				Dataflash_SendByte(0);
-				Dataflash_SendByte(0);
-				Dataflash_SendByte(0);
-				Dataflash_SendByte(0);
-			}
-		}
-
-		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
-		{
-			Endpoint_In_Clear();
-			BytesInEndpoint = 0;
-			
-			if (TotalBlocks)
-			  while (!(Endpoint_ReadWriteAllowed()));
-		}
-	}
-
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-}
-
-/* NORMAL VERSIONS - Take dataflash page size into account */
-
 void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 {
 	uint16_t CurrDFPage       = VirtualMemory_DFPageFromBlock(BlockAddress);
@@ -187,6 +30,8 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 
 	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
 	VirtualMemory_SendAddressBytes(0, CurrDFByte);
+
+	while (!(Endpoint_ReadWriteAllowed()));
 
 	while (TotalBlocks)
 	{
@@ -223,9 +68,16 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 		}
 
 		Dataflash_SendByte(Endpoint_Read_Byte());
+		Dataflash_SendByte(Endpoint_Read_Byte());
+		Dataflash_SendByte(Endpoint_Read_Byte());
+		Dataflash_SendByte(Endpoint_Read_Byte());
+		Dataflash_SendByte(Endpoint_Read_Byte());
+		Dataflash_SendByte(Endpoint_Read_Byte());
+		Dataflash_SendByte(Endpoint_Read_Byte());
+		Dataflash_SendByte(Endpoint_Read_Byte());
 		
-		CurrDFByte++;
-		BytesInCurrBlock++;
+		CurrDFByte       += 8;
+		BytesInCurrBlock += 8;
 
 		if (BytesInCurrBlock == VIRTUAL_MEMORY_BLOCK_SIZE)
 		{
@@ -271,6 +123,8 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	Dataflash_SendByte(0);
 	Dataflash_SendByte(0);
 	Dataflash_SendByte(0);
+	
+	while (!(Endpoint_ReadWriteAllowed()));
 
 	while (TotalBlocks)
 	{
@@ -292,10 +146,17 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 		}
 
 		Endpoint_Write_Byte(Dataflash_SendByte(0));
+		Endpoint_Write_Byte(Dataflash_SendByte(0));
+		Endpoint_Write_Byte(Dataflash_SendByte(0));
+		Endpoint_Write_Byte(Dataflash_SendByte(0));
+		Endpoint_Write_Byte(Dataflash_SendByte(0));
+		Endpoint_Write_Byte(Dataflash_SendByte(0));
+		Endpoint_Write_Byte(Dataflash_SendByte(0));
+		Endpoint_Write_Byte(Dataflash_SendByte(0));
 		
-		CurrDFByte++;
-		BytesInCurrBlock++;
-		BytesInEndpoint++;
+		CurrDFByte       += 8;
+		BytesInCurrBlock += 8;
+		BytesInEndpoint  += 8;
 
 		if (BytesInCurrBlock == VIRTUAL_MEMORY_BLOCK_SIZE)
 		{

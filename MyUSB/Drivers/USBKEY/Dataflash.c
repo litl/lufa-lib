@@ -17,8 +17,7 @@ void Dataflash_Init(void)
 	DDRE  |= DATAFLASH_CHIPCS_MASK;
 	PORTE |= DATAFLASH_CHIPCS_MASK;
 
-	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << SPR0) | (1 << CPOL) | (1 << CPHA));
-	SPSR  = (1 << SPI2X);
+	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA));
 }
 
 void Dataflash_WaitWhileBusy(void)
