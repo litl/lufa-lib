@@ -181,7 +181,6 @@
 		bool SCSI_Command_ReadWrite_10(const bool IsDataRead);
 		bool SCSI_Command_Mode_Sense_6(void);
 		void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
-								 const uint8_t* PageDataPtr, const uint8_t AllocationLength);
-		void SCSI_WriteAllSensePages(const uint8_t AllocationLength);
+								 const uint8_t* PageDataPtr, const int16_t AllocationLength);
 
 #endif
