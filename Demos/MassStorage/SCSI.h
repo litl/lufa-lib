@@ -29,10 +29,7 @@
 
 		#define DATA_READ                                  true
 		#define DATA_WRITE                                 false
-		
-		#define MODE_10                                    true
-		#define MODE_6                                     false
-	
+			
 		#define SCSI_CMD_INQUIRY                           0x12
 		#define SCSI_CMD_REQUEST_SENSE                     0x03
 		#define SCSI_CMD_TEST_UNIT_READY                   0x00
@@ -43,7 +40,6 @@
 		#define SCSI_CMD_READ_10                           0x28
 		#define SCSI_CMD_VERIFY_10                         0x2F
 		#define SCSI_CMD_MODE_SENSE_6                      0x1A
-		#define SCSI_CMD_MODE_SENSE_10                     0x5A
 		
 		#define SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY    0x01
 		#define SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS   0x1C
@@ -183,9 +179,9 @@
 		bool SCSI_Command_Send_Diagnostic(void);
 		bool SCSI_Command_PreventAllowMediumRemoval(void);
 		bool SCSI_Command_ReadWrite_10(const bool IsDataRead);
-		bool SCSI_Command_Mode_Sense_610(const bool IsMode10);
-		void SCSI_WriteSensePage(const bool IsMode10, const uint8_t PageCode, const uint8_t PageSize,
+		bool SCSI_Command_Mode_Sense_6(void);
+		void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
 								 const uint8_t* PageDataPtr, const uint8_t AllocationLength);
-		void SCSI_WriteAllSensePages(const bool IsMode10, const uint8_t AllocationLength);
+		void SCSI_WriteAllSensePages(const uint8_t AllocationLength);
 
 #endif

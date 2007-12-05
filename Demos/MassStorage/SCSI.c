@@ -98,10 +98,7 @@ void SCSI_DecodeSCSICommand(void)
 			CommandSuccess = SCSI_Command_ReadWrite_10(DATA_READ);
 			break;
 		case SCSI_CMD_MODE_SENSE_6:
-			CommandSuccess = SCSI_Command_Mode_Sense_610(MODE_6);
-			break;			
-		case SCSI_CMD_MODE_SENSE_10:
-			CommandSuccess = SCSI_Command_Mode_Sense_610(MODE_10);
+			CommandSuccess = SCSI_Command_Mode_Sense_6();
 			break;			
 		default:
 			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
@@ -114,7 +111,7 @@ void SCSI_DecodeSCSICommand(void)
 	{
 		CommandStatus.Status = Command_Pass;
 		
-		printf("(PASS: %x) ", CommandBlock.SCSICommandData[0]);
+//		printf("(PASS: %x) ", CommandBlock.SCSICommandData[0]);
 
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_GOOD,
 		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
@@ -285,27 +282,26 @@ bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	return true;
 }
 
-bool SCSI_Command_Mode_Sense_610(const bool IsMode10)
+bool SCSI_Command_Mode_Sense_6(void)
 {
-	uint8_t  AllocationLength = ((IsMode10 == MODE_10) ? CommandBlock.SCSICommandData[8] :
-	                                                    CommandBlock.SCSICommandData[4]);							   
+	uint8_t  AllocationLength =  CommandBlock.SCSICommandData[4];							   
 	uint8_t  PageCode         = (CommandBlock.SCSICommandData[2] & 0x3F);
 										   
 	switch (PageCode)
 	{
 		case SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY:
-			SCSI_WriteSensePage(IsMode10, SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY,
-			                    sizeof(RecoveryPage),
+			SCSI_WriteSensePage(SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY,
+			                    sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t),
 			                    (uint8_t*)&RecoveryPage, AllocationLength);
 			break;
 		case SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS:
-			SCSI_WriteSensePage(IsMode10, SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS,
-			                    sizeof(InformationalExceptionsPage),
+			SCSI_WriteSensePage(SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS,
+			                    sizeof(SCSI_Informational_Exceptions_Sense_Page_t),
 			                    (uint8_t*)&InformationalExceptionsPage, AllocationLength);
 			break;
 		case SCSI_SENSE_PAGE_ALL:
-//			SCSI_WriteAllSensePages(IsMode10, AllocationLength);
-//			break;
+			SCSI_WriteAllSensePages(AllocationLength);
+			break;
 		default:
 			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
 						   SCSI_ASENSE_INVALID_FIELD_IN_CDB,
@@ -316,27 +312,18 @@ bool SCSI_Command_Mode_Sense_610(const bool IsMode10)
 	return true;
 }
 
-void SCSI_WriteSensePage(const bool IsMode10, const uint8_t PageCode, const uint8_t PageSize,
+void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
                          const uint8_t* PageDataPtr, const uint8_t AllocationLength)
 {
-	uint8_t BytesTransferred = 0;
+	uint8_t BytesTransferred = 6;
 
-	if (IsMode10 == MODE_10)
-	{
-		Endpoint_Write_Word_BE(PageSize + 5);	
-		Endpoint_Write_DWord_BE(0x00000000);
-		Endpoint_Write_Word_BE(0x0000);
-	}
-	else
-	{
-		Endpoint_Write_Byte(PageSize + 5);	
-		Endpoint_Write_Word_BE(0x0000);
-		Endpoint_Write_Byte(0x00);
-	}
+	Endpoint_Write_Byte(PageSize + 5);	
+	Endpoint_Write_Word_BE(0x0000);
+	Endpoint_Write_Byte(0x00);
 
 	Endpoint_Write_Byte(PageCode);
 	Endpoint_Write_Byte(PageSize);
-			
+	
 	for (uint8_t i = 0; i < PageSize; i++)
 	{
 		if (BytesTransferred == AllocationLength)
@@ -347,48 +334,28 @@ void SCSI_WriteSensePage(const bool IsMode10, const uint8_t PageCode, const uint
 	}
 	
 	Endpoint_In_Clear();
-
 	CommandBlock.Header.DataTransferLength -= AllocationLength;
 }
 
-void SCSI_WriteAllSensePages(const bool IsMode10, const uint8_t AllocationLength)
+void SCSI_WriteAllSensePages(const uint8_t AllocationLength)
 {
-	uint8_t  BytesTransferred = 0;
+	uint8_t  BytesTransferred = 6;
 	uint8_t* PageDataPtr;
 
-	if (IsMode10 == MODE_10)
-	{
-		Endpoint_Write_Word_BE(sizeof(RecoveryPage) + sizeof(InformationalExceptionsPage) + 7);	
-		Endpoint_Write_DWord_BE(0x00000000);
-		Endpoint_Write_Word_BE(0x0000);
-		
-		BytesTransferred = 8;
-		
-		if (AllocationLength == 8)
-		{
-			Endpoint_In_Clear();
-			CommandBlock.Header.DataTransferLength -= 8;
-			return;
-		}
-	}
-	else
-	{
-		Endpoint_Write_Byte(sizeof(RecoveryPage) + sizeof(InformationalExceptionsPage) + 7);	
-		Endpoint_Write_Word_BE(0x0000);
-		Endpoint_Write_Byte(0x00);
+	Endpoint_Write_Byte(sizeof(RecoveryPage) + sizeof(InformationalExceptionsPage) + 7);	
+	Endpoint_Write_Word_BE(0x0000);
+	Endpoint_Write_Byte(0x00);
 
-		BytesTransferred = 4;
-
-		if (AllocationLength == 4)
-		{
-			Endpoint_In_Clear();
-			CommandBlock.Header.DataTransferLength -= 4;
-			return;
-		}
+	if (AllocationLength == 4)
+	{
+		Endpoint_In_Clear();
+		CommandBlock.Header.DataTransferLength -= 4;
+		return;
 	}
 
 	Endpoint_Write_Byte(SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY);
 	Endpoint_Write_Byte(sizeof(RecoveryPage));
+	
 	PageDataPtr = (uint8_t*)&RecoveryPage;
 	
 	for (uint8_t i = 0; i < sizeof(RecoveryPage); i++)
