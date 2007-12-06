@@ -18,7 +18,16 @@
 		#include "../HighLevel/Events.h"
 		#include "../../../Common/Common.h"
 		
-	/* Public Interface - May be used in end-application: */		
+	/* Public Interface - May be used in end-application: */
+		/* Macros: */
+			#define ENDPOINT_PIPE_vect                       USB_COM_vect
+	
+			#define USB_INT_Enable(int)              MACROS{ USB_INT_GET_EN_REG(int)   |=   USB_INT_GET_EN_MASK(int);   }MACROE
+			#define USB_INT_Disable(int)             MACROS{ USB_INT_GET_EN_REG(int)   &= ~(USB_INT_GET_EN_MASK(int));  }MACROE
+			#define USB_INT_Clear(int)               MACROS{ USB_INT_GET_INT_REG(int)  &= ~(USB_INT_GET_INT_MASK(int)); }MACROE
+			#define USB_INT_IsEnabled(int)                 ((USB_INT_GET_EN_REG(int)   &    USB_INT_GET_EN_MASK(int)) ? true : false)
+			#define USB_INT_HasOccurred(int)               ((USB_INT_GET_INT_REG(int)  &    USB_INT_GET_INT_MASK(int)) ? true : false)
+		
 		/* Throwable Events: */
 			RAISES_EVENT(USB_VBUSChange);
 			RAISES_EVENT(USB_VBUSConnect);
@@ -63,12 +72,6 @@
 			#define USB_INT_GET_INT_REG(a, b, c, d)          c
 			#define USB_INT_GET_INT_MASK(a, b, c, d)         d
 
-			#define USB_INT_ENABLE(int)              MACROS{ USB_INT_GET_EN_REG(int)   |=   USB_INT_GET_EN_MASK(int);   }MACROE
-			#define USB_INT_DISABLE(int)             MACROS{ USB_INT_GET_EN_REG(int)   &= ~(USB_INT_GET_EN_MASK(int));  }MACROE
-			#define USB_INT_CLEAR(int)               MACROS{ USB_INT_GET_INT_REG(int)  &= ~(USB_INT_GET_INT_MASK(int)); }MACROE
-			#define USB_INT_ISENABLED(int)                 ((USB_INT_GET_EN_REG(int)   &    USB_INT_GET_EN_MASK(int)) ? true : false)
-			#define USB_INT_OCCURRED(int)                  ((USB_INT_GET_INT_REG(int)  &    USB_INT_GET_INT_MASK(int)) ? true : false)
-		
 			#define USB_INT_VBUS                             USBCON, (1 << VBUSTE) , USBINT, (1 << VBUSTI)
 			#define USB_INT_IDTI                             USBCON, (1 << IDTE)   , USBINT, (1 << IDTI)
 			#define USB_INT_WAKEUP                           UDIEN , (1 << WAKEUPE), UDINT , (1 << WAKEUPI)

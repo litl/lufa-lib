@@ -41,8 +41,8 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	{
 		UHWCON |=  (1 << UIDE);
 
-		USB_INT_CLEAR(USB_INT_IDTI);
-		USB_INT_ENABLE(USB_INT_IDTI);
+		USB_INT_Clear(USB_INT_IDTI);
+		USB_INT_Enable(USB_INT_IDTI);
 	}
 	else if (Mode == USB_MODE_DEVICE)
 	{
@@ -73,12 +73,12 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	USB_Options = Options;
 
 	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
-	USB_INT_ENABLE(USB_INT_VBUS);
+	USB_INT_Enable(USB_INT_VBUS);
 	#elif defined(USB_HOST_ONLY) // USB_HOST_ONLY
 	USB_SetupInterface();
 	#else // All modes
 	if (USB_CurrentMode == USB_MODE_DEVICE)
-	  USB_INT_ENABLE(USB_INT_VBUS);
+	  USB_INT_Enable(USB_INT_VBUS);
 	else
 	  USB_SetupInterface();
 	#endif
@@ -145,8 +145,8 @@ bool USB_SetupInterface(void)
 	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 	if (UHWCON & (1 << UIDE))
 	{
-		USB_INT_CLEAR(USB_INT_IDTI);
-		USB_INT_ENABLE(USB_INT_IDTI);
+		USB_INT_Clear(USB_INT_IDTI);
+		USB_INT_Enable(USB_INT_IDTI);
 	}
 	#endif
 
@@ -161,7 +161,7 @@ bool USB_SetupInterface(void)
 	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
 	if (UHWCON & (1 << UIDE))
 	{
-		USB_INT_ENABLE(USB_INT_IDTI);
+		USB_INT_Enable(USB_INT_IDTI);
 		USB_CurrentMode = USB_GetUSBModeFromUID();
 	}
 	#endif
@@ -174,7 +174,7 @@ bool USB_SetupInterface(void)
 		else
 		  USB_DEV_SetHighSpeed();
 		  
-		USB_INT_ENABLE(USB_INT_VBUS);
+		USB_INT_Enable(USB_INT_VBUS);
 	}
 	#elif defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
 	if (USB_Options & USB_DEV_OPT_LOWSPEED)
@@ -182,7 +182,7 @@ bool USB_SetupInterface(void)
 	else
 	  USB_DEV_SetHighSpeed();
 		  
-	USB_INT_ENABLE(USB_INT_VBUS);
+	USB_INT_Enable(USB_INT_VBUS);
 	#endif
 		
 	if (!(USB_Options & USB_OPT_REG_DISABLED))
@@ -197,7 +197,7 @@ bool USB_SetupInterface(void)
 	USB_CLK_Unfreeze();
 
 	#if !defined(USB_DEVICE_ONLY)
-	USB_INT_ENABLE(USB_INT_VBERRI);
+	USB_INT_Enable(USB_INT_VBERRI);
 	#endif
 	
 	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
@@ -213,15 +213,15 @@ bool USB_SetupInterface(void)
 		return USB_SETUPINTERFACE_FAIL;
 	}
 
-	USB_INT_ENABLE(USB_INT_SUSPEND);
-	USB_INT_ENABLE(USB_INT_EORSTI);	
+	USB_INT_Enable(USB_INT_SUSPEND);
+	USB_INT_Enable(USB_INT_EORSTI);	
 	#elif defined(USB_HOST_ONLY) // USB_HOST_ONLY
 	USB_Attach();
 	USB_HOST_HostModeOn();
 
 	if (USB_Options & USB_HOST_OPT_MANUALVBUS)
 	{
-		USB_INT_CLEAR(USB_INT_SRPI);
+		USB_INT_Clear(USB_INT_SRPI);
 		USB_HOST_ManualVBUS_Enable();
 	}
 	#else // All modes
@@ -239,8 +239,8 @@ bool USB_SetupInterface(void)
 			return USB_SETUPINTERFACE_FAIL;
 		}
 
-		USB_INT_ENABLE(USB_INT_SUSPEND);
-		USB_INT_ENABLE(USB_INT_EORSTI);
+		USB_INT_Enable(USB_INT_SUSPEND);
+		USB_INT_Enable(USB_INT_EORSTI);
 	}
 	else if (USB_CurrentMode == USB_MODE_HOST)
 	{
@@ -249,7 +249,7 @@ bool USB_SetupInterface(void)
 
 		if (USB_Options & USB_HOST_OPT_MANUALVBUS)
 		{
-			USB_INT_CLEAR(USB_INT_SRPI);
+			USB_INT_Clear(USB_INT_SRPI);
 			USB_HOST_ManualVBUS_Enable();
 		}
 	}

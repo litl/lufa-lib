@@ -80,19 +80,19 @@ static void USB_HostTask(void)
 
 			if (USB_VBUS_GetStatus())
 			{
-				USB_INT_CLEAR(USB_INT_BCERRI);
+				USB_INT_Clear(USB_INT_BCERRI);
 				USB_HostState = HOST_STATE_Attached;
 			}
 
 			break;
 		case HOST_STATE_Attached:
-			if (USB_INT_OCCURRED(USB_INT_SRPI) || USB_INT_OCCURRED(USB_INT_DCONNI))
+			if (USB_INT_HasOccurred(USB_INT_SRPI) || USB_INT_HasOccurred(USB_INT_DCONNI))
 			{
-				USB_INT_CLEAR(USB_INT_SRPI);
-				USB_INT_CLEAR(USB_INT_DCONNI);
-				USB_INT_CLEAR(USB_INT_DDISCI);
+				USB_INT_Clear(USB_INT_SRPI);
+				USB_INT_Clear(USB_INT_DCONNI);
+				USB_INT_Clear(USB_INT_DDISCI);
 				
-				USB_INT_ENABLE(USB_INT_DDISCI);
+				USB_INT_Enable(USB_INT_DDISCI);
 
 				RAISE_EVENT(USB_DeviceAttached);
 
@@ -127,13 +127,13 @@ static void USB_HostTask(void)
 
 				USB_HostState = HOST_STATE_Powered;
 			}
-			else if (USB_INT_OCCURRED(USB_INT_BCERRI))
+			else if (USB_INT_HasOccurred(USB_INT_BCERRI))
 			{
 				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
 				  USB_HOST_AutoVBUS_Off();
 
 				RAISE_EVENT(USB_DeviceUnattached);
-				USB_INT_CLEAR(USB_INT_BCERRI);
+				USB_INT_Clear(USB_INT_BCERRI);
 
 				USB_HostState = HOST_STATE_Unattached;
 			}

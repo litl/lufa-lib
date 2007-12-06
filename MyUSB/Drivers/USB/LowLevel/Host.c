@@ -16,20 +16,20 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 	bool    SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
 	uint8_t ErrorCode      = HOST_WAITERROR_Sucessful;
 	
-	USB_INT_CLEAR(USB_INT_HSOFI);
+	USB_INT_Clear(USB_INT_HSOFI);
 	USB_HOST_SOFGeneration_Enable();
 
 	while (MS)
 	{
-		if (USB_INT_OCCURRED(USB_INT_HSOFI))
+		if (USB_INT_HasOccurred(USB_INT_HSOFI))
 		{
-			USB_INT_CLEAR(USB_INT_HSOFI);
+			USB_INT_Clear(USB_INT_HSOFI);
 						
 			MS--;
 		}
 					
-		if (USB_INT_OCCURRED(USB_INT_DDISCI) || (USB_IsConnected == false) ||
-		    USB_INT_OCCURRED(USB_INT_BCERRI) || (USB_CurrentMode == USB_MODE_DEVICE))
+		if (USB_INT_HasOccurred(USB_INT_DDISCI) || (USB_IsConnected == false) ||
+		    USB_INT_HasOccurred(USB_INT_BCERRI) || (USB_CurrentMode == USB_MODE_DEVICE))
 		{
 			ErrorCode = HOST_WAITERROR_DeviceDisconnect;
 			
@@ -57,24 +57,24 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 	if (!(SOFGenEnabled))
 	  USB_HOST_SOFGeneration_Disable();
 
-	USB_INT_CLEAR(USB_INT_HSOFI);
+	USB_INT_Clear(USB_INT_HSOFI);
 
 	return ErrorCode;
 }
 
 void USB_Host_ResetDevice(void)
 {
-	USB_INT_DISABLE(USB_INT_SRPI);
-	USB_INT_DISABLE(USB_INT_DCONNI);
+	USB_INT_Disable(USB_INT_SRPI);
+	USB_INT_Disable(USB_INT_DCONNI);
 
 	USB_HOST_ResetBus();
 
-	USB_INT_CLEAR(USB_INT_SRPI);
-	USB_INT_CLEAR(USB_INT_DCONNI);
+	USB_INT_Clear(USB_INT_SRPI);
+	USB_INT_Clear(USB_INT_DCONNI);
 
 	while (!(USB_HOST_ResetBus_IsDone()));
 
-	USB_INT_ENABLE(USB_INT_SRPI);
-	USB_INT_ENABLE(USB_INT_DCONNI);
+	USB_INT_Enable(USB_INT_SRPI);
+	USB_INT_Enable(USB_INT_DCONNI);
 }
 #endif

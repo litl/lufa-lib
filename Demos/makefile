@@ -34,9 +34,15 @@ all:
 	make -C MouseHost clean
 	make -C MouseHost all
 
+	make -C MouseHostViaInt clean
+	make -C MouseHostViaInt all
+
 	make -C KeyboardHost clean
 	make -C KeyboardHost all
 	
+	make -C KeyboardHostViaInt clean
+	make -C KeyboardHostViaInt all
+
 	make -C CDC clean
 	make -C CDC all
 	
@@ -65,7 +71,9 @@ clean_list:
 	make -C Magstripe clean_list
 	make -C Joystick clean_list
 	make -C MouseHost clean_list
+	make -C MouseHostViaInt clean
 	make -C KeyboardHost clean_list
+	make -C KeyboardHostViaInt clean_list
 	make -C CDC clean_list
 	make -C USBtoSerial clean_list
 	make -C MassStorage clean_list

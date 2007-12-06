@@ -41,7 +41,7 @@
 					
 			#define USB_SETUPINTERFACE_OK              true
 			#define USB_SETUPINTERFACE_FAIL            false
-							
+
 			#define USB_VBUS_GetStatus()             ((USBSTA  & (1 << VBUS)) ? true : false)
 	
 			#define USB_Detach()               MACROS{ UDCON   |=  (1 << DETACH);  }MACROE
