@@ -28,8 +28,9 @@
 		                                               VIRTUAL_MEMORY_BLOCK_SIZE)
 													
 	// Function Prototypes:
-		void            VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks);
-		void            VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks);
+		void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks);
+		void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks);
+		void VirtualMemory_ResetDataflashProtections(void);
 
 		#if defined(INCLUDE_FROM_DATAFLASHMANAGER_C)
 			static uint16_t VirtualMemory_DFPageFromBlock(const uint32_t BlockAddress);

@@ -336,7 +336,7 @@ static bool SCSI_Command_Mode_Sense_6(void)
 }
 
 static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
-                         const uint8_t* PageDataPtr, const int16_t AllocationLength)
+                                const uint8_t* PageDataPtr, const int16_t AllocationLength)
 {
 	uint8_t BytesTransferred;
 

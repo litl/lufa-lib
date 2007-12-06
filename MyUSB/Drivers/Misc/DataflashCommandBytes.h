@@ -50,4 +50,9 @@
 			#define DF_CMD_CHIPERASE_BYTE3                  0x80
 			#define DF_CMD_CHIPERASE_BYTE4                  0x9A
 			
+			#define DF_CMD_SECTORPROTECTIONOFF_BYTE1        0x3D
+			#define DF_CMD_SECTORPROTECTIONOFF_BYTE2        0x2A
+			#define DF_CMD_SECTORPROTECTIONOFF_BYTE3        0x7F
+			#define DF_CMD_SECTORPROTECTIONOFF_BYTE4        0x9A
+
 #endif

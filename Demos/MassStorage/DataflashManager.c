@@ -158,6 +158,36 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
 }
 
+void VirtualMemory_ResetDataflashProtections(void)
+{
+	Dataflash_SelectChip(DATAFLASH_CHIP1);
+	
+	Dataflash_SendByte(DF_CMD_GETSTATUS);
+	if (Dataflash_SendByte(0x00) & 0x02)
+	{
+		Dataflash_ToggleSelectedChipCS();
+
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE1);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE2);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE3);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE4);
+	}
+	
+	Dataflash_SelectChip(DATAFLASH_CHIP2);
+	Dataflash_SendByte(DF_CMD_GETSTATUS);
+	if (Dataflash_SendByte(0x00) & 0x02)
+	{
+		Dataflash_ToggleSelectedChipCS();
+
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE1);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE2);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE3);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE4);
+	}
+	
+	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+}
+
 static void VirtualMemory_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferAddress)
 {
 	if (Dataflash_GetSelectedChip() == DATAFLASH_CHIP2)

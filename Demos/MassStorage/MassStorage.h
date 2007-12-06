@@ -16,6 +16,7 @@
 
 		#include "Descriptors.h"
 		#include "SCSI.h"
+		#include "DataflashManager.h"
 
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality

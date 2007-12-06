@@ -18,6 +18,10 @@
 		#include "../../Common/Common.h"
 		#include "../Misc/DataflashCommandBytes.h"
 		
+	/* Private Interface - For use in library only: */
+		/* Macros */
+			#define DATAFLASH_CHIPCS_MASK        (DATAFLASH_CHIP1 | DATAFLASH_CHIP2)
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define DATAFLASH_NO_CHIP            DATAFLASH_CHIPCS_MASK
@@ -51,9 +55,5 @@
 				Dataflash_SendByte(DF_CMD_GETSTATUS);
 				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
 			}
-
-	/* Private Interface - For use in library only: */
-		/* Macros */
-			#define DATAFLASH_CHIPCS_MASK        (DATAFLASH_CHIP1 | DATAFLASH_CHIP2)
 
 #endif

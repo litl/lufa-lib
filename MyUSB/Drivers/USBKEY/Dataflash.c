@@ -22,12 +22,12 @@ void Dataflash_Init(void)
 
 bool Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 {
-	if (PageAddress < DATAFLASH_PAGE_SIZE)
+	if (PageAddress < DATAFLASH_PAGES)
 	{
 		Dataflash_SelectChip(DATAFLASH_CHIP1);
 		return true;
 	}
-	else if (PageAddress < (DATAFLASH_PAGE_SIZE * 2))
+	else if (PageAddress < (DATAFLASH_PAGES * 2))
 	{
 		Dataflash_SelectChip(DATAFLASH_CHIP2);
 		return true;
