@@ -57,17 +57,17 @@
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UPINTX, (1 << RXOUTI)
 
 			#define Endpoint_BytesInEndpoint()                 UEBCX
-			#define Endpoint_GetCurrentEndpoint()             (UENUM & ENDPOINT_EPNUM_MASK)
-			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM   = (epnum & ENDPOINT_EPNUM_MASK); }MACROE
-			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST   = (1 << epnum); UERST = 0;       }MACROE
-			#define Endpoint_EnableEndpoint()          MACROS{ UECONX |=  (1 << EPEN);                  }MACROE
-			#define Endpoint_DisableEndpoint()         MACROS{ UECONX &= ~(1 << EPEN);                  }MACROE
-			#define Endpoint_IsEnabled()                       ((UECONX &   (1 << EPEN)) ? true : false)
-			#define Endpoint_Reset(epnum)              MACROS{ UENUM = epnum; uint8_t temp = UECONX; UECONX = (temp | (1 << EPEN)); UECONX = (temp & ~(1 << EPEN)); }MACROE
+			#define Endpoint_GetCurrentEndpoint()             (UENUM   & ENDPOINT_EPNUM_MASK)
+			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM    = (epnum & ENDPOINT_EPNUM_MASK); }MACROE
+			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST    = (1 << epnum); UERST = 0;       }MACROE
+			#define Endpoint_EnableEndpoint()          MACROS{ UECONX  |=  (1 << EPEN);                  }MACROE
+			#define Endpoint_DisableEndpoint()         MACROS{ UECONX  &= ~(1 << EPEN);                  }MACROE
+			#define Endpoint_IsEnabled()                     ((UECONX  &   (1 << EPEN)) ? true : false)
+			#define Endpoint_ResetEndpoint(epnum)      MACROS{ UENUM    = epnum; uint8_t temp = UECONX; UECONX = (temp | (1 << EPEN)); UECONX = (temp & ~(1 << EPEN)); }MACROE
 			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);                }MACROE
 			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);                }MACROE
 			
-			#define Endpoint_ReadWriteAllowed()              ((UEINTX & (1 << RWAL)) ? true : false)
+			#define Endpoint_ReadWriteAllowed()              ((UEINTX  & (1 << RWAL)) ? true : false)
 
 			
 			#define Endpoint_ConfigureEndpoint(num, type, dir, size, banks)                           \
@@ -76,12 +76,12 @@
 											           ((Endpoint_BytesToEPSizeMask(size) << EPSIZE0) | banks))
 			#define Endpoint_IsConfigured()                  ((UESTA0X & (1 << CFGOK)) ? ENDPOINT_CONFIG_OK : ENDPOINT_CONFIG_FAIL)
 			#define Endpoint_GetEndpointInterrupts()           UEINT
-			#define Endpoint_ClearEndpointInterrupt(n) MACROS{ UEINT  &= ~(1 << n);                     }MACROE
+			#define Endpoint_ClearEndpointInterrupt(n) MACROS{ UEINT   &= ~(1 << n);                     }MACROE
 
 			#define Endpoint_FIFOCON_Clear()           MACROS{ UEINTX  &= ~(1 << FIFOCON);              }MACROE
 			
-			#define Endpoint_In_Clear()                MACROS{ UEINTX &= ~(1 << TXINI); UEINTX &= ~(1 << FIFOCON); }MACROE
-			#define Endpoint_Out_Clear()               MACROS{ UEINTX &= ~(1 << RXOUTI); UEINTX &= ~(1 << FIFOCON); }MACROE
+			#define Endpoint_In_Clear()                MACROS{ UEINTX  &= ~(1 << TXINI); UEINTX &= ~(1 << FIFOCON); }MACROE
+			#define Endpoint_Out_Clear()               MACROS{ UEINTX  &= ~(1 << RXOUTI); UEINTX &= ~(1 << FIFOCON); }MACROE
 
 			#define Endpoint_In_IsReady()                    ((UEINTX  &   (1 << TXINI)) ? true : false)
 			#define Endpoint_Out_IsRecieved()                ((UEINTX  &   (1 << RXOUTI)) ? true: false)
@@ -89,9 +89,9 @@
 			#define Endpoint_ClearSetupRecieved()      MACROS{ UEINTX  &= ~(1 << RXSTPI);               }MACROE
 			#define Endpoint_Stall_Transaction()       MACROS{ UECONX  |=  (1 << STALLRQ);              }MACROE
 			#define Endpoint_ClearStall()              MACROS{ UECONX  &= ~(1 << STALLRQ);              }MACROE
-			#define Endpoint_IsStalled()                     ((UECONX  &   (1 << STALLRQ)) ? true : false)
+			#define Endpoint_IsStalled()                     ((UECONX  &    (1 << STALLRQ)) ? true : false)
 
-			#define Endpoint_ResetDataToggle()         MACROS{ UECONX |= (1 << RSTDT);                  }MACROE
+			#define Endpoint_ResetDataToggle()         MACROS{ UECONX  |= (1 << RSTDT);                  }MACROE
 
 		/* Function Aliases */
 			static inline uint16_t Endpoint_Read_Word(void)            ATTR_ALIAS(Endpoint_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;

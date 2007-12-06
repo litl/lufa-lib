@@ -75,8 +75,7 @@ static void USB_HostTask(void)
 	switch (USB_HostState)
 	{
 		case HOST_STATE_Unattached:
-			if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
-			  USB_HOST_AutoVBUS_On();
+			USB_HOST_VBUS_On();
 
 			if (USB_VBUS_GetStatus())
 			{
@@ -86,9 +85,8 @@ static void USB_HostTask(void)
 
 			break;
 		case HOST_STATE_Attached:
-			if (USB_INT_HasOccurred(USB_INT_SRPI) || USB_INT_HasOccurred(USB_INT_DCONNI))
+			if (USB_INT_HasOccurred(USB_INT_DCONNI))
 			{
-				USB_INT_Clear(USB_INT_SRPI);
 				USB_INT_Clear(USB_INT_DCONNI);
 				USB_INT_Clear(USB_INT_DDISCI);
 				
@@ -103,8 +101,7 @@ static void USB_HostTask(void)
 					
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
-					if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
-					  USB_HOST_AutoVBUS_Off();
+					USB_HOST_VBUS_Off();
 
 					RAISE_EVENT(USB_DeviceUnattached);
 
@@ -116,8 +113,7 @@ static void USB_HostTask(void)
 					
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
-					if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
-					  USB_HOST_AutoVBUS_Off();
+					USB_HOST_VBUS_Off();
 
 					RAISE_EVENT(USB_DeviceUnattached);
 
@@ -129,8 +125,7 @@ static void USB_HostTask(void)
 			}
 			else if (USB_INT_HasOccurred(USB_INT_BCERRI))
 			{
-				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
-				  USB_HOST_AutoVBUS_Off();
+				USB_HOST_VBUS_Off();
 
 				RAISE_EVENT(USB_DeviceUnattached);
 				USB_INT_Clear(USB_INT_BCERRI);
@@ -162,8 +157,7 @@ static void USB_HostTask(void)
 			if (USB_Host_SendControlRequest(DataBuffer)
 			    != HOST_SENDCONTROL_Sucessful)
 			{
-				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
-				  USB_HOST_AutoVBUS_Off();
+				USB_HOST_VBUS_Off();
 
 				RAISE_EVENT(USB_DeviceUnattached);
 
@@ -185,8 +179,7 @@ static void USB_HostTask(void)
 
 			if (Pipe_IsConfigured() == PIPE_CONFIG_FAIL)
 			{
-				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
-				  USB_HOST_AutoVBUS_Off();
+				USB_HOST_VBUS_Off();
 
 				RAISE_EVENT(USB_DeviceUnattached);
 
@@ -202,8 +195,7 @@ static void USB_HostTask(void)
 
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
-				if (!(USB_Options & USB_HOST_OPT_MANUALVBUS))
-				  USB_HOST_AutoVBUS_Off();
+				USB_HOST_VBUS_Off();
 
 				RAISE_EVENT(USB_DeviceUnattached);
 

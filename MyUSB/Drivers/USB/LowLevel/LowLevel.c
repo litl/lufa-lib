@@ -118,8 +118,6 @@ void USB_ResetInterface(void)
 	#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 	Pipe_ClearPipes();
 	USB_HOST_VBUS_Off();
-	USB_HOST_AutoVBUS_Off();
-	USB_HOST_ManualVBUS_Disable();
 	USB_HOST_HostModeOff();
 	#endif
 	
@@ -218,12 +216,6 @@ bool USB_SetupInterface(void)
 	#elif defined(USB_HOST_ONLY) // USB_HOST_ONLY
 	USB_Attach();
 	USB_HOST_HostModeOn();
-
-	if (USB_Options & USB_HOST_OPT_MANUALVBUS)
-	{
-		USB_INT_Clear(USB_INT_SRPI);
-		USB_HOST_ManualVBUS_Enable();
-	}
 	#else // All modes
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
@@ -246,12 +238,6 @@ bool USB_SetupInterface(void)
 	{
 		USB_Attach();
 		USB_HOST_HostModeOn();
-
-		if (USB_Options & USB_HOST_OPT_MANUALVBUS)
-		{
-			USB_INT_Clear(USB_INT_SRPI);
-			USB_HOST_ManualVBUS_Enable();
-		}
 	}
 	#endif
 	

@@ -54,7 +54,7 @@ int main(void)
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	
 	/* Initialize USB Subsystem */
-	USB_Init(USB_MODE_HOST, USB_HOST_OPT_AUTOVBUS | USB_OPT_REG_ENABLED);
+	USB_Init(USB_MODE_HOST, USB_OPT_REG_ENABLED);
 
 	/* Startup message */
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
@@ -186,24 +186,14 @@ TASK(USB_Keyboard_Host)
 						  
 					char PressedKey = 0;
 
-					if ((KeyboardReport.KeyCode >= 0x04) &&
-					    (KeyboardReport.KeyCode <= 0x1D))
-					{
-						PressedKey = (KeyboardReport.KeyCode - 0x04) + 'A';
-					}
-					else if ((KeyboardReport.KeyCode >= 0x1E) &&
-					         (KeyboardReport.KeyCode <= 0x27))
-					{
-						PressedKey = (KeyboardReport.KeyCode - 0x1E) + '0';
-					}
+					if ((KeyboardReport.KeyCode >= 0x04) && (KeyboardReport.KeyCode <= 0x1D))
+					  PressedKey = (KeyboardReport.KeyCode - 0x04) + 'A';
+					else if ((KeyboardReport.KeyCode >= 0x1E) && (KeyboardReport.KeyCode <= 0x27))
+					  PressedKey = (KeyboardReport.KeyCode - 0x1E) + '0';
 					else if (KeyboardReport.KeyCode == 0x2C)
-					{
-						PressedKey = ' ';						
-					}
+					  PressedKey = ' ';						
 					else if (KeyboardReport.KeyCode == 0x28)
-					{
-						PressedKey = '\n';
-					}
+					  PressedKey = '\n';
 						 
 					if (PressedKey)
 					  printf_P(PSTR("%c"), PressedKey);

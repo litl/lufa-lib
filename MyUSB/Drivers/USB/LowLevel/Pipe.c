@@ -22,6 +22,7 @@ bool Pipe_ConfigurePipe_P(const uint8_t PipeNum,
 	
 	UPCFG0X = UPCFG0Xdata;
 	UPCFG1X = ((UPCFG1X & (1 << ALLOC)) | UPCFG1Xdata);
+	UPCFG2X = 0;
 	
 	Pipe_AllocateMemory();
 	
@@ -34,6 +35,7 @@ void Pipe_ClearPipes(void)
 	{
 		Pipe_ResetPipe(PNum);
 		Pipe_SelectPipe(PNum);
+		UPIENX = 0;
 		Pipe_DeallocateMemory();
 		Pipe_DisablePipe();
 	}

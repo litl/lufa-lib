@@ -178,9 +178,7 @@ TASK(TestApp_CheckHWB)
 				Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
 				puts_P(PSTR(ESC_BG_YELLOW "USB Power On.\r\n"));
 				
-				USB_Init(USB_MODE_UID, USB_HOST_OPT_AUTOVBUS |
-				                       USB_DEV_OPT_HIGHSPEED |
-				                       USB_OPT_REG_ENABLED);
+				USB_Init(USB_MODE_UID, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
 			}
 		}
 	}

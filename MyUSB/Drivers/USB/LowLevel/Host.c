@@ -64,17 +64,12 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 
 void USB_Host_ResetDevice(void)
 {
-	USB_INT_Disable(USB_INT_SRPI);
 	USB_INT_Disable(USB_INT_DCONNI);
 
 	USB_HOST_ResetBus();
 
-	USB_INT_Clear(USB_INT_SRPI);
 	USB_INT_Clear(USB_INT_DCONNI);
-
 	while (!(USB_HOST_ResetBus_IsDone()));
-
-	USB_INT_Enable(USB_INT_SRPI);
 	USB_INT_Enable(USB_INT_DCONNI);
 }
 #endif

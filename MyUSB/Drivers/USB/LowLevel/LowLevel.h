@@ -36,8 +36,8 @@
 			#define USB_MODE_HOST                      2
 			#define USB_MODE_UID                       3
 			
-			#define USB_OPT_REG_DISABLED               (1 << 2)
-			#define USB_OPT_REG_ENABLED                (0 << 2)
+			#define USB_OPT_REG_DISABLED               (1 << 1)
+			#define USB_OPT_REG_ENABLED                (0 << 1)
 					
 			#define USB_SETUPINTERFACE_OK              true
 			#define USB_SETUPINTERFACE_FAIL            false
