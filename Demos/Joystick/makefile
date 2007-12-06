@@ -626,7 +626,6 @@ clean_list:
 	$(REMOVE) $(SRC:.c=.s)
 	$(REMOVE) $(SRC:.c=.d)
 	$(REMOVE) $(SRC:.c=.i)
-	$(REMOVE) MethodSigs.txt
 	$(REMOVEDIR) .dep
 
 

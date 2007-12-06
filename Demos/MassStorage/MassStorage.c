@@ -22,10 +22,9 @@
 	
 	The two USB status LEDs indicate the status of the device. The first
 	LED is lit in green when the device may be removed from the host, and
-	red when the host has requested that it not be removed (i.e., while
-	the host I/O cache is non-empty or the device is busy). The second LED
-	is lit in green when idling, orange when executing a command from the
-	host and red when the host send an invalid USB command.
+	red when the host is busy writing to or reading from the device. The
+	second LED is lit in green when idling, orange when executing a command
+	from the host and red when the host send an invalid USB command.
 	
 	You will need to format the mass storage device upon first run of this
 	demonstration.

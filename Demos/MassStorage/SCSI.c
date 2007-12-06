@@ -265,12 +265,6 @@ static bool SCSI_Command_Send_Diagnostic(void)
 
 static bool SCSI_Command_PreventAllowMediumRemoval(void)
 {
-	/* Check the ALLOW bit - if set, device should not be removed (indicate with LEDs) */
-	if (CommandBlock.SCSICommandData[4] & (1 << 0))
-	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);
-	else
-	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
-	
 	/* Indicate all bytes processed and succeed the command */
 	CommandBlock.Header.DataTransferLength = 0;
 	return true;
@@ -302,11 +296,17 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 		return false;
 	}
 
+	/* Indicate dataflash in use */
+	Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);
+
 	/* Determine if the packet is a READ (10) or WRITE (10) command, call appropriate function */
 	if (IsDataRead == DATA_READ)
 	  VirtualMemory_ReadBlocks(BlockAddress, TotalBlocks);	
 	else
 	  VirtualMemory_WriteBlocks(BlockAddress, TotalBlocks);
+
+	/* Indicate dataflash no longer in use */
+	Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
 
 	/* Update the bytes transferred counter and succeed the command */
 	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
