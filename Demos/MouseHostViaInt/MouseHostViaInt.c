@@ -98,27 +98,31 @@ TASK(USB_Mouse_Host)
 	if (!(USB_IsConnected))
 		return;
 
+	/* Switch to determine what user-application handled host state the host state machine is in */
 	switch (USB_HostState)
 	{
 		case HOST_STATE_Addressed:
+			/* Standard request to set the device configuration to configuration 1 */
 			USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
 			USB_HostRequest.RequestData    = REQ_SetConfiguration;
 			USB_HostRequest.Value          = 1;
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = USB_ControlPipeSize;
 
+			/* Send the request, display error and wait for device detatch if request fails */
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
 				puts_P(PSTR("Control error."));
 
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected); // Wait for device detatch
+				while (USB_IsConnected);
 				break;
 			}
-
+			
 			USB_HostState = HOST_STATE_Configured;
 			break;
 		case HOST_STATE_Configured:
+			/* Standard request to retrieve Configuration descriptor from device */
 			USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
 			USB_HostRequest.RequestData    = REQ_GetDescriptor;
 			USB_HostRequest.Value_HighByte = DTYPE_Configuration;
@@ -126,44 +130,50 @@ TASK(USB_Mouse_Host)
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = sizeof(DataBuffer);
 
+			/* Send the request, display error and wait for device detatch if request fails */
 			if (USB_Host_SendControlRequest(DataBuffer)
 			    != HOST_SENDCONTROL_Sucessful)
 			{
 				puts_P(PSTR("Control error."));
 			
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected); // Wait for device detatch
+				while (USB_IsConnected);
 				break;
 			}
 
+			/* Check Device descriptor's interface class against the mouse class */
 			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
 			               offsetof(USB_Descriptor_Interface_t, Class)] != MOUSE_CLASS)
 			{
 				puts_P(PSTR("Incorrect device class."));
 
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected); // Wait for device detatch
+				while (USB_IsConnected);
 				break;
 			}
-				
+			
+			/* Check Device descriptor's interface protocol against the mouse protocol */
 			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
 			               offsetof(USB_Descriptor_Interface_t, Protocol)] != MOUSE_PROTOCOL)
 			{
 				puts_P(PSTR("Incorrect device protocol."));
 
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected); // Wait for device detatch
+				while (USB_IsConnected);
 				break;
 			}
 
-			puts_P(PSTR("Mouse Enumerated.\r\n"));
-				
+			/* Configure the mouse data pipe */
 			Pipe_ConfigurePipe(MOUSE_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
 			Pipe_SelectPipe(MOUSE_DATAPIPE);
 			Pipe_SetInfiniteINRequests();
+
+			/* Activate the mouse data pipe IN interrupt */
 			Pipe_SetInterruptFreq(1);
 			Pipe_Unfreeze();
 			USB_INT_Enable(PIPE_INT_IN);
+
+			puts_P(PSTR("Mouse Enumerated.\r\n"));
 
 			USB_HostState = HOST_STATE_Ready;
 			break;
@@ -174,37 +184,46 @@ ISR(ENDPOINT_PIPE_vect)
 {
 	USB_MouseReport_Data_t MouseReport;
 
-	if (Pipe_GetInterruptPipeNumber() == MOUSE_DATAPIPE)
+	/* Check to see if the mouse data pipe has caused the interrupt */
+	if (Pipe_HasPipeInterrupted(MOUSE_DATAPIPE))
 	{
+		/* Clear the pipe interrupt, and select the mouse pipe */
 		Pipe_ClearPipeInterrupt(MOUSE_DATAPIPE);
 		Pipe_SelectPipe(MOUSE_DATAPIPE);	
 
+		/* Check to see if the pipe IN interrupt has fired */
 		if (USB_INT_HasOccurred(PIPE_INT_IN) && USB_INT_IsEnabled(PIPE_INT_IN))
 		{
+			/* Read in mouse report data */
 			MouseReport.Button = Pipe_Read_Byte();
 			MouseReport.X      = Pipe_Read_Byte();
 			MouseReport.Y      = Pipe_Read_Byte();
-					
+				
 			Bicolour_SetLeds(BICOLOUR_NO_LEDS);
-					
+				
+			/* Alter status LEDs according to mouse X movement */
 			if (MouseReport.X > 0)
 			  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
 			else if (MouseReport.X < 0)
 			  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);						
 				
+			/* Alter status LEDs according to mouse Y movement */
 			if (MouseReport.Y > 0)
 			  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
 			else if (MouseReport.Y < 0)
 			  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);						
 
+			/* Alter status LEDs according to mouse button position */
 			if (MouseReport.Button)
 			  Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
 				  
+			/* Print mouse report data through the serial port */
 			printf_P(PSTR("dX:%2d dY:%2d Button:%d\r\n"), MouseReport.X,
 			                                              MouseReport.Y,
 			                                              MouseReport.Button);
 					
-			Pipe_In_Clear();
+			/* Clear the IN endpoint and interrupt flag, ready for next data packet */
+			Pipe_In_Clear();			
 			USB_INT_Clear(PIPE_INT_IN);			
 		}
 	}

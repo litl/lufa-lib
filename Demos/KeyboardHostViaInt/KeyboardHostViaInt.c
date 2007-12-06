@@ -100,24 +100,27 @@ TASK(USB_Keyboard_Host)
 	switch (USB_HostState)
 	{
 		case HOST_STATE_Addressed:
+			/* Standard request to set the device configuration to configuration 1 */
 			USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
 			USB_HostRequest.RequestData    = REQ_SetConfiguration;
 			USB_HostRequest.Value          = 1;
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = USB_ControlPipeSize;
 
+			/* Send the request, display error and wait for device detatch if request fails */
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
 				puts_P(PSTR("Control error."));
 
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected); // Wait for device detatch
+				while (USB_IsConnected);
 				break;
 			}
 		
 			USB_HostState = HOST_STATE_Configured;
 			break;
 		case HOST_STATE_Configured:
+			/* Standard request to retrieve Configuration descriptor from device */
 			USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
 			USB_HostRequest.RequestData    = REQ_GetDescriptor;
 			USB_HostRequest.Value_HighByte = DTYPE_Configuration;
@@ -125,45 +128,51 @@ TASK(USB_Keyboard_Host)
 			USB_HostRequest.Index          = 0;
 			USB_HostRequest.Length         = sizeof(DataBuffer);
 
+			/* Send the request, display error and wait for device detatch if request fails */
 			if (USB_Host_SendControlRequest(DataBuffer)
 			    != HOST_SENDCONTROL_Sucessful)
 			{
 				puts_P(PSTR("Control error."));
 			
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected); // Wait for device detatch
+				while (USB_IsConnected);
 				break;
 			}
 
+			/* Check Device descriptor's interface class against the keyboard class */
 			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
 			               offsetof(USB_Descriptor_Interface_t, Class)] != KEYBOARD_CLASS)
 			{
 				puts_P(PSTR("Incorrect device class."));
 
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected); // Wait for device detatch
+				while (USB_IsConnected);
 				break;
 			}
 				
+			/* Check Device descriptor's interface protocol against the keyboard protocol */
 			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
 			               offsetof(USB_Descriptor_Interface_t, Protocol)] != KEYBOARD_PROTOCOL)
 			{
 				puts_P(PSTR("Incorrect device protocol."));
 
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected); // Wait for device detatch
+				while (USB_IsConnected);
 				break;
 			}
 
-			puts_P(PSTR("Keyboard Enumerated.\r\n"));
-
+			/* Configure the keyboard data pipe */
 			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
 			Pipe_SelectPipe(KEYBOARD_DATAPIPE);
 			Pipe_SetInfiniteINRequests();
+			
+			/* Activate the keyboard data pipe IN interrupt */
 			Pipe_SetInterruptFreq(1);
 			Pipe_Unfreeze();
 			USB_INT_Enable(PIPE_INT_IN);
 			
+			puts_P(PSTR("Keyboard Enumerated.\r\n"));
+
 			USB_HostState = HOST_STATE_Ready;
 			break;
 	}
@@ -174,13 +183,17 @@ ISR(ENDPOINT_PIPE_vect)
 	USB_KeyboardReport_Data_t KeyboardReport;
 	char                      PressedKey = 0;
 
-	if (Pipe_GetInterruptPipeNumber() == KEYBOARD_DATAPIPE)
+	/* Check to see if the keyboard data pipe has caused the interrupt */
+	if (Pipe_HasPipeInterrupted(KEYBOARD_DATAPIPE))
 	{
+		/* Clear the pipe interrupt, and select the keyboard pipe */
 		Pipe_ClearPipeInterrupt(KEYBOARD_DATAPIPE);
 		Pipe_SelectPipe(KEYBOARD_DATAPIPE);	
 
+		/* Check to see if the pipe IN interrupt has fired */
 		if (USB_INT_HasOccurred(PIPE_INT_IN) && USB_INT_IsEnabled(PIPE_INT_IN))
 		{
+			/* Read in keyboard report data */
 			KeyboardReport.Modifier = Pipe_Read_Byte();
 			Pipe_Ignore_Byte();
 			KeyboardReport.KeyCode  = Pipe_Read_Byte();
@@ -188,13 +201,16 @@ ISR(ENDPOINT_PIPE_vect)
 			Bicolour_SetLed(BICOLOUR_LED1, (KeyboardReport.Modifier) ? BICOLOUR_LED1_RED
 			                                                         : BICOLOUR_LED1_OFF);
 						
+			/* Check if a key has been pressed */
 			if (KeyboardReport.KeyCode)
 			{
+				/* Toggle status LED to indicate keypress */
 				if (Bicolour_GetLeds() & BICOLOUR_LED2_GREEN)
 				  Bicolour_TurnOffLeds(BICOLOUR_LED2_GREEN);
 				else
 				  Bicolour_TurnOnLeds(BICOLOUR_LED2_GREEN);
 
+				/* Retrieve pressed key character if alphanumeric */
 				if ((KeyboardReport.KeyCode >= 0x04) && (KeyboardReport.KeyCode <= 0x1D))
 				  PressedKey = (KeyboardReport.KeyCode - 0x04) + 'A';
 				else if ((KeyboardReport.KeyCode >= 0x1E) && (KeyboardReport.KeyCode <= 0x27))
@@ -204,10 +220,12 @@ ISR(ENDPOINT_PIPE_vect)
 				else if (KeyboardReport.KeyCode == 0x28)
 				  PressedKey = '\n';
 						 
+				/* Print the pressed key character out through the serial port if valid */
 				if (PressedKey)
 				  printf_P(PSTR("%c"), PressedKey);
 			}
 
+			/* Clear the IN endpoint and interrupt flag, ready for next data packet */
 			Pipe_In_Clear();
 			USB_INT_Clear(PIPE_INT_IN);		
 		}

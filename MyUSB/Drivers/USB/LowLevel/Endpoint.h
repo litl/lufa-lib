@@ -50,8 +50,6 @@
 			
 			#define ENDPOINT_EPNUM_MASK                        0b111
 			#define ENDPOINT_MAXENDPOINTS                      7
-			
-			#define ENDPOINT_NO_ENDPOINT_INT                   ENDPOINT_MAXENDPOINTS
 
 			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UPINTX, (1 << TXINI)
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UPINTX, (1 << RXOUTI)
@@ -77,6 +75,7 @@
 			#define Endpoint_IsConfigured()                  ((UESTA0X & (1 << CFGOK)) ? ENDPOINT_CONFIG_OK : ENDPOINT_CONFIG_FAIL)
 			#define Endpoint_GetEndpointInterrupts()           UEINT
 			#define Endpoint_ClearEndpointInterrupt(n) MACROS{ UEINT   &= ~(1 << n);                     }MACROE
+			#define Endpoint_HasEndpointInterrupted(n)       ((UEINT   & (1 << (n & ENDPOINT_EPNUM_MASK))) ? true : false)
 
 			#define Endpoint_FIFOCON_Clear()           MACROS{ UEINTX  &= ~(1 << FIFOCON);              }MACROE
 			
@@ -217,8 +216,7 @@
 			}
 
 		/* Function Prototypes: */
-			void    Endpoint_ClearEndpoints(void);
-			uint8_t Endpoint_GetInterruptEndpointNumber(void);
+			void Endpoint_ClearEndpoints(void);
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */

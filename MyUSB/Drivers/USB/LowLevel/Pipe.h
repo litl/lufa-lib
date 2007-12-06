@@ -56,8 +56,6 @@
 			
 			#define PIPE_PIPENUM_MASK                      0b111
 			#define PIPE_MAXPIPES                          7
-			
-			#define PIPE_NO_PIPE_INT                       PIPE_MAXPIPES
 
 			#define PIPE_EPNUM_MASK                        0b111
 
@@ -85,6 +83,7 @@
 			#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG2X  = ms;                                          }MACROE
 			#define Pipe_GetPipeInterrupts()               UPINT
 			#define Pipe_ClearPipeInterrupt(n)     MACROS{ UPINT   &= ~(1 << n);                                   }MACROE
+			#define Pipe_HasPipeInterrupted(n)           ((UPINT   &   (1 << n)) ? true : false)
 			#define Pipe_SendPipeData()            Pipe_ResetFIFO()
 			#define Pipe_ResetFIFO()               MACROS{ UPINTX  &= ~(1 << FIFOCON);                             }MACROE
 			#define Pipe_Unfreeze()                MACROS{ UPCONX  &= ~(1 << PFREEZE);                             }MACROE
@@ -232,8 +231,7 @@
 			uint8_t USB_ControlPipeSize;
 
 		/* Function Prototypes: */
-			void    Pipe_ClearPipes(void);
-			uint8_t Pipe_GetInterruptPipeNumber(void) ATTR_WARN_UNUSED_RESULT;
+			void Pipe_ClearPipes(void);
 		
 	/* Private Interface - For use in library only: */
 		/* Inline Functions: */
@@ -261,6 +259,5 @@
 		
 		/* Function Prototypes: */
 			bool    Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata, const uint8_t UPCFG1Xdata);
-			uint8_t Pipe_GetInterruptPipeNumber(void);
 
 #endif

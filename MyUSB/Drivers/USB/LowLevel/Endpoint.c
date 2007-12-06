@@ -37,23 +37,4 @@ void Endpoint_ClearEndpoints(void)
 		Endpoint_DisableEndpoint();
 	}
 }
-
-uint8_t Endpoint_GetInterruptEndpointNumber(void)
-{
-	uint8_t EndpointInterrupts = Endpoint_GetEndpointInterrupts();
-	uint8_t CheckMask      = 0x01;
-
-	if (EndpointInterrupts)
-	{
-		for (uint8_t EndpointNum = 0; EndpointNum <= ENDPOINT_MAXENDPOINTS; EndpointNum++)
-		{
-			if (EndpointInterrupts & CheckMask)
-			  return EndpointNum;
-		
-			CheckMask <<= 1;
-		}
-	}
-	
-	return ENDPOINT_NO_ENDPOINT_INT;
-}
 #endif

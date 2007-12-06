@@ -40,23 +40,4 @@ void Pipe_ClearPipes(void)
 		Pipe_DisablePipe();
 	}
 }
-
-uint8_t Pipe_GetInterruptPipeNumber(void)
-{
-	uint8_t PipeInterrupts = Pipe_GetPipeInterrupts();
-	uint8_t CheckMask      = 0x01;
-
-	if (PipeInterrupts)
-	{
-		for (uint8_t PipeNum = 0; PipeNum < PIPE_MAXPIPES; PipeNum++)
-		{
-			if (PipeInterrupts & CheckMask)
-			  return PipeNum;
-		
-			CheckMask <<= 1;
-		}
-	}
-	
-	return PIPE_NO_PIPE_INT;
-}
 #endif
