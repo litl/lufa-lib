@@ -33,9 +33,8 @@
 		void VirtualMemory_ResetDataflashProtections(void);
 
 		#if defined(INCLUDE_FROM_DATAFLASHMANAGER_C)
-			static uint16_t VirtualMemory_DFPageFromBlock(const uint32_t BlockAddress);
-			static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint32_t BlockAddress);
-			static void     VirtualMemory_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferAddress);
+			static uint16_t VirtualMemory_DFPageFromBlock(const uint16_t BlockAddress);
+			static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint16_t BlockAddress);
 		#endif
 		
 #endif

@@ -28,7 +28,7 @@
 			#define DATAFLASH_CHIP1              (1 << 1)
 			#define DATAFLASH_CHIP2              (1 << 0)
 			
-			#define DATAFLASH_PAGE_SIZE          512 // FIXME
+			#define DATAFLASH_PAGE_SIZE          1024
 			#define DATAFLASH_PAGES              8192
 					
 			#define Dataflash_GetSelectedChip()         (PORTE & DATAFLASH_CHIPCS_MASK)
@@ -36,12 +36,21 @@
 			#define Dataflash_DeselectChip()     Dataflash_SelectChip(DATAFLASH_CHIPCS_MASK)
 
 		/* Function Prototypes: */
-			void    Dataflash_Init(void);
-			bool    Dataflash_SelectChipFromPage(const uint16_t PageAddress);
-			void    Dataflash_SendAddressBytes(const uint16_t PageAddress, const uint16_t BufferByte);
+			void    Dataflash_SelectChipFromPage(const uint16_t PageAddress);
+			void    Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte);
 			void    Dataflash_ToggleSelectedChipCS(void);
 			
 		/* Inline Functions: */
+			static inline void Dataflash_Init(void)
+			{
+				PINB  |= (1 << 0);
+				DDRB  |= ((1 << 1) | (1 << 2));
+				DDRE  |= DATAFLASH_CHIPCS_MASK;
+				PORTE |= DATAFLASH_CHIPCS_MASK;
+
+				SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA));
+			}
+
 			static inline uint8_t Dataflash_SendByte(const uint8_t Byte)
 			{
 				SPDR = Byte;

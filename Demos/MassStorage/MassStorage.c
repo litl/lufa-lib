@@ -33,39 +33,6 @@
 	This demonstration application is compiled for speed, rather than size.
 */
 
-/*
-                            _,.-------.,_
-                        ,;~'             '~;, 
-                      ,;                     ;,
-                     ;                         ;
-                    ,'                         ',
-                   ,;                           ;,
-                   ; ;      .           .      ; ;
-                   | ;   ______       ______   ; | 
-                   |  `/~"     ~" . "~     "~\'  |
-                   |  ~  ,-~~~^~, | ,~^~~~-,  ~  |
-                    |   |        }:{        |   | 
-                    |   l       / | \       !   |
-                    .~  (__,.--" .^. "--.,__)  ~. 
-                    |     ---;' / | \ `;---     |  
-                     \__.       \/^\/       .__/  
-                      V| \                 / |V  
-                       | |T~\___!___!___/~T| |  
-                       | |`IIII_I_I_I_IIII'| |  
-                       |  \,III I I I III,/  |  
-                        \   `~~~~~~~~~~'    /
-                          \   .       .   /     -dcau (4/15/95)
-                            \.    ^    ./   
-                              ^~~~^~~~^   
-
-                           **** DANGER *****
-
-                     UNFINISHED AND NON-OPERATIONAL
-
-	This USB device is incomplete, and may cause system instability including
-	blue-screen, driver failure or host freezes if used. For development only!
-*/
-
 #define INCLUDE_FROM_MASSSTORAGE_C
 #include "MassStorage.h"
 

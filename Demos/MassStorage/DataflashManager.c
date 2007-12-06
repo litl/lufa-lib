@@ -17,15 +17,15 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	uint16_t CurrDFByte       = VirtualMemory_DFPageOffsetFromBlock(BlockAddress);
 	uint16_t BytesInCurrBlock = 0;
 
-	Dataflash_SelectChip(CurrDFPage);
+	Dataflash_SelectChipFromPage(CurrDFPage);
 	
 	Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
-	VirtualMemory_SendAddressBytes(CurrDFPage, 0);
+	Dataflash_SendAddressBytes(CurrDFPage, 0);
 	Dataflash_WaitWhileBusy();	
 
 	Dataflash_ToggleSelectedChipCS();
 	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
-	VirtualMemory_SendAddressBytes(0, CurrDFByte);
+	Dataflash_SendAddressBytes(0, CurrDFByte);
 
 	while (!(Endpoint_ReadWriteAllowed()));
 
@@ -35,7 +35,7 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 		{
 			Dataflash_ToggleSelectedChipCS();
 			Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
-			VirtualMemory_SendAddressBytes(CurrDFPage, 0);
+			Dataflash_SendAddressBytes(CurrDFPage, 0);
 			Dataflash_WaitWhileBusy();
 
 			CurrDFByte = 0;
@@ -45,12 +45,12 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 			Dataflash_SelectChipFromPage(CurrDFPage);
 
 			Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
-			VirtualMemory_SendAddressBytes(CurrDFPage, 0);
+			Dataflash_SendAddressBytes(CurrDFPage, 0);
 			Dataflash_WaitWhileBusy();
 
 			Dataflash_ToggleSelectedChipCS();
 			Dataflash_SendByte(DF_CMD_BUFF1WRITE);
-			VirtualMemory_SendAddressBytes(0, 0);
+			Dataflash_SendAddressBytes(0, 0);
 		}
 
 		Dataflash_SendByte(Endpoint_Read_Byte());
@@ -82,7 +82,7 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 
 	Dataflash_ToggleSelectedChipCS();
 	Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
-	VirtualMemory_SendAddressBytes(CurrDFPage, 0x00);
+	Dataflash_SendAddressBytes(CurrDFPage, 0x00);
 	Dataflash_WaitWhileBusy();
 
 	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
@@ -98,7 +98,7 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	Dataflash_SelectChipFromPage(CurrDFPage);
 	
 	Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
-	VirtualMemory_SendAddressBytes(CurrDFPage, CurrDFByte);
+	Dataflash_SendAddressBytes(CurrDFPage, CurrDFByte);
 
 	Dataflash_SendByte(0);
 	Dataflash_SendByte(0);
@@ -118,7 +118,7 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 			Dataflash_SelectChipFromPage(CurrDFPage);
 
 			Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
-			VirtualMemory_SendAddressBytes(CurrDFPage, 0);
+			Dataflash_SendAddressBytes(CurrDFPage, 0);
 
 			Dataflash_SendByte(0);
 			Dataflash_SendByte(0);
@@ -161,9 +161,9 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 void VirtualMemory_ResetDataflashProtections(void)
 {
 	Dataflash_SelectChip(DATAFLASH_CHIP1);
-	
 	Dataflash_SendByte(DF_CMD_GETSTATUS);
-	if (Dataflash_SendByte(0x00) & 0x02)
+	
+	if (Dataflash_SendByte(0x00) & DF_STATUS_SECTORPROTECTION_ON)
 	{
 		Dataflash_ToggleSelectedChipCS();
 
@@ -175,7 +175,8 @@ void VirtualMemory_ResetDataflashProtections(void)
 	
 	Dataflash_SelectChip(DATAFLASH_CHIP2);
 	Dataflash_SendByte(DF_CMD_GETSTATUS);
-	if (Dataflash_SendByte(0x00) & 0x02)
+	
+	if (Dataflash_SendByte(0x00) & DF_STATUS_SECTORPROTECTION_ON)
 	{
 		Dataflash_ToggleSelectedChipCS();
 
@@ -188,20 +189,12 @@ void VirtualMemory_ResetDataflashProtections(void)
 	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
 }
 
-static void VirtualMemory_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferAddress)
+static uint16_t VirtualMemory_DFPageFromBlock(const uint16_t BlockAddress)
 {
-	if (Dataflash_GetSelectedChip() == DATAFLASH_CHIP2)
-	  PageAddress -= DATAFLASH_PAGES;
-
-	Dataflash_SendAddressBytes(PageAddress, BufferAddress);
+	return (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
 }
 
-static uint16_t VirtualMemory_DFPageFromBlock(const uint32_t BlockAddress)
+static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint16_t BlockAddress)
 {
-	return ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-}
-
-static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint32_t BlockAddress)
-{
-	return ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
+	return (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 }

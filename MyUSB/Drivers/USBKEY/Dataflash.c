@@ -10,37 +10,21 @@
 
 #include "Dataflash.h"
 
-void Dataflash_Init(void)
-{
-	PINB  |= (1 << 0);
-	DDRB  |= ((1 << 1) | (1 << 2));
-	DDRE  |= DATAFLASH_CHIPCS_MASK;
-	PORTE |= DATAFLASH_CHIPCS_MASK;
-
-	SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA));
-}
-
-bool Dataflash_SelectChipFromPage(const uint16_t PageAddress)
+void Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 {
 	if (PageAddress < DATAFLASH_PAGES)
-	{
-		Dataflash_SelectChip(DATAFLASH_CHIP1);
-		return true;
-	}
+	  Dataflash_SelectChip(DATAFLASH_CHIP1);
 	else if (PageAddress < (DATAFLASH_PAGES * 2))
-	{
-		Dataflash_SelectChip(DATAFLASH_CHIP2);
-		return true;
-	}
+	  Dataflash_SelectChip(DATAFLASH_CHIP2);
 	else
-	{
-		Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-		return false;
-	}
+	  Dataflash_SelectChip(DATAFLASH_NO_CHIP);
 }
 
-void Dataflash_SendAddressBytes(const uint16_t PageAddress, const uint16_t BufferByte)
+void Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte)
 {
+	if (Dataflash_GetSelectedChip() == DATAFLASH_CHIP2)
+	  PageAddress -= DATAFLASH_PAGES;
+
 	Dataflash_SendByte(PageAddress >> 5);
 	Dataflash_SendByte((PageAddress << 3) | (BufferByte >> 8));
 	Dataflash_SendByte(BufferByte);

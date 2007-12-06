@@ -15,6 +15,8 @@
 		/* Macros: */
 			#define DF_STATUS_READY                         (1 << 7)
 			#define DF_STATUS_COMPMISMATCH                  (1 << 6)
+			#define DF_STATUS_SECTORPROTECTION_ON           (1 << 1)
+			#define DF_STATUS_BINARYPAGESIZE_ON             (1 << 0)
 		
 			#define DF_CMD_GETSTATUS                        0xD7
 			#define DF_CMD_POWERDOWN                        0xB9
