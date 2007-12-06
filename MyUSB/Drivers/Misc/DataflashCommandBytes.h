@@ -39,7 +39,7 @@
 			#define DF_CMD_BUFF1TOMAINMEMWITHERASE          0x83
 			#define DF_CMD_BUFF2TOMAINMEMWITHERASE          0x86
 			#define DF_CMD_BUFF1TOMAINMEM                   0x88
-			#define DF_CMD_BUFF2TOMAINMEMW                  0x89
+			#define DF_CMD_BUFF2TOMAINMEM                   0x89
 			#define DF_CMD_MAINMEMPAGETHROUGHBUFF1          0x82
 			#define DF_CMD_MAINMEMPAGETHROUGHBUFF2          0x85
 			

@@ -49,7 +49,7 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 			CurrDFPage++;
 
 			/* Select the next dataflash chip based on the new dataflash page index */
-			Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+			Dataflash_DeselectChip();
 			Dataflash_SelectChipFromPage(CurrDFPage);
 
 			/* Copy selected dataflash's current page contents to the dataflash buffer */
@@ -104,7 +104,7 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	Dataflash_WaitWhileBusy();
 
 	/* Deselect all dataflash chips */
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	Dataflash_DeselectChip();
 }
 
 void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
@@ -140,7 +140,7 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 			CurrDFPage++;
 
 			/* Select the next dataflash chip based on the new dataflash page index */
-			Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+			Dataflash_DeselectChip();
 			Dataflash_SelectChipFromPage(CurrDFPage);
 
 			/* Send the dataflash page read command */
@@ -191,7 +191,7 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	}
 
 	/* Deselect all dataflash chips */
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	Dataflash_DeselectChip();
 }
 
 void VirtualMemory_ResetDataflashProtections(void)
@@ -213,7 +213,7 @@ void VirtualMemory_ResetDataflashProtections(void)
 	}
 	
 	/* Deselect first dataflash chip */
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	Dataflash_DeselectChip();
 	
 	/* Select second dataflash chip, send the read status register command */
 	Dataflash_SelectChip(DATAFLASH_CHIP2);
@@ -232,7 +232,7 @@ void VirtualMemory_ResetDataflashProtections(void)
 	}
 	
 	/* Deselect second dataflash chip */
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	Dataflash_DeselectChip();
 }
 
 static uint16_t VirtualMemory_DFPageFromBlock(const uint16_t BlockAddress)

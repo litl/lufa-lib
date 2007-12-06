@@ -33,7 +33,7 @@
 					
 			#define Dataflash_GetSelectedChip()         (PORTE & DATAFLASH_CHIPCS_MASK)
 			#define Dataflash_SelectChip(mask)   MACROS{ PORTE = ((PORTE & ~DATAFLASH_CHIPCS_MASK) | mask); }MACROE
-			#define Dataflash_DeselectChip()     Dataflash_SelectChip(DATAFLASH_CHIPCS_MASK)
+			#define Dataflash_DeselectChip()     Dataflash_SelectChip(DATAFLASH_NO_CHIP)
 
 		/* Function Prototypes: */
 			void    Dataflash_SelectChipFromPage(const uint16_t PageAddress);
