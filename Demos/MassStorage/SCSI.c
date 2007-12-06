@@ -68,6 +68,7 @@ void SCSI_DecodeSCSICommand(void)
 {
 	bool CommandSuccess = false;
 
+	/* Run the apropriate SCSI command hander function based on the passed command */
 	switch (CommandBlock.SCSICommandData[0])
 	{
 		case SCSI_CMD_INQUIRY:
@@ -78,6 +79,7 @@ void SCSI_DecodeSCSICommand(void)
 			break;
 		case SCSI_CMD_TEST_UNIT_READY:
 		case SCSI_CMD_VERIFY_10:
+			/* These commands should just suceed, no handling required */
 			CommandSuccess = true;
 			CommandBlock.Header.DataTransferLength = 0;
 			break;
@@ -100,14 +102,17 @@ void SCSI_DecodeSCSICommand(void)
 			CommandSuccess = SCSI_Command_Mode_Sense_6();
 			break;			
 		default:
+			/* Update the SENSE key to reflect the invalid command */
 			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
 		                   SCSI_ASENSE_INVALID_COMMAND,
 		                   SCSI_ASENSEQ_NO_QUALIFIER);
 			break;
 	}
 	
+	/* Check if command was sucessfully processed */
 	if (CommandSuccess)
 	{
+		/* Command succeeded - set the CSW status and update the SENSE key */
 		CommandStatus.Status = Command_Pass;
 		
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_GOOD,
@@ -116,6 +121,7 @@ void SCSI_DecodeSCSICommand(void)
 	}
 	else
 	{
+		/* Command failed - set the CSW status - failed command function updates the SENSE key */
 		CommandStatus.Status = Command_Fail;
 	}
 }
@@ -127,9 +133,11 @@ static bool SCSI_Command_Inquiry(void)
 	uint8_t  BytesTransferred = 0;
 	uint8_t  BytesInEndpoint  = 0;
 
+	/* Only the standard INQUIRY data is supported, check if any optional INQUIRY bits set */
 	if ((CommandBlock.SCSICommandData[1] & ((1 << 0) | (1 << 1))) ||
 	     CommandBlock.SCSICommandData[2])
 	{
+		/* Optional bits set - update the SENSE key and fail the request */
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
 		               SCSI_ASENSE_INVALID_FIELD_IN_CDB,
 		               SCSI_ASENSEQ_NO_QUALIFIER);
@@ -137,9 +145,11 @@ static bool SCSI_Command_Inquiry(void)
 		return false;
 	}
 	
+	/* Maximum allocation length is 96 bytes as per SPC standard */
 	if (AllocationLength > 96)
 	  AllocationLength = 96;
 
+	/* Write the INQUIRY data to the endpoint */
 	for (uint8_t i = 0; i < sizeof(InquiryData); i++)
 	{
 		if (i == AllocationLength)
@@ -149,8 +159,10 @@ static bool SCSI_Command_Inquiry(void)
 		BytesTransferred++;
 	}
 
+	/* Pad out remaining bytes with 0x00 */
 	while (BytesTransferred < AllocationLength)
 	{
+		/* When endpoint filled, send the data and wait until it is ready to be written to again */
 		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
 		{
 			Endpoint_In_Clear();
@@ -165,8 +177,10 @@ static bool SCSI_Command_Inquiry(void)
 		BytesInEndpoint++;
 	}
 	
+	/* Send the final endpoint data packet to the host */
 	Endpoint_In_Clear();
 
+	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.Header.DataTransferLength -= BytesTransferred;	
 	return true;
 }
@@ -178,6 +192,7 @@ static bool SCSI_Command_Request_Sense(void)
 	uint8_t  BytesTransferred = 0;
 	uint8_t  BytesInEndpoint  = 0;	
 	
+	/* Send the SENSE data - this indicates to the host the status of the last command */
 	for (uint8_t i = 0; i < sizeof(SenseData); i++)
 	{
 		if (i == AllocationLength)
@@ -188,8 +203,11 @@ static bool SCSI_Command_Request_Sense(void)
 		BytesInEndpoint++;
 	}
 	
+	
+	/* Pad out remaining bytes with 0x00 */
 	while (BytesTransferred < AllocationLength)
 	{
+		/* When endpoint filled, send the data and wait until it is ready to be written to again */
 		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
 		{
 			Endpoint_In_Clear();
@@ -204,27 +222,36 @@ static bool SCSI_Command_Request_Sense(void)
 		BytesInEndpoint++;
 	}
 
+	/* Send the final endpoint data packet to the host */
 	Endpoint_In_Clear();
 
-	CommandBlock.Header.DataTransferLength -= BytesTransferred;
+	/* Succeed the command and update the bytes transferred counter */
+	CommandBlock.Header.DataTransferLength -= BytesTransferred;	
 	return true;
 }
 
 static bool SCSI_Command_Read_Capacity_10(void)
 {
+	/* Send the total number of logical blocks in the device */
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCKS);
+
+	/* Send the logical block size of the device (must be 512 bytes) */
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCK_SIZE);
 
+	/* Send the endpoint data packet to the host */
 	Endpoint_In_Clear();
 
+	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.Header.DataTransferLength -= 8;
 	return true;
 }
 
 static bool SCSI_Command_Send_Diagnostic(void)
 {
-	if (!(CommandBlock.SCSICommandData[1] & (1 << 2))) // Only self-test supported
+	/* Check to see if the SELF TEST bit is not set */
+	if (!(CommandBlock.SCSICommandData[1] & (1 << 2)))
 	{
+		/* Only self-test supported - update SENSE key and fail the command */
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
 		               SCSI_ASENSE_INVALID_FIELD_IN_CDB,
 		               SCSI_ASENSEQ_NO_QUALIFIER);
@@ -232,16 +259,19 @@ static bool SCSI_Command_Send_Diagnostic(void)
 		return false;
 	}
 
+	/* Self test command always suceeds */
 	return true;
 }
 
 static bool SCSI_Command_PreventAllowMediumRemoval(void)
 {
+	/* Check the ALLOW bit - if set, device should not be removed (indicate with LEDs) */
 	if (CommandBlock.SCSICommandData[4] & (1 << 0))
 	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);
 	else
 	  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
 	
+	/* Indicate all bytes processed and succeed the command */
 	CommandBlock.Header.DataTransferLength = 0;
 	return true;
 }
@@ -250,17 +280,21 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 {
 	uint32_t BlockAddress;
 	uint16_t TotalBlocks;
-
+	
+	/* Load in the 32-bit block address (SCSI uses big-endian, so have to do it byte-by-byte) */
 	((uint8_t*)&BlockAddress)[3] = CommandBlock.SCSICommandData[2];
 	((uint8_t*)&BlockAddress)[2] = CommandBlock.SCSICommandData[3];
 	((uint8_t*)&BlockAddress)[1] = CommandBlock.SCSICommandData[4];
 	((uint8_t*)&BlockAddress)[0] = CommandBlock.SCSICommandData[5];
 
+	/* Load in the 16-bit total blocks (SCSI uses big-endian, so have to do it byte-by-byte) */
 	((uint8_t*)&TotalBlocks)[1] = CommandBlock.SCSICommandData[7];
 	((uint8_t*)&TotalBlocks)[0] = CommandBlock.SCSICommandData[8];
-	
+
+	/* Check if the block address is outside the maximum allowable value */
 	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
 	{
+		/* Block address is invalid, update SENSE key and return command fail */
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_HARDWARE_ERROR,
 		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
 		               SCSI_ASENSEQ_NO_QUALIFIER);
@@ -268,11 +302,13 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 		return false;
 	}
 
+	/* Determine if the packet is a READ (10) or WRITE (10) command, call appropriate function */
 	if (IsDataRead == DATA_READ)
 	  VirtualMemory_ReadBlocks(BlockAddress, TotalBlocks);	
 	else
 	  VirtualMemory_WriteBlocks(BlockAddress, TotalBlocks);
 
+	/* Update the bytes transferred counter and succeed the command */
 	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
 	return true;
 }
@@ -281,41 +317,49 @@ static bool SCSI_Command_Mode_Sense_6(void)
 {
 	uint8_t  AllocationLength =  CommandBlock.SCSICommandData[4];							   
 	uint8_t  PageCode         = (CommandBlock.SCSICommandData[2] & 0x3F);
-										   
+
+	/* Determine which SENSE page has been requested by the host */
 	switch (PageCode)
 	{
 		case SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY:
+			/* Send SENSE page header */
 			Endpoint_Write_Byte(sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t) + 5);	
 			Endpoint_Write_Word_BE(0x0000);
 			Endpoint_Write_Byte(0x00);
 
+			/* Send requested SENSE page */
 			SCSI_WriteSensePage(SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY,
 			                    sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t),
 			                    (uint8_t*)&RecoveryPage,
 			                    (AllocationLength - 4));
 			break;
 		case SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS:
+			/* Send SENSE page header */
 			Endpoint_Write_Byte(sizeof(SCSI_Informational_Exceptions_Sense_Page_t) + 5);	
 			Endpoint_Write_Word_BE(0x0000);
 			Endpoint_Write_Byte(0x00);
 
+			/* Send requested SENSE page */
 			SCSI_WriteSensePage(SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS,
 			                    sizeof(SCSI_Informational_Exceptions_Sense_Page_t),
 			                    (uint8_t*)&InformationalExceptionsPage,
 			                    (AllocationLength - 4));
 			break;
 		case SCSI_SENSE_PAGE_ALL:
+			/* Send SENSE page header */
 			Endpoint_Write_Byte(sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t)
 			                  + sizeof(SCSI_Informational_Exceptions_Sense_Page_t)
 			                  + 7);
 			Endpoint_Write_Word_BE(0x0000);
 			Endpoint_Write_Byte(0x00);
 			
+			/* Send first page to the host (pages must be sent in ascending order) */
 			SCSI_WriteSensePage(SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY,
 			                    sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t),
 			                    (uint8_t*)&RecoveryPage,
 			                    (AllocationLength - 4));
 			
+			/* Send second page to the host (pages must be sent in ascending order) */
 			SCSI_WriteSensePage(SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS,
 			                    sizeof(SCSI_Informational_Exceptions_Sense_Page_t),
 			                    (uint8_t*)&InformationalExceptionsPage,
@@ -323,15 +367,16 @@ static bool SCSI_Command_Mode_Sense_6(void)
                                                   - 6));
 			break;
 		default:
+			/* Page not supported - update the SENSE key and fail the command */
 			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
 						   SCSI_ASENSE_INVALID_FIELD_IN_CDB,
 						   SCSI_ASENSEQ_NO_QUALIFIER);
 			return false;
 	}
-	
+
+	/* Send the endpoint data, update the bytes transferred counter and succeed the command */
 	Endpoint_In_Clear();
 	CommandBlock.Header.DataTransferLength -= AllocationLength;
-
 	return true;
 }
 
@@ -340,14 +385,17 @@ static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
 {
 	uint8_t BytesTransferred;
 
+	/* Negative or zero allocation length prevents the page from being sent */
 	if (AllocationLength <= 0)
 	  return;
 
+	/* Write page information to the endpoint */
 	Endpoint_Write_Byte(PageCode);
 	Endpoint_Write_Byte(PageSize);
 	
 	BytesTransferred = 2;
 	
+	/* Write page contents to the endpoint */
 	for (uint8_t i = 0; i < PageSize; i++)
 	{
 		if (BytesTransferred == AllocationLength)
