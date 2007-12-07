@@ -145,12 +145,14 @@ static void USB_HostTask(void)
 			
 			break;
 		case HOST_STATE_Default:
-			USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
-			USB_HostRequest.RequestData    = REQ_GetDescriptor;
-			USB_HostRequest.Value_HighByte = DTYPE_Device;
-			USB_HostRequest.Value_LowByte  = 0;
-			USB_HostRequest.Index          = 0;
-			USB_HostRequest.Length         = USB_ControlPipeSize;
+			USB_HostRequest = (USB_Host_Request_Header_t)
+				{
+					RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
+					RequestData: REQ_GetDescriptor,
+					Value:       (DTYPE_Device << 8),
+					Index:       0,
+					Length:      USB_ControlPipeSize,
+				};
 
 			uint8_t DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1];
 			
@@ -187,11 +189,14 @@ static void USB_HostTask(void)
 				break;
 			}
 
-			USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
-			USB_HostRequest.RequestData    = REQ_SetAddress;
-			USB_HostRequest.Value          = USB_HOST_DEVICEADDRESS;
-			USB_HostRequest.Index          = 0;
-			USB_HostRequest.Length         = 0;
+			USB_HostRequest = (USB_Host_Request_Header_t)
+				{
+					RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),
+					RequestData: REQ_SetAddress,
+					Value:       USB_HOST_DEVICEADDRESS,
+					Index:       0,
+					Length:      0,
+				};
 
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{

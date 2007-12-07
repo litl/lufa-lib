@@ -103,12 +103,15 @@ TASK(USB_Keyboard_Host)
 	{
 		case HOST_STATE_Addressed:
 			/* Standard request to set the device configuration to configuration 1 */
-			USB_HostRequest.RequestType    = (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE);
-			USB_HostRequest.RequestData    = REQ_SetConfiguration;
-			USB_HostRequest.Value          = 1;
-			USB_HostRequest.Index          = 0;
-			USB_HostRequest.Length         = USB_ControlPipeSize;
-
+			USB_HostRequest = (USB_Host_Request_Header_t)
+				{
+					RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),
+					RequestData: REQ_SetConfiguration,
+					Value:       1,
+					Index:       0,
+					Length:      USB_ControlPipeSize,
+				};
+			
 			/* Send the request, display error and wait for device detatch if request fails */
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
@@ -142,6 +145,9 @@ TASK(USB_Keyboard_Host)
 						puts_P(PSTR("Control Error.\r\n"));
 						break;
 				}
+
+				/* Indicate error via status LEDs */
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
 				
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);

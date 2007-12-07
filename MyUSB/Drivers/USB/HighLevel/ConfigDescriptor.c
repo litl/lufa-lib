@@ -16,13 +16,15 @@ uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* ConfigSizePtr)
 	uint8_t ErrorCode;
 	uint8_t Buffer[sizeof(USB_Descriptor_Configuration_Header_t)];
 
-	USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
-	USB_HostRequest.RequestData    = REQ_GetDescriptor;
-	USB_HostRequest.Value_HighByte = DTYPE_Configuration;
-	USB_HostRequest.Value_LowByte  = 0;
-	USB_HostRequest.Index          = 0;
-	USB_HostRequest.Length         = sizeof(USB_Descriptor_Configuration_Header_t);
-
+	USB_HostRequest = (USB_Host_Request_Header_t)
+		{
+			RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
+			RequestData: REQ_GetDescriptor,
+			Value:       (DTYPE_Configuration << 8),
+			Index:       0,
+			Length:      sizeof(USB_Descriptor_Configuration_Header_t),
+		};
+		
 	ErrorCode = USB_Host_SendControlRequest(Buffer);
 	  
 	*ConfigSizePtr = ((USB_Descriptor_Configuration_Header_t*)&Buffer)->TotalConfigurationSize;
@@ -34,12 +36,14 @@ uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t BufferSize, uint8_t* BufferP
 {
 	uint8_t ErrorCode;
 
-	USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
-	USB_HostRequest.RequestData    = REQ_GetDescriptor;
-	USB_HostRequest.Value_HighByte = DTYPE_Configuration;
-	USB_HostRequest.Value_LowByte  = 0;
-	USB_HostRequest.Index          = 0;
-	USB_HostRequest.Length         = BufferSize;
+	USB_HostRequest = (USB_Host_Request_Header_t)
+		{
+			RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
+			RequestData: REQ_GetDescriptor,
+			Value:       (DTYPE_Configuration << 8),
+			Index:       0,
+			Length:      BufferSize,
+		};
 
 	ErrorCode = USB_Host_SendControlRequest(BufferPtr);
 

@@ -25,18 +25,7 @@
 			{
 				uint8_t  RequestType;
 				uint8_t  RequestData;
-				
-				union
-				{
-					uint16_t Value;
-					
-					struct
-					{
-						uint8_t Value_LowByte;
-						uint8_t Value_HighByte;
-					};
-				};
-
+				uint16_t Value;
 				uint16_t Index;
 				uint16_t Length;
 			} USB_Host_Request_Header_t;
@@ -55,6 +44,6 @@
 			extern USB_Host_Request_Header_t USB_HostRequest;
 			
 		/* Function Prototypes: */
-			bool USB_Host_SendControlRequest(uint8_t* DataBuffer);
+			uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer);
 
 #endif

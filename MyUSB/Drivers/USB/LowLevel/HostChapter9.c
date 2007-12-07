@@ -13,7 +13,7 @@
 
 USB_Host_Request_Header_t USB_HostRequest;
 
-bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
+uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 {
 	bool     SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
