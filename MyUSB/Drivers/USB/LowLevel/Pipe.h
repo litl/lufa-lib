@@ -84,7 +84,6 @@
 			#define Pipe_GetPipeInterrupts()               UPINT
 			#define Pipe_ClearPipeInterrupt(n)     MACROS{ UPINT   &= ~(1 << n);                                   }MACROE
 			#define Pipe_HasPipeInterrupted(n)           ((UPINT   &   (1 << n)) ? true : false)
-			#define Pipe_SendPipeData()            Pipe_ResetFIFO()
 			#define Pipe_ResetFIFO()               MACROS{ UPINTX  &= ~(1 << FIFOCON);                             }MACROE
 			#define Pipe_Unfreeze()                MACROS{ UPCONX  &= ~(1 << PFREEZE);                             }MACROE
 			#define Pipe_Freeze()                  MACROS{ UPCONX  |=  (1 << PFREEZE);                             }MACROE
@@ -100,7 +99,7 @@
 			#define Pipe_IsSetupStalled()                ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
 
 			#define Pipe_In_Clear()                MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);   }MACROE
-			#define Pipe_In_IsRecieved()                 ((UPINTX  &   (1 << RXINI)) ? true : false)
+			#define Pipe_In_IsReceived()                 ((UPINTX  &   (1 << RXINI)) ? true : false)
 			#define Pipe_Out_Clear()               MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);  }MACROE
 			#define Pipe_Out_IsReady()                   ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 

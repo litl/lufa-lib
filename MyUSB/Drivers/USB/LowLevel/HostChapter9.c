@@ -37,7 +37,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 	for (uint8_t i = 0; i < sizeof(USB_Host_Request_Header_t); i++)
 	  Pipe_Write_Byte(*(HeaderByte++));
 
-	Pipe_SendPipeData();
+	Pipe_Out_Clear();
 	
 	TimeoutCounter = 0;
 	while (!(Pipe_IsSetupSent()))
@@ -68,7 +68,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			Pipe_Unfreeze();
 		
 			TimeoutCounter = 0;
-			while (!(Pipe_In_IsRecieved()))
+			while (!(Pipe_In_IsReceived()))
 			{
 				if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 				  goto End_Of_Control_Send;
@@ -134,7 +134,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 				DataLen -= USB_ControlPipeSize;			
 			}
 			
-			Pipe_SendPipeData();
+			Pipe_Out_Clear();
 			
 			TimeoutCounter = 0;
 			while (!(Pipe_Out_IsReady()))
@@ -157,7 +157,7 @@ bool USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		Pipe_Unfreeze();
 
 		TimeoutCounter = 0;
-		while (!(Pipe_In_IsRecieved()))
+		while (!(Pipe_In_IsReceived()))
 		{
 			if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 			  goto End_Of_Control_Send;

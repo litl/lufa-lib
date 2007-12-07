@@ -175,7 +175,7 @@ TASK(USB_Keyboard_Host)
 			Pipe_Unfreeze();
 
 			/* Check if data has been recieved from the attached keyboard */
-			if (Pipe_In_IsRecieved())
+			if (Pipe_In_IsReceived())
 			{
 				USB_KeyboardReport_Data_t KeyboardReport;
 					

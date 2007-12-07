@@ -31,9 +31,6 @@
 			#define ENDPOINT_DIR_OUT                           0
 			#define ENDPOINT_DIR_IN                            (1 << EPDIR)
 			
-			#define ENDPOINT_DESCRIPTOR_DIR_IN                 0x80
-			#define ENDPOINT_DESCRIPTOR_DIR_OUT                0x00		
-			
 			#define ENDPOINT_SIZE_8_MASK                       0b000
 			#define ENDPOINT_SIZE_16_MASK                      0b001
 			#define ENDPOINT_SIZE_32_MASK                      0b010
@@ -83,9 +80,9 @@
 			#define Endpoint_Out_Clear()               MACROS{ UEINTX  &= ~(1 << RXOUTI); UEINTX &= ~(1 << FIFOCON); }MACROE
 
 			#define Endpoint_In_IsReady()                    ((UEINTX  &   (1 << TXINI)) ? true : false)
-			#define Endpoint_Out_IsRecieved()                ((UEINTX  &   (1 << RXOUTI)) ? true: false)
+			#define Endpoint_Out_IsReceived()                ((UEINTX  &   (1 << RXOUTI)) ? true: false)
 			
-			#define Endpoint_ClearSetupRecieved()      MACROS{ UEINTX  &= ~(1 << RXSTPI);               }MACROE
+			#define Endpoint_ClearSetupReceived()      MACROS{ UEINTX  &= ~(1 << RXSTPI);               }MACROE
 			#define Endpoint_Stall_Transaction()       MACROS{ UECONX  |=  (1 << STALLRQ);              }MACROE
 			#define Endpoint_ClearStall()              MACROS{ UECONX  &= ~(1 << STALLRQ);              }MACROE
 			#define Endpoint_IsStalled()                     ((UECONX  &    (1 << STALLRQ)) ? true : false)

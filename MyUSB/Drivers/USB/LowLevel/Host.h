@@ -24,12 +24,16 @@
 			#define USB_HOST_DEVICEADDRESS             1
 			#define USB_HOST_TIMEOUT_MS                100
 			
-			#define USB_HOST_ResetBus()                MACROS{ UHCON |=  (1 << RESET);         }MACROE
+			#define USB_HOST_ResetBus()                MACROS{ UHCON |=  (1 << RESET);          }MACROE
 			#define USB_HOST_ResetBus_IsDone()               ((UHCON &   (1 << RESET)) ? false : true)
 			
-			#define USB_HOST_SOFGeneration_Enable()    MACROS{ UHCON  |=  (1 << SOFEN);          }MACROE 
-			#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON  &= ~(1 << SOFEN);          }MACROE 
-			#define USB_HOST_SOFGeneration_IsEnabled()       ((UHCON  &   (1 << SOFEN)) ? true : false)
+			#define USB_HOST_SOFGeneration_Enable()    MACROS{ UHCON |=  (1 << SOFEN);          }MACROE 
+			#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON &= ~(1 << SOFEN);          }MACROE 
+			#define USB_HOST_SOFGeneration_IsEnabled()       ((UHCON &   (1 << SOFEN)) ? true : false)
+			
+			#define USB_HOST_IsRemoteWakeupSent()            ((UHINT &   (1 << RXRSMI)) ? true : false)
+			#define USB_HOST_ClearRemoteWakeupSent()   MACROS{ UHINT &= ~(1 << RXRSMI);         }MACROE
+			#define USB_HOST_SendResume()              MACROS{ UHCON |=  (1 << RESUME);         }MACROE
 			
 		/* Enums: */
 			enum USB_Host_States

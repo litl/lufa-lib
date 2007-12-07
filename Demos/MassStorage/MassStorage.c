@@ -104,12 +104,12 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	switch (Request)
 	{
 		case MASS_STORAGE_RESET:
-			Endpoint_ClearSetupRecieved();
+			Endpoint_ClearSetupReceived();
 			Endpoint_In_Clear();
 
 			break;
 		case GET_NUMBER_OF_LUNS:
-			Endpoint_ClearSetupRecieved();			
+			Endpoint_ClearSetupReceived();			
 			Endpoint_Write_Byte(0x00);			
 			Endpoint_In_Clear();
 
@@ -126,7 +126,7 @@ TASK(USB_MassStorage)
 		Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 		
 		/* Check to see if a command from the host has been issued */
-		if (Endpoint_Out_IsRecieved())
+		if (Endpoint_Out_IsReceived())
 		{	
 			/* Set LED2 orange - busy */
 			Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_ORANGE);
@@ -178,7 +178,7 @@ static void ProcessCommandBlock(void)
 	Endpoint_Out_Clear();
 
 	/* Check direction of command, select Data IN endpoint if command is to the device */
-	if (CommandBlock.Header.Flags & (1 << 7))
+	if (CommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
 	  Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 
 	/* Decode the recieved SCSI command */

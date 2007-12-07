@@ -177,7 +177,7 @@ TASK(USB_Mouse_Host)
 			Pipe_Unfreeze();
 
 			/* Check if data has been recieved from the attached mouse */
-			if (Pipe_In_IsRecieved())
+			if (Pipe_In_IsReceived())
 			{
 				USB_MouseReport_Data_t MouseReport;
 					

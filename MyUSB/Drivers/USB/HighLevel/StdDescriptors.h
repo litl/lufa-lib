@@ -28,6 +28,9 @@
 			
 			#define LANGUAGE_ID_ENG                   0x0409
 
+			#define ENDPOINT_DESCRIPTOR_DIR_IN        0x80
+			#define ENDPOINT_DESCRIPTOR_DIR_OUT       0x00		
+
 			#define USB_CONFIG_ATTR_BUSPOWERED        0b10000000
 			#define USB_CONFIG_ATTR_SELFPOWERED       0b11000000
 			#define USB_CONFIG_ATTR_REMOTEWAKEUP      0b10100000
@@ -151,7 +154,5 @@
 		/* Function Prototypes: */
 			bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 			                       void** const DescriptorAddr, uint16_t* const Size)
-								   ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3)
-								   ATTR_NON_NULL_PTR_ARG(4);
-			
+								   ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);
 #endif

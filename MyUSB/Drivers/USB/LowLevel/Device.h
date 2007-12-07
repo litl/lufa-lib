@@ -17,8 +17,12 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define USB_DEV_OPT_LOWSPEED            (1 << 0)
-			#define USB_DEV_OPT_HIGHSPEED           (0 << 0)
+			#define USB_DEV_OPT_LOWSPEED                (1 << 0)
+			#define USB_DEV_OPT_HIGHSPEED               (0 << 0)
+			
+			#define USB_DEV_SendRemoteWakeup()   MACROS{ UDCON |= (1 << RMWKUP); }MACROE
+			#define USB_DEV_IsRemoteWakeupSent()       ((UDCON &  (1 << RMWKUP)) ? false : true)
+			#define USB_DEV_IsUSBSuspended()           ((UDCON &  (1 << SUSPI)) ? true : false)
 
 		/* Enums: */
 			enum USB_Device_ErrorCodes
@@ -29,7 +33,7 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */		
-			#define USB_DEV_SetLowSpeed()   MACROS{ UDCON |=  (1 << LSM); }MACROE
-			#define USB_DEV_SetHighSpeed()  MACROS{ UDCON &= ~(1 << LSM); }MACROE
+			#define USB_DEV_SetLowSpeed()        MACROS{ UDCON |=  (1 << LSM);   }MACROE
+			#define USB_DEV_SetHighSpeed()       MACROS{ UDCON &= ~(1 << LSM);   }MACROE
 		
 #endif

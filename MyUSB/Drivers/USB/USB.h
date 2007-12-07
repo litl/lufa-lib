@@ -24,6 +24,7 @@
 			#include "LowLevel/Host.h"
 			#include "LowLevel/HostChapter9.h"
 			#include "LowLevel/Pipe.h"
+			#include "HighLevel/ConfigDescriptor.h"
 		#endif
 		
 		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY

@@ -104,7 +104,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	switch (Request)
 	{
 		case GET_LINE_CODING:
-			Endpoint_ClearSetupRecieved();
+			Endpoint_ClearSetupReceived();
 
 			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
 			  Endpoint_Write_Byte(*(LineCodingData++));	
@@ -112,14 +112,14 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			Endpoint_In_Clear();
 			while (!(Endpoint_In_IsReady()));
 			
-			while (!(Endpoint_Out_IsRecieved()));
+			while (!(Endpoint_Out_IsReceived()));
 			Endpoint_Out_Clear();
 
 			break;
 		case SET_LINE_CODING:
-			Endpoint_ClearSetupRecieved();
+			Endpoint_ClearSetupReceived();
 			
-			while (!(Endpoint_Out_IsRecieved()));
+			while (!(Endpoint_Out_IsReceived()));
 
 			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
 			  *(LineCodingData++) = Endpoint_Read_Byte();
@@ -133,7 +133,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	
 			break;
 		case SET_CONTROL_LINE_STATE:
-			Endpoint_ClearSetupRecieved();
+			Endpoint_ClearSetupReceived();
 			
 			Endpoint_In_Clear();
 			while (!(Endpoint_In_IsReady()));
@@ -149,7 +149,7 @@ TASK(CDC_Task)
 		/* Select the Serial Rx Endpoint */
 		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 		
-		if (Endpoint_Out_IsRecieved())
+		if (Endpoint_Out_IsReceived())
 		{
 			/* Read the recieved data endpoint into the transmission buffer */
 			while (Endpoint_BytesInEndpoint())

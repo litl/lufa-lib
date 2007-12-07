@@ -25,16 +25,16 @@
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 
 	/* Macros: */
-		#define MASS_STORAGE_RESET      0xFF
-		#define GET_NUMBER_OF_LUNS      0xFE
+		#define MASS_STORAGE_RESET         0xFF
+		#define GET_NUMBER_OF_LUNS         0xFE
 
-		#define MAX_SCSI_COMMAND_LENGTH 16
+		#define MAX_SCSI_COMMAND_LENGTH    16
 		
-		#define CBW_SIGNATURE           0x43425355UL // USBC
-		#define CSW_SIGNATURE           0x53425355UL // USBS
+		#define CBW_SIGNATURE              0x43425355UL // USBC
+		#define CSW_SIGNATURE              0x53425355UL // USBS
 		
-		#define DATA_OUT                (0 << 7)
-		#define DATA_IN                 (1 << 7)
+		#define COMMAND_DIRECTION_DATA_OUT (0 << 7)
+		#define COMMAND_DIRECTION_DATA_IN  (1 << 7)
 
 	/* Type defines: */
 		typedef struct
