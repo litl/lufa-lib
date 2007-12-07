@@ -16,7 +16,7 @@
 		
 		#include "../../../Common/FunctionAttributes.h"
 		#include "../LowLevel/LowLevel.h"
-
+		
 	/* Function Prototypes: */
 		uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* ConfigSizePtr)
 		        ATTR_NON_NULL_PTR_ARG(1);

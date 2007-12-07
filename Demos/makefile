@@ -52,6 +52,9 @@ all:
 	make -C MassStorage clean
 	make -C MassStorage all
 
+	make -C AudioOutput clean
+	make -C AudioOutput all
+
 clean:
 	make -C TestApp clean
 	make -C Mouse clean
@@ -65,6 +68,7 @@ clean:
 	make -C CDC clean
 	make -C USBtoSerial clean
 	make -C MassStorage clean
+	make -C AudioOutput clean
 	
 clean_list:
 	make -C TestApp clean_list
@@ -79,3 +83,4 @@ clean_list:
 	make -C CDC clean_list
 	make -C USBtoSerial clean_list
 	make -C MassStorage clean_list
+	make -C AudioOutput clean_list

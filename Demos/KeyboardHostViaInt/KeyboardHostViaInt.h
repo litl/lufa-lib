@@ -45,7 +45,8 @@
 			DescriptorTooLarge   = 1,
 			HIDInterfaceNotFound = 2,
 			IncorrectProtocol    = 3,
-			SuccessfulConfigRead = 4,
+			NoEndpointFound      = 4,
+			SuccessfulConfigRead = 5,
 		} GetConfigDescriptorDataCodes_t;
 
 	/* Task Definitions: */

@@ -52,6 +52,6 @@
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 							   void** const DescriptorAddr, uint16_t* const Size)
-							   ATTR_WARN_UNUSED_RESULT ATTR_WEAK;
+							   ATTR_WARN_UNUSED_RESULT;
 
 #endif

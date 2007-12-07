@@ -216,8 +216,8 @@ TASK(USB_Mouse_Host)
 
 uint8_t GetConfigDescriptorData(void)
 {
-	uint16_t ConfigDescriptorSize;
 	uint8_t* ConfigDescriptorData;
+	uint16_t ConfigDescriptorSize;
 	bool     FoundHIDInterfaceDescriptor = false;
 	
 	/* Get Configuration Descriptor size from the device */
@@ -240,6 +240,9 @@ uint8_t GetConfigDescriptorData(void)
 	
 	while (!(FoundHIDInterfaceDescriptor))
 	{
+		/* Get the next descriptor from the configuration descriptor data */
+		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  
+
 		/* Find next interface descriptor */
 		while (ConfigDescriptorSize)
 		{
@@ -258,8 +261,6 @@ uint8_t GetConfigDescriptorData(void)
 		/* Check the HID descriptor class, set the flag if class matches expected class */
 		if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Class == MOUSE_CLASS)
 		  FoundHIDInterfaceDescriptor = true;
-		else
-		  AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  
 	}
 
 	/* Check protocol - error out if it is incorrect */
@@ -280,6 +281,10 @@ uint8_t GetConfigDescriptorData(void)
 		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
 	}
 	
+	/* If reached end of configuration descriptor, error out */
+	if (ConfigDescriptorSize == 0)
+	  return NoEndpointFound;
+
 	/* Retrieve the endpoint address from the endpoint descriptor */
 	MouseDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
 	
