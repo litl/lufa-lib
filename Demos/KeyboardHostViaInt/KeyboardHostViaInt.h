@@ -29,6 +29,8 @@
 		#define KEYBOARD_CLASS                 0x03
 		#define KEYBOARD_PROTOCOL              0x01
 		
+		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
+
 	/* Type Defines: */
 		typedef struct
 		{
@@ -36,6 +38,16 @@
 			uint8_t KeyCode;
 		} USB_KeyboardReport_Data_t;
 		
+	/* Enums */
+		enum
+		{
+			ControlError         = 0,
+			DescriptorTooLarge   = 1,
+			HIDInterfaceNotFound = 2,
+			IncorrectProtocol    = 3,
+			SuccessfulConfigRead = 4,
+		} GetConfigDescriptorDataCodes_t;
+
 	/* Task Definitions: */
 		TASK(USB_Keyboard_Host);
 
@@ -43,5 +55,8 @@
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);
 		HANDLES_EVENT(USB_HostError);
+		
+	/* Function Prototypes: */
+		uint8_t GetConfigDescriptorData(void);
 		
 #endif

@@ -41,6 +41,9 @@ TASK_LIST
 	{ TaskID: USB_Keyboard_Host_ID    , TaskName: USB_Keyboard_Host    , TaskStatus: TASK_RUN  },
 };
 
+/* Globals */
+uint8_t KeyboardDataEndpointNumber;
+
 int main(void)
 {
 	/* Disable Clock Division */
@@ -90,8 +93,7 @@ EVENT_HANDLER(USB_HostError)
 
 TASK(USB_Keyboard_Host)
 {
-	static uint8_t DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
-				              sizeof(USB_Descriptor_Interface_t)];
+	uint8_t ErrorCode;
 
 	/* Block task if device not connected */
 	if (!(USB_IsConnected))
@@ -120,49 +122,36 @@ TASK(USB_Keyboard_Host)
 			USB_HostState = HOST_STATE_Configured;
 			break;
 		case HOST_STATE_Configured:
-			/* Standard request to retrieve Configuration descriptor from device */
-			USB_HostRequest.RequestType    = (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE);
-			USB_HostRequest.RequestData    = REQ_GetDescriptor;
-			USB_HostRequest.Value_HighByte = DTYPE_Configuration;
-			USB_HostRequest.Value_LowByte  = 0;
-			USB_HostRequest.Index          = 0;
-			USB_HostRequest.Length         = sizeof(DataBuffer);
-
-			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(DataBuffer)
-			    != HOST_SENDCONTROL_Sucessful)
-			{
-				puts_P(PSTR("Control error."));
+			puts_P(PSTR("Getting Config Data.\r\n"));
+		
+			/* Get and process the configuration descriptor data */
+			ErrorCode = GetConfigDescriptorData();
 			
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected);
-				break;
-			}
-
-			/* Check Device descriptor's interface class against the keyboard class */
-			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
-			               offsetof(USB_Descriptor_Interface_t, Class)] != KEYBOARD_CLASS)
+			/* Check if the configuration descriptor processing was sucessful */
+			if (ErrorCode != SuccessfulConfigRead)
 			{
-				puts_P(PSTR("Incorrect device class."));
-
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-				while (USB_IsConnected);
-				break;
-			}
+				switch (ErrorCode)
+				{
+					case HIDInterfaceNotFound:
+						puts_P(PSTR("Invalid Device Type.\r\n"));
+						break;
+					case IncorrectProtocol:
+						puts_P(PSTR("Invalid Protocol.\r\n"));
+						break;
+					default:
+						puts_P(PSTR("Control Error.\r\n"));
+						break;
+				}
 				
-			/* Check Device descriptor's interface protocol against the keyboard protocol */
-			if (DataBuffer[sizeof(USB_Descriptor_Configuration_Header_t) +
-			               offsetof(USB_Descriptor_Interface_t, Protocol)] != KEYBOARD_PROTOCOL)
-			{
-				puts_P(PSTR("Incorrect device protocol."));
-
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;
 			}
 
 			/* Configure the keyboard data pipe */
-			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN, 1, 8, PIPE_BANK_SINGLE);
+			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN,
+			                   KeyboardDataEndpointNumber, 8, PIPE_BANK_SINGLE);
+
 			Pipe_SelectPipe(KEYBOARD_DATAPIPE);
 			Pipe_SetInfiniteINRequests();
 			
@@ -230,4 +219,77 @@ ISR(ENDPOINT_PIPE_vect)
 			USB_INT_Clear(PIPE_INT_IN);		
 		}
 	}
+}
+
+uint8_t GetConfigDescriptorData(void)
+{
+	uint16_t ConfigDescriptorSize;
+	uint8_t* ConfigDescriptorData;
+	bool     FoundHIDInterfaceDescriptor = false;
+	
+	/* Get Configuration Descriptor size from the device */
+	if (AVR_HOST_GetDeviceConfigDescriptorSize(&ConfigDescriptorSize) != HOST_SENDCONTROL_Sucessful)
+	  return ControlError;
+	
+	/* Ensure that the Configuration Descriptor isn't too large */
+	if (ConfigDescriptorSize > MAX_CONFIG_DESCRIPTOR_SIZE)
+	  return DescriptorTooLarge;
+	  
+	/* Allocate enough memory for the entire config descriptor */
+	ConfigDescriptorData = __builtin_alloca(ConfigDescriptorSize);
+
+	/* Retrieve the entire configuration descriptor into the allocated buffer */
+	AVR_HOST_GetDeviceConfigDescriptor(ConfigDescriptorSize, ConfigDescriptorData);
+	
+	/* Validate returned data - ensure first entry is a configuration header descriptor */
+	if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type != DTYPE_Configuration)
+	  return ControlError;
+	
+	while (!(FoundHIDInterfaceDescriptor))
+	{
+		/* Find next interface descriptor */
+		while (ConfigDescriptorSize)
+		{
+			/* Check to see if the next descriptor is an interface descriptor, if so break out */
+			if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Interface)
+			  break;
+
+			/* Get the next descriptor from the configuration descriptor data */
+			AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);
+		}
+
+		/* If reached end of configuration descriptor, error out */
+		if (ConfigDescriptorSize == 0)
+		  return HIDInterfaceNotFound;
+
+		/* Check the HID descriptor class, set the flag if class matches expected class */
+		if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Class == KEYBOARD_CLASS)
+		  FoundHIDInterfaceDescriptor = true;
+		else
+		  AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  
+	}
+
+	/* Check protocol - error out if it is incorrect */
+	if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Protocol != KEYBOARD_PROTOCOL)
+	  return IncorrectProtocol;
+	
+	/* Find the next IN endpoint descriptor after the keyboard interface descriptor */
+	while (ConfigDescriptorSize)
+	{
+		/* Check if current descritor is an IN endpoint descriptor */
+		if ((((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Endpoint) &&
+		   (((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN))
+		{
+			  break;
+		}
+		
+		/* Get the next descriptor from the configuration descriptor data */
+		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
+	}
+	
+	/* Retrieve the endpoint address from the endpoint descriptor */
+	KeyboardDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
+	
+	/* Valid data found, return success */
+	return SuccessfulConfigRead;
 }

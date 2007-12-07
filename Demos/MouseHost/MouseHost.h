@@ -28,6 +28,8 @@
 		#define MOUSE_CLASS                 0x03
 		#define MOUSE_PROTOCOL              0x02
 
+		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
+
 	/* Type Defines: */
 		typedef struct
 		{
@@ -36,6 +38,16 @@
 			int8_t  Y;
 		} USB_MouseReport_Data_t;
 		
+	/* Enums */
+		enum
+		{
+			ControlError         = 0,
+			DescriptorTooLarge   = 1,
+			HIDInterfaceNotFound = 2,
+			IncorrectProtocol    = 3,
+			SuccessfulConfigRead = 4,
+		} GetConfigDescriptorDataCodes_t;
+
 	/* Task Definitions: */
 		TASK(USB_Mouse_Host);
 
@@ -43,5 +55,8 @@
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);
 		HANDLES_EVENT(USB_HostError);
+		
+	/* Function Prototypes: */
+		uint8_t GetConfigDescriptorData(void);
 		
 #endif
