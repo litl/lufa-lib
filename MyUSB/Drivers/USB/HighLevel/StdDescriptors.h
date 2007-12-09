@@ -8,15 +8,19 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef USB_DESCRIPTORS_H
-#define USB_DESCRIPTORS_H
+#ifndef __USB_DESCRIPTORS_H__
+#define __USB_DESCRIPTORS_H__
 
 	/* Includes: */
 		#include <avr/pgmspace.h>
 		#include <stdbool.h>
 
-		#include "../USB.h"
+		#include "Events.h"
 		#include "../../../Common/FunctionAttributes.h"
+		
+		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+			#include "../LowLevel/Device.h"
+		#endif
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

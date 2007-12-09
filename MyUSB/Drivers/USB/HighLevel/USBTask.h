@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef USBTASK_H
-#define USBTASK_H
+#ifndef __USBTASK_H__
+#define __USBTASK_H__
 
 	/* Includes: */
 		#include <avr/io.h>

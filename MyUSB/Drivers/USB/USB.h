@@ -14,17 +14,11 @@
 		#endif
 
 	/* Includes: */
-		#include "LowLevel/LowLevel.h"
-		#include "HighLevel/USBTask.h"
-		#include "HighLevel/USBInterrupt.h"
-		#include "HighLevel/Events.h"
-		#include "HighLevel/StdDescriptors.h"
-
 		#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+			#include "HighLevel/ConfigDescriptor.h"
 			#include "LowLevel/Host.h"
 			#include "LowLevel/HostChapter9.h"
 			#include "LowLevel/Pipe.h"
-			#include "HighLevel/ConfigDescriptor.h"
 		#endif
 		
 		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
@@ -33,3 +27,8 @@
 			#include "LowLevel/Endpoint.h"
 		#endif
 		
+		#include "LowLevel/LowLevel.h"
+		#include "HighLevel/USBTask.h"
+		#include "HighLevel/USBInterrupt.h"
+		#include "HighLevel/Events.h"
+		#include "HighLevel/StdDescriptors.h"

@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef EVENTS_H
-#define EVENTS_H
+#ifndef __USB_EVENTS_H__
+#define __USB_EVENTS_H__
 
 	// Includes:
 		#include <avr/io.h>

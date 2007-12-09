@@ -8,8 +8,8 @@
  Released under the GPL Licence, Version 3
 */
 
-#ifndef USBINT_H
-#define USBINT_H
+#ifndef __USBINT_H__
+#define __USBINT_H__
 
 	/* Includes: */
 		#include <avr/io.h>

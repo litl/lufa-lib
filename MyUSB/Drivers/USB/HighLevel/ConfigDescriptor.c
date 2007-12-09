@@ -26,7 +26,7 @@ uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* ConfigSizePtr)
 		};
 		
 	ErrorCode = USB_Host_SendControlRequest(Buffer);
-	  
+	
 	*ConfigSizePtr = ((USB_Descriptor_Configuration_Header_t*)&Buffer)->TotalConfigurationSize;
 
 	return ErrorCode;
@@ -34,8 +34,6 @@ uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* ConfigSizePtr)
 
 uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t BufferSize, uint8_t* BufferPtr)
 {
-	uint8_t ErrorCode;
-
 	USB_HostRequest = (USB_Host_Request_Header_t)
 		{
 			RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
@@ -45,17 +43,7 @@ uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t BufferSize, uint8_t* BufferP
 			Length:      BufferSize,
 		};
 
-	ErrorCode = USB_Host_SendControlRequest(BufferPtr);
-
-	return ErrorCode;
-}
-
-void AVR_HOST_GetNextDescriptor(uint16_t* BytesRem, uint8_t** CurrConfigLoc)
-{
-	uint16_t CurrDescriptorSize = ((USB_Descriptor_Header_t*)*CurrConfigLoc)->Size;
-
-	*CurrConfigLoc += CurrDescriptorSize;
-	*BytesRem      -= CurrDescriptorSize;
+	return USB_Host_SendControlRequest(BufferPtr);
 }
 #endif
 

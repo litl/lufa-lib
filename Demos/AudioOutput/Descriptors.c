@@ -48,6 +48,34 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			
 			MaxPowerConsumption:    USB_CONFIG_POWER_MA(100)
 		},
+		
+	AudioInterface:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
+
+			InterfaceNumber:        0,
+			AlternateSetting:       0,
+			
+			TotalEndpoints:         0,
+				
+			Class:                  0x01,
+			SubClass:               0x01,
+			Protocol:               0x00,
+				
+			InterfaceStrIndex:      NO_DESCRIPTOR_STRING			
+		},
+	
+	AudioInterfaceAC:
+		{
+			Header:                 {Size: sizeof(USB_AudioInterface_AC_t), Type: DTYPE_AudioInterface},
+			Subtype:                DSUBTYPE_Header,
+			
+			ACSpecification:        0x0100,
+			TotalLength:            sizeof(USB_AudioInterface_AC_t),
+			
+			InCollection:           1,
+			InterfaceNumbers:       {1},			
+		}
 };
 
 USB_Descriptor_Language_t LanguageString PROGMEM =

@@ -289,11 +289,11 @@ uint8_t GetConfigDescriptorData(void)
 		
 		/* Get the next descriptor from the configuration descriptor data */
 		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
-	}
-	
-	/* If reached end of configuration descriptor, error out */
-	if (ConfigDescriptorSize == 0)
-	  return NoEndpointFound;
+
+		/* If reached end of configuration descriptor, error out */
+		if (ConfigDescriptorSize == 0)
+		  return NoEndpointFound;
+	}	
 
 	/* Retrieve the endpoint address from the endpoint descriptor */
 	MouseDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;

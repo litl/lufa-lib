@@ -16,26 +16,17 @@
 # code.
 
 all:
-	make -C TestApp clean
-	make -C TestApp all
+	make -C AudioOutput clean
+	make -C AudioOutput all
 
-	make -C Mouse clean
-	make -C Mouse all
-
-	make -C Keyboard clean
-	make -C Keyboard all
-
-	make -C Magstripe clean
-	make -C Magstripe all
+	make -C CDC clean
+	make -C CDC all
 
 	make -C Joystick clean
 	make -C Joystick all
 
-	make -C MouseHost clean
-	make -C MouseHost all
-
-	make -C MouseHostViaInt clean
-	make -C MouseHostViaInt all
+	make -C Keyboard clean
+	make -C Keyboard all
 
 	make -C KeyboardHost clean
 	make -C KeyboardHost all
@@ -43,44 +34,53 @@ all:
 	make -C KeyboardHostViaInt clean
 	make -C KeyboardHostViaInt all
 
-	make -C CDC clean
-	make -C CDC all
-	
-	make -C USBtoSerial clean
-	make -C USBtoSerial all
-	
+	make -C Magstripe clean
+	make -C Magstripe all
+
 	make -C MassStorage clean
 	make -C MassStorage all
 
-	make -C AudioOutput clean
-	make -C AudioOutput all
+	make -C Mouse clean
+	make -C Mouse all
+
+	make -C MouseHost clean
+	make -C MouseHost all
+
+	make -C MouseHostViaInt clean
+	make -C MouseHostViaInt all
+
+	make -C TestApp clean
+	make -C TestApp all
+
+	make -C USBtoSerial clean
+	make -C USBtoSerial all
 
 clean:
-	make -C TestApp clean
-	make -C Mouse clean
-	make -C Keyboard clean
-	make -C Magstripe clean
+	make -C AudioOutput clean
+	make -C CDC clean
 	make -C Joystick clean
-	make -C MouseHost clean
-	make -C MouseHostViaInt clean
+	make -C Keyboard clean
 	make -C KeyboardHost clean
 	make -C KeyboardHostViaInt clean
-	make -C CDC clean
-	make -C USBtoSerial clean
+	make -C Magstripe clean
 	make -C MassStorage clean
-	make -C AudioOutput clean
+	make -C Mouse clean
+	make -C MouseHost clean
+	make -C MouseHostViaInt clean
+	make -C TestApp clean
+	make -C USBtoSerial clean
 	
 clean_list:
-	make -C TestApp clean_list
-	make -C Mouse clean_list
-	make -C Keyboard clean_list
-	make -C Magstripe clean_list
+	make -C AudioOutput clean_list
+	make -C CDC clean_list
 	make -C Joystick clean_list
-	make -C MouseHost clean_list
-	make -C MouseHostViaInt clean_list
+	make -C Keyboard clean_list
 	make -C KeyboardHost clean_list
 	make -C KeyboardHostViaInt clean_list
-	make -C CDC clean_list
-	make -C USBtoSerial clean_list
+	make -C Magstripe clean_list
 	make -C MassStorage clean_list
-	make -C AudioOutput clean_list
+	make -C Mouse clean_list
+	make -C MouseHost clean_list
+	make -C MouseHostViaInt clean_list
+	make -C TestApp clean_list
+	make -C USBtoSerial clean_list
