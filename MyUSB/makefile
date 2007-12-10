@@ -20,6 +20,8 @@ MYUSB_USB_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
                      ./Drivers/USB/HighLevel/USBInterrupt.c      \
                      ./Drivers/USB/HighLevel/Events.c            \
                      ./Drivers/USB/HighLevel/StdDescriptors.c    \
+                     ./Drivers/USB/HighLevel/ConfigDescriptor.c  \
+					 
 				  
 MYUSB_DRIVER_FILES = ./Scheduler/Scheduler.c                     \
                      ./Drivers/USBKEY/Temperature.c              \

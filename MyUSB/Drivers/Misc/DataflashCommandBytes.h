@@ -17,6 +17,8 @@
 			#define DF_STATUS_COMPMISMATCH                  (1 << 6)
 			#define DF_STATUS_SECTORPROTECTION_ON           (1 << 1)
 			#define DF_STATUS_BINARYPAGESIZE_ON             (1 << 0)
+			
+			#define DF_MANUFACTURER_ATMEL                   0x1F
 		
 			#define DF_CMD_GETSTATUS                        0xD7
 			#define DF_CMD_POWERDOWN                        0xB9
@@ -56,5 +58,7 @@
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE2        0x2A
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE3        0x7F
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE4        0x9A
+			
+			#define DF_CMD_READMANUFACTURERDEVICEINFO       0x9F
 
 #endif

@@ -284,9 +284,13 @@ uint8_t GetConfigDescriptorData(void)
 		/* Get the next descriptor from the configuration descriptor data */
 		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
 
-		/* If reached end of configuration descriptor, error out */
-		if (ConfigDescriptorSize == 0)
-		  return NoEndpointFound;
+		/* If reached end of configuration descriptor, or a new interface descriptor found
+		   (indicating the end of the current interface configuration data), error out */
+		if ((((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Interface) ||
+		      (ConfigDescriptorSize == 0))
+		{
+			return NoEndpointFound;
+		}
 	}	
 
 	/* Retrieve the endpoint address from the endpoint descriptor */

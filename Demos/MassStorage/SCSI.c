@@ -77,20 +77,11 @@ void SCSI_DecodeSCSICommand(void)
 		case SCSI_CMD_REQUEST_SENSE:
 			CommandSuccess = SCSI_Command_Request_Sense();
 			break;
-		case SCSI_CMD_TEST_UNIT_READY:
-		case SCSI_CMD_VERIFY_10:
-			/* These commands should just suceed, no handling required */
-			CommandSuccess = true;
-			CommandBlock.Header.DataTransferLength = 0;
-			break;
 		case SCSI_CMD_READ_CAPACITY_10:
 			CommandSuccess = SCSI_Command_Read_Capacity_10();			
 			break;
 		case SCSI_CMD_SEND_DIAGNOSTIC:
 			CommandSuccess = SCSI_Command_Send_Diagnostic();
-			break;
-		case SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL:
-			CommandSuccess = SCSI_Command_PreventAllowMediumRemoval();
 			break;
 		case SCSI_CMD_WRITE_10:
 			CommandSuccess = SCSI_Command_ReadWrite_10(DATA_WRITE);
@@ -100,7 +91,14 @@ void SCSI_DecodeSCSICommand(void)
 			break;
 		case SCSI_CMD_MODE_SENSE_6:
 			CommandSuccess = SCSI_Command_Mode_Sense_6();
-			break;			
+			break;
+		case SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL:
+		case SCSI_CMD_TEST_UNIT_READY:
+		case SCSI_CMD_VERIFY_10:
+			/* These commands should just succeed, no handling required */
+			CommandSuccess = true;
+			CommandBlock.Header.DataTransferLength = 0;
+			break;
 		default:
 			/* Update the SENSE key to reflect the invalid command */
 			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
@@ -137,7 +135,7 @@ static bool SCSI_Command_Inquiry(void)
 	if ((CommandBlock.SCSICommandData[1] & ((1 << 0) | (1 << 1))) ||
 	     CommandBlock.SCSICommandData[2])
 	{
-		/* Optional bits set - update the SENSE key and fail the request */
+		/* Optional but unsupported bits set - update the SENSE key and fail the request */
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
 		               SCSI_ASENSE_INVALID_FIELD_IN_CDB,
 		               SCSI_ASENSEQ_NO_QUALIFIER);
@@ -248,6 +246,9 @@ static bool SCSI_Command_Read_Capacity_10(void)
 
 static bool SCSI_Command_Send_Diagnostic(void)
 {
+	uint8_t ReturnByte1;
+	uint8_t ReturnByte2;
+
 	/* Check to see if the SELF TEST bit is not set */
 	if (!(CommandBlock.SCSICommandData[1] & (1 << 2)))
 	{
@@ -258,15 +259,31 @@ static bool SCSI_Command_Send_Diagnostic(void)
 
 		return false;
 	}
+	
+	/* Test first Dataflash IC is present and responding to commands */
+	Dataflash_SelectChip(DATAFLASH_CHIP1);
+	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
+	ReturnByte1 = Dataflash_SendByte(0x00);
+	Dataflash_DeselectChip();
+	
+	/* Test second Dataflash IC is present and responding to commands */
+	Dataflash_SelectChip(DATAFLASH_CHIP2);
+	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
+	ReturnByte2 = Dataflash_SendByte(0x00);
+	Dataflash_DeselectChip();
 
-	/* Self test command always suceeds */
-	return true;
-}
+	/* If returned data is invalid on either Dataflash IC, fail the command */
+	if ((ReturnByte1 != DF_MANUFACTURER_ATMEL) || (ReturnByte2 != DF_MANUFACTURER_ATMEL))
+	{
+		/* Update SENSE key with a hardware error condition and return command fail */
+		SCSI_SET_SENSE(SCSI_SENSE_KEY_HARDWARE_ERROR,
+		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
+		               SCSI_ASENSEQ_NO_QUALIFIER);	
+	
+		return false;
+	}
 
-static bool SCSI_Command_PreventAllowMediumRemoval(void)
-{
-	/* Indicate all bytes processed and succeed the command */
-	CommandBlock.Header.DataTransferLength = 0;
+	/* Both Dataflash ICs are working correctly, succeed the command */
 	return true;
 }
 
