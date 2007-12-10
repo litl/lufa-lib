@@ -14,7 +14,9 @@
 	using the standard Mass Storage USB profile.
 	
 	The first 1024 bytes of an attached disk's memory will be dumped out of the
-	serial port when it is attached to the AT90USB1287 AVR.	
+	serial port when it is attached to the AT90USB1287 AVR.
+	
+	Requires header files from the Mass Storage Device demonstation application.
 */
 
 /*
@@ -45,6 +47,8 @@ TASK_LIST
 /* Globals */
 uint8_t MassStoreEndpointNumber_IN;
 uint8_t MassStoreEndpointNumber_OUT;
+uint8_t MassStoreEndpointSize_IN;
+uint8_t MassStoreEndpointSize_OUT;
 
 int main(void)
 {
@@ -161,10 +165,12 @@ TASK(USB_MassStore_Host)
 
 			/* Configure the data pipes */
 			Pipe_ConfigurePipe(MASS_STORE_DATA_IN_PIPE, EP_TYPE_BULK, PIPE_TOKEN_IN,
-			                   MassStoreEndpointNumber_IN, 64, PIPE_BANK_DOUBLE);
+			                   MassStoreEndpointNumber_IN, MassStoreEndpointSize_IN,
+			                   PIPE_BANK_DOUBLE);
 
 			Pipe_ConfigurePipe(MASS_STORE_DATA_OUT_PIPE, EP_TYPE_BULK, PIPE_TOKEN_OUT,
-			                   MassStoreEndpointNumber_OUT, 64, PIPE_BANK_DOUBLE);
+			                   MassStoreEndpointNumber_OUT, MassStoreEndpointSize_OUT,
+			                   PIPE_BANK_DOUBLE);
 
 			Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 			Pipe_SetInfiniteINRequests();
@@ -174,8 +180,77 @@ TASK(USB_MassStore_Host)
 			USB_HostState = HOST_STATE_Ready;
 			break;
 		case HOST_STATE_Ready:
-		
-		
+			/* Indicate device busy via the status LEDs */
+			Bicolour_SetLeds(BICOLOUR_LED2_ORANGE);
+					
+			/* Set up counter for reading in 1024 bytes from device */
+			uint16_t BytesRem    = (DEVICE_BLOCK_SIZE * DEVICE_BLOCKS_TO_READ);
+
+			/* Create a CBW with a SCSI command to read in the first two blocks from the device */
+			CommandBlockWrapper_t SCSICommand =
+				{
+					Header:
+						{
+							Signature:          CBW_SIGNATURE,
+							Tag:                0x00,
+							DataTransferLength: BytesRem,
+							Flags:              COMMAND_DIRECTION_DATA_IN,
+							LUN:                0x00,
+							SCSICommandLength:  9
+						},
+						
+					SCSICommandData:
+						{
+							SCSI_CMD_READ_10,
+							0x00, // Unused
+							(DEVICE_BLOCK_ADDRESS >> 24),   // MSB of Block Address
+							(DEVICE_BLOCK_ADDRESS >> 16),
+							(DEVICE_BLOCK_ADDRESS >> 8),
+							(DEVICE_BLOCK_ADDRESS & 0xFF),  // LSB of Block Address
+							0x00, // Unused
+							(DEVICE_BLOCKS_TO_READ >> 8),   // MSB of Total Blocks
+							(DEVICE_BLOCKS_TO_READ & 0xFF), // LSB of Total Blocks
+						}
+				};
+			
+			uint8_t* CommandByte = (uint8_t*)&SCSICommand;
+			
+			/* Select the OUT data pipe for CBW transmission */
+			Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
+			
+			/* Write the CBW to the OUT pipe */
+			for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
+			  Pipe_Write_Byte(*(CommandByte++));
+			  
+			/* Send the data in the OUT pipe to the attached device */
+			Pipe_Out_Clear();
+
+			/* Select the IN data pipe for data reception */
+			Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
+			
+			/* Wait until data recieved in the IN pipe */
+			while (!(Pipe_In_IsReceived()));
+			
+			/* Loop until all bytes read */
+			while (BytesRem)
+			{
+				/* Transmit each recieved byte through the serial USART */
+				Serial_TxByte(Pipe_Read_Byte());
+				
+				/* When pipe is empty, clear it to recieve the next packet */
+				if (!(Pipe_BytesInPipe()))
+				  Pipe_In_Clear();
+			}
+			
+			/* Ignore the returned CSW */
+			Pipe_In_Clear();
+			
+			/* Indicate device no longer busy */
+			Bicolour_SetLeds(BICOLOUR_LED2_GREEN);			
+			
+			/* Wait until USB device disconnected */
+			while (USB_IsConnected);
+			
 			break;
 	}
 }
@@ -244,13 +319,20 @@ uint8_t GetConfigDescriptorData(void)
 		if ((((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Endpoint) &&
 		    (((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->Attributes == EP_TYPE_BULK))
 		{
-			uint8_t EPAddress = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
+			uint8_t  EPAddress = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
+			uint16_t EPSize    = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointSize;
 		
 			/* Set the appropriate endpoint data address based on the endpoint direction */
 			if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-			  MassStoreEndpointNumber_IN  = EPAddress;
+			{
+				MassStoreEndpointNumber_IN = EPAddress;
+				MassStoreEndpointSize_IN   = EPSize;
+			}
 			else
-			  MassStoreEndpointNumber_OUT = EPAddress;		
+			{
+				MassStoreEndpointNumber_OUT = EPAddress;
+				MassStoreEndpointSize_OUT   = EPSize;
+			}
 		}
 		
 		/* If both data pipes found, exit the loop */

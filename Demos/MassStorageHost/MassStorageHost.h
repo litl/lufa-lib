@@ -16,6 +16,8 @@
 		#include <avr/pgmspace.h>
 		#include <stdio.h>
 
+		#include "../MassStorage/SCSI_Codes.h"
+
 		#include <MyUSB/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>     // ANSI Terminal Escape Codes
 		#include <MyUSB/Drivers/USB/USB.h>                // USB Functionality
@@ -33,6 +35,40 @@
 		
 		#define MAX_CONFIG_DESCRIPTOR_SIZE       512
 		
+		#define CBW_SIGNATURE                    0x43425355UL // USBC
+		#define CSW_SIGNATURE                    0x53425355UL // USBS
+		
+		#define COMMAND_DIRECTION_DATA_OUT       (0 << 7)
+		#define COMMAND_DIRECTION_DATA_IN        (1 << 7)
+		
+		#define DEVICE_BLOCK_SIZE                512
+		#define DEVICE_BLOCKS_TO_READ            2
+		#define DEVICE_BLOCK_ADDRESS             0x00000000UL
+
+	/* Type defines: */
+		typedef struct
+		{
+			struct
+			{
+				uint32_t Signature;
+				uint32_t Tag;
+				uint32_t DataTransferLength;
+				uint8_t  Flags;
+				uint8_t  LUN;
+				uint8_t  SCSICommandLength;			
+			} Header;
+			
+			uint8_t SCSICommandData[16];
+		} CommandBlockWrapper_t;
+		
+		typedef struct
+		{
+			const uint32_t Signature;
+			      uint32_t Tag;
+			      uint32_t SCSICommandResidue;
+			      uint8_t  Status;			
+		} CommandStatusWrapper_t;
+
 	/* Enums */
 		enum
 		{
