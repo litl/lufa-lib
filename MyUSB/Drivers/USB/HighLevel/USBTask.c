@@ -137,7 +137,7 @@ static void USB_HostTask(void)
 		case HOST_STATE_Powered:
 			Pipe_ClearPipes();
 		 
-			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
+			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,
 							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 							   PIPE_CONTROLPIPE_DEFAULT_SIZE, PIPE_BANK_SINGLE);
 
@@ -173,7 +173,7 @@ static void USB_HostTask(void)
 			Pipe_DeallocateMemory();
 			Pipe_ResetPipe(PIPE_CONTROLPIPE);
 			
-			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, PIPE_TYPE_CONTROL,
+			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,
 			                   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 			                   USB_ControlPipeSize, PIPE_BANK_SINGLE);
 

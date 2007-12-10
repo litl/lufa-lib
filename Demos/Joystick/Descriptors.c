@@ -114,7 +114,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 										 
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | JOYSTICK_EPNUM),
-			Attributes:       		ENDPOINT_TYPE_INTERRUPT,
+			Attributes:       		EP_TYPE_INTERRUPT,
 			EndpointSize:           JOYSTICK_EPSIZE,
 			PollingIntervalMS:		0x02
 		}	

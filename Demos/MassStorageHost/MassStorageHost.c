@@ -9,21 +9,22 @@
 */
 
 /*
-	Mouse host demonstration application. This gives a simple reference
-	application for implementing a USB Mouse host, for USB mice using
-	the standard mouse HID profile.
+	Mass Storage host demonstration application. This gives a simple reference
+	application for implementing a USB Mass Storage host, for USB storage devices
+	using the standard Mass Storage USB profile.
 	
-	Mouse movement is displayed both on the bicolour LEDs, as well as
-	printed out the serial terminal as formatted dY, dY and button
-	status information.
-
-	Currently only single-interface mice are supported.	
+	The first 1024 bytes of an attached disk's memory will be dumped out of the
+	serial port when it is attached to the AT90USB1287 AVR.	
 */
 
-#include "MouseHost.h"
+/*
+	THIS EXAMPLE IS UNFINISHED AND NON OPERATIONAL. FOR DEVELOPMENT PURPOSES ONLY.
+*/
+
+#include "MassStorageHost.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,  "MyUSB Mouse Host App");
+BUTTLOADTAG(ProjName,  "MyUSB MS Host App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
@@ -31,19 +32,19 @@ BUTTLOADTAG(BuildDate, __DATE__);
 TASK_ID_LIST
 {
 	USB_USBTask_ID,
-	USB_Mouse_Host_ID,
+	USB_MassStore_Host_ID,
 };
 
 /* Scheduler Task List */
 TASK_LIST
 {
 	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ TaskID: USB_Mouse_Host_ID       , TaskName: USB_Mouse_Host       , TaskStatus: TASK_RUN  },
+	{ TaskID: USB_MassStore_Host_ID   , TaskName: USB_MassStore_Host   , TaskStatus: TASK_RUN  },
 };
 
 /* Globals */
-uint8_t MouseDataEndpointNumber;
-uint8_t MouseDataEndpointSize;
+uint8_t MassStoreEndpointNumber_IN;
+uint8_t MassStoreEndpointNumber_OUT;
 
 int main(void)
 {
@@ -63,7 +64,7 @@ int main(void)
 
 	/* Startup message */
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
-	       "Mouse Host Demo running.\r\n" ESC_INVERSE_OFF));
+	       "MassStore Host Demo running.\r\n" ESC_INVERSE_OFF));
 		   
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
@@ -77,7 +78,7 @@ EVENT_HANDLER(USB_DeviceAttached)
 
 EVENT_HANDLER(USB_DeviceUnattached)
 {
-	puts_P(PSTR("Device Unattached.\r\n"));
+	puts_P(PSTR("\r\nDevice Unattached.\r\n"));
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 }
 
@@ -92,7 +93,7 @@ EVENT_HANDLER(USB_HostError)
 	for(;;);
 }
 
-TASK(USB_Mouse_Host)
+TASK(USB_MassStore_Host)
 {
 	uint8_t ErrorCode;
 
@@ -100,7 +101,6 @@ TASK(USB_Mouse_Host)
 	if (!(USB_IsConnected))
 		return;
 
-	/* Switch to determine what user-application handled host state the host state machine is in */
 	switch (USB_HostState)
 	{
 		case HOST_STATE_Addressed:
@@ -126,7 +126,7 @@ TASK(USB_Mouse_Host)
 				while (USB_IsConnected);
 				break;
 			}
-			
+				
 			USB_HostState = HOST_STATE_Configured;
 			break;
 		case HOST_STATE_Configured:
@@ -150,70 +150,32 @@ TASK(USB_Mouse_Host)
 						puts_P(PSTR("Control Error.\r\n"));
 						break;
 				}
-				
+
 				/* Indicate error via status LEDs */
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
-
+				
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;
 			}
 
-			/* Configure the keyboard data pipe */
-			Pipe_ConfigurePipe(MOUSE_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
-			                   MouseDataEndpointNumber, MouseDataEndpointSize, PIPE_BANK_SINGLE);
+			/* Configure the data pipes */
+			Pipe_ConfigurePipe(MASS_STORE_DATA_IN_PIPE, EP_TYPE_BULK, PIPE_TOKEN_IN,
+			                   MassStoreEndpointNumber_IN, 64, PIPE_BANK_DOUBLE);
 
-			Pipe_SelectPipe(MOUSE_DATAPIPE);
+			Pipe_ConfigurePipe(MASS_STORE_DATA_OUT_PIPE, EP_TYPE_BULK, PIPE_TOKEN_OUT,
+			                   MassStoreEndpointNumber_OUT, 64, PIPE_BANK_DOUBLE);
+
+			Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 			Pipe_SetInfiniteINRequests();
 		
-			puts_P(PSTR("Mouse Enumerated.\r\n"));
+			puts_P(PSTR("Mass Storage Disk Enumerated.\r\n"));
 				
 			USB_HostState = HOST_STATE_Ready;
 			break;
 		case HOST_STATE_Ready:
-			/* Select and unfreeze mouse data pipe */
-			Pipe_SelectPipe(MOUSE_DATAPIPE);	
-			Pipe_Unfreeze();
-
-			/* Check if data has been recieved from the attached mouse */
-			if (Pipe_In_IsReceived())
-			{
-				USB_MouseReport_Data_t MouseReport;
-					
-				/* Read in mouse report data */
-				MouseReport.Button = Pipe_Read_Byte();
-				MouseReport.X      = Pipe_Read_Byte();
-				MouseReport.Y      = Pipe_Read_Byte();
-					
-				Bicolour_SetLeds(BICOLOUR_NO_LEDS);
-				
-				/* Alter status LEDs according to mouse X movement */
-				if (MouseReport.X > 0)
-				  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
-				else if (MouseReport.X < 0)
-				  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);						
-				
-				/* Alter status LEDs according to mouse Y movement */
-				if (MouseReport.Y > 0)
-				  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
-				else if (MouseReport.Y < 0)
-				  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);						
-
-				/* Alter status LEDs according to mouse button position */
-				if (MouseReport.Button)
-				  Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
-				  
-				/* Print mouse report data through the serial port */
-				printf_P(PSTR("dX:%2d dY:%2d Button:%d\r\n"), MouseReport.X,
-				                                              MouseReport.Y,
-				                                              MouseReport.Button);
-					
-				/* Clear the IN endpoint, ready for next data packet */
-				Pipe_In_Clear();
-			}
-
-			/* Freeze mouse data pipe */
-			Pipe_Freeze();
+		
+		
 			break;
 	}
 }
@@ -260,26 +222,40 @@ uint8_t GetConfigDescriptorData(void)
 		  return HIDInterfaceNotFound;
 
 		/* Check the HID descriptor class, set the flag if class matches expected class */
-		if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Class == MOUSE_CLASS)
+		if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Class == MASS_STORE_CLASS)
 		  FoundHIDInterfaceDescriptor = true;
 	}
 
+	/* Check subclass - error out if it is incorrect */
+	if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->SubClass != MASS_STORE_SUBCLASS)
+	  return IncorrectSubclass;
+
 	/* Check protocol - error out if it is incorrect */
-	if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Protocol != MOUSE_PROTOCOL)
+	if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Protocol != MASS_STORE_PROTOCOL)
 	  return IncorrectProtocol;
 	
-	/* Find the next IN endpoint descriptor after the keyboard interface descriptor */
+	/* Find the IN and OUT endpoint descriptors after the mass storage interface descriptor */
 	while (ConfigDescriptorSize)
 	{
 		/* Get the next descriptor from the configuration descriptor data */
 		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
 
-		/* Check if current descritor is an IN endpoint descriptor */
+		/* Check if current descritor is a BULK type endpoint descriptor */
 		if ((((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Endpoint) &&
-		   (((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN))
+		    (((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->Attributes == EP_TYPE_BULK))
 		{
-			  break;
+			uint8_t EPAddress = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
+		
+			/* Set the appropriate endpoint data address based on the endpoint direction */
+			if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+			  MassStoreEndpointNumber_IN  = EPAddress;
+			else
+			  MassStoreEndpointNumber_OUT = EPAddress;		
 		}
+		
+		/* If both data pipes found, exit the loop */
+		if (MassStoreEndpointNumber_IN && MassStoreEndpointNumber_OUT)
+		  break;
 		
 		/* If new interface descriptor found (indicating the end of the current interface), error out */
 		if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Interface)
@@ -289,10 +265,6 @@ uint8_t GetConfigDescriptorData(void)
 	/* If reached end of configuration descriptor, error out */
 	if (ConfigDescriptorSize == 0)
 	  return NoEndpointFound;
-
-	/* Retrieve the endpoint address from the endpoint descriptor */
-	MouseDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
-	MouseDataEndpointSize   = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointSize;
 	
 	/* Valid data found, return success */
 	return SuccessfulConfigRead;

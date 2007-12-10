@@ -84,11 +84,11 @@ int main(void)
 EVENT_HANDLER(USB_CreateEndpoints)
 {
 	/* Setup Mass Storage In and Out Endpoints */
-	Endpoint_ConfigureEndpoint(MASS_STORAGE_IN_EPNUM, ENDPOINT_TYPE_BULK,
+	Endpoint_ConfigureEndpoint(MASS_STORAGE_IN_EPNUM, EP_TYPE_BULK,
 		                       ENDPOINT_DIR_IN, MASS_STORAGE_IO_EPSIZE,
 	                           ENDPOINT_BANK_DOUBLE);
 
-	Endpoint_ConfigureEndpoint(MASS_STORAGE_OUT_EPNUM, ENDPOINT_TYPE_BULK,
+	Endpoint_ConfigureEndpoint(MASS_STORAGE_OUT_EPNUM, EP_TYPE_BULK,
 		                       ENDPOINT_DIR_OUT, MASS_STORAGE_IO_EPSIZE,
 	                           ENDPOINT_BANK_DOUBLE);
 

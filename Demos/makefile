@@ -40,6 +40,9 @@ all:
 	make -C MassStorage clean
 	make -C MassStorage all
 
+	make -C MassStorageHost clean
+	make -C MassStorageHost all
+
 	make -C Mouse clean
 	make -C Mouse all
 
@@ -64,6 +67,7 @@ clean:
 	make -C KeyboardHostViaInt clean
 	make -C Magstripe clean
 	make -C MassStorage clean
+	make -C MassStorageHost clean
 	make -C Mouse clean
 	make -C MouseHost clean
 	make -C MouseHostViaInt clean
@@ -79,6 +83,7 @@ clean_list:
 	make -C KeyboardHostViaInt clean_list
 	make -C Magstripe clean_list
 	make -C MassStorage clean_list
+	make -C MassStorageHost clean_list
 	make -C Mouse clean_list
 	make -C MouseHost clean_list
 	make -C MouseHostViaInt clean_list

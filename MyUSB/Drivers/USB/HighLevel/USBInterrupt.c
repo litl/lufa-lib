@@ -81,7 +81,7 @@ ISR(USB_GEN_vect)
 		USB_INT_Disable(USB_INT_SUSPEND);
 		USB_INT_Enable(USB_INT_WAKEUP);
 
-		Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, ENDPOINT_TYPE_CONTROL,
+		Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, EP_TYPE_CONTROL,
 		                           ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
 		                           ENDPOINT_BANK_SINGLE);
 

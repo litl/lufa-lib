@@ -70,7 +70,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = Mouse
+TARGET = MassStorageHost
 
 
 # Object files directory
@@ -81,15 +81,17 @@ OBJDIR = .
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                           \
-	  Descriptors.c                                         \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
+	  ../../MyUSB/Drivers/USB1287/Serial_Stream.c           \
+	  ../../MyUSB/Drivers/USB1287/Serial.c                  \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
-	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
-	  ../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
+	  ../../MyUSB/Drivers/USB/LowLevel/Pipe.c               \
+	  ../../MyUSB/Drivers/USB/LowLevel/Host.c               \
+	  ../../MyUSB/Drivers/USB/LowLevel/HostChapter9.c       \
+	  ../../MyUSB/Drivers/USB/HighLevel/ConfigDescriptor.c  \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
 	  ../../MyUSB/Drivers/USB/HighLevel/Events.c            \
-	  ../../MyUSB/Drivers/USB/HighLevel/StdDescriptors.c    \
 	  
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -134,7 +136,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_DEVICE_ONLY
+CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_HOST_ONLY
 
 
 # Place -D or -U options here for ASM sources
@@ -166,7 +168,6 @@ CFLAGS += -fshort-enums
 CFLAGS += -finline-limit=20
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
-#CFLAGS += -mshort-calls
 CFLAGS += -Wundef
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wunreachable-code
@@ -609,7 +610,7 @@ $(OBJDIR)/%.o : %.S
 	$(CC) -E -mmcu=$(MCU) -I. $(CFLAGS) $< -o $@ 
 	
 
-# Target: clean project.
+## Target: clean project.
 clean: begin clean_list clean_binary end
 
 clean_binary:

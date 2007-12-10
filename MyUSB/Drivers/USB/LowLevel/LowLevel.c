@@ -199,7 +199,7 @@ bool USB_SetupInterface(void)
 	#endif
 	
 	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
-	if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, ENDPOINT_TYPE_CONTROL,
+	if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, EP_TYPE_CONTROL,
 	                               ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
 								   ENDPOINT_BANK_SINGLE) == ENDPOINT_CONFIG_OK)
 	{
@@ -219,7 +219,7 @@ bool USB_SetupInterface(void)
 	#else // All modes
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
-		if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, ENDPOINT_TYPE_CONTROL,
+		if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, EP_TYPE_CONTROL,
 		                               ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
 									   ENDPOINT_BANK_SINGLE) == ENDPOINT_CONFIG_OK)
 		{

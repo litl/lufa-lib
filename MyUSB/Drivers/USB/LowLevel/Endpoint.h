@@ -23,11 +23,6 @@
 			#define ENDPOINT_CONFIG_OK                         true
 			#define ENDPOINT_CONFIG_FAIL                       false
 
-			#define ENDPOINT_TYPE_CONTROL                      0b00
-			#define ENDPOINT_TYPE_ISOCHRONOUS                  0b01
-			#define ENDPOINT_TYPE_BULK                         0b10
-			#define ENDPOINT_TYPE_INTERRUPT                    0b11
-
 			#define ENDPOINT_DIR_OUT                           0
 			#define ENDPOINT_DIR_IN                            (1 << EPDIR)
 			

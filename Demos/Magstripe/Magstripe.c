@@ -83,7 +83,7 @@ int main(void)
 EVENT_HANDLER(USB_CreateEndpoints)
 {
 	/* Setup Keyboard Report Endpoint */
-	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, ENDPOINT_TYPE_INTERRUPT,
+	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 

@@ -70,7 +70,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | MASS_STORAGE_IN_EPNUM),
-			Attributes:             ENDPOINT_TYPE_BULK,
+			Attributes:             EP_TYPE_BULK,
 			EndpointSize:           MASS_STORAGE_IO_EPSIZE,
 			PollingIntervalMS:      0x00
 		},
@@ -80,7 +80,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | MASS_STORAGE_OUT_EPNUM),
-			Attributes:             ENDPOINT_TYPE_BULK,
+			Attributes:             EP_TYPE_BULK,
 			EndpointSize:           MASS_STORAGE_IO_EPSIZE,
 			PollingIntervalMS:      0x00
 		}

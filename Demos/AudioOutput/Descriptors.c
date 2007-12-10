@@ -94,7 +94,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 					Header:                 {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
 
 					EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | 1),
-					Attributes:             ENDPOINT_TYPE_ISOCHRONOUS,
+					Attributes:             EP_TYPE_ISOCHRONOUS,
 					EndpointSize:			64,
 					PollingIntervalMS:		1
 				},

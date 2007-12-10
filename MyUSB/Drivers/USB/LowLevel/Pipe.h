@@ -28,11 +28,6 @@
 			#define PIPE_ERRORFLAG_PID                     (1 << 2)
 			#define PIPE_ERRORFLAG_DATAPID                 (1 << 1)
 			#define PIPE_ERRORFLAG_DATATGL                 (1 << 0)
-			
-			#define PIPE_TYPE_CONTROL                      0b00
-			#define PIPE_TYPE_ISOCHRONOUS                  0b01
-			#define PIPE_TYPE_BULK                         0b10
-			#define PIPE_TYPE_INTERRUPT                    0b11
 
 			#define PIPE_TOKEN_MASK                        (0x03 << PTOKEN0)
 			#define PIPE_TOKEN_SETUP                       0b00

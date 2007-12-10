@@ -42,6 +42,11 @@
 			#define USB_SETUPINTERFACE_OK              true
 			#define USB_SETUPINTERFACE_FAIL            false
 
+			#define EP_TYPE_CONTROL                    0b00
+			#define EP_TYPE_ISOCHRONOUS                0b01
+			#define EP_TYPE_BULK                       0b10
+			#define EP_TYPE_INTERRUPT                  0b11
+
 			#define USB_VBUS_GetStatus()             ((USBSTA  & (1 << VBUS)) ? true : false)
 	
 			#define USB_Detach()               MACROS{ UDCON   |=  (1 << DETACH);  }MACROE

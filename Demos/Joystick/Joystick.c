@@ -66,7 +66,7 @@ int main(void)
 EVENT_HANDLER(USB_CreateEndpoints)
 {
 	/* Setup Joystick Report Endpoint */
-	Endpoint_ConfigureEndpoint(JOYSTICK_EPNUM, ENDPOINT_TYPE_INTERRUPT,
+	Endpoint_ConfigureEndpoint(JOYSTICK_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, JOYSTICK_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 

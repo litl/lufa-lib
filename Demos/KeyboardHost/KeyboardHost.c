@@ -42,6 +42,7 @@ TASK_LIST
 
 /* Globals */
 uint8_t KeyboardDataEndpointNumber;
+uint8_t KeyboardDataEndpointSize;
 
 int main(void)
 {
@@ -157,8 +158,8 @@ TASK(USB_Keyboard_Host)
 			}
 
 			/* Configure the keyboard data pipe */
-			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, PIPE_TYPE_INTERRUPT, PIPE_TOKEN_IN,
-			                   KeyboardDataEndpointNumber, 8, PIPE_BANK_SINGLE);
+			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
+			                   KeyboardDataEndpointNumber, KeyboardDataEndpointSize, PIPE_BANK_SINGLE);
 
 			Pipe_SelectPipe(KEYBOARD_DATAPIPE);
 			Pipe_SetInfiniteINRequests();
@@ -247,18 +248,15 @@ uint8_t GetConfigDescriptorData(void)
 	
 	while (!(FoundHIDInterfaceDescriptor))
 	{
-		/* Get the next descriptor from the configuration descriptor data */
-		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  
-
 		/* Find next interface descriptor */
 		while (ConfigDescriptorSize)
 		{
+			/* Get the next descriptor from the configuration descriptor data */
+			AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  
+
 			/* Check to see if the next descriptor is an interface descriptor, if so break out */
 			if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Interface)
 			  break;
-
-			/* Get the next descriptor from the configuration descriptor data */
-			AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);
 		}
 
 		/* If reached end of configuration descriptor, error out */
@@ -277,6 +275,9 @@ uint8_t GetConfigDescriptorData(void)
 	/* Find the next IN endpoint descriptor after the keyboard interface descriptor */
 	while (ConfigDescriptorSize)
 	{
+		/* Get the next descriptor from the configuration descriptor data */
+		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
+
 		/* Check if current descritor is an IN endpoint descriptor */
 		if ((((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Endpoint) &&
 		   (((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN))
@@ -284,20 +285,18 @@ uint8_t GetConfigDescriptorData(void)
 			  break;
 		}
 		
-		/* Get the next descriptor from the configuration descriptor data */
-		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
-
-		/* If reached end of configuration descriptor, or a new interface descriptor found
-		   (indicating the end of the current interface configuration data), error out */
-		if ((((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Interface) ||
-		      (ConfigDescriptorSize == 0))
-		{
-			return NoEndpointFound;
-		}
+		/* If new interface descriptor found (indicating the end of the current interface), error out */
+		if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Interface)
+		  return NoEndpointFound;
 	}	
+
+	/* If reached end of configuration descriptor, error out */
+	if (ConfigDescriptorSize == 0)
+	  return NoEndpointFound;
 
 	/* Retrieve the endpoint address from the endpoint descriptor */
 	KeyboardDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
+	KeyboardDataEndpointSize   = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointSize;
 	
 	/* Valid data found, return success */
 	return SuccessfulConfigRead;
