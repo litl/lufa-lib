@@ -43,6 +43,7 @@ TASK_LIST
 
 /* Globals */
 uint8_t KeyboardDataEndpointNumber;
+uint8_t KeyboardDataEndpointPollMS;
 
 int main(void)
 {
@@ -117,7 +118,10 @@ TASK(USB_Keyboard_Host)
 			{
 				puts_P(PSTR("Control error."));
 
+				/* Indicate error via status LEDs */
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+
+				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;
 			}
@@ -162,7 +166,7 @@ TASK(USB_Keyboard_Host)
 			Pipe_SetInfiniteINRequests();
 			
 			/* Activate the keyboard data pipe IN interrupt */
-			Pipe_SetInterruptFreq(1);
+			Pipe_SetInterruptFreq(KeyboardDataEndpointPollMS);
 			Pipe_Unfreeze();
 			USB_INT_Enable(PIPE_INT_IN);
 			
@@ -302,8 +306,9 @@ uint8_t GetConfigDescriptorData(void)
 		}
 	}	
 
-	/* Retrieve the endpoint address from the endpoint descriptor */
+	/* Retrieve the endpoint address/interrupt frequency from the endpoint descriptor */
 	KeyboardDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
+	KeyboardDataEndpointPollMS = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->PollingIntervalMS;
 	
 	/* Valid data found, return success */
 	return SuccessfulConfigRead;

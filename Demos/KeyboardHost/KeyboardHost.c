@@ -116,7 +116,10 @@ TASK(USB_Keyboard_Host)
 			{
 				puts_P(PSTR("Control error."));
 
+				/* Indicate error via status LEDs */
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+
+				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;
 			}

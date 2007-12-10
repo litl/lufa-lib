@@ -65,7 +65,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING			
 		},
 	
-	AudioInterfaceAC:
+	AudioControlInterface:
 		{
 			Header:                 {Size: sizeof(USB_AudioInterface_AC_t), Type: DTYPE_AudioInterface},
 			Subtype:                DSUBTYPE_Header,
@@ -75,6 +75,42 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			
 			InCollection:           1,
 			InterfaceNumbers:       {1},			
+		},
+
+	InputTerminal:
+		{
+			
+		},
+		
+	OutputTerminal:
+		{
+			
+		},
+		
+	AudioEndpoint:
+		{
+			Endpoint:
+				{
+					Header:                 {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
+
+					EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | 1),
+					Attributes:             ENDPOINT_TYPE_ISOCHRONOUS,
+					EndpointSize:			64,
+					PollingIntervalMS:		1
+				},
+			
+			SyncEndpointNumber:     0
+		},
+		
+	AudioEndpointSpecific:
+		{
+			Header:                 {Size: sizeof(USB_AudioStreamEndpoint_Spc_t), Type: DTYPE_AudioEndpoint},
+			Subtype:                DSUBTYPE_General,
+			
+			Attributes:             0x00,
+			
+			LockDelayUnits:         0x00,
+			LockDelay:              0x00
 		}
 };
 

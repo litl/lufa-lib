@@ -44,6 +44,7 @@ TASK_LIST
 
 /* Globals */
 uint8_t MouseDataEndpointNumber;
+uint8_t MouseDataEndpointPollMS;
 
 int main(void)
 {
@@ -119,7 +120,10 @@ TASK(USB_Mouse_Host)
 			{
 				puts_P(PSTR("Control error."));
 
+				/* Indicate error via status LEDs */
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+
+				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;
 			}
@@ -164,7 +168,7 @@ TASK(USB_Mouse_Host)
 			Pipe_SetInfiniteINRequests();
 
 			/* Activate the mouse data pipe IN interrupt */
-			Pipe_SetInterruptFreq(1);
+			Pipe_SetInterruptFreq(MouseDataEndpointPollMS);
 			Pipe_Unfreeze();
 			USB_INT_Enable(PIPE_INT_IN);
 
@@ -299,8 +303,9 @@ uint8_t GetConfigDescriptorData(void)
 		}
 	}	
 
-	/* Retrieve the endpoint address from the endpoint descriptor */
-	MouseDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
+	/* Retrieve the endpoint address/interrupt frequency from the endpoint descriptor */
+	MouseDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;	
+	MouseDataEndpointPollMS = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->PollingIntervalMS;
 	
 	/* Valid data found, return success */
 	return SuccessfulConfigRead;

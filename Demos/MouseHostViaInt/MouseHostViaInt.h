@@ -29,7 +29,7 @@
 		#define MOUSE_CLASS                 0x03
 		#define MOUSE_PROTOCOL              0x02
 
-		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
+		#define MAX_CONFIG_DESCRIPTOR_SIZE  512
 
 	/* Type Defines: */
 		typedef struct
