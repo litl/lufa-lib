@@ -16,7 +16,21 @@
 		#include <avr/interrupt.h>
 		#include <stdbool.h>
 
-		#include "../USB.h"
+		#include "../HighLevel/Events.h"
+		#include "../HighLevel/USBTask.h"
+		#include "../HighLevel/USBInterrupt.h"
+		
+		#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+			#include "Host.h"
+			#include "Pipe.h"
+		#endif
+		
+		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+			#include "Device.h"
+			#include "Endpoint.h"
+			#include "DevChapter9.h"
+		#endif		
+		
 		#include "../../../Common/FunctionAttributes.h"
 		#include "../../../Common/Common.h"
 		

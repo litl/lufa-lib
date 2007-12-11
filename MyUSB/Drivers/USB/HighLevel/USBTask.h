@@ -19,6 +19,8 @@
 		#include "../HighLevel/Events.h"
 		#include "../../../Scheduler/Scheduler.h"
 		#include "../LowLevel/LowLevel.h"
+		#include "../LowLevel/HostChapter9.h"
+		#include "StdDescriptors.h"
 		
 	/* Public Interface - May be used in end-application: */
 		/* Global Variables: */
