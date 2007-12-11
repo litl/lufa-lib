@@ -31,12 +31,14 @@
 			#define DATAFLASH_PAGE_SIZE          1024
 			#define DATAFLASH_PAGES              8192
 			
-			#define DATAFLASH_SPEED_FCPU_DIV_2   (1 << 7)
+			#define DATAFLASH_USE_DOUBLESPEED    (1 << 7)
+			
+			#define DATAFLASH_SPEED_FCPU_DIV_2   DATAFLASH_USE_DOUBLESPEED
 			#define DATAFLASH_SPEED_FCPU_DIV_4   0
-			#define DATAFLASH_SPEED_FCPU_DIV_8   ((1 << 7) | (1 << SPR0))
+			#define DATAFLASH_SPEED_FCPU_DIV_8   (DATAFLASH_USE_DOUBLESPEED | (1 << SPR0))
 			#define DATAFLASH_SPEED_FCPU_DIV_16  (1 << SPR0)
-			#define DATAFLASH_SPEED_FCPU_DIV_32  ((1 << 7) | (1 << SPR1))
-			#define DATAFLASH_SPEED_FCPU_DIV_64  ((1 << 7) | (1 << SPR1) | (1 < SPR0))
+			#define DATAFLASH_SPEED_FCPU_DIV_32  (DATAFLASH_USE_DOUBLESPEED | (1 << SPR1))
+			#define DATAFLASH_SPEED_FCPU_DIV_64  (DATAFLASH_USE_DOUBLESPEED | (1 << SPR1) | (1 < SPR0))
 			#define DATAFLASH_SPEED_FCPU_DIV_128 ((1 << SPR1) | (1 < SPR0))
 					
 			#define Dataflash_GetSelectedChip()         (PORTE & DATAFLASH_CHIPCS_MASK)
@@ -56,9 +58,9 @@
 				DDRE  |= DATAFLASH_CHIPCS_MASK;
 				PORTE |= DATAFLASH_CHIPCS_MASK;
 
-				SPCR  = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA) | (Speed & ~(1 << 7)));
+				SPCR   = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA) | (Speed & ~(1 << 7)));
 
-				if (Speed & (1 << 7))
+				if (Speed & DATAFLASH_USE_DOUBLESPEED)
 				  SPSR = (1 << SPI2X);
 			}
 

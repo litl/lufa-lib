@@ -16,7 +16,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 		
 	USBSpecification:       0x0101,
 	Class:                  0x00,
-	SubClass:               0x00,	
+	SubClass:               0x00,
 	Protocol:               0x00,
 				
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
@@ -36,81 +36,130 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 {
 	Config:
 		{
-			Header:                 {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
+			Header:                   {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
-			TotalConfigurationSize: sizeof(USB_Descriptor_Configuration_t),
-			TotalInterfaces:        1,
+			TotalConfigurationSize:   sizeof(USB_Descriptor_Configuration_t),
+			TotalInterfaces:          1,
 				
-			ConfigurationNumber:    1,
-			ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
+			ConfigurationNumber:      1,
+			ConfigurationStrIndex:    NO_DESCRIPTOR_STRING,
 				
-			ConfigAttributes:       (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
+			ConfigAttributes:         (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
 			
-			MaxPowerConsumption:    USB_CONFIG_POWER_MA(100)
+			MaxPowerConsumption:      USB_CONFIG_POWER_MA(100)
 		},
 		
-	AudioInterface:
-		{
-			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
-
-			InterfaceNumber:        0,
-			AlternateSetting:       0,
-			
-			TotalEndpoints:         0,
-				
-			Class:                  0x01,
-			SubClass:               0x01,
-			Protocol:               0x00,
-				
-			InterfaceStrIndex:      NO_DESCRIPTOR_STRING			
-		},
-	
 	AudioControlInterface:
 		{
-			Header:                 {Size: sizeof(USB_AudioInterface_AC_t), Type: DTYPE_AudioInterface},
-			Subtype:                DSUBTYPE_Header,
+			Header:                   {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
+
+			InterfaceNumber:          0,
+			AlternateSetting:         0,
 			
-			ACSpecification:        0x0100,
-			TotalLength:            sizeof(USB_AudioInterface_AC_t),
+			TotalEndpoints:           0,
+				
+			Class:                    0x01,
+			SubClass:                 0x01,
+			Protocol:                 0x00,
+				
+			InterfaceStrIndex:        NO_DESCRIPTOR_STRING			
+		},
+	
+	AudioControlInterface_SPC:
+		{
+			Header:                   {Size: sizeof(USB_AudioInterface_AC_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_Header,
 			
-			InCollection:           1,
-			InterfaceNumbers:       {1},			
+			ACSpecification:          0x0100,
+			TotalLength:              (sizeof(USB_AudioInterface_AC_t) +
+			                           sizeof(USB_AudioInputTerminal_t) +
+									   sizeof(USB_AudioOutputTerminal_t)),
+			
+			InCollection:             1,
+			InterfaceNumbers:         {1},			
 		},
 
 	InputTerminal:
 		{
+			Header:                   {Size: sizeof(USB_AudioInputTerminal_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_InputTerminal,
+		
+			TerminalID:               0x01,
+			TerminalType:             0x00, // FIXME
+			AssociatedOutputTerminal: 0x02,
 			
+			TotalChannels:            1,
+			ChannelConfig:            CHANNEL_CENTER_FRONT,
+			
+			ChannelStrIndex:          NO_DESCRIPTOR_STRING,
+			TerminalStrIndex:         NO_DESCRIPTOR_STRING
 		},
 		
 	OutputTerminal:
 		{
+			Header:                   {Size: sizeof(USB_AudioOutputTerminal_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_OutputTerminal,
+		
+			TerminalID:               0x02,
+			TerminalType:             0x00, // FIXME
+			AssociatedInputTerminal:  0x01,
 			
+			SourceID:                 0x00, // FIXME
+			
+			TerminalStrIndex:         NO_DESCRIPTOR_STRING			
+		},
+	
+	AudioStreamInterface:
+		{
+			Header:                   {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
+
+			InterfaceNumber:          1,
+			AlternateSetting:         0,
+			
+			TotalEndpoints:           1,
+				
+			Class:                    0x01,
+			SubClass:                 0x02,
+			Protocol:                 0x00,
+				
+			InterfaceStrIndex:        NO_DESCRIPTOR_STRING
 		},
 		
+	AudioStreamInterface_SPC:
+		{
+			Header:                   {Size: sizeof(USB_AudioInterface_AS_t), Type: DTYPE_Interface},
+			Subtype:                  DSUBTYPE_General,
+			
+			TerminalLink:             0x01,
+			
+			FrameDelay:               0,
+			AudioFormat:              0x01
+		},
+	
 	AudioEndpoint:
 		{
 			Endpoint:
 				{
-					Header:                 {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
+					Header:              {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
 
-					EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | 1),
-					Attributes:             EP_TYPE_ISOCHRONOUS,
-					EndpointSize:			64,
-					PollingIntervalMS:		1
+					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_OUT | AUDIO_STREAM_EPNUM),
+					Attributes:          EP_TYPE_ISOCHRONOUS,
+					EndpointSize:        AUDIO_STREAM_EPSIZE,
+					PollingIntervalMS:   1
 				},
 			
 			SyncEndpointNumber:     0
 		},
 		
-	AudioEndpointSpecific:
+	AudioEndpoint_SPC:
 		{
-			Header:                 {Size: sizeof(USB_AudioStreamEndpoint_Spc_t), Type: DTYPE_AudioEndpoint},
-			Subtype:                DSUBTYPE_General,
+			Header:                   {Size: sizeof(USB_AudioStreamEndpoint_Spc_t), Type: DTYPE_AudioEndpoint},
+			Subtype:                  DSUBTYPE_General,
 			
-			Attributes:             0x00,
+			Attributes:               0x00,
 			
-			LockDelayUnits:         0x00,
-			LockDelay:              0x00
+			LockDelayUnits:           0x00,
+			LockDelay:                0x00
 		}
 };
 
