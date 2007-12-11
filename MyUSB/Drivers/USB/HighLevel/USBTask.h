@@ -16,8 +16,8 @@
 		#include <stdbool.h>
 		#include <stddef.h>
 		
-		#include "../HighLevel/Events.h"
 		#include "../../../Scheduler/Scheduler.h"
+		#include "../HighLevel/Events.h"
 		#include "../LowLevel/LowLevel.h"
 		#include "../LowLevel/HostChapter9.h"
 		#include "StdDescriptors.h"
@@ -56,7 +56,7 @@
 			#endif
 
 			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
-			void USB_InitTaskPointer(void);
+			void USB_InitTaskPointer(void) ATTR_PURE;
 			#endif
 
 #endif

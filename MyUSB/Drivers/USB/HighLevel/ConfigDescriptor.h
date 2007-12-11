@@ -15,8 +15,8 @@
 		#include <avr/io.h>
 		
 		#include "../../../Common/FunctionAttributes.h"
-		#include "StdDescriptors.h"
 		#include "../LowLevel/HostChapter9.h"
+		#include "StdDescriptors.h"
 		
 	/* Public Interface - May be used in end-application: */
 		/* Function Prototypes: */

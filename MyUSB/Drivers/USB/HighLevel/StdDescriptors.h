@@ -15,8 +15,8 @@
 		#include <avr/pgmspace.h>
 		#include <stdbool.h>
 
-		#include "Events.h"
 		#include "../../../Common/FunctionAttributes.h"
+		#include "Events.h"
 		
 		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 			#include "../LowLevel/Device.h"

@@ -84,7 +84,7 @@
 
 		/* Function Prototypes: */
 			#if defined(INCLUDE_FROM_EVENTS_C)
-				static void __stub (void);
+				static void __stub (void) ATTR_CONST;
 
 				ALIAS_STUB(USB_VBUSChange);
 				ALIAS_STUB(USB_VBUSConnect);

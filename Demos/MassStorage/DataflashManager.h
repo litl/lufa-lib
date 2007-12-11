@@ -17,6 +17,7 @@
 		#include "MassStorage.h"
 		#include "Descriptors.h"
 
+		#include <MyUSB/Common/FunctionAttributes.h>  // Function Attribute Macros
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Dataflash.h>   // Dataflash chip driver for the USBKEY
 
@@ -33,8 +34,8 @@
 		void VirtualMemory_ResetDataflashProtections(void);
 
 		#if defined(INCLUDE_FROM_DATAFLASHMANAGER_C)
-			static uint16_t VirtualMemory_DFPageFromBlock(const uint16_t BlockAddress);
-			static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint16_t BlockAddress);
+			static uint16_t VirtualMemory_DFPageFromBlock(const uint16_t BlockAddress) ATTR_CONST;
+			static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint16_t BlockAddress) ATTR_CONST;
 		#endif
 		
 #endif

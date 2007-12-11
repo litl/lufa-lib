@@ -14,9 +14,9 @@
 	/* Includes: */
 		#include <avr/io.h>
 		
+		#include "../../../Common/Common.h"
 		#include "../LowLevel/LowLevel.h"
 		#include "../HighLevel/Events.h"
-		#include "../../../Common/Common.h"
 		
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

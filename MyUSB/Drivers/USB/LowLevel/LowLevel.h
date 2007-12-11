@@ -15,7 +15,9 @@
 		#include <avr/io.h>
 		#include <avr/interrupt.h>
 		#include <stdbool.h>
-
+		
+		#include "../../../Common/FunctionAttributes.h"
+		#include "../../../Common/Common.h"
 		#include "../HighLevel/Events.h"
 		#include "../HighLevel/USBTask.h"
 		#include "../HighLevel/USBInterrupt.h"
@@ -29,10 +31,7 @@
 			#include "Device.h"
 			#include "Endpoint.h"
 			#include "DevChapter9.h"
-		#endif		
-		
-		#include "../../../Common/FunctionAttributes.h"
-		#include "../../../Common/Common.h"
+		#endif
 		
 	/* Preprocessor Checks and Defines: */
 		#if (F_CPU == 8000000)

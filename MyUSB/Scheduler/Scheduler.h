@@ -76,7 +76,7 @@
 			bool Scheduler_HasDelayElapsed(const uint16_t Delay,
 			                               SchedulerDelayCounter_t* const TaskCounter)
 										   ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(2);
-			void Scheduler_SetTaskMode(const uint8_t id, const bool run);
+			void Scheduler_SetTaskMode(const uint8_t id, const bool run) ATTR_PURE;
 
 	/* Private Interface - For use in library only: */		
 		/* Macros */
