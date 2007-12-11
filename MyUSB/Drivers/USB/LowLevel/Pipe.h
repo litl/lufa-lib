@@ -90,8 +90,8 @@
 
 			#define Pipe_ClearSetupSent()          MACROS{ UPINTX  &= ~(1 << TXSTPI);                             }MACROE
 			#define Pipe_IsSetupSent()                   ((UPINTX  &   (1 << TXSTPI)) ? true : false)
-			#define Pipe_ClearSetupStalled()       MACROS{ UPINTX  &= ~(1 << RXSTALLI);                           }MACROE             
-			#define Pipe_IsSetupStalled()                ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
+			#define Pipe_ClearStall()              MACROS{ UPINTX  &= ~(1 << RXSTALLI);                           }MACROE             
+			#define Pipe_IsStalled()                     ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
 
 			#define Pipe_In_Clear()                MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);   }MACROE
 			#define Pipe_In_IsReceived()                 ((UPINTX  &   (1 << RXINI)) ? true : false)

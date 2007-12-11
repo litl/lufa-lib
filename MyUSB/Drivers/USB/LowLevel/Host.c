@@ -44,9 +44,9 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 			break;
 		}
 		
-		if (Pipe_IsSetupStalled() == true)
+		if (Pipe_IsStalled() == true)
 		{
-			Pipe_ClearSetupStalled();
+			Pipe_ClearStall();
 
 			ErrorCode = HOST_WAITERROR_SetupStalled;
 			

@@ -126,10 +126,11 @@ void SCSI_DecodeSCSICommand(void)
 
 static bool SCSI_Command_Inquiry(void)
 {
-	uint8_t  AllocationLength = CommandBlock.SCSICommandData[4];
-	uint8_t* InquiryDataPtr   = (uint8_t*)&InquiryData;
-	uint8_t  BytesTransferred = 0;
-	uint8_t  BytesInEndpoint  = 0;
+	uint16_t  AllocationLength = (((uint16_t)CommandBlock.SCSICommandData[3] << 8) |
+	                                         CommandBlock.SCSICommandData[4]);
+	uint8_t* InquiryDataPtr    = (uint8_t*)&InquiryData;
+	uint8_t  BytesTransferred  = 0;
+	uint8_t  BytesInEndpoint   = 0;
 
 	/* Only the standard INQUIRY data is supported, check if any optional INQUIRY bits set */
 	if ((CommandBlock.SCSICommandData[1] & ((1 << 0) | (1 << 1))) ||
@@ -142,10 +143,6 @@ static bool SCSI_Command_Inquiry(void)
 
 		return false;
 	}
-	
-	/* Maximum allocation length is 96 bytes as per SPC standard */
-	if (AllocationLength > 96)
-	  AllocationLength = 96;
 
 	/* Write the INQUIRY data to the endpoint */
 	for (uint8_t i = 0; i < sizeof(InquiryData); i++)
@@ -306,8 +303,8 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
 	{
 		/* Block address is invalid, update SENSE key and return command fail */
-		SCSI_SET_SENSE(SCSI_SENSE_KEY_HARDWARE_ERROR,
-		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
+		SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
+		               SCSI_ASENSE_LOGICAL_BLOCK_ADDRESS_OUT_OF_RANGE,
 		               SCSI_ASENSEQ_NO_QUALIFIER);
 
 		return false;

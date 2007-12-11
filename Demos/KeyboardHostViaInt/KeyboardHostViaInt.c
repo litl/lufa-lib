@@ -42,9 +42,9 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t KeyboardDataEndpointNumber;
-uint8_t KeyboardDataEndpointSize;
-uint8_t KeyboardDataEndpointPollMS;
+uint8_t  KeyboardDataEndpointNumber;
+uint16_t KeyboardDataEndpointSize;
+uint8_t  KeyboardDataEndpointPollMS;
 
 int main(void)
 {

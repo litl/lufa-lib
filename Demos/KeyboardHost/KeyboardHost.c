@@ -41,8 +41,8 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t KeyboardDataEndpointNumber;
-uint8_t KeyboardDataEndpointSize;
+uint8_t  KeyboardDataEndpointNumber;
+uint16_t KeyboardDataEndpointSize;
 
 int main(void)
 {

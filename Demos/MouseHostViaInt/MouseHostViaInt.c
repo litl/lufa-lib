@@ -43,9 +43,9 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t MouseDataEndpointNumber;
-uint8_t MouseDataEndpointSize;
-uint8_t MouseDataEndpointPollMS;
+uint8_t  MouseDataEndpointNumber;
+uint16_t MouseDataEndpointSize;
+uint8_t  MouseDataEndpointPollMS;
 
 int main(void)
 {

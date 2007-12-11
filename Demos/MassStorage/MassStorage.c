@@ -28,8 +28,6 @@
 	
 	You will need to format the mass storage device upon first run of this
 	demonstration.
-	
-	This demonstration application is compiled for speed, rather than size.
 */
 
 #define INCLUDE_FROM_MASSSTORAGE_C
@@ -98,8 +96,6 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	Endpoint_Ignore_Word();
-
 	/* Process UFI specific control requests */
 	switch (Request)
 	{
@@ -110,7 +106,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			break;
 		case GET_NUMBER_OF_LUNS:
 			Endpoint_ClearSetupReceived();			
-			Endpoint_Write_Byte(0x00);			
+			Endpoint_Write_Byte(0x00);
 			Endpoint_In_Clear();
 
 			break;

@@ -45,10 +45,10 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t MassStoreEndpointNumber_IN;
-uint8_t MassStoreEndpointNumber_OUT;
-uint8_t MassStoreEndpointSize_IN;
-uint8_t MassStoreEndpointSize_OUT;
+uint8_t  MassStoreEndpointNumber_IN;
+uint8_t  MassStoreEndpointNumber_OUT;
+uint16_t MassStoreEndpointSize_IN;
+uint16_t MassStoreEndpointSize_OUT;
 
 int main(void)
 {
@@ -184,7 +184,7 @@ TASK(USB_MassStore_Host)
 			Bicolour_SetLeds(BICOLOUR_LED2_ORANGE);
 					
 			/* Set up counter for reading in 1024 bytes from device */
-			uint16_t BytesRem    = (DEVICE_BLOCK_SIZE * DEVICE_BLOCKS_TO_READ);
+			uint16_t BytesRem = (DEVICE_BLOCK_SIZE * DEVICE_BLOCKS_TO_READ);
 
 			/* Create a CBW with a SCSI command to read in the first two blocks from the device */
 			CommandBlockWrapper_t SCSICommand =
@@ -202,12 +202,12 @@ TASK(USB_MassStore_Host)
 					SCSICommandData:
 						{
 							SCSI_CMD_READ_10,
-							0x00, // Unused
+							0x00, // Unused (control bits, all off)
 							(DEVICE_BLOCK_ADDRESS >> 24),   // MSB of Block Address
 							(DEVICE_BLOCK_ADDRESS >> 16),
 							(DEVICE_BLOCK_ADDRESS >> 8),
 							(DEVICE_BLOCK_ADDRESS & 0xFF),  // LSB of Block Address
-							0x00, // Unused
+							0x00, // Unused (reserved)
 							(DEVICE_BLOCKS_TO_READ >> 8),   // MSB of Total Blocks
 							(DEVICE_BLOCKS_TO_READ & 0xFF), // LSB of Total Blocks
 						}
@@ -229,7 +229,22 @@ TASK(USB_MassStore_Host)
 			Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 			
 			/* Wait until data recieved in the IN pipe */
-			while (!(Pipe_In_IsReceived()));
+			while (!(Pipe_In_IsReceived()))
+			{
+				/* Check if pipe stalled (command failed by device) */
+				if (Pipe_IsStalled())
+				{
+					/* Indicate error */
+					Bicolour_SetLeds(BICOLOUR_LED2_RED);			
+					
+					/* Wait until USB device disconnected */
+					while (USB_IsConnected);
+				}
+			};
+			
+			/* If USB no longer connected (device stalled request), do not progress any further */
+			if (!(USB_IsConnected))
+			  break;
 			
 			/* Loop until all bytes read */
 			while (BytesRem)
