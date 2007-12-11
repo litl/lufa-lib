@@ -42,7 +42,6 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 			Dataflash_ToggleSelectedChipCS();
 			Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
 			Dataflash_SendAddressBytes(CurrDFPage, 0);
-			Dataflash_WaitWhileBusy();
 
 			/* Reset the dataflash buffer counter, increment the page counter */
 			CurrDFByte = 0;
@@ -51,6 +50,9 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 			/* Select the next dataflash chip based on the new dataflash page index */
 			Dataflash_DeselectChip();
 			Dataflash_SelectChipFromPage(CurrDFPage);
+			
+			/* Wait until the selected dataflash is ready to be written to */
+			Dataflash_WaitWhileBusy();
 
 			/* Copy selected dataflash's current page contents to the dataflash buffer */
 			Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);

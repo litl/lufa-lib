@@ -12,18 +12,22 @@
 
 void Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 {
-	if (PageAddress < DATAFLASH_PAGES)
-	  Dataflash_SelectChip(DATAFLASH_CHIP1);
-	else if (PageAddress < (DATAFLASH_PAGES * 2))
-	  Dataflash_SelectChip(DATAFLASH_CHIP2);
+	if (PageAddress > (DATAFLASH_PAGES * 2))
+	{
+		Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	}
 	else
-	  Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+	{
+		if (PageAddress & 0x01)
+		  Dataflash_SelectChip(DATAFLASH_CHIP2);
+		else
+		  Dataflash_SelectChip(DATAFLASH_CHIP1);		
+	}
 }
 
 void Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte)
 {
-	if (Dataflash_GetSelectedChip() == DATAFLASH_CHIP2)
-	  PageAddress -= DATAFLASH_PAGES;
+	PageAddress >>= 1;
 
 	Dataflash_SendByte(PageAddress >> 5);
 	Dataflash_SendByte((PageAddress << 3) | (BufferByte >> 8));
