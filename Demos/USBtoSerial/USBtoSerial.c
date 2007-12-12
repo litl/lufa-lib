@@ -96,47 +96,54 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	/* Process CDC specific control requests */
 	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
 
 	Endpoint_Ignore_Word();
 
+	/* Process CDC specific control requests */
 	switch (Request)
 	{
 		case GET_LINE_CODING:
-			Endpoint_ClearSetupReceived();
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
 
-			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-			  Endpoint_Write_Byte(*(LineCodingData++));	
+				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
+				  Endpoint_Write_Byte(*(LineCodingData++));	
+				
+				Endpoint_In_Clear();
+				while (!(Endpoint_In_IsReady()));
+				
+				while (!(Endpoint_Out_IsReceived()));
+				Endpoint_Out_Clear();
+			}
 			
-			Endpoint_In_Clear();
-			while (!(Endpoint_In_IsReady()));
-			
-			while (!(Endpoint_Out_IsReceived()));
-			Endpoint_Out_Clear();
-
 			break;
 		case SET_LINE_CODING:
-			Endpoint_ClearSetupReceived();
-			
-			while (!(Endpoint_Out_IsReceived()));
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
 
-			for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-			  *(LineCodingData++) = Endpoint_Read_Byte();
+				while (!(Endpoint_Out_IsReceived()));
 
-			Endpoint_Out_Clear();
+				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
+				  *(LineCodingData++) = Endpoint_Read_Byte();
 
-			Endpoint_In_Clear();
-			while (!(Endpoint_In_IsReady()));
-						
-			ReconfigureUSART();
+				Endpoint_Out_Clear();
+
+				Endpoint_In_Clear();
+				while (!(Endpoint_In_IsReady()));
+			}
 	
 			break;
 		case SET_CONTROL_LINE_STATE:
-			Endpoint_ClearSetupReceived();
-			
-			Endpoint_In_Clear();
-			while (!(Endpoint_In_IsReady()));
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
+				
+				Endpoint_In_Clear();
+				while (!(Endpoint_In_IsReady()));
+			}
 	
 			break;
 	}

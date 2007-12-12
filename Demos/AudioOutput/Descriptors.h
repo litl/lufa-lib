@@ -39,9 +39,6 @@
 		#define CHANNEL_SIDE_RIGHT          (1 << 10)
 		#define CHANNEL_TOP                 (1 << 11)
 
-		#define AUDIO_STREAM_EPNUM          0x01
-		#define AUDIO_STREAM_EPSIZE         64
-		
 		#define FEATURE_MUTE                (1 << 0)
 		#define FEATURE_VOLUME              (1 << 1)
 		#define FEATURE_BASS                (1 << 2)
@@ -53,63 +50,66 @@
 		#define FEATURE_BASS_BOOST          (1 << 8)
 		#define FEATURE_BASS_LOUDNESS       (1 << 9)
 
+		#define AUDIO_STREAM_EPNUM          0x01
+		#define AUDIO_STREAM_EPSIZE         256
+		
 	/* Type Defines: */
 		typedef struct
 		{
-			USB_Descriptor_Header_t Header;
-			uint8_t                 Subtype;
+			USB_Descriptor_Header_t   Header;
+			uint8_t                   Subtype;
 
-			uint16_t                ACSpecification;
-			uint16_t                TotalLength;
+			uint16_t                  ACSpecification;
+			uint16_t                  TotalLength;
 			
-			uint8_t                 InCollection;
-			uint8_t                 InterfaceNumbers[1];			
+			uint8_t                   InCollection;
+			uint8_t                   InterfaceNumbers[1];			
 		} USB_AudioInterface_AC_t;
 		
 		typedef struct
 		{
-			USB_Descriptor_Header_t Header;
-			uint8_t                 Subtype;
+			USB_Descriptor_Header_t   Header;
+			uint8_t                   Subtype;
 			
-			uint8_t                 UnitID;
-			uint8_t                 SourceID;
+			uint8_t                   UnitID;
+			uint8_t                   SourceID;
 			
-			uint8_t                 ControlSize;
+			uint8_t                   ControlSize;
 			
-			uint8_t                 MasterControls;
-			uint8_t                 ChannelControls[2];
+			uint16_t                  MasterControls;
+			uint16_t                  ChannelControls[2];
 			
-			uint8_t                 FeatureUnitStrIndex;  
+			uint8_t                   FeatureUnitStrIndex;  
 		} USB_AudioFeatureUnit_t;
 
 		typedef struct
 		{
-			USB_Descriptor_Header_t Header;
-			uint8_t                 Subtype;
+			USB_Descriptor_Header_t   Header;
+			uint8_t                   Subtype;
 		
-			uint8_t                 TerminalID;
-			uint16_t                TerminalType;
-			uint8_t                 AssociatedOutputTerminal;
+			uint8_t                   TerminalID;
+			uint16_t                  TerminalType;
+			uint8_t                   AssociatedOutputTerminal;
 			
-			uint8_t                 TotalChannels;
-			uint16_t                ChannelConfig;
+			uint8_t                   TotalChannels;
+			uint16_t                  ChannelConfig;
 			
-			uint8_t                 ChannelStrIndex;
-			uint8_t                 TerminalStrIndex;
+			uint8_t                   ChannelStrIndex;
+			uint8_t                   TerminalStrIndex;
 		} USB_AudioInputTerminal_t;
 
 		typedef struct
 		{
-			USB_Descriptor_Header_t Header;
-			uint8_t                 Subtype;
+			USB_Descriptor_Header_t   Header;
+			uint8_t                   Subtype;
 		
-			uint8_t                 TerminalID;
-			uint16_t                TerminalType;
-			uint8_t                 AssociatedInputTerminal;
+			uint8_t                   TerminalID;
+			uint16_t                  TerminalType;
+			uint8_t                   AssociatedInputTerminal;
 			
-			uint8_t                 SourceID;
+			uint8_t                   SourceID;
 			
-			uint8_t                 TerminalStrIndex;
+			uint8_t                   TerminalStrIndex;
 		} USB_AudioOutputTerminal_t;
 		
 		typedef struct

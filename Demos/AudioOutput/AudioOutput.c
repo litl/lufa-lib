@@ -19,8 +19,7 @@
 	LEDs on the USBKEY board.
 	
 	Under Windows, if a driver request dialogue pops up, select the option
-	to automatically install the appropriate drivers, or manually select the
-	USBAudio.sys driver.
+	to automatically install the appropriate drivers.
 */
 
 /*
@@ -110,18 +109,19 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 						break;
 					case GET_SET_VOLUME:
 						if (Request == GET_MAX)
-						  Endpoint_Write_Word_LE(0xFFFF);
+						  Endpoint_Write_Word_LE(0x8000);
 						else if (Request == GET_MIN)
-						  Endpoint_Write_Word_LE(0x0000);
+						  Endpoint_Write_Word_LE(0x7FFF);
 						else if (Request == GET_RES)
-						  Endpoint_Write_Word_LE(0x0001);
+						  Endpoint_Write_Word_LE(0x000A);
 						else
 						  Endpoint_Write_Word_LE(Volume);
 
 						break;
 				}
 				
-				Endpoint_In_Clear();				
+				Endpoint_In_Clear();
+			
 				while (!(Endpoint_Out_IsReceived()));
 				Endpoint_Out_Clear();
 			}
@@ -164,15 +164,23 @@ TASK(USB_Audio_Task)
 {
 	static bool HasConfiguredTimer = false;
 	
-	if (!(HasConfiguredTimer))
+	if (USB_IsConnected)
 	{
-		/* 125uS timer initialization */
-		OCR0A  = 125;
-		TCCR0A = (1 << WGM01);
-		TCCR0B = (1 << CS01);
-		TIMSK0 = (1 << OCIE0A);
-		
-		HasConfiguredTimer = true;
+		if (!(HasConfiguredTimer))
+		{
+			/* 125uS timer initialization */
+			OCR0A  = 125;
+			TCCR0A = (1 << WGM01);
+			TCCR0B = (1 << CS01);
+			TIMSK0 = (1 << OCIE0A);
+			
+			HasConfiguredTimer = true;
+		}
+	}
+	else
+	{
+		TCCR0B = 0;
+		HasConfiguredTimer = false;
 	}
 }
 
@@ -187,8 +195,12 @@ ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 	/* Check if the current endpoint can be read from (contains a packet) */
 	if (Endpoint_ReadWriteAllowed())
 	{
-		/* Get the audio sample from the endpoint */
-		uint16_t Sample = Endpoint_Read_Word_LE();
+		/* Get the left and right channel audio samples from the endpoint */
+		uint16_t LeftSample  = Endpoint_Read_Word_LE();
+		uint16_t RightSample = Endpoint_Read_Word_LE();
+		
+		/* Create a mono sample from the two channels */
+		uint16_t Sample = ((LeftSample >> 1) | (RightSample >> 1));
 		
 		/* If mute is enabled, clear the sample value */
 		if (Mute)

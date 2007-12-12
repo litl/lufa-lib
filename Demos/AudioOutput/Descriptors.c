@@ -104,7 +104,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			UnitID:                   0x01,
 			SourceID:                 0x01,
 			
-			ControlSize:              1,
+			ControlSize:              sizeof(ConfigurationDescriptor.FeatureUnit.MasterControls),
 			
 			MasterControls:           (FEATURE_VOLUME | FEATURE_MUTE),
 			ChannelControls:          {0, 0},
@@ -197,8 +197,8 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 					PollingIntervalMS:   1
 				},
 			
-			Refresh:                0,
-			SyncEndpointNumber:     0
+			Refresh:                  0,
+			SyncEndpointNumber:       0
 		},
 		
 	AudioEndpoint_SPC:
@@ -209,7 +209,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Attributes:               0x00,
 			
 			LockDelayUnits:           0x00,
-			LockDelay:                0x00
+			LockDelay:                0x0000
 		}
 };
 
