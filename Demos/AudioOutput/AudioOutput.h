@@ -17,6 +17,8 @@
 
 		#include "Descriptors.h"
 
+		#include <MyUSB/Drivers/USB1287/Serial_Stream.h>
+
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Joystick.h>    // Joystick driver for the USBKEY
@@ -33,6 +35,11 @@
 		
 		#define GET_SET_MUTE                   0x01
 		#define GET_SET_VOLUME                 0x02
+		
+		#define VOL_MIN                        0x8001
+		#define VOL_MAX                        0x7FFF
+		#define VOL_RES                        0x0001
+		#define VOL_SILENCE                    0x8001
 
 	/* Task Definitions: */
 		TASK(USB_Audio_Task);

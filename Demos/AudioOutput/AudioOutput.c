@@ -49,7 +49,7 @@ TASK_LIST
 
 /* Globals */
 volatile bool    Mute;
-volatile uint8_t Volume;
+volatile int16_t Volume;
 
 int main(void)
 {
@@ -60,6 +60,7 @@ int main(void)
 	/* Hardware Initialization */
 	Joystick_Init();
 	Bicolour_Init();
+	SerialStream_Init(9600);
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
@@ -84,6 +85,8 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
+	printf("%d - ", Request);
+
 	/* Process Audio specific control requests */
 	switch (Request)
 	{
@@ -100,22 +103,37 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				FeatureToGet = Endpoint_Read_Byte();
 				Endpoint_Ignore_DWord();
 
-				Endpoint_ClearSetupReceived();	
+				Endpoint_ClearSetupReceived();
 
 				switch (FeatureToGet)
 				{
 					case GET_SET_MUTE:
 						Endpoint_Write_Byte(Mute);
+						
+						printf("Get curr mute \r\n");
+
 						break;
 					case GET_SET_VOLUME:
 						if (Request == GET_MAX)
-						  Endpoint_Write_Word_LE(0x8000);
+						{
+							Endpoint_Write_Word_LE(VOL_MAX);
+							printf("Get vol max \r\n");
+						}
 						else if (Request == GET_MIN)
-						  Endpoint_Write_Word_LE(0x7FFF);
+						{
+							Endpoint_Write_Word_LE(VOL_MIN);
+							printf("Get vol min \r\n");
+						}
 						else if (Request == GET_RES)
-						  Endpoint_Write_Word_LE(0x000A);
+						{
+							Endpoint_Write_Word_LE(VOL_RES);
+							printf("Get vol res \r\n");
+						}
 						else
-						  Endpoint_Write_Word_LE(Volume);
+						{
+							Endpoint_Write_Word_LE(Volume);
+							printf("Get curr vol \r\n");
+						}
 
 						break;
 				}
@@ -146,13 +164,17 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				{
 					case GET_SET_MUTE:
 						Mute = Endpoint_Read_Byte();
+						printf("Set mute val \r\n");
 						break;
 					case GET_SET_VOLUME:
 						Volume = Endpoint_Read_Word_LE();
+						printf("Set vol val \r\n");
 						break;
 				}
 				
 				Endpoint_Out_Clear();
+				
+				while (!(Endpoint_In_IsReady()));
 				Endpoint_In_Clear();
 			}
 			
@@ -179,6 +201,7 @@ TASK(USB_Audio_Task)
 	}
 	else
 	{
+		/* Stop the timer */
 		TCCR0B = 0;
 		HasConfiguredTimer = false;
 	}
@@ -200,10 +223,10 @@ ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 		uint16_t RightSample = Endpoint_Read_Word_LE();
 		
 		/* Create a mono sample from the two channels */
-		uint16_t Sample = ((LeftSample >> 1) | (RightSample >> 1));
+		uint16_t Sample = ((LeftSample >> 1) + (RightSample >> 1));
 		
 		/* If mute is enabled, clear the sample value */
-		if (Mute)
+		if (Mute || (Volume == VOL_SILENCE))
 		  Sample = 0;
 		  
 		/* Display the sample value on the bicolour LEDs */

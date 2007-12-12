@@ -75,9 +75,7 @@
 			uint8_t                   SourceID;
 			
 			uint8_t                   ControlSize;
-			
-			uint16_t                  MasterControls;
-			uint16_t                  ChannelControls[2];
+			uint8_t                   ChannelControls[3];
 			
 			uint8_t                   FeatureUnitStrIndex;  
 		} USB_AudioFeatureUnit_t;
