@@ -100,15 +100,21 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	switch (Request)
 	{
 		case MASS_STORAGE_RESET:
-			Endpoint_ClearSetupReceived();
-			Endpoint_In_Clear();
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
+				Endpoint_In_Clear();
+			}
 
 			break;
 		case GET_NUMBER_OF_LUNS:
-			Endpoint_ClearSetupReceived();			
-			Endpoint_Write_Byte(0x00);
-			Endpoint_In_Clear();
-
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();			
+				Endpoint_Write_Byte(0x00);
+				Endpoint_In_Clear();
+			}
+			
 			break;
 	}
 }

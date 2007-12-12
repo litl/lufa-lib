@@ -57,9 +57,9 @@
 				DDRE  |= DATAFLASH_CHIPCS_MASK;
 				PORTE |= DATAFLASH_CHIPCS_MASK;
 
-				SPCR   = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA) | (Speed & ~(1 << 7)));
+				SPCR   = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA) | (PrescalerMask & ~(1 << 7)));
 
-				if (Speed & DATAFLASH_USE_DOUBLESPEED)
+				if (PrescalerMask & DATAFLASH_USE_DOUBLESPEED)
 				  SPSR = (1 << SPI2X);
 			}
 

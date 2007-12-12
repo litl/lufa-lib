@@ -78,7 +78,13 @@ void USB_Device_ProcessControlPacket(void)
 			{
 				USB_Device_ClearFeature(RequestType);
 				RequestHandled = true;
-			}			
+			}
+		case REQ_SetInterface:
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_INTERFACE))
+			{
+				USB_Device_SetInterface();
+				RequestHandled = true;			
+			}
 			
 			break;
 	}
@@ -327,5 +333,12 @@ static void USB_Device_ClearFeature(const uint8_t RequestType)
 
 			break;
 	}
+}
+
+static void USB_Device_SetInterface(void)
+{
+	Endpoint_ClearSetupReceived();
+	Endpoint_In_Clear();
+	while (!(Endpoint_In_IsReady()));
 }
 #endif

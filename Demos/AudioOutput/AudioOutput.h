@@ -23,10 +23,22 @@
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
+	/* Macros: */
+		#define GET_CUR                        0x81
+		#define GET_MAX                        0x83
+		#define GET_MIN                        0x82
+		#define GET_RES                        0x84
+		
+		#define SET_CUR                        0x01
+		
+		#define GET_SET_MUTE                   0x01
+		#define GET_SET_VOLUME                 0x02
+
 	/* Task Definitions: */
 		TASK(USB_Audio_Task);
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_CreateEndpoints);
+		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 #endif

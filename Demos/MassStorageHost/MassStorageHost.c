@@ -167,11 +167,11 @@ TASK(USB_MassStore_Host)
 
 			/* Configure the data pipes */
 			Pipe_ConfigurePipe(MASS_STORE_DATA_IN_PIPE, EP_TYPE_BULK, PIPE_TOKEN_IN,
-			                   1, 64,
+			                   MassStoreEndpointNumber_IN, MassStoreEndpointSize_IN,
 			                   PIPE_BANK_DOUBLE);
 
 			Pipe_ConfigurePipe(MASS_STORE_DATA_OUT_PIPE, EP_TYPE_BULK, PIPE_TOKEN_OUT,
-			                   2, 64,
+			                   MassStoreEndpointNumber_OUT, MassStoreEndpointSize_OUT,
 			                   PIPE_BANK_DOUBLE);
 
 			Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);

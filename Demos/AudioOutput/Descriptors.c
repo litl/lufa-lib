@@ -39,8 +39,8 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                   {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
 			TotalConfigurationSize:   sizeof(USB_Descriptor_Configuration_t),
-			TotalInterfaces:          1,
-				
+			TotalInterfaces:          2,
+
 			ConfigurationNumber:      1,
 			ConfigurationStrIndex:    NO_DESCRIPTOR_STRING,
 				
@@ -73,6 +73,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			ACSpecification:          0x0100,
 			TotalLength:              (sizeof(USB_AudioInterface_AC_t) +
 			                           sizeof(USB_AudioInputTerminal_t) +
+									   sizeof(USB_AudioFeatureUnit_t) +
 									   sizeof(USB_AudioOutputTerminal_t)),
 			
 			InCollection:             1,
@@ -86,7 +87,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		
 			TerminalID:               0x01,
 			TerminalType:             0x0101,
-			AssociatedOutputTerminal: 0x02,
+			AssociatedOutputTerminal: 0x00,
 			
 			TotalChannels:            2,
 			ChannelConfig:            (CHANNEL_LEFT_FRONT | CHANNEL_RIGHT_FRONT),
@@ -94,7 +95,23 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			ChannelStrIndex:          NO_DESCRIPTOR_STRING,
 			TerminalStrIndex:         NO_DESCRIPTOR_STRING
 		},
-		
+
+	FeatureUnit:
+		{
+			Header:                   {Size: sizeof(USB_AudioFeatureUnit_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_FeatureUnit,
+			
+			UnitID:                   0x01,
+			SourceID:                 0x01,
+			
+			ControlSize:              1,
+			
+			MasterControls:           (FEATURE_VOLUME | FEATURE_MUTE),
+			ChannelControls:          {0, 0},
+			
+			FeatureUnitStrIndex:      NO_DESCRIPTOR_STRING
+		},
+
 	OutputTerminal:
 		{
 			Header:                   {Size: sizeof(USB_AudioOutputTerminal_t), Type: DTYPE_AudioInterface},
@@ -102,13 +119,13 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		
 			TerminalID:               0x02,
 			TerminalType:             0x0301,
-			AssociatedInputTerminal:  0x01,
+			AssociatedInputTerminal:  0x00,
 			
 			SourceID:                 13,
 			
 			TerminalStrIndex:         NO_DESCRIPTOR_STRING			
 		},
-	
+
 	AudioStreamInterface_Alt0:
 		{
 			Header:                   {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
@@ -143,13 +160,29 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		
 	AudioStreamInterface_SPC:
 		{
-			Header:                   {Size: sizeof(USB_AudioInterface_AS_t), Type: DTYPE_Interface},
+			Header:                   {Size: sizeof(USB_AudioInterface_AS_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_General,
 			
 			TerminalLink:             0x01,
 			
 			FrameDelay:               1,
 			AudioFormat:              0x01
+		},
+		
+	AudioFormat:
+		{
+			Header:                   {Size: sizeof(USB_AudioFormat_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_Format,
+
+			FormatType:               0x01,
+			Channels:                 0x02,
+			
+			SubFrameSize:             0x02,
+			BitResolution:            16,
+			SampleFrequencyType:      1,
+			
+			SampleFreq_LS:            (48000 & 0x00FFFF),
+			SampleFreq_MS:		      ((48000 >> 16) & 0x0000FF)
 		},
 	
 	AudioEndpoint:

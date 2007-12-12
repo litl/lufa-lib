@@ -19,9 +19,12 @@
 		#define DTYPE_AudioEndpoint         0x25
 
 		#define DSUBTYPE_Header             0x01
-		#define DSUBTYPE_General            0x01
 		#define DSUBTYPE_InputTerminal      0x02
 		#define DSUBTYPE_OutputTerminal     0x03
+		#define DSUBTYPE_FeatureUnit        0x06
+
+		#define DSUBTYPE_General            0x01
+		#define DSUBTYPE_Format             0x02
 		
 		#define CHANNEL_LEFT_FRONT          (1 << 0)
 		#define CHANNEL_RIGHT_FRONT         (1 << 1)
@@ -38,6 +41,17 @@
 
 		#define AUDIO_STREAM_EPNUM          0x01
 		#define AUDIO_STREAM_EPSIZE         64
+		
+		#define FEATURE_MUTE                (1 << 0)
+		#define FEATURE_VOLUME              (1 << 1)
+		#define FEATURE_BASS                (1 << 2)
+		#define FEATURE_MID                 (1 << 3)
+		#define FEATURE_TREBLE              (1 << 4)
+		#define FEATURE_GRAPHIC_EQUALIZER   (1 << 5)
+		#define FEATURE_AUTOMATIC_GAIN      (1 << 6)
+		#define FEATURE_DELAY               (1 << 7)
+		#define FEATURE_BASS_BOOST          (1 << 8)
+		#define FEATURE_BASS_LOUDNESS       (1 << 9)
 
 	/* Type Defines: */
 		typedef struct
@@ -52,6 +66,22 @@
 			uint8_t                 InterfaceNumbers[1];			
 		} USB_AudioInterface_AC_t;
 		
+		typedef struct
+		{
+			USB_Descriptor_Header_t Header;
+			uint8_t                 Subtype;
+			
+			uint8_t                 UnitID;
+			uint8_t                 SourceID;
+			
+			uint8_t                 ControlSize;
+			
+			uint8_t                 MasterControls;
+			uint8_t                 ChannelControls[2];
+			
+			uint8_t                 FeatureUnitStrIndex;  
+		} USB_AudioFeatureUnit_t;
+
 		typedef struct
 		{
 			USB_Descriptor_Header_t Header;
@@ -95,6 +125,22 @@
 		
 		typedef struct
 		{
+			USB_Descriptor_Header_t   Header;
+			uint8_t                   Subtype;
+
+			uint8_t                   FormatType;
+			uint8_t                   Channels;
+			
+			uint8_t                   SubFrameSize;
+			uint8_t                   BitResolution;
+			uint8_t                   SampleFrequencyType;
+			
+			uint16_t                  SampleFreq_LS;
+			uint8_t                   SampleFreq_MS;
+		} USB_AudioFormat_t;
+		
+		typedef struct
+		{
 			USB_Descriptor_Endpoint_t Endpoint;
 
 			uint8_t                   Refresh;
@@ -109,7 +155,7 @@
 			uint8_t                   Attributes;
 
 			uint8_t                   LockDelayUnits;
-			uint8_t                   LockDelay;
+			uint16_t                  LockDelay;
 		} USB_AudioStreamEndpoint_Spc_t;	
 
 		typedef struct
@@ -118,10 +164,12 @@
 			USB_Descriptor_Interface_t            AudioControlInterface;
 			USB_AudioInterface_AC_t               AudioControlInterface_SPC;
 			USB_AudioInputTerminal_t              InputTerminal;
+			USB_AudioFeatureUnit_t                FeatureUnit;
 			USB_AudioOutputTerminal_t             OutputTerminal;
 			USB_Descriptor_Interface_t            AudioStreamInterface_Alt0;
 			USB_Descriptor_Interface_t            AudioStreamInterface_Alt1;
 			USB_AudioInterface_AS_t               AudioStreamInterface_SPC;
+			USB_AudioFormat_t                     AudioFormat;
 			USB_AudioStreamEndpoint_Std_t         AudioEndpoint;
 			USB_AudioStreamEndpoint_Spc_t         AudioEndpoint_SPC;
 		} USB_Descriptor_Configuration_t;

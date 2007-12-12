@@ -29,19 +29,19 @@
 			#define PIPE_ERRORFLAG_DATAPID                 (1 << 1)
 			#define PIPE_ERRORFLAG_DATATGL                 (1 << 0)
 
-			#define PIPE_TOKEN_MASK                        (0x03 << PTOKEN0)
-			#define PIPE_TOKEN_SETUP                       0b00
-			#define PIPE_TOKEN_IN                          0b01
-			#define PIPE_TOKEN_OUT                         0b10
+			#define PIPE_TOKEN_MASK                        (0b11 << PTOKEN0)
+			#define PIPE_TOKEN_SETUP                       (0b00 << PTOKEN0)
+			#define PIPE_TOKEN_IN                          (0b01 << PTOKEN0)
+			#define PIPE_TOKEN_OUT                         (0b10 << PTOKEN0)
 			
-			#define PIPE_SIZE_8_MASK                       0b000
-			#define PIPE_SIZE_16_MASK                      0b001
-			#define PIPE_SIZE_32_MASK                      0b010
-			#define PIPE_SIZE_64_MASK                      0b011
-			#define PIPE_SIZE_128_MASK                     0b100
-			#define PIPE_SIZE_256_MASK                     0b101
-			#define PIPE_SIZE_512_MASK                     0b110
-			#define PIPE_SIZE_1024_MASK                    0b111
+			#define PIPE_SIZE_8_MASK                       (0b000 << EPSIZE0)
+			#define PIPE_SIZE_16_MASK                      (0b001 << EPSIZE0)
+			#define PIPE_SIZE_32_MASK                      (0b010 << EPSIZE0)
+			#define PIPE_SIZE_64_MASK                      (0b011 << EPSIZE0)
+			#define PIPE_SIZE_128_MASK                     (0b100 << EPSIZE0)
+			#define PIPE_SIZE_256_MASK                     (0b101 << EPSIZE0)
+			#define PIPE_SIZE_512_MASK                     (0b110 << EPSIZE0)
+			#define PIPE_SIZE_1024_MASK                    (0b111 << EPSIZE0)
 			
 			#define PIPE_BANK_SINGLE                       0
 			#define PIPE_BANK_DOUBLE                       (1 << EPBK0)
@@ -65,15 +65,15 @@
 			#define Pipe_EnablePipe()              MACROS{ UPCONX  |=  (1 << PEN);                               }MACROE
 			#define Pipe_DisablePipe()             MACROS{ UPCONX  &= ~(1 << PEN);                               }MACROE
 			#define Pipe_IsEnabled()                     ((UPCONX  &   (1 << PEN)) ? true : false)
-			#define Pipe_SetToken(token)           MACROS{ UPCFG0X  = ((UPCFG0X & ~PIPE_TOKEN_MASK) | (token << PTOKEN0)); }MACROE
+			#define Pipe_SetToken(token)           MACROS{ UPCFG0X  = ((UPCFG0X & ~PIPE_TOKEN_MASK) | token); }MACROE
 			
 			#define Pipe_SetInfiniteINRequests()   MACROS{ UPCONX  |=  (1 << INMODE);                            }MACROE
 			#define Pipe_SetFiniteINRequests(n)    MACROS{ UPCONX  &= ~(1 << INMODE); UPINRQX = n;               }MACROE
 			
 			#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
 												   MACROS{ Pipe_ConfigurePipe_P(num,         \
-																			  ((type << PTYPE0) | (token << PTOKEN0) | ((epnum & PIPE_EPNUM_MASK) << PEPNUM0)),   \
-																			  ((Pipe_BytesToEPSizeMask(size) << EPSIZE0) | banks)); }MACROE
+																			  ((type << PTYPE0) | token | ((epnum & PIPE_EPNUM_MASK) << PEPNUM0)),   \
+																			  (Pipe_BytesToEPSizeMask(size) | banks)); }MACROE
 			#define Pipe_IsConfigured()                  ((UPSTAX  & (1 << CFGOK)) ? PIPE_CONFIG_OK : PIPE_CONFIG_FAIL)
 			#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG2X  = ms;                                          }MACROE
 			#define Pipe_GetPipeInterrupts()               UPINT

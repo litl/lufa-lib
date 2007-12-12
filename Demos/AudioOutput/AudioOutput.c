@@ -48,6 +48,10 @@ TASK_LIST
 	{ TaskID: USB_Audio_Task_ID       , TaskName: USB_Audio_Task       , TaskStatus: TASK_RUN  },
 };
 
+/* Globals */
+volatile bool    Mute;
+volatile uint8_t Volume;
+
 int main(void)
 {
 	/* Disable Clock Division */
@@ -79,6 +83,83 @@ EVENT_HANDLER(USB_CreateEndpoints)
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
 }
 
+EVENT_HANDLER(USB_UnhandledControlPacket)
+{
+	/* Process Audio specific control requests */
+	switch (Request)
+	{
+		case GET_MAX:
+		case GET_MIN:
+		case GET_RES:
+		case GET_CUR:
+			if ((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE))
+			     == (REQDIR_DEVICETOHOST | REQTYPE_CLASS))
+			{
+				uint8_t FeatureToGet;
+				
+				Endpoint_Ignore_Byte();
+				FeatureToGet = Endpoint_Read_Byte();
+				Endpoint_Ignore_DWord();
+
+				Endpoint_ClearSetupReceived();	
+
+				switch (FeatureToGet)
+				{
+					case GET_SET_MUTE:
+						Endpoint_Write_Byte(Mute);
+						break;
+					case GET_SET_VOLUME:
+						if (Request == GET_MAX)
+						  Endpoint_Write_Word_LE(0xFFFF);
+						else if (Request == GET_MIN)
+						  Endpoint_Write_Word_LE(0x0000);
+						else if (Request == GET_RES)
+						  Endpoint_Write_Word_LE(0x0001);
+						else
+						  Endpoint_Write_Word_LE(Volume);
+
+						break;
+				}
+				
+				Endpoint_In_Clear();				
+				while (!(Endpoint_Out_IsReceived()));
+				Endpoint_Out_Clear();
+			}
+			
+			break;
+		case SET_CUR:
+			if ((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE))
+			     == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS))
+			{
+				uint8_t FeatureToSet;
+				
+				Endpoint_Ignore_Byte();
+				FeatureToSet = Endpoint_Read_Byte();
+				Endpoint_Ignore_DWord();
+
+				Endpoint_ClearSetupReceived();	
+
+				Endpoint_In_Clear();				
+				while (!(Endpoint_Out_IsReceived()));
+				
+				switch (FeatureToSet)
+				{
+					case GET_SET_MUTE:
+						Mute = Endpoint_Read_Byte();
+						break;
+					case GET_SET_VOLUME:
+						Volume = Endpoint_Read_Word_LE();
+						break;
+				}
+				
+				Endpoint_Out_Clear();
+				Endpoint_In_Clear();
+			}
+			
+			break;
+	}
+}
+
 TASK(USB_Audio_Task)
 {
 	static bool HasConfiguredTimer = false;
@@ -97,13 +178,23 @@ TASK(USB_Audio_Task)
 
 ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 {
+	/* Save the currently selected endpoint */
 	uint8_t PrevEPNum = Endpoint_GetCurrentEndpoint();
 
+	/* Select the audio stream endpoint */
 	Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
+	
+	/* Check if the current endpoint can be read from (contains a packet) */
 	if (Endpoint_ReadWriteAllowed())
 	{
+		/* Get the audio sample from the endpoint */
 		uint16_t Sample = Endpoint_Read_Word_LE();
 		
+		/* If mute is enabled, clear the sample value */
+		if (Mute)
+		  Sample = 0;
+		  
+		/* Display the sample value on the bicolour LEDs */
 		if (Sample <= (0xFFFF / 7))
 		  Bicolour_SetLeds(BICOLOUR_NO_LEDS);
 		else if (Sample <= ((0xFFFF / 7) * 2))
@@ -117,9 +208,14 @@ ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 		else if (Sample <= ((0xFFFF / 7) * 6))
 		  Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_ORANGE);
 		else
-		  Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);		
+		  Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+		  
+		/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
+		if (!(Endpoint_BytesInEndpoint()))
+		  Endpoint_In_Clear();
 	}
 	
+	/* Select the previously selected endpoint again */
 	Endpoint_SelectEndpoint(PrevEPNum);
 }
 
