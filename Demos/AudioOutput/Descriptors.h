@@ -97,6 +97,7 @@
 		{
 			USB_Descriptor_Endpoint_t Endpoint;
 
+			uint8_t                   Refresh;
 			uint8_t                   SyncEndpointNumber;
 		} USB_AudioStreamEndpoint_Std_t;
 					
@@ -118,7 +119,8 @@
 			USB_AudioInterface_AC_t               AudioControlInterface_SPC;
 			USB_AudioInputTerminal_t              InputTerminal;
 			USB_AudioOutputTerminal_t             OutputTerminal;
-			USB_Descriptor_Interface_t            AudioStreamInterface;
+			USB_Descriptor_Interface_t            AudioStreamInterface_Alt0;
+			USB_Descriptor_Interface_t            AudioStreamInterface_Alt1;
 			USB_AudioInterface_AS_t               AudioStreamInterface_SPC;
 			USB_AudioStreamEndpoint_Std_t         AudioEndpoint;
 			USB_AudioStreamEndpoint_Spc_t         AudioEndpoint_SPC;

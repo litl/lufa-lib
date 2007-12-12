@@ -42,8 +42,9 @@
 		#define COMMAND_DIRECTION_DATA_IN        (1 << 7)
 		
 		#define DEVICE_BLOCK_SIZE                512
-		#define DEVICE_BLOCKS_TO_READ            2
-		#define DEVICE_BLOCK_ADDRESS             0x00000000UL
+
+		#define MASS_STORAGE_RESET         0xFF
+		#define GET_NUMBER_OF_LUNS         0xFE
 
 	/* Type defines: */
 		typedef struct
@@ -81,6 +82,13 @@
 			SuccessfulConfigRead = 6,
 		} GetConfigDescriptorDataCodes_t;
 
+		enum
+		{
+			Command_Pass = 0,
+			Command_Fail = 1,
+			Phase_Error  = 2
+		} CommandStatusCodes;
+
 	/* Task Definitions: */
 		TASK(USB_MassStore_Host);
 
@@ -91,5 +99,10 @@
 		
 	/* Function Prototypes: */
 		uint8_t GetConfigDescriptorData(void);
+		bool    MassStore_PrepareDisk(void);
+		#if 0
+		bool    MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* Buffer)
+		                                  ATTR_NON_NULL_PTR_ARG(2);
+		#endif
 		
 #endif

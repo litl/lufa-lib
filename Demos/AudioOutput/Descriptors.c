@@ -85,11 +85,11 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Subtype:                  DSUBTYPE_InputTerminal,
 		
 			TerminalID:               0x01,
-			TerminalType:             0x00, // FIXME
+			TerminalType:             0x0101,
 			AssociatedOutputTerminal: 0x02,
 			
-			TotalChannels:            1,
-			ChannelConfig:            CHANNEL_CENTER_FRONT,
+			TotalChannels:            2,
+			ChannelConfig:            (CHANNEL_LEFT_FRONT | CHANNEL_RIGHT_FRONT),
 			
 			ChannelStrIndex:          NO_DESCRIPTOR_STRING,
 			TerminalStrIndex:         NO_DESCRIPTOR_STRING
@@ -101,20 +101,36 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Subtype:                  DSUBTYPE_OutputTerminal,
 		
 			TerminalID:               0x02,
-			TerminalType:             0x00, // FIXME
+			TerminalType:             0x0301,
 			AssociatedInputTerminal:  0x01,
 			
-			SourceID:                 0x00, // FIXME
+			SourceID:                 13,
 			
 			TerminalStrIndex:         NO_DESCRIPTOR_STRING			
 		},
 	
-	AudioStreamInterface:
+	AudioStreamInterface_Alt0:
 		{
 			Header:                   {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
 			InterfaceNumber:          1,
 			AlternateSetting:         0,
+			
+			TotalEndpoints:           0,
+				
+			Class:                    0x01,
+			SubClass:                 0x02,
+			Protocol:                 0x00,
+				
+			InterfaceStrIndex:        NO_DESCRIPTOR_STRING
+		},
+
+	AudioStreamInterface_Alt1:
+		{
+			Header:                   {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
+
+			InterfaceNumber:          1,
+			AlternateSetting:         1,
 			
 			TotalEndpoints:           1,
 				
@@ -132,7 +148,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			
 			TerminalLink:             0x01,
 			
-			FrameDelay:               0,
+			FrameDelay:               1,
 			AudioFormat:              0x01
 		},
 	
@@ -143,11 +159,12 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 					Header:              {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
 
 					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_OUT | AUDIO_STREAM_EPNUM),
-					Attributes:          EP_TYPE_ISOCHRONOUS,
+					Attributes:          (EP_TYPE_ISOCHRONOUS | ENDPOINT_ATTR_ADAPTIVE),
 					EndpointSize:        AUDIO_STREAM_EPSIZE,
 					PollingIntervalMS:   1
 				},
 			
+			Refresh:                0,
 			SyncEndpointNumber:     0
 		},
 		

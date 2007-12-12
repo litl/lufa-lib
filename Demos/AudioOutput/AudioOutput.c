@@ -17,6 +17,10 @@
 	On startup the system will automatically enumerate and function
 	as a USB speaker. Incomming audio will be displayed on the two bicolour
 	LEDs on the USBKEY board.
+	
+	Under Windows, if a driver request dialogue pops up, select the option
+	to automatically install the appropriate drivers, or manually select the
+	USBAudio.sys driver.
 */
 
 /*

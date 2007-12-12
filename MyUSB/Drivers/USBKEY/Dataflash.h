@@ -21,6 +21,7 @@
 	/* Private Interface - For use in library only: */
 		/* Macros */
 			#define DATAFLASH_CHIPCS_MASK        (DATAFLASH_CHIP1 | DATAFLASH_CHIP2)
+			#define DATAFLASH_USE_DOUBLESPEED    (1 << 7)
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
@@ -30,8 +31,6 @@
 			
 			#define DATAFLASH_PAGE_SIZE          1024
 			#define DATAFLASH_PAGES              8192
-			
-			#define DATAFLASH_USE_DOUBLESPEED    (1 << 7)
 			
 			#define DATAFLASH_SPEED_FCPU_DIV_2   DATAFLASH_USE_DOUBLESPEED
 			#define DATAFLASH_SPEED_FCPU_DIV_4   0
@@ -51,7 +50,7 @@
 			void    Dataflash_ToggleSelectedChipCS(void);
 			
 		/* Inline Functions: */
-			static inline void Dataflash_Init(const uint8_t Speed)
+			static inline void Dataflash_Init(const uint8_t PrescalerMask)
 			{
 				PINB  |= (1 << 0);
 				DDRB  |= ((1 << 1) | (1 << 2));

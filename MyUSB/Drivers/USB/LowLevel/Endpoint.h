@@ -45,7 +45,7 @@
 
 			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UPINTX, (1 << TXINI)
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UPINTX, (1 << RXOUTI)
-
+			
 			#define Endpoint_BytesInEndpoint()                 UEBCX
 			#define Endpoint_GetCurrentEndpoint()             (UENUM   & ENDPOINT_EPNUM_MASK)
 			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM    = (epnum & ENDPOINT_EPNUM_MASK); }MACROE

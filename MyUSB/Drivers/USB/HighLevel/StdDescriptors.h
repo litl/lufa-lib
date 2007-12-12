@@ -39,6 +39,15 @@
 			#define USB_CONFIG_ATTR_SELFPOWERED       0b11000000
 			#define USB_CONFIG_ATTR_REMOTEWAKEUP      0b10100000
 
+			#define ENDPOINT_ATTR_NO_SYNC             (0b00 << 2)
+			#define ENDPOINT_ATTR_ASYNC               (0b01 << 2)
+			#define ENDPOINT_ATTR_ADAPTIVE            (0b10 << 2)
+			#define ENDPOINT_ATTR_SYNC                (0b11 << 2)
+			
+			#define ENDPOINT_USAGE_DATA               (0b00 << 4)
+			#define ENDPOINT_USAGE_FEEDBACK           (0b01 << 4)
+			#define ENDPOINT_USAGE_IMPLCIIT_FEEDBACK  (0b10 << 4)
+
 		/* Events: */
 			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 				RAISES_EVENT(USB_DeviceError);
