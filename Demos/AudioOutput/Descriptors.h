@@ -50,6 +50,27 @@
 		#define FEATURE_BASS_BOOST          (1 << 8)
 		#define FEATURE_BASS_LOUDNESS       (1 << 9)
 
+		#define TERMINAL_UNDEFINED          0x0100
+		#define TERMINAL_STREAMING          0x0101
+		#define TERMINAL_VENDOR             0x01FF
+		#define TERMINAL_IN_UNDEFINED       0x0200
+		#define TERMINAL_IN_MIC             0x0201
+		#define TERMINAL_IN_DESKTOP_MIC     0x0202
+		#define TERMINAL_IN_PERSONAL_MIC    0x0203
+		#define TERMINAL_IN_OMNIDIR_MIC     0x0204
+		#define TERMINAL_IN_MIC_ARRAY       0x0205
+		#define TERMINAL_IN_PROCESSING_MIC  0x0206
+		#define TERMINAL_IN_OUT_UNDEFINED   0x0300
+		#define TERMINAL_OUT_SPEAKER        0x0301
+		#define TERMINAL_OUT_HEADPHONES     0x0302
+		#define TERMINAL_OUT_HEAD_MOUNTED   0x0303
+		#define TERMINAL_OUT_DESKTOP        0x0304
+		#define TERMINAL_OUT_ROOM           0x0305
+		#define TERMINAL_OUT_COMMUNICATION  0x0306
+		#define TERMINAL_OUT_LOWFREQ        0x0307
+
+		#define SAMPLE_FREQ(x)              {LowWord: (x & 0x00FFFF), HighByte: ((x >> 16) & 0x0000FF)}
+		
 		#define AUDIO_STREAM_EPNUM          0x01
 		#define AUDIO_STREAM_EPSIZE         256
 		
@@ -123,6 +144,12 @@
 		
 		typedef struct
 		{
+			uint16_t                  LowWord;
+			uint8_t                   HighByte;
+		} AudioSampleFreq_t;
+
+		typedef struct
+		{
 			USB_Descriptor_Header_t   Header;
 			uint8_t                   Subtype;
 
@@ -133,8 +160,7 @@
 			uint8_t                   BitResolution;
 			uint8_t                   SampleFrequencyType;
 			
-			uint16_t                  SampleFreq_LS;
-			uint8_t                   SampleFreq_MS;
+			AudioSampleFreq_t         SampleFrequencies[1];
 		} USB_AudioFormat_t;
 		
 		typedef struct

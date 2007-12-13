@@ -86,7 +86,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Subtype:                  DSUBTYPE_InputTerminal,
 		
 			TerminalID:               0x01,
-			TerminalType:             0x0101,
+			TerminalType:             TERMINAL_STREAMING,
 			AssociatedOutputTerminal: 0x00,
 			
 			TotalChannels:            2,
@@ -116,7 +116,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Subtype:                  DSUBTYPE_OutputTerminal,
 		
 			TerminalID:               0x02,
-			TerminalType:             0x0301,
+			TerminalType:             TERMINAL_OUT_SPEAKER,
 			AssociatedInputTerminal:  0x00,
 			
 			SourceID:                 13,
@@ -177,10 +177,9 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			
 			SubFrameSize:             0x02,
 			BitResolution:            16,
-			SampleFrequencyType:      1,
-			
-			SampleFreq_LS:            (48000 & 0x00FFFF),
-			SampleFreq_MS:		      ((48000 >> 16) & 0x0000FF)
+			SampleFrequencyType:      (sizeof(ConfigurationDescriptor.AudioFormat.SampleFrequencies) / sizeof(AudioSampleFreq_t)),
+		
+			SampleFrequencies:        {SAMPLE_FREQ(48000)}
 		},
 	
 	AudioEndpoint:
@@ -190,7 +189,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 					Header:              {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
 
 					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_OUT | AUDIO_STREAM_EPNUM),
-					Attributes:          (EP_TYPE_ISOCHRONOUS | ENDPOINT_ATTR_ADAPTIVE | ENDPOINT_USAGE_DATA),
+					Attributes:          (EP_TYPE_ISOCHRONOUS | ENDPOINT_ATTR_SYNC | ENDPOINT_USAGE_DATA),
 					EndpointSize:        AUDIO_STREAM_EPSIZE,
 					PollingIntervalMS:   1
 				},
