@@ -119,7 +119,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			TerminalType:             TERMINAL_OUT_SPEAKER,
 			AssociatedInputTerminal:  0x00,
 			
-			SourceID:                 13,
+			SourceID:                 0x01,
 			
 			TerminalStrIndex:         NO_DESCRIPTOR_STRING			
 		},

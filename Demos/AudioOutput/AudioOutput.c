@@ -22,10 +22,6 @@
 	to automatically install the appropriate drivers.
 */
 
-/*
-	THIS EXAMPLE IS UNFINISHED AND NON OPERATIONAL. FOR DEVELOPMENT PURPOSES ONLY.
-*/
-
 #include "AudioOutput.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

@@ -46,7 +46,7 @@
 			
 			#define ENDPOINT_USAGE_DATA               (0b00 << 4)
 			#define ENDPOINT_USAGE_FEEDBACK           (0b01 << 4)
-			#define ENDPOINT_USAGE_IMPLCIIT_FEEDBACK  (0b10 << 4)
+			#define ENDPOINT_USAGE_IMPLICIT_FEEDBACK  (0b10 << 4)
 
 		/* Events: */
 			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
