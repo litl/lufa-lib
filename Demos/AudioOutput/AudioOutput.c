@@ -15,8 +15,9 @@
 	required).
 	
 	On startup the system will automatically enumerate and function
-	as a USB speaker. Incomming audio will be displayed on the two bicolour
-	LEDs on the USBKEY board.
+	as a USB speaker. Incomming audio will output in 8-bit PWM onto
+	Timer 3 output compare channel A. Decouple the output with a capacitor
+	and attach to a speaker to hear the audio.
 	
 	Under Windows, if a driver request dialogue pops up, select the option
 	to automatically install the appropriate drivers.
@@ -168,7 +169,7 @@ TASK(USB_Audio_Task)
 	{
 		if (!(HasConfiguredTimer))
 		{
-			/* 125uS sample timer initialization */
+			/* 20uS sample timer initialization */
 			OCR0A  = 20;
 			TCCR0A = (1 << WGM01);  // CTC mode
 			TCCR0B = (1 << CS01);
@@ -178,9 +179,10 @@ TASK(USB_Audio_Task)
 			
 			/* PWM speaker timer initialization */
 			TCCR3A  = ((1 << WGM30) | (1 << COM3A1) | (1 << COM3A0)); // Set on match, clear on TOP
-			TCCR3B  = ((1 << WGM32) | (1 << CS30));  // Fast 8-bit PWM, Fcpu speed
+			TCCR3B  = ((1 << CS30));  // Phase Correct 8-Bit PWM, Fcpu speed
 
-			DDRC   |= (1 << 6); // Speaker as output
+			/* Set speaker as output */
+			DDRC   |= (1 << 6);
 		}
 	}
 	else
@@ -204,9 +206,10 @@ ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 	{
 		int16_t LeftSample  = (int16_t)Endpoint_Read_Word_LE();
 		int16_t RightSample = (int16_t)Endpoint_Read_Word_LE();
+		int8_t  MixedSample = ((LeftSample >> 9) + (RightSample >> 9)) ^ (1 << 7);
       
-		// Load the sample into the PWM timer
-		OCR3A = (((LeftSample + RightSample) >> 8) ^ (1 << 7));
+		/* Load the sample into the PWM timer */
+		OCR3A = MixedSample;
 
 		/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
 		if (!(Endpoint_BytesInEndpoint()))
