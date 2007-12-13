@@ -163,19 +163,17 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 TASK(USB_Audio_Task)
 {
-	static bool HasConfiguredTimer = false;
+	static bool HasConfiguredTimers = false;
 	
 	if (USB_IsConnected)
 	{
-		if (!(HasConfiguredTimer))
+		/* Timers are only set up once after the USB has been connected */
+		if (!(HasConfiguredTimers))
 		{
 			/* 20uS sample timer initialization */
 			OCR0A  = 20;
 			TCCR0A = (1 << WGM01);  // CTC mode
 			TCCR0B = (1 << CS01);
-			TIMSK0 = (1 << OCIE0A); // CTC interrupt enable
-			
-			HasConfiguredTimer = true;
 			
 			/* PWM speaker timer initialization */
 			TCCR3A  = ((1 << WGM30) | (1 << COM3A1) | (1 << COM3A0)); // Set on match, clear on TOP
@@ -183,40 +181,40 @@ TASK(USB_Audio_Task)
 
 			/* Set speaker as output */
 			DDRC   |= (1 << 6);
+
+			HasConfiguredTimers = true;
+		}
+		
+		/* Check to see if the CTC flag is set */
+		if (TIFR0 & (1 << OCF0A))
+		{
+			/* Select the audio stream endpoint */
+			Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
+			
+			/* Check if the current endpoint can be read from (contains a packet) */
+			if (Endpoint_ReadWriteAllowed())
+			{
+				int16_t LeftSample  = (int16_t)Endpoint_Read_Word_LE();
+				int16_t RightSample = (int16_t)Endpoint_Read_Word_LE();
+				int8_t  MixedSample = ((LeftSample >> 9) + (RightSample >> 9)) ^ (1 << 7);
+
+				/* Load the sample into the PWM timer */
+				OCR3A = MixedSample;
+
+				/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
+				if (!(Endpoint_BytesInEndpoint()))
+				  Endpoint_In_Clear();
+			}
+			
+			/* Clear the CTC flag */
+			TIFR0 |= (1 << OCF0A);
 		}
 	}
 	else
 	{
-		/* Stop the timer */
+		/* Stop the timers */
 		TCCR0B = 0;
-		HasConfiguredTimer = false;
+		TCCR3B = 0;
+		HasConfiguredTimers = false;
 	}
 }
-
-ISR(TIMER0_COMPA_vect, ISR_BLOCK)
-{
-	/* Save the currently selected endpoint */
-	uint8_t PrevEPNum = Endpoint_GetCurrentEndpoint();
-
-	/* Select the audio stream endpoint */
-	Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
-	
-	/* Check if the current endpoint can be read from (contains a packet) */
-	if (Endpoint_ReadWriteAllowed())
-	{
-		int16_t LeftSample  = (int16_t)Endpoint_Read_Word_LE();
-		int16_t RightSample = (int16_t)Endpoint_Read_Word_LE();
-		int8_t  MixedSample = ((LeftSample >> 9) + (RightSample >> 9)) ^ (1 << 7);
-      
-		/* Load the sample into the PWM timer */
-		OCR3A = MixedSample;
-
-		/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
-		if (!(Endpoint_BytesInEndpoint()))
-		  Endpoint_In_Clear();
-	}
-	
-	/* Select the previously selected endpoint again */
-	Endpoint_SelectEndpoint(PrevEPNum);
-}
-
