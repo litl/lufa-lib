@@ -81,8 +81,6 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	printf("%d - ", Request);
-
 	/* Process Audio specific control requests */
 	switch (Request)
 	{
@@ -105,31 +103,17 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				{
 					case GET_SET_MUTE:
 						Endpoint_Write_Byte(Mute);
-						
-						printf("Get curr mute \r\n");
 
 						break;
 					case GET_SET_VOLUME:
 						if (Request == GET_MAX)
-						{
 							Endpoint_Write_Word_LE(VOL_MAX);
-							printf("Get vol max \r\n");
-						}
 						else if (Request == GET_MIN)
-						{
 							Endpoint_Write_Word_LE(VOL_MIN);
-							printf("Get vol min \r\n");
-						}
 						else if (Request == GET_RES)
-						{
 							Endpoint_Write_Word_LE(VOL_RES);
-							printf("Get vol res \r\n");
-						}
 						else
-						{
 							Endpoint_Write_Word_LE(Volume);
-							printf("Get curr vol \r\n");
-						}
 
 						break;
 				}
@@ -160,11 +144,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				{
 					case GET_SET_MUTE:
 						Mute = Endpoint_Read_Byte();
-						printf("Set mute val \r\n");
 						break;
 					case GET_SET_VOLUME:
 						Volume = Endpoint_Read_Word_LE();
-						printf("Set vol val \r\n");
 						break;
 				}
 				
@@ -186,13 +168,19 @@ TASK(USB_Audio_Task)
 	{
 		if (!(HasConfiguredTimer))
 		{
-			/* 125uS timer initialization */
-			OCR0A  = 125;
-			TCCR0A = (1 << WGM01);
+			/* 125uS sample timer initialization */
+			OCR0A  = 20;
+			TCCR0A = (1 << WGM01);  // CTC mode
 			TCCR0B = (1 << CS01);
-			TIMSK0 = (1 << OCIE0A);
+			TIMSK0 = (1 << OCIE0A); // CTC interrupt enable
 			
 			HasConfiguredTimer = true;
+			
+			/* PWM speaker timer initialization */
+			TCCR3A  = ((1 << WGM30) | (1 << COM3A1) | (1 << COM3A0)); // Set on match, clear on TOP
+			TCCR3B  = ((1 << WGM32) | (1 << CS30));  // Fast 8-bit PWM, Fcpu speed
+
+			DDRC   |= (1 << 6); // Speaker as output
 		}
 	}
 	else
@@ -214,33 +202,12 @@ ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 	/* Check if the current endpoint can be read from (contains a packet) */
 	if (Endpoint_ReadWriteAllowed())
 	{
-		/* Get the left and right channel audio samples from the endpoint */
-		uint16_t LeftSample  = Endpoint_Read_Word_LE();
-		uint16_t RightSample = Endpoint_Read_Word_LE();
-		
-		/* Create a mono sample from the two channels */
-		uint16_t Sample = ((LeftSample >> 1) + (RightSample >> 1));
-		
-		/* If mute is enabled, clear the sample value */
-		if (Mute || (Volume == VOL_SILENCE))
-		  Sample = 0;
-		  
-		/* Display the sample value on the bicolour LEDs */
-		if (Sample <= (0xFFFF / 7))
-		  Bicolour_SetLeds(BICOLOUR_NO_LEDS);
-		else if (Sample <= ((0xFFFF / 7) * 2))
-		  Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
-		else if (Sample <= ((0xFFFF / 7) * 3))
-		  Bicolour_SetLeds(BICOLOUR_LED1_ORANGE);
-		else if (Sample <= ((0xFFFF / 7) * 4))
-		  Bicolour_SetLeds(BICOLOUR_LED1_RED);
-		else if (Sample <= ((0xFFFF / 7) * 5))
-		  Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_GREEN);
-		else if (Sample <= ((0xFFFF / 7) * 6))
-		  Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_ORANGE);
-		else
-		  Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
-		  
+		int16_t LeftSample  = (int16_t)Endpoint_Read_Word_LE();
+		int16_t RightSample = (int16_t)Endpoint_Read_Word_LE();
+      
+		// Load the sample into the PWM timer
+		OCR3A = (((LeftSample + RightSample) >> 8) ^ (1 << 7));
+
 		/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
 		if (!(Endpoint_BytesInEndpoint()))
 		  Endpoint_In_Clear();
