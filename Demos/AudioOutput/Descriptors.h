@@ -69,10 +69,12 @@
 		#define TERMINAL_OUT_COMMUNICATION  0x0306
 		#define TERMINAL_OUT_LOWFREQ        0x0307
 
-		#define SAMPLE_FREQ(x)              {LowWord: (x & 0x00FFFF), HighByte: ((x >> 16) & 0x0000FF)}
+		#define SAMPLE_FREQ(x)              {LowWord: ((uint32_t)x & 0x00FFFF), HighByte: (((uint32_t)x >> 16) & 0x0000FF)}
 		
 		#define AUDIO_STREAM_EPNUM          0x01
 		#define AUDIO_STREAM_EPSIZE         256
+		
+		#define AUDIO_SAMPLE_FREQUENCY      48000
 		
 	/* Type Defines: */
 		typedef struct

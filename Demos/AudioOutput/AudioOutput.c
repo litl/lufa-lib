@@ -215,18 +215,22 @@ TASK(USB_Audio_Task)
 		/* Timers are only set up once after the USB has been connected */
 		if (!(HasConfiguredTimers))
 		{
-			/* 20uS sample timer initialization */
-			OCR0A  = 20;
-			TCCR0A = (1 << WGM01);  // CTC mode
-			TCCR0B = (1 << CS01);
+			OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
+			TCCR0A  = (1 << WGM01);  // CTC mode
+			TCCR0B  = (1 << CS00);   // Fcpu speed
 			
 			/* PWM speaker timer initialization */
 			TCCR3A  = ((1 << WGM30) | (1 << COM3A1) | (1 << COM3A0)
 			                        | (1 << COM3B1) | (1 << COM3B0)); // Set on match, clear on TOP
 			TCCR3B  = ((1 << CS30));  // Phase Correct 8-Bit PWM, Fcpu speed
 
+#if defined(AUDIO_OUT_MONO)
 			/* Set speaker as output */
 			DDRC   |= (1 << 6);
+#elif defined(AUDIO_OUT_STEREO)
+			/* Set speakers as outputs */
+			DDRC   |= ((1 << 6) | (1 << 5));
+#endif
 
 			HasConfiguredTimers = true;
 		}
@@ -252,18 +256,22 @@ TASK(USB_Audio_Task)
 				/* Mix the two channels together to produce a mono, 8-bit sample */
 				int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
 
-				/* Load the sample into the PWM timer */
+				/* Load the sample into the PWM timer channel */
 				OCR3A = (MixedSample_8Bit ^ (1 << 7));
 #elif defined(AUDIO_OUT_STEREO)
+				/* Load the dual 8-bit samples into the PWM timer channels */
 				OCR3A = (LeftSample_8Bit  ^ (1 << 7));
 				OCR3B = (RightSample_8Bit ^ (1 << 7));
 #else
+				/* Make left channel positive (absolute) */
 				if (LeftSample_8Bit < 0)
 				  LeftSample_8Bit = -LeftSample_8Bit;
 
+				/* Make right channel positive (absolute) */
 				if (RightSample_8Bit < 0)
 				  RightSample_8Bit = -RightSample_8Bit;
 
+				/* Set first LED based on sample value */
 				if (LeftSample_8Bit < (128 / 8))
 				  Bicolour_SetLed(1, BICOLOUR_LED1_OFF);
 				else if (LeftSample_8Bit < ((128 / 8) * 3))
@@ -273,6 +281,7 @@ TASK(USB_Audio_Task)
 				else
 				  Bicolour_SetLed(1, BICOLOUR_LED1_RED);
 
+				/* Set second LED based on sample value */
 				if (RightSample_8Bit < (128 / 8))
 				  Bicolour_SetLed(2, BICOLOUR_LED2_OFF);
 				else if (RightSample_8Bit < ((128 / 8) * 3))
@@ -282,6 +291,7 @@ TASK(USB_Audio_Task)
 				else
 				  Bicolour_SetLed(2, BICOLOUR_LED2_RED);
 #endif
+
 				/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
 				if (!(Endpoint_BytesInEndpoint()))
 				  Endpoint_In_Clear();
@@ -296,6 +306,7 @@ TASK(USB_Audio_Task)
 		/* Stop the timers */
 		TCCR0B = 0;
 		TCCR3B = 0;
+		
 		HasConfiguredTimers = false;
 	}
 }
