@@ -41,7 +41,6 @@
 			#define PIPE_SIZE_128_MASK                     (0b100 << EPSIZE0)
 			#define PIPE_SIZE_256_MASK                     (0b101 << EPSIZE0)
 			#define PIPE_SIZE_512_MASK                     (0b110 << EPSIZE0)
-			#define PIPE_SIZE_1024_MASK                    (0b111 << EPSIZE0)
 			
 			#define PIPE_BANK_SINGLE                       0
 			#define PIPE_BANK_DOUBLE                       (1 << EPBK0)
@@ -245,10 +244,8 @@
 				  return PIPE_SIZE_128_MASK;
 				else if (Bytes <= 256)
 				  return PIPE_SIZE_256_MASK;
-				else if (Bytes <= 512)
-				  return PIPE_SIZE_512_MASK;
 				else
-				  return PIPE_SIZE_1024_MASK;			
+				  return PIPE_SIZE_512_MASK;		
 			};
 		
 		/* Function Prototypes: */

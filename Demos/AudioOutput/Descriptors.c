@@ -101,7 +101,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                   {Size: sizeof(USB_AudioFeatureUnit_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_FeatureUnit,
 			
-			UnitID:                   0x01,
+			UnitID:                   0x02,
 			SourceID:                 0x01,
 			
 			ControlSize:              sizeof(ConfigurationDescriptor.FeatureUnit.ChannelControls[0]),		
@@ -115,11 +115,11 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                   {Size: sizeof(USB_AudioOutputTerminal_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_OutputTerminal,
 		
-			TerminalID:               0x02,
+			TerminalID:               0x03,
 			TerminalType:             TERMINAL_OUT_SPEAKER,
 			AssociatedInputTerminal:  0x00,
 			
-			SourceID:                 0x01,
+			SourceID:                 0x02,
 			
 			TerminalStrIndex:         NO_DESCRIPTOR_STRING			
 		},
@@ -189,7 +189,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 					Header:              {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
 
 					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_OUT | AUDIO_STREAM_EPNUM),
-					Attributes:          (EP_TYPE_ISOCHRONOUS | ENDPOINT_ATTR_SYNC | ENDPOINT_USAGE_DATA),
+					Attributes:          (EP_TYPE_ISOCHRONOUS | ENDPOINT_ATTR_ASYNC | ENDPOINT_USAGE_DATA),
 					EndpointSize:        AUDIO_STREAM_EPSIZE,
 					PollingIntervalMS:   1
 				},

@@ -16,7 +16,7 @@
 		#include <avr/pgmspace.h>
 
 		#include "Descriptors.h"
-
+		
 		#include <MyUSB/Drivers/USB1287/Serial_Stream.h>
 		
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
@@ -33,13 +33,22 @@
 		
 		#define SET_CUR                        0x01
 		
-		#define GET_SET_MUTE                   0x01
-		#define GET_SET_VOLUME                 0x02
+		#define GET_SET_MUTE                   0x0100
+		#define GET_SET_VOLUME                 0x0200
 		
-		#define VOL_MIN                        0x8001
-		#define VOL_MAX                        0x7FFF
-		#define VOL_RES                        0x0001
+		#define VOL_MIN                        (int16_t)0x8000
+		#define VOL_MAX                        (int16_t)0x7FFF
+		#define VOL_RES                        0x000A
 		#define VOL_SILENCE                    0x8001
+		
+	/* Preprocessor Checks: */
+		#if (!defined(AUDIO_OUT_MONO) && !defined(AUDIO_OUT_STEREO) && !defined(AUDIO_OUT_LEDS))
+			#error One of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
+		#elif ((defined(AUDIO_OUT_MONO) && (defined(AUDIO_OUT_STEREO) || defined(AUDIO_OUT_LEDS))) || \
+		       (defined(AUDIO_OUT_STEREO) && (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_LEDS))) || \
+		       (defined(AUDIO_OUT_LEDS) && (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))))
+			#error Only one of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
+		#endif
 
 	/* Task Definitions: */
 		TASK(USB_Audio_Task);

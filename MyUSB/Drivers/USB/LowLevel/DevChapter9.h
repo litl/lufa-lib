@@ -40,7 +40,6 @@
 				static void USB_Device_GetStatus(const uint8_t RequestType);
 				static void USB_Device_SetFeature(const uint8_t RequestType);
 				static void USB_Device_ClearFeature(const uint8_t RequestType);
-				static void USB_Device_SetInterface(void);
 			#endif
 		
 #endif
