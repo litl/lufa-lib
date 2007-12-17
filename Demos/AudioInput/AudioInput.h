@@ -16,20 +16,12 @@
 		#include <avr/pgmspace.h>
 
 		#include "Descriptors.h"
-		
+				
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
+		#include <MyUSB/Drivers/USB1287/ADC.h>            // ADC driver
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
-
-	/* Preprocessor Checks: */
-		#if (!defined(AUDIO_OUT_MONO) && !defined(AUDIO_OUT_STEREO) && !defined(AUDIO_OUT_LEDS))
-			#error One of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
-		#elif ((defined(AUDIO_OUT_MONO) && (defined(AUDIO_OUT_STEREO) || defined(AUDIO_OUT_LEDS))) || \
-		       (defined(AUDIO_OUT_STEREO) && (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_LEDS))) || \
-		       (defined(AUDIO_OUT_LEDS) && (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))))
-			#error Only one of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
-		#endif
 
 	/* Task Definitions: */
 		TASK(USB_Audio_Task);

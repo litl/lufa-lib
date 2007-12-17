@@ -1,0 +1,142 @@
+/*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2007.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+
+ Released under the GPL Licence, Version 3
+*/
+
+/*
+	Audio demonstration application. This gives a simple reference
+	application for implementing a USB Audio Input device using the
+	basic USB Audio drivers in all modern OSes (i.e. no special drivers
+	required).
+	
+	On startup the system will automatically enumerate and function
+	as a USB microphone. Incomming audio from the ADC channel 1 will
+	be sampled and sent to the host computer.
+	
+	Under Windows, if a driver request dialogue pops up, select the option
+	to automatically install the appropriate drivers.
+*/
+
+#include "AudioInput.h"
+
+/* Project Tags, for reading out using the ButtLoad project */
+BUTTLOADTAG(ProjName,  "MyUSB AudioIn App");
+BUTTLOADTAG(BuildTime, __TIME__);
+BUTTLOADTAG(BuildDate, __DATE__);
+
+/* Scheduler Task ID list */
+TASK_ID_LIST
+{
+	USB_USBTask_ID,
+	USB_Audio_Task_ID,
+};
+
+/* Scheduler Task List */
+TASK_LIST
+{
+	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
+	{ TaskID: USB_Audio_Task_ID       , TaskName: USB_Audio_Task       , TaskStatus: TASK_RUN  },
+};
+
+int main(void)
+{
+	/* Disable Clock Division */
+	CLKPR = (1 << CLKPCE);
+	CLKPR = 0;
+
+	/* Hardware Initialization */
+	Bicolour_Init();
+	ADC_Init();
+	ADC_SetupChannel(1);
+	
+	ADCSRA = ((1 << ADEN) | (1 << ADATE) | (1 << ADPS2) | (1 << ADPS0));
+	ADC_StartReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | 1);
+	
+	/* Initial LED colour - Double red to indicate USB not ready */
+	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	
+	/* Initialize USB Subsystem */
+	USB_Init(USB_MODE_DEVICE, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
+
+	/* Scheduling - routine never returns, so put this last in the main function */
+	Scheduler_Start();
+}
+
+EVENT_HANDLER(USB_CreateEndpoints)
+{
+	/* Setup audio stream endpoint */
+	Endpoint_ConfigureEndpoint(AUDIO_STREAM_EPNUM, EP_TYPE_ISOCHRONOUS,
+		                       ENDPOINT_DIR_IN, AUDIO_STREAM_EPSIZE,
+	                           ENDPOINT_BANK_DOUBLE);
+
+	/* Double green to indicate USB connected and ready */
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+}
+
+EVENT_HANDLER(USB_UnhandledControlPacket)
+{
+	/* Process General and Audio specific control requests */
+	switch (Request)
+	{
+		case REQ_SetInterface:
+			/* Set Interface is not handled by the library, as its function is application-specific */
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
+				Endpoint_In_Clear();
+				while (!(Endpoint_In_IsReady()));
+			}
+
+			break;
+	}
+}
+
+TASK(USB_Audio_Task)
+{
+	static bool HasConfiguredTimer = false;
+	
+	if (USB_IsConnected)
+	{
+		/* Timers are only set up once after the USB has been connected */
+		if (!(HasConfiguredTimer))
+		{
+			OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
+			TCCR0A  = (1 << WGM01);  // CTC mode
+			TCCR0B  = (1 << CS00);   // Fcpu speed
+		}
+		
+		/* Check to see if the CTC flag is set */
+		if (TIFR0 & (1 << OCF0A))
+		{
+			/* Select the audio stream endpoint */
+			Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
+			
+			/* Check if the current endpoint can be read from (contains a packet) */
+			if (Endpoint_ReadWriteAllowed())
+			{
+				int16_t AudioSample = ((64 * ADC_GetResult()) - 32768);
+				
+				Endpoint_Write_Word_LE(AudioSample);
+
+				/* Check to see if all bytes in the current endpoint have been written, if so send the data */
+				if (Endpoint_BytesInEndpoint() == AUDIO_STREAM_EPSIZE)
+				  Endpoint_In_Clear();
+			}
+
+			/* Clear the CTC flag */
+			TIFR0 |= (1 << OCF0A);
+		}
+	}
+	else
+	{
+		/* Stop the timers */
+		TCCR0B = 0;
+		
+		HasConfiguredTimer = false;
+	}
+}

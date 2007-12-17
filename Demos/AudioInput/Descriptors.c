@@ -22,7 +22,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
 	VendorID:               0x0000,
-	ProductID:              USB_PRODUCT_ID('A', 'O'),
+	ProductID:              USB_PRODUCT_ID('A', 'I'),
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
@@ -86,11 +86,11 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Subtype:                  DSUBTYPE_InputTerminal,
 		
 			TerminalID:               0x01,
-			TerminalType:             TERMINAL_STREAMING,
+			TerminalType:             TERMINAL_IN_MIC,
 			AssociatedOutputTerminal: 0x00,
 			
-			TotalChannels:            2,
-			ChannelConfig:            (CHANNEL_LEFT_FRONT | CHANNEL_RIGHT_FRONT),
+			TotalChannels:            1,
+			ChannelConfig:            0,
 			
 			ChannelStrIndex:          NO_DESCRIPTOR_STRING,
 			TerminalStrIndex:         NO_DESCRIPTOR_STRING
@@ -102,7 +102,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Subtype:                  DSUBTYPE_OutputTerminal,
 		
 			TerminalID:               0x02,
-			TerminalType:             TERMINAL_OUT_SPEAKER,
+			TerminalType:             TERMINAL_STREAMING,
 			AssociatedInputTerminal:  0x00,
 			
 			SourceID:                 0x01,
@@ -147,7 +147,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                   {Size: sizeof(USB_AudioInterface_AS_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_General,
 			
-			TerminalLink:             0x01,
+			TerminalLink:             0x03,
 			
 			FrameDelay:               1,
 			AudioFormat:              0x0001
@@ -159,7 +159,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Subtype:                  DSUBTYPE_Format,
 
 			FormatType:               0x01,
-			Channels:                 0x02,
+			Channels:                 0x01,
 			
 			SubFrameSize:             0x02,
 			BitResolution:            16,
@@ -174,7 +174,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 				{
 					Header:              {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
 
-					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_OUT | AUDIO_STREAM_EPNUM),
+					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_IN | AUDIO_STREAM_EPNUM),
 					Attributes:          (EP_TYPE_ISOCHRONOUS | ENDPOINT_ATTR_ASYNC | ENDPOINT_USAGE_DATA),
 					EndpointSize:        AUDIO_STREAM_EPSIZE,
 					PollingIntervalMS:   1
@@ -212,9 +212,9 @@ USB_Descriptor_String_t ManafacturerString PROGMEM =
 
 USB_Descriptor_String_t ProductString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(20), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(19), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','A','u','d','i','o',' ','O','u','t',' ','D','e','m','o'}
+	UnicodeString:          {'M','y','U','S','B',' ','A','u','d','i','o',' ','I','n',' ','D','e','m','o'}
 };
 
 USB_Descriptor_String_t SerialNumberString PROGMEM =

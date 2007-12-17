@@ -70,7 +70,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = AudioOutput
+TARGET = AudioInput
 
 
 # Object files directory

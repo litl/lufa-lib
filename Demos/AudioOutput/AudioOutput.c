@@ -24,8 +24,8 @@
 	Under Windows, if a driver request dialogue pops up, select the option
 	to automatically install the appropriate drivers.
 	
-	 ( Input Terminal )--->---[ Feature Unit ]--->---( Output Terminal )
-	 (  USB Endpoint  )       [  Vol & Mute  ]       (     Speaker     )
+	      ( Input Terminal )--->---( Output Terminal )
+	      (  USB Endpoint  )       (     Speaker     )
 */
 
 /* ---  Project Configuration  --- */
@@ -55,10 +55,6 @@ TASK_LIST
 	{ TaskID: USB_Audio_Task_ID       , TaskName: USB_Audio_Task       , TaskStatus: TASK_RUN  },
 };
 
-/* Globals */
-volatile bool    Mute;
-volatile int16_t Volume;
-
 int main(void)
 {
 	/* Disable Clock Division */
@@ -66,9 +62,7 @@ int main(void)
 	CLKPR = 0;
 
 	/* Hardware Initialization */
-	Joystick_Init();
 	Bicolour_Init();
-	SerialStream_Init(9600);
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
@@ -106,103 +100,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 
 			break;
-		case GET_MAX:
-		case GET_MIN:
-		case GET_RES:
-		case GET_CUR:
-			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
-			{
-				uint16_t FeatureToGet;
-				
-				FeatureToGet = Endpoint_Read_Word_LE();
-				Endpoint_Ignore_DWord();
-
-				if ((FeatureToGet == GET_SET_MUTE) && (Request != GET_CUR))
-				  break;
-
-				Endpoint_ClearSetupReceived();
-
-				switch (FeatureToGet)
-				{
-					case GET_SET_MUTE:
-						Endpoint_Write_Byte(Mute);
-						printf("GET MUTE: %d\r\n", Mute);
-
-						break;
-					case GET_SET_VOLUME:
-						if (Request == GET_MAX)
-						{
-							Endpoint_Write_Word_LE(VOL_MAX);
-							printf("GET VMAX: %d\r\n", VOL_MAX);
-						}
-						else if (Request == GET_MIN)
-						{
-							Endpoint_Write_Word_LE(VOL_MIN);
-							printf("GET VMIN: %d\r\n", VOL_MIN);
-						}
-						else if (Request == GET_RES)
-						{
-							Endpoint_Write_Word_LE(VOL_RES);
-							printf("GET VRES: %d\r\n", VOL_RES);
-						}
-						else
-						{
-							Endpoint_Write_Word_LE(Volume);
-							printf("GET VOL: %d\r\n", Volume);
-						}
-						
-						break;
-					default:
-						printf("GET UNK: %d\r\n", FeatureToGet);
-				}
-				
-				Endpoint_In_Clear();
-			
-				while (!(Endpoint_Out_IsReceived()));
-				Endpoint_Out_Clear();
-			}
-			else
-			  printf("Bad Req\r\n");
-			
-			break;
-		case SET_CUR:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
-			{
-				uint16_t FeatureToSet;
-				
-				FeatureToSet = Endpoint_Read_Word_LE();
-				Endpoint_Ignore_DWord();
-
-				Endpoint_ClearSetupReceived();	
-
-				Endpoint_In_Clear();				
-				while (!(Endpoint_Out_IsReceived()));
-				
-				switch (FeatureToSet)
-				{
-					case GET_SET_MUTE:
-						Mute   = Endpoint_Read_Byte();
-						printf("SET MUTE: %d\r\n", Mute);
-						break;
-					case GET_SET_VOLUME:
-						Volume = Endpoint_Read_Word_LE();
-						printf("SET VOL: %d\r\n", Volume);
-						break;
-					default:
-						printf("SET UNK: %d\r\n", FeatureToSet);
-				}
-				
-				Endpoint_Out_Clear();
-				
-				while (!(Endpoint_In_IsReady()));
-				Endpoint_In_Clear();
-			}
-			else
-			  printf("Bad Req\r\n");
-			
-			break;
-		default:
-			printf("UHCP: %d\r\n", Request);
 	}
 }
 
@@ -294,7 +191,7 @@ TASK(USB_Audio_Task)
 
 				/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
 				if (!(Endpoint_BytesInEndpoint()))
-				  Endpoint_In_Clear();
+				  Endpoint_Out_Clear();
 			}
 			
 			/* Clear the CTC flag */

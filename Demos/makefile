@@ -16,6 +16,9 @@
 # code.
 
 all:
+	make -C AudioInput clean
+	make -C AudioInput all
+
 	make -C AudioOutput clean
 	make -C AudioOutput all
 
@@ -59,6 +62,7 @@ all:
 	make -C USBtoSerial all
 
 clean:
+	make -C AudioInput clean
 	make -C AudioOutput clean
 	make -C CDC clean
 	make -C Joystick clean
@@ -75,6 +79,7 @@ clean:
 	make -C USBtoSerial clean
 	
 clean_list:
+	make -C AudioInput clean_list
 	make -C AudioOutput clean_list
 	make -C CDC clean_list
 	make -C Joystick clean_list

@@ -30,6 +30,9 @@
 			#define  ADC_REFERENCE_AREF              0
 			#define  ADC_REFERENCE_AVCC              (1 << REFS0)
 			#define  ADC_REFERENCE_INT2560MV         ((1 << REFS1)| (1 << REFS0))
+			
+			#define  ADC_LEFT_ADJUSTED               (1 << ADLAR)
+			#define  ADC_RIGHT_ADJUSTED              (0 << ADLAR)
 
 		/* Inline Functions: */
 			static inline void ADC_SetupChannel(const uint8_t Channel)
