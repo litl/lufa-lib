@@ -147,7 +147,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                   {Size: sizeof(USB_AudioInterface_AS_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_General,
 			
-			TerminalLink:             0x03,
+			TerminalLink:             0x02,
 			
 			FrameDelay:               1,
 			AudioFormat:              0x0001

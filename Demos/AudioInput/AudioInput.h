@@ -23,6 +23,12 @@
 		#include <MyUSB/Drivers/USB1287/ADC.h>            // ADC driver
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 
+	/* Macros: */
+		#define MIC_IN_ADC_CHANNEL               1
+		
+		#define SAMPLE_MAX_RANGE                 0xFFFF
+		#define ADC_MAX_RANGE                    0x3FF
+
 	/* Task Definitions: */
 		TASK(USB_Audio_Task);
 

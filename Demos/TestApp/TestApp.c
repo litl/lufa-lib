@@ -75,7 +75,7 @@ int main(void)
 
 	/* Hardware initialization */
 	SerialStream_Init(9600);
-	ADC_Init();
+	ADC_Init(ADC_SINGLE_CONVERSION | ADC_PRESCALE_64);
 	Temperature_Init();
 	Joystick_Init();
 	Bicolour_Init();

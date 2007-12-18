@@ -112,6 +112,7 @@ TASK(USB_Audio_Task)
 		/* Timers are only set up once after the USB has been connected */
 		if (!(HasConfiguredTimers))
 		{
+			/* Sample reload timer initialization */
 			OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
 			TCCR0A  = (1 << WGM01);  // CTC mode
 			TCCR0B  = (1 << CS00);   // Fcpu speed

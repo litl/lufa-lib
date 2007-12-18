@@ -51,11 +51,10 @@ int main(void)
 
 	/* Hardware Initialization */
 	Bicolour_Init();
-	ADC_Init();
-	ADC_SetupChannel(1);
+	ADC_Init(ADC_FREE_RUNNING | ADC_PRESCALE_32);
+	ADC_SetupChannel(MIC_IN_ADC_CHANNEL);
 	
-	ADCSRA = ((1 << ADEN) | (1 << ADATE) | (1 << ADPS2) | (1 << ADPS0));
-	ADC_StartReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | 1);
+	ADC_StartReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | MIC_IN_ADC_CHANNEL);
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
@@ -105,6 +104,7 @@ TASK(USB_Audio_Task)
 		/* Timers are only set up once after the USB has been connected */
 		if (!(HasConfiguredTimer))
 		{
+			/* Sample reload timer initialization */
 			OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
 			TCCR0A  = (1 << WGM01);  // CTC mode
 			TCCR0B  = (1 << CS00);   // Fcpu speed
@@ -119,8 +119,10 @@ TASK(USB_Audio_Task)
 			/* Check if the current endpoint can be read from (contains a packet) */
 			if (Endpoint_ReadWriteAllowed())
 			{
-				int16_t AudioSample = ((64 * ADC_GetResult()) - 32768);
+				/* Audio sample is ADC value scaled to fit the entire range, then offset to half rail */
+				int16_t AudioSample = (((SAMPLE_MAX_RANGE / ADC_MAX_RANGE) * ADC_GetResult()) - (SAMPLE_MAX_RANGE / 2));
 				
+				/* Write the sample to the buffer */
 				Endpoint_Write_Word_LE(AudioSample);
 
 				/* Check to see if all bytes in the current endpoint have been written, if so send the data */
