@@ -5,7 +5,7 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
 
 #ifndef _TESTAPP_H_
@@ -17,7 +17,6 @@
 
 		#include <MyUSB/Drivers/USB/USB.h>                // USB Functionality
 		#include <MyUSB/Scheduler/Scheduler.h>            // Simple scheduler for task management
-		#include <MyUSB/Common/ISRMacro.h>                // Replacement ISR macro
 		#include <MyUSB/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>     // ANSI Terminal Escape Codes
 		#include <MyUSB/Drivers/USB1287/ADC.h>            // ADC driver

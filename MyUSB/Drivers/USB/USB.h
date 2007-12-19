@@ -5,8 +5,11 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
+
+#ifndef __USB_H__
+#define __USB_H__
 
 	/* Preprocessor Checks: */
 		#if (defined(USB_HOST_ONLY) && defined(USB_DEVICE_ONLY))
@@ -32,3 +35,6 @@
 		#include "HighLevel/USBInterrupt.h"
 		#include "HighLevel/Events.h"
 		#include "HighLevel/StdDescriptors.h"
+		
+#endif
+

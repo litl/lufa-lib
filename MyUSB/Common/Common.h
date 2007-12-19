@@ -5,7 +5,7 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
 
 #ifndef __COMMON_H__
@@ -13,7 +13,17 @@
 
 	/* Includes: */
 		#include <stdio.h>
-		#include <avr/pgmspace.h>
+		#include <avr/version.h>
+		
+		#include "FunctionAttributes.h"
+		
+		#if (__AVR_LIBC_VERSION__ < 10501UL)		
+			#include "ISRMacro.h"
+			#include "Atomic.h"
+		#else
+			#include <util/atomic.h>
+			#include <avr/interrupt.h>
+		#endif
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

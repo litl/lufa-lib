@@ -5,7 +5,7 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
 
 #ifndef __ADC_H__
@@ -14,7 +14,6 @@
 	/* Includes: */
 		#include <avr/io.h>
 
-		#include "../../Common/FunctionAttributes.h"
 		#include "../../Common/Common.h"
 
 	/* Public Interface - May be used in end-application: */

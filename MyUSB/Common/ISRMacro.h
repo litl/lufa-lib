@@ -5,7 +5,7 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
 
 /* Must be included after avr/interrupt.h. This file re-defines the new
@@ -32,7 +32,11 @@
    ISR will contain a JMP instruction that the non-compat aliased vector does not have.
 */
 
-#ifndef __ISRMACRO_H__
+#if !defined(__COMMON_H__)
+	#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
+#endif
+
+#if !defined(__ISRMACRO_H__) && defined(__COMMON_H__)
 #define __ISRMACRO_H__
 
 	/* Preprocessor Checks and Defines */

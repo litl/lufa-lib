@@ -5,7 +5,7 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
 
 #ifndef __USBLOWLEVEL_H__
@@ -16,7 +16,6 @@
 		#include <avr/interrupt.h>
 		#include <stdbool.h>
 		
-		#include "../../../Common/FunctionAttributes.h"
 		#include "../../../Common/Common.h"
 		#include "../HighLevel/Events.h"
 		#include "../HighLevel/USBTask.h"

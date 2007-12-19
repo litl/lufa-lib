@@ -5,7 +5,7 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
 
 #ifndef _SCSI_H_
@@ -15,7 +15,7 @@
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 
-		#include <MyUSB/Common/FunctionAttributes.h>  // Function Attributes
+		#include <MyUSB/Common/Common.h>              // Function Attribute, Atomic, Debug and ISR Macros
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
 

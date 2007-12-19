@@ -5,7 +5,7 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
 
 #ifndef __USB_DESCRIPTORS_H__
@@ -15,7 +15,7 @@
 		#include <avr/pgmspace.h>
 		#include <stdbool.h>
 
-		#include "../../../Common/FunctionAttributes.h"
+		#include "../../../Common/Common.h"
 		#include "Events.h"
 		
 		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY

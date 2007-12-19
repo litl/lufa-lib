@@ -5,7 +5,7 @@
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 
- Released under the GPL Licence, Version 3
+ Released under the LGPL Licence, Version 3
 */
 
 /*
@@ -42,7 +42,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 
-		#include "../../Common/FunctionAttributes.h"
+		#include "../../Common/Common.h"
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
