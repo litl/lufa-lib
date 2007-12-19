@@ -111,11 +111,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
 				  Endpoint_Write_Byte(*(LineCodingData++));	
 				
-				Endpoint_In_Clear();
-				while (!(Endpoint_In_IsReady()));
+				Endpoint_Setup_In_Clear();
+				while (!(Endpoint_Setup_In_IsReady()));
 				
-				while (!(Endpoint_Out_IsReceived()));
-				Endpoint_Out_Clear();
+				while (!(Endpoint_Setup_Out_IsReceived()));
+				Endpoint_Setup_Out_Clear();
 			}
 			
 			break;
@@ -124,15 +124,15 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 
-				while (!(Endpoint_Out_IsReceived()));
+				while (!(Endpoint_Setup_Out_IsReceived()));
 
 				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
 				  *(LineCodingData++) = Endpoint_Read_Byte();
 
-				Endpoint_Out_Clear();
+				Endpoint_Setup_Out_Clear();
 
-				Endpoint_In_Clear();
-				while (!(Endpoint_In_IsReady()));
+				Endpoint_Setup_In_Clear();
+				while (!(Endpoint_Setup_In_IsReady()));
 			}
 	
 			break;
@@ -141,8 +141,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 				
-				Endpoint_In_Clear();
-				while (!(Endpoint_In_IsReady()));
+				Endpoint_Setup_In_Clear();
+				while (!(Endpoint_Setup_In_IsReady()));
 			}
 	
 			break;
@@ -156,14 +156,14 @@ TASK(CDC_Task)
 		/* Select the Serial Rx Endpoint */
 		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 		
-		if (Endpoint_Out_IsReceived())
+		if (Endpoint_ReadWriteAllowed())
 		{
 			/* Read the recieved data endpoint into the transmission buffer */
 			while (Endpoint_BytesInEndpoint())
 			  Buffer_StoreElement(&Rx_Buffer, Endpoint_Read_Byte());
 			
 			/* Clear the endpoint buffer */
-			Endpoint_Out_Clear();
+			Endpoint_FIFOCON_Clear();
 
 			/* Initiate the transmission of the buffer contents if USART idle */
 			if (UCSR1A & (1 << UDRE1))
@@ -186,7 +186,7 @@ TASK(CDC_Task)
 			  Endpoint_Write_Byte(Buffer_GetElement(&Tx_Buffer));
 		  
 			/* Send the data */
-			Endpoint_In_Clear();	
+			Endpoint_FIFOCON_Clear();	
 		}
 	}
 }

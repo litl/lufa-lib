@@ -90,7 +90,7 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 		if (!(Endpoint_BytesInEndpoint()))
 		{
 			/* Acknowedge the endpoint packet, switch to next endpoint bank */
-			Endpoint_Out_Clear();
+			Endpoint_FIFOCON_Clear();
 
 			/* Check if any blocks remaining, if so wait until endpoint ready to be read from again */
 			if (TotalBlocks)
@@ -181,7 +181,7 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
 		{
 			/* Send endpoint data and reset the endpoint byte counter */
-			Endpoint_In_Clear();
+			Endpoint_FIFOCON_Clear();
 			BytesInEndpoint = 0;
 			
 			/* Check if any blocks remaining, if so wait until endpoint ready to be written to again */

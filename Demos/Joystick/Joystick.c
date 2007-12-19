@@ -110,7 +110,7 @@ TASK(USB_Joystick_Report)
 			Endpoint_Write_Byte(JoystickReportData.Button);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_In_Clear();
+			Endpoint_FIFOCON_Clear();
 		}
 	}
 }

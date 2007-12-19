@@ -109,7 +109,7 @@ TASK(USB_Mouse_Report)
 			Endpoint_Write_Byte(MouseReportData.Y);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_In_Clear();
+			Endpoint_FIFOCON_Clear();
 		}
 	}
 }

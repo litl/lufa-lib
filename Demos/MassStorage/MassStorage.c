@@ -103,7 +103,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
-				Endpoint_In_Clear();
+				Endpoint_Setup_In_Clear();
 			}
 
 			break;
@@ -112,7 +112,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();			
 				Endpoint_Write_Byte(0x00);
-				Endpoint_In_Clear();
+				Endpoint_Setup_In_Clear();
 			}
 			
 			break;
@@ -128,7 +128,7 @@ TASK(USB_MassStorage)
 		Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 		
 		/* Check to see if a command from the host has been issued */
-		if (Endpoint_Out_IsReceived())
+		if (Endpoint_ReadWriteAllowed())
 		{	
 			/* Set LED2 orange - busy */
 			Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_ORANGE);
@@ -177,7 +177,7 @@ static void ProcessCommandBlock(void)
 	  *(CommandBlockPtr++) = Endpoint_Read_Byte();
 	  
 	/* Clear the endpoint */
-	Endpoint_Out_Clear();
+	Endpoint_FIFOCON_Clear();
 
 	/* Check direction of command, select Data IN endpoint if command is to the device */
 	if (CommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
@@ -229,7 +229,7 @@ static void ReturnCommandStatus(void)
 	  Endpoint_Write_Byte(*(CommandStatusPtr++));
 	
 	/* Send the CSW */
-	Endpoint_In_Clear();
+	Endpoint_FIFOCON_Clear();
 
 	/* Bicolour LED2 to green - ready */
 	Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);

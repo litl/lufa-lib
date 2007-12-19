@@ -95,8 +95,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
-				Endpoint_In_Clear();
-				while (!(Endpoint_In_IsReady()));
+				Endpoint_Setup_In_Clear();
+				while (!(Endpoint_Setup_In_IsReady()));
 			}
 
 			break;
@@ -192,7 +192,7 @@ TASK(USB_Audio_Task)
 
 				/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
 				if (!(Endpoint_BytesInEndpoint()))
-				  Endpoint_Out_Clear();
+				  Endpoint_FIFOCON_Clear();
 			}
 			
 			/* Clear the CTC flag */

@@ -149,9 +149,6 @@ void Keyboard_SendKeyReport(uint8_t KeyCode)
 		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
-		/* Check if Keyboard Endpoint Ready for Data */
-		while (!(Endpoint_In_IsReady()));
-
 		/* Check if Keyboard Endpoint Ready for Read/Write */
 		if (Endpoint_ReadWriteAllowed())
 		{
@@ -160,7 +157,7 @@ void Keyboard_SendKeyReport(uint8_t KeyCode)
 			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_In_Clear();
+			Endpoint_FIFOCON_Clear();
 		}
 	}
 }

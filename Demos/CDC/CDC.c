@@ -112,11 +112,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
 				  Endpoint_Write_Byte(*(LineCodingData++));	
 				
-				Endpoint_In_Clear();
-				while (!(Endpoint_In_IsReady()));
+				Endpoint_Setup_In_Clear();
+				while (!(Endpoint_Setup_In_IsReady()));
 				
-				while (!(Endpoint_Out_IsReceived()));
-				Endpoint_Out_Clear();
+				while (!(Endpoint_Setup_Out_IsReceived()));
+				Endpoint_Setup_Out_Clear();
 			}
 			
 			break;
@@ -125,15 +125,15 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 
-				while (!(Endpoint_Out_IsReceived()));
+				while (!(Endpoint_Setup_Out_IsReceived()));
 
 				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
 				  *(LineCodingData++) = Endpoint_Read_Byte();
 
-				Endpoint_Out_Clear();
+				Endpoint_Setup_Out_Clear();
 
-				Endpoint_In_Clear();
-				while (!(Endpoint_In_IsReady()));
+				Endpoint_Setup_In_Clear();
+				while (!(Endpoint_Setup_In_IsReady()));
 			}
 	
 			break;
@@ -142,8 +142,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 				
-				Endpoint_In_Clear();
-				while (!(Endpoint_In_IsReady()));
+				Endpoint_Setup_In_Clear();
+				while (!(Endpoint_Setup_In_IsReady()));
 			}
 	
 			break;
@@ -185,8 +185,8 @@ TASK(CDC_Task)
 	Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 	
 	/* Throw away any recieved data from the host */
-	if (Endpoint_Out_IsReceived())
-	  Endpoint_Out_Clear();
+	if (Endpoint_ReadWriteAllowed())
+	  Endpoint_FIFOCON_Clear();
 }
 
 void SendStringViaCDC(char* FlashString)
@@ -207,6 +207,6 @@ void SendStringViaCDC(char* FlashString)
 		  Endpoint_Write_Byte(StringByte);
 	  
 		/* Send the data */
-		Endpoint_In_Clear();
+		Endpoint_FIFOCON_Clear();
 	}
 }

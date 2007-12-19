@@ -111,7 +111,7 @@ TASK(USB_Keyboard_Report)
 			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_In_Clear();
+			Endpoint_FIFOCON_Clear();
 		}
 	}
 }
