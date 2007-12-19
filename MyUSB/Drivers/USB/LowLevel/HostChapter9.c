@@ -37,7 +37,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 	for (uint8_t i = 0; i < sizeof(USB_Host_Request_Header_t); i++)
 	  Pipe_Write_Byte(*(HeaderByte++));
 
-	Pipe_Out_Clear();
+	Pipe_Setup_Out_Clear();
 	
 	TimeoutCounter = 0;
 	while (!(Pipe_IsSetupSent()))
@@ -68,7 +68,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			Pipe_Unfreeze();
 		
 			TimeoutCounter = 0;
-			while (!(Pipe_In_IsReceived()))
+			while (!(Pipe_Setup_In_IsReceived()))
 			{
 				if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 				  goto End_Of_Control_Send;
@@ -90,16 +90,15 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			}
 		
 			Pipe_Freeze();
-			Pipe_In_Clear();
-			Pipe_ResetFIFO();
+			Pipe_Setup_In_Clear();
 		}
 
 		Pipe_SetToken(PIPE_TOKEN_OUT);
 		Pipe_Unfreeze();
-		Pipe_ResetFIFO();
+//		Pipe_FIFOCON_Clear();
 		
 		TimeoutCounter = 0;
-		while (!(Pipe_Out_IsReady()))
+		while (!(Pipe_Setup_Out_IsReady()))
 		{
 			if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 			  goto End_Of_Control_Send;
@@ -111,7 +110,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			}
 		}
 
-		Pipe_Out_Clear();
+		Pipe_Setup_Out_Clear();
 	}
 	else
 	{
@@ -134,10 +133,10 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 				DataLen -= USB_ControlPipeSize;			
 			}
 			
-			Pipe_Out_Clear();
+			Pipe_Setup_Out_Clear();
 			
 			TimeoutCounter = 0;
-			while (!(Pipe_Out_IsReady()))
+			while (!(Pipe_Setup_Out_IsReady()))
 			{
 				if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 				  goto End_Of_Control_Send;
@@ -149,7 +148,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 				}
 			}
 			
-			Pipe_Out_Clear();
+			Pipe_Setup_Out_Clear();
 		}
 		
 		Pipe_Freeze();
@@ -157,7 +156,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		Pipe_Unfreeze();
 
 		TimeoutCounter = 0;
-		while (!(Pipe_In_IsReceived()))
+		while (!(Pipe_Setup_In_IsReceived()))
 		{
 			if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 			  goto End_Of_Control_Send;
@@ -170,8 +169,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		}
 
 		Pipe_Freeze();
-		Pipe_In_Clear();
-		Pipe_ResetFIFO();
+		Pipe_Setup_In_Clear();
 	}
 
 End_Of_Control_Send:

@@ -176,7 +176,7 @@ TASK(USB_Mouse_Host)
 			Pipe_Unfreeze();
 
 			/* Check if data has been recieved from the attached mouse */
-			if (Pipe_In_IsReceived())
+			if (Pipe_ReadWriteAllowed())
 			{
 				USB_MouseReport_Data_t MouseReport;
 					
@@ -209,7 +209,7 @@ TASK(USB_Mouse_Host)
 				                                              MouseReport.Button);
 					
 				/* Clear the IN endpoint, ready for next data packet */
-				Pipe_In_Clear();
+				Pipe_FIFOCON_Clear();
 			}
 
 			/* Freeze mouse data pipe */

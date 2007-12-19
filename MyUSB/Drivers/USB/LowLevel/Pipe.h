@@ -77,7 +77,7 @@
 			#define Pipe_GetPipeInterrupts()               UPINT
 			#define Pipe_ClearPipeInterrupt(n)     MACROS{ UPINT   &= ~(1 << n);                                   }MACROE
 			#define Pipe_HasPipeInterrupted(n)           ((UPINT   &   (1 << n)) ? true : false)
-			#define Pipe_ResetFIFO()               MACROS{ UPINTX  &= ~(1 << FIFOCON);                             }MACROE
+			#define Pipe_FIFOCON_Clear()           MACROS{ UPINTX  &= ~(1 << FIFOCON);                             }MACROE
 			#define Pipe_Unfreeze()                MACROS{ UPCONX  &= ~(1 << PFREEZE);                             }MACROE
 			#define Pipe_Freeze()                  MACROS{ UPCONX  |=  (1 << PFREEZE);                             }MACROE
 
@@ -86,15 +86,17 @@
 			#define Pipe_ClearErrorFlags()         MACROS{ UPERRX   = 0;                                            }MACROE
 			#define Pipe_GetErrorFlags()                   UPERRX
 
+			#define Pipe_ReadWriteAllowed()              ((UPINTX  & (1 << RWAL)) ? true : false)
+
 			#define Pipe_ClearSetupSent()          MACROS{ UPINTX  &= ~(1 << TXSTPI);                             }MACROE
 			#define Pipe_IsSetupSent()                   ((UPINTX  &   (1 << TXSTPI)) ? true : false)
 			#define Pipe_ClearStall()              MACROS{ UPINTX  &= ~(1 << RXSTALLI);                           }MACROE             
 			#define Pipe_IsStalled()                     ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
 
-			#define Pipe_In_Clear()                MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);   }MACROE
-			#define Pipe_In_IsReceived()                 ((UPINTX  &   (1 << RXINI)) ? true : false)
-			#define Pipe_Out_Clear()               MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);  }MACROE
-			#define Pipe_Out_IsReady()                   ((UPINTX  &   (1 << TXOUTI)) ? true : false)
+			#define Pipe_Setup_In_Clear()          MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);   }MACROE
+			#define Pipe_Setup_In_IsReceived()           ((UPINTX  &   (1 << RXINI)) ? true : false)
+			#define Pipe_Setup_Out_Clear()         MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);  }MACROE
+			#define Pipe_Setup_Out_IsReady()             ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 
 		/* Function Aliases */
 			static inline uint16_t Pipe_Read_Word(void)            ATTR_ALIAS(Pipe_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;

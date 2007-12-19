@@ -174,7 +174,7 @@ TASK(USB_Keyboard_Host)
 			Pipe_Unfreeze();
 
 			/* Check if data has been recieved from the attached keyboard */
-			if (Pipe_In_IsReceived())
+			if (Pipe_ReadWriteAllowed())
 			{
 				USB_KeyboardReport_Data_t KeyboardReport;
 					
@@ -213,7 +213,7 @@ TASK(USB_Keyboard_Host)
 				}
 				
 				/* Clear the IN endpoint, ready for next data packet */
-				Pipe_In_Clear();
+				Pipe_FIFOCON_Clear();
 			}
 
 			/* Freeze keyboard data pipe */

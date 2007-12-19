@@ -226,7 +226,7 @@ ISR(ENDPOINT_PIPE_vect)
 			}
 
 			/* Clear the IN endpoint and interrupt flag, ready for next data packet */
-			Pipe_In_Clear();
+			Pipe_FIFOCON_Clear();
 			USB_INT_Clear(PIPE_INT_IN);		
 		}
 	}

@@ -359,20 +359,20 @@ bool MassStore_PrepareDisk(void)
 	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 		
 	/* Wait until pipe is ready to be written to */
-	while (!(Pipe_Out_IsReady()));
+	while (!(Pipe_ReadWriteAllowed()));
 
 	/* Write the CBW to the OUT pipe */
 	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
 	  Pipe_Write_Byte(*(CommandByte++));
 	  
 	/* Send the data in the OUT pipe to the attached device */
-	Pipe_Out_Clear();
+	Pipe_FIFOCON_Clear();
 	
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 		
 	/* Wait until data recieved in the IN pipe */
-	while (!(Pipe_In_IsReceived()))
+	while (!(Pipe_ReadWriteAllowed()))
 	{
 		Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 
@@ -399,7 +399,7 @@ bool MassStore_PrepareDisk(void)
 	TEST_GLOBAL = CSW.Signature; // TEMP
 
 	/* Clear the IN pipe, ready for next packet */
-	Pipe_In_Clear();
+	Pipe_FIFOCON_Clear();
 	
 	/* Return TRUE if command succeeded */
 	return (CSW.Status == Command_Pass);
