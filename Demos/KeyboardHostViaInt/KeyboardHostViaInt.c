@@ -111,7 +111,7 @@ TASK(USB_Keyboard_Host)
 					RequestData: REQ_SetConfiguration,
 					Value:       1,
 					Index:       0,
-					Length:      USB_ControlPipeSize,
+					DataLength:  0,
 				};
 			
 			/* Send the request, display error and wait for device detatch if request fails */

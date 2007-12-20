@@ -26,6 +26,9 @@
 		#include <MyUSB/Scheduler/Scheduler.h>            // Simple scheduler for task management
 		
 	/* Macros */
+		#define MASS_STORAGE_RESET         0xFF
+		#define GET_NUMBER_OF_LUNS         0xFE
+
 		#define MASS_STORE_DATA_IN_PIPE          0x01
 		#define MASS_STORE_DATA_OUT_PIPE         0x02
 
@@ -99,10 +102,7 @@
 		
 	/* Function Prototypes: */
 		uint8_t GetConfigDescriptorData(void);
-		bool    MassStore_PrepareDisk(void);
-		#if 0
 		bool    MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* Buffer)
 		                                  ATTR_NON_NULL_PTR_ARG(2);
-		#endif
 		
 #endif

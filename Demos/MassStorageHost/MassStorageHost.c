@@ -49,6 +49,7 @@ uint8_t  MassStoreEndpointNumber_IN;
 uint8_t  MassStoreEndpointNumber_OUT;
 uint16_t MassStoreEndpointSize_IN;
 uint16_t MassStoreEndpointSize_OUT;
+uint8_t  MassStore_NumberOfLUNs;
 
 volatile unsigned long TEST_GLOBAL;
 
@@ -117,9 +118,9 @@ TASK(USB_MassStore_Host)
 					RequestData: REQ_SetConfiguration,
 					Value:       1,
 					Index:       0,
-					Length:      USB_ControlPipeSize,
+					DataLength:  0,
 				};
-
+				
 			/* Send the request, display error and wait for device detatch if request fails */
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
@@ -189,17 +190,52 @@ TASK(USB_MassStore_Host)
 			/* Indicate device busy via the status LEDs */
 			Bicolour_SetLeds(BICOLOUR_LED2_ORANGE);
 			
-			if (!(MassStore_PrepareDisk()))
+			/* Request to prepare the disk for use */
+			USB_HostRequest = (USB_Host_Request_Header_t)
+				{
+					RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
+					RequestData: MASS_STORAGE_RESET,
+					Value:       0,
+					Index:       0,
+					DataLength:  0,
+				};
+
+			/* Send the request, display error and wait for device detatch if request fails */
+			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
-				/* Indicate device error via the status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
-				
+				puts_P(PSTR("Control error."));
+
+				/* Indicate error via status LEDs */
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+
+				/* Wait until USB device disconnected */
+				while (USB_IsConnected);
+				break;
+			}
+			
+			/* Request to retrieve the maximum LUN index from the device */
+			USB_HostRequest = (USB_Host_Request_Header_t)
+				{
+					RequestType: (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE),
+					RequestData: GET_NUMBER_OF_LUNS,
+					Value:       0,
+					Index:       0,
+					DataLength:  1,
+				};
+
+			/* Send the request, display error and wait for device detatch if request fails */
+			if (USB_Host_SendControlRequest(&MassStore_NumberOfLUNs) != HOST_SENDCONTROL_Sucessful)
+			{
+				puts_P(PSTR("Control error."));
+
+				/* Indicate error via status LEDs */
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;
 			}
 
-			#if 0
 			/* Create a new buffer capabable of holding a single block from the device */
 			uint8_t BlockBuffer[DEVICE_BLOCK_SIZE];
 						
@@ -219,7 +255,6 @@ TASK(USB_MassStore_Host)
 				for (uint16_t Byte = 0; Byte < DEVICE_BLOCK_SIZE; Byte++)
 				  Serial_TxByte(BlockBuffer[Byte]);
 			}
-			#endif
 			
 			/* Indicate device no longer busy */
 			Bicolour_SetLeds(BICOLOUR_LED2_GREEN);			
@@ -328,84 +363,6 @@ uint8_t GetConfigDescriptorData(void)
 	return SuccessfulConfigRead;
 }
 
-bool MassStore_PrepareDisk(void)
-{
-	CommandBlockWrapper_t SCSICommand =
-		{
-			Header:
-				{
-					Signature:          CBW_SIGNATURE,
-					Tag:                0x01,
-					DataTransferLength: 0,
-					Flags:              COMMAND_DIRECTION_DATA_OUT,
-					LUN:                0x00,
-					SCSICommandLength:  6
-				},
-						
-			SCSICommandData:
-				{
-					SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL,
-					0x00,
-					0x00,
-					0x00,
-					0b11,
-					0x00
-				}
-		};
-			
-	uint8_t* CommandByte = (uint8_t*)&SCSICommand;
-			
-	/* Select the OUT data pipe for CBW transmission */
-	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-		
-	/* Wait until pipe is ready to be written to */
-	while (!(Pipe_ReadWriteAllowed()));
-
-	/* Write the CBW to the OUT pipe */
-	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
-	  Pipe_Write_Byte(*(CommandByte++));
-	  
-	/* Send the data in the OUT pipe to the attached device */
-	Pipe_FIFOCON_Clear();
-	
-	/* Select the IN data pipe for data reception */
-	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-		
-	/* Wait until data recieved in the IN pipe */
-	while (!(Pipe_ReadWriteAllowed()))
-	{
-		Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-
-		/* Check if pipe stalled (command failed by device) */
-		if (Pipe_IsStalled())
-		  return false;
-
-		Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-
-		/* Check if pipe stalled (command failed by device) */
-		if (Pipe_IsStalled())
-		  return false;
-		
-		UPINTX &= ~(1 << NAKEDI);
-	};
-	
-	/* Retrieve the returned CSW */
-	CommandStatusWrapper_t CSW;
-	uint8_t*               CSWByte = (uint8_t*)&CSW;
-	
-	while (Pipe_BytesInPipe())
-	  *(CSWByte++) = Pipe_Read_Byte();
-	
-	TEST_GLOBAL = CSW.Signature; // TEMP
-
-	/* Clear the IN pipe, ready for next packet */
-	Pipe_FIFOCON_Clear();
-	
-	/* Return TRUE if command succeeded */
-	return (CSW.Status == Command_Pass);
-}
-
-#if 0
 bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 {
 	/* Set up counter for reading one block from device */
@@ -449,13 +406,13 @@ bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 	  Pipe_Write_Byte(*(CommandByte++));
 	  
 	/* Send the data in the OUT pipe to the attached device */
-	Pipe_Out_Clear();
+	Pipe_FIFOCON_Clear();
 
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 		
 	/* Wait until data recieved in the IN pipe */
-	while (!(Pipe_In_IsReceived()))
+	while (!(Pipe_ReadWriteAllowed()))
 	{
 		Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 
@@ -479,15 +436,14 @@ bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 		/* When pipe is empty, clear it and wait for the next packet */
 		if (!(Pipe_BytesInPipe()))
 		{
-			Pipe_In_Clear();
-			while (!(Pipe_In_IsReceived()));
+			Pipe_FIFOCON_Clear();
+			while (!(Pipe_ReadWriteAllowed()));
 		}
 	}
 			
 	/* Ignore the returned CSW */
-	while (!(Pipe_In_IsReceived()));
-	Pipe_In_Clear();
+	while (!(Pipe_ReadWriteAllowed()));
+	Pipe_FIFOCON_Clear();
 
 	return true;
 }
-#endif

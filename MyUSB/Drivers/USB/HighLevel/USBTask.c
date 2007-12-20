@@ -137,6 +137,16 @@ static void USB_HostTask(void)
 		case HOST_STATE_Powered:
 			Pipe_ClearPipes();
 		 
+			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
+			{
+				USB_HOST_VBUS_Off();
+
+				RAISE_EVENT(USB_DeviceUnattached);
+
+				USB_HostState = HOST_STATE_Unattached;
+				break;
+			}
+
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,
 							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 							   PIPE_CONTROLPIPE_DEFAULT_SIZE, PIPE_BANK_SINGLE);
@@ -151,7 +161,7 @@ static void USB_HostTask(void)
 					RequestData: REQ_GetDescriptor,
 					Value:       (DTYPE_Device << 8),
 					Index:       0,
-					Length:      USB_ControlPipeSize,
+					DataLength:  USB_ControlPipeSize,
 				};
 
 			uint8_t DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1];
@@ -169,6 +179,8 @@ static void USB_HostTask(void)
 			
 			USB_ControlPipeSize = DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size)];
 			
+			USB_Host_WaitMS(20);
+
 			Pipe_DisablePipe();
 			Pipe_DeallocateMemory();
 			Pipe_ResetPipe(PIPE_CONTROLPIPE);
@@ -177,7 +189,7 @@ static void USB_HostTask(void)
 			                   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 			                   USB_ControlPipeSize, PIPE_BANK_SINGLE);
 
-			USB_Host_WaitMS(100);
+			USB_Host_WaitMS(200);
 
 			if (Pipe_IsConfigured() == PIPE_CONFIG_FAIL)
 			{
@@ -195,7 +207,7 @@ static void USB_HostTask(void)
 					RequestData: REQ_SetAddress,
 					Value:       USB_HOST_DEVICEADDRESS,
 					Index:       0,
-					Length:      0,
+					DataLength:  0,
 				};
 
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)

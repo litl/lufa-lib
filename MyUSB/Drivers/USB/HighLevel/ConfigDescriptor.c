@@ -22,7 +22,7 @@ uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* ConfigSizePtr)
 			RequestData: REQ_GetDescriptor,
 			Value:       (DTYPE_Configuration << 8),
 			Index:       0,
-			Length:      sizeof(USB_Descriptor_Configuration_Header_t),
+			DataLength:  sizeof(USB_Descriptor_Configuration_Header_t),
 		};
 		
 	ErrorCode = USB_Host_SendControlRequest(Buffer);
@@ -40,7 +40,7 @@ uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t BufferSize, uint8_t* BufferP
 			RequestData: REQ_GetDescriptor,
 			Value:       (DTYPE_Configuration << 8),
 			Index:       0,
-			Length:      BufferSize,
+			DataLength:  BufferSize,
 		};
 
 	return USB_Host_SendControlRequest(BufferPtr);

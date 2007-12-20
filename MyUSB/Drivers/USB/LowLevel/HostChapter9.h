@@ -27,7 +27,7 @@
 				uint8_t  RequestData;
 				uint16_t Value;
 				uint16_t Index;
-				uint16_t Length;
+				uint16_t DataLength;
 			} USB_Host_Request_Header_t;
 
 		/* Enums: */

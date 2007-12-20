@@ -108,7 +108,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 			break;
 		case GET_NUMBER_OF_LUNS:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();			
 				Endpoint_Write_Byte(0x00);
