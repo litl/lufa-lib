@@ -179,7 +179,7 @@ static void ProcessCommandBlock(void)
 	/* Clear the endpoint */
 	Endpoint_FIFOCON_Clear();
 
-	/* Check direction of command, select Data IN endpoint if command is to the device */
+	/* Check direction of command, select Data IN endpoint if data is from the device */
 	if (CommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
 	  Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 

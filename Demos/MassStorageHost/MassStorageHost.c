@@ -177,11 +177,9 @@ TASK(USB_MassStore_Host)
 
 			Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 			Pipe_SetInfiniteINRequests();
-			Pipe_Unfreeze();
 
 			Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-			Pipe_Unfreeze();
-		
+
 			puts_P(PSTR("Mass Storage Disk Enumerated.\r\n"));
 				
 			USB_HostState = HOST_STATE_Ready;
@@ -365,16 +363,15 @@ uint8_t GetConfigDescriptorData(void)
 
 bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 {
-	/* Set up counter for reading one block from device */
 	uint16_t BytesRem = DEVICE_BLOCK_SIZE;
 
-	/* Create a CBW with a SCSI command to read in the first two blocks from the device */
+	/* Create a CBW with a SCSI command to read in the given block from the device */
 	CommandBlockWrapper_t SCSICommand =
 		{
 			Header:
 				{
 					Signature:          CBW_SIGNATURE,
-					Tag:                0x00,
+					Tag:                0x01010101,
 					DataTransferLength: BytesRem,
 					Flags:              COMMAND_DIRECTION_DATA_IN,
 					LUN:                0x00,
@@ -400,16 +397,19 @@ bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 			
 	/* Select the OUT data pipe for CBW transmission */
 	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-		
+	Pipe_Unfreeze();
+
 	/* Write the CBW to the OUT pipe */
 	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
 	  Pipe_Write_Byte(*(CommandByte++));
 	  
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_FIFOCON_Clear();
+	Pipe_Freeze();
 
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
+	Pipe_Unfreeze();	
 		
 	/* Wait until data recieved in the IN pipe */
 	while (!(Pipe_ReadWriteAllowed()))
@@ -425,6 +425,10 @@ bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 		/* Check if pipe stalled (command failed by device) */
 		if (Pipe_IsStalled())
 		  return false;
+		  
+		/* Check to see if the device was disconnected, if so exit function */
+		if (!(USB_IsConnected))
+		  return false;
 	};
 	
 	/* Loop until all bytes read */
@@ -433,6 +437,13 @@ bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 		/* Load each byte into the buffer */
 		*(BufferPtr++) = Pipe_Read_Byte();
 		
+		/* Decrement the bytes remaining counter */
+		BytesRem--;
+		
+		/* Check to see if the device was disconnected, if so exit function */
+		if (!(USB_IsConnected))
+		  return false;
+
 		/* When pipe is empty, clear it and wait for the next packet */
 		if (!(Pipe_BytesInPipe()))
 		{
@@ -444,6 +455,89 @@ bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 	/* Ignore the returned CSW */
 	while (!(Pipe_ReadWriteAllowed()));
 	Pipe_FIFOCON_Clear();
+	Pipe_Freeze();
+
+	return true;
+}
+
+bool MassStore_WriteDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
+{
+	uint16_t BytesRem        = DEVICE_BLOCK_SIZE;
+	uint16_t BytesInEndpoint = 0;
+
+	/* Create a CBW with a SCSI command to write the given block to the device */
+	CommandBlockWrapper_t SCSICommand =
+		{
+			Header:
+				{
+					Signature:          CBW_SIGNATURE,
+					Tag:                0x01010101,
+					DataTransferLength: BytesRem,
+					Flags:              COMMAND_DIRECTION_DATA_OUT,
+					LUN:                0x00,
+					SCSICommandLength:  10
+				},
+					
+			SCSICommandData:
+				{
+					SCSI_CMD_WRITE_10,
+					0x00,                   // Unused (control bits, all off)
+					(BlockAddress >> 24),   // MSB of Block Address
+					(BlockAddress >> 16),
+					(BlockAddress >> 8),
+					(BlockAddress & 0xFF),  // LSB of Block Address
+					0x00,                   // Unused (reserved)
+					0x00,                   // MSB of Total Blocks to Read
+					0x01,                   // LSB of Total Blocks to Read
+					0x00                    // Unused (control)
+				}
+		};
+			
+	uint8_t* CommandByte = (uint8_t*)&SCSICommand;
+			
+	/* Select the OUT data pipe for CBW transmission */
+	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
+	Pipe_Unfreeze();
+
+	/* Write the CBW to the OUT pipe */
+	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
+	  Pipe_Write_Byte(*(CommandByte++));
+	  
+	/* Send the data in the OUT pipe to the attached device */
+	Pipe_FIFOCON_Clear();
+
+	/* Write the block data to the pipe */
+	while (BytesRem)
+	{
+		Pipe_Write_Byte(*(BufferPtr++));
+		
+		BytesRem--;
+		BytesInEndpoint++;
+		
+		/* Check if the pipe is full */
+		if (BytesInEndpoint == MassStoreEndpointSize_OUT)
+		{
+			/* Send the pipe data, clear the counter */
+			Pipe_FIFOCON_Clear();
+			BytesInEndpoint = 0;
+		}
+	}
+	
+	/* Check to see if any data is still in the pipe - if so, send it */
+	if (BytesInEndpoint)
+	  Pipe_FIFOCON_Clear();
+	
+	/* Freeze OUT pipe after use */
+	Pipe_Unfreeze();	
+
+	/* Select the IN data pipe for data reception */
+	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
+	Pipe_Unfreeze();	
+
+	/* Ignore the returned CSW */
+	while (!(Pipe_ReadWriteAllowed()));
+	Pipe_FIFOCON_Clear();
+	Pipe_Freeze();
 
 	return true;
 }

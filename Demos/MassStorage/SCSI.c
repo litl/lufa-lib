@@ -198,7 +198,6 @@ static bool SCSI_Command_Request_Sense(void)
 		BytesInEndpoint++;
 	}
 	
-	
 	/* Pad out remaining bytes with 0x00 */
 	while (BytesTransferred < AllocationLength)
 	{
