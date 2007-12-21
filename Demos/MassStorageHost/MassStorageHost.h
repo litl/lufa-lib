@@ -99,9 +99,9 @@
 		
 	/* Function Prototypes: */
 		uint8_t GetConfigDescriptorData(void);
-		bool    MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* Buffer)
-		                                  ATTR_NON_NULL_PTR_ARG(2);
-		bool    MassStore_WriteDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
-		                                  ATTR_NON_NULL_PTR_ARG(2);
+		bool    MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
+		                                   uint8_t* Buffer) ATTR_NON_NULL_PTR_ARG(3);
+		bool    MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
+		                                   uint8_t* BufferPtr) ATTR_NON_NULL_PTR_ARG(3);
 		
 #endif

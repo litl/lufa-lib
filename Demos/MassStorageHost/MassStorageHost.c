@@ -238,7 +238,7 @@ TASK(USB_MassStore_Host)
 			uint8_t BlockBuffer[DEVICE_BLOCK_SIZE];
 						
 			/* Read in the first 512 byte block from the device */
-			if (!(MassStore_ReadDeviceBlock(0, (uint8_t*)&BlockBuffer)))
+			if (!(MassStore_ReadDeviceBlock(0, 1, BlockBuffer)))
 			{
 				/* Indicate device error via the status LEDs */
 				Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
@@ -361,11 +361,11 @@ uint8_t GetConfigDescriptorData(void)
 	return SuccessfulConfigRead;
 }
 
-bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
+bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
 {
-	uint16_t BytesRem = DEVICE_BLOCK_SIZE;
+	uint16_t BytesRem = (Blocks * DEVICE_BLOCK_SIZE);
 
-	/* Create a CBW with a SCSI command to read in the given block from the device */
+	/* Create a CBW with a SCSI command to read in the given blocks from the device */
 	CommandBlockWrapper_t SCSICommand =
 		{
 			Header:
@@ -388,7 +388,7 @@ bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 					(BlockAddress & 0xFF),  // LSB of Block Address
 					0x00,                   // Unused (reserved)
 					0x00,                   // MSB of Total Blocks to Read
-					0x01,                   // LSB of Total Blocks to Read
+					Blocks,                 // LSB of Total Blocks to Read
 					0x00                    // Unused (control)
 				}
 		};
@@ -460,12 +460,12 @@ bool MassStore_ReadDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 	return true;
 }
 
-bool MassStore_WriteDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
+bool MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
 {
-	uint16_t BytesRem        = DEVICE_BLOCK_SIZE;
+	uint16_t BytesRem        = (Blocks * DEVICE_BLOCK_SIZE);
 	uint16_t BytesInEndpoint = 0;
 
-	/* Create a CBW with a SCSI command to write the given block to the device */
+	/* Create a CBW with a SCSI command to write the given blocks to the device */
 	CommandBlockWrapper_t SCSICommand =
 		{
 			Header:
@@ -488,7 +488,7 @@ bool MassStore_WriteDeviceBlock(uint32_t BlockAddress, uint8_t* BufferPtr)
 					(BlockAddress & 0xFF),  // LSB of Block Address
 					0x00,                   // Unused (reserved)
 					0x00,                   // MSB of Total Blocks to Read
-					0x01,                   // LSB of Total Blocks to Read
+					Blocks,                 // LSB of Total Blocks to Read
 					0x00                    // Unused (control)
 				}
 		};
