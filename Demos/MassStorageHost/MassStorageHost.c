@@ -19,10 +19,6 @@
 	Requires header files from the Mass Storage Device demonstation application.
 */
 
-/*
-	THIS EXAMPLE IS UNFINISHED AND NON OPERATIONAL. FOR DEVELOPMENT PURPOSES ONLY.
-*/
-
 #include "MassStorageHost.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
