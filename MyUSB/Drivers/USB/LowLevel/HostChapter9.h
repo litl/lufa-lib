@@ -37,7 +37,7 @@
 				HOST_SENDCONTROL_DeviceDisconnect = 1,
 				HOST_SENDCONTROL_PipeError        = 2,
 				HOST_SENDCONTROL_SetupStalled     = 3,
-				HOST_SENDCONTROL_SoftwareTimeOut  = 4,				
+				HOST_SENDCONTROL_SoftwareTimeOut  = 4,
 			};
 			
 		/* Global Variables: */

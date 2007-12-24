@@ -68,8 +68,12 @@ void USB_Host_ResetDevice(void)
 
 	USB_HOST_ResetBus();
 
-	USB_INT_Clear(USB_INT_DCONNI);
+	USB_INT_Disable(USB_INT_DDISCI);
+	USB_INT_Disable(USB_INT_DDISCI);
+	
 	while (!(USB_HOST_ResetBus_IsDone()));
+
+	USB_INT_Enable(USB_INT_DDISCI);
 	USB_INT_Enable(USB_INT_DCONNI);
 }
 #endif

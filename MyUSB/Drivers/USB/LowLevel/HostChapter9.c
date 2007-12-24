@@ -19,7 +19,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
 	uint8_t* HeaderByte     = (uint8_t*)&USB_HostRequest;
 	uint8_t  DataLen        = USB_HostRequest.DataLength;
-	uint8_t  TimeoutCounter;
+	uint16_t TimeoutCounter;
 
 	USB_HOST_SOFGeneration_Enable();
 	
@@ -44,7 +44,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 	{
 		if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 		  goto End_Of_Control_Send;
-	
+
 		if (TimeoutCounter++ == USB_HOST_TIMEOUT_MS)
 		{
 			ReturnStatus = HOST_SENDCONTROL_SoftwareTimeOut;

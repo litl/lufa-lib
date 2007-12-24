@@ -21,7 +21,7 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define USB_HOST_DEVICEADDRESS             1
-			#define USB_HOST_TIMEOUT_MS                100
+			#define USB_HOST_TIMEOUT_MS                1000
 			
 			#define USB_HOST_ResetBus()                MACROS{ UHCON |=  (1 << RESET);          }MACROE
 			#define USB_HOST_ResetBus_IsDone()               ((UHCON &   (1 << RESET)) ? false : true)

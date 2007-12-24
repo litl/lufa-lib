@@ -135,8 +135,6 @@ static void USB_HostTask(void)
 				
 			break;
 		case HOST_STATE_Powered:
-			Pipe_ClearPipes();
-		 
 			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 			{
 				USB_HOST_VBUS_Off();
@@ -147,6 +145,7 @@ static void USB_HostTask(void)
 				break;
 			}
 
+			Pipe_ClearPipes();		 
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,
 							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 							   PIPE_CONTROLPIPE_DEFAULT_SIZE, PIPE_BANK_SINGLE);
@@ -161,7 +160,7 @@ static void USB_HostTask(void)
 					RequestData: REQ_GetDescriptor,
 					Value:       (DTYPE_Device << 8),
 					Index:       0,
-					DataLength:  USB_ControlPipeSize,
+					DataLength:  PIPE_CONTROLPIPE_DEFAULT_SIZE,
 				};
 
 			uint8_t DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1];
@@ -179,7 +178,27 @@ static void USB_HostTask(void)
 			
 			USB_ControlPipeSize = DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size)];
 			
-			USB_Host_WaitMS(20);
+			if (USB_Host_WaitMS(20) != HOST_WAITERROR_Sucessful)
+			{
+				USB_HOST_VBUS_Off();
+
+				RAISE_EVENT(USB_DeviceUnattached);
+
+				USB_HostState = HOST_STATE_Unattached;
+				break;
+			}
+
+			USB_HOST_ResetDevice();
+			
+			if (USB_Host_WaitMS(200) != HOST_WAITERROR_Sucessful)
+			{
+				USB_HOST_VBUS_Off();
+
+				RAISE_EVENT(USB_DeviceUnattached);
+
+				USB_HostState = HOST_STATE_Unattached;
+				break;
+			}
 
 			Pipe_DisablePipe();
 			Pipe_DeallocateMemory();
@@ -188,8 +207,6 @@ static void USB_HostTask(void)
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,
 			                   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 			                   USB_ControlPipeSize, PIPE_BANK_SINGLE);
-
-			USB_Host_WaitMS(200);
 
 			if (Pipe_IsConfigured() == PIPE_CONFIG_FAIL)
 			{

@@ -381,6 +381,7 @@ void MassStore_WaitDeviceReady(void)
 		  return;
 	} while (UPINTX & (1 << NAKEDI));
 	
+	/* Freeze the pipe afterwards */
 	Pipe_Freeze();
 }
 
