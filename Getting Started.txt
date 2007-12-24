@@ -47,6 +47,8 @@ If you are using the USBKEY, I recommend purchasing a set of Tom Deutschman's US
   BUILDING:
 --------------------------------------------
 
+The latest version of the WinAVR package (or latest AVR-GCC and avr-lib-c) are required for the compilation of this project.
+
 To build each demonstration application individually, run a "make all" from the project's subdirectory in the Demos/ directory. You can also build all demonstration applications at once by executing a "make all" from the Demos/ directory.
 
 A makefile is also present in the MyUSB subfolder, this will remove the compiled binary files when called with "make clean". It will not however build the library - that is reserved for the user-application, so that the application-specific build options can be applied to the build.
