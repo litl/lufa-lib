@@ -17,6 +17,7 @@
 
 		#include <MyUSB/Drivers/USB/USB.h>                // USB Functionality
 		#include <MyUSB/Scheduler/Scheduler.h>            // Simple scheduler for task management
+		#include <MyUSB/MemoryAllocator/DynAlloc.h>       // Auto-defragmenting Dynamic Memory allocation
 		#include <MyUSB/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>     // ANSI Terminal Escape Codes
 		#include <MyUSB/Drivers/USB1287/ADC.h>            // ADC driver

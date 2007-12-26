@@ -12,7 +12,7 @@
 #define __TERMINALCODES_H__
 
 	/* Public Interface - May be used in end-application: */
-		/* Defines: */
+		/* Macros: */
 			#define ANSI_ESCAPE_SEQUENCE(c)  "\33[" c
 
 			#define ESC_RESET                ANSI_ESCAPE_SEQUENCE("0m")

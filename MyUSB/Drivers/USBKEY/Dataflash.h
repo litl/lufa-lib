@@ -19,7 +19,7 @@
 		#include "../Misc/DataflashCommandBytes.h"
 		
 	/* Private Interface - For use in library only: */
-		/* Macros */
+		/* Macros: */
 			#define DATAFLASH_CHIPCS_MASK        (DATAFLASH_CHIP1 | DATAFLASH_CHIP2)
 			#define DATAFLASH_USE_DOUBLESPEED    (1 << 7)
 
