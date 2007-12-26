@@ -58,6 +58,7 @@
 			#define EP_TYPE_ISOCHRONOUS                0b01
 			#define EP_TYPE_BULK                       0b10
 			#define EP_TYPE_INTERRUPT                  0b11
+			#define EP_TYPE_MASK                       0b11
 
 			#define USB_VBUS_GetStatus()             ((USBSTA  & (1 << VBUS)) ? true : false)
 	

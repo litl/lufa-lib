@@ -41,7 +41,7 @@
 			
 		/* Function Prototypes: */
 			void**  Mem_Realloc_PRV(void** CurrAllocPtr, const uint16_t Bytes);
-			void    Mem_Free_PRV(void** MemPtr) ATTR_NON_NULL_PTR_ARG(1);
+			void    Mem_Free_PRV(void** CurrAllocPtr) ATTR_NON_NULL_PTR_ARG(1);
 
 			#if defined(INCLUDE_FROM_DYNALLOC_C)
 				static uint8_t Mem_GetBlockFlags(const uint8_t BlockNum);

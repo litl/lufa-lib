@@ -75,9 +75,7 @@
 		{
 			ControlError         = 0,
 			DescriptorTooLarge   = 1,
-			HIDInterfaceNotFound = 2,
-			IncorrectSubclass    = 3,
-			IncorrectProtocol    = 4,
+			InterfaceNotFound    = 2,
 			NoEndpointFound      = 5,
 			SuccessfulConfigRead = 6,
 		} GetConfigDescriptorDataCodes_t;

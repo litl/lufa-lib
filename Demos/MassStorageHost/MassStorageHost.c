@@ -48,8 +48,6 @@ uint16_t MassStoreEndpointSize_OUT;
 uint8_t  MassStore_NumberOfLUNs;
 uint32_t MassStore_Tag = 1;
 
-volatile unsigned long TEST_GLOBAL;
-
 int main(void)
 {
 	/* Disable Clock Division */
@@ -144,11 +142,8 @@ TASK(USB_MassStore_Host)
 			{
 				switch (ErrorCode)
 				{
-					case HIDInterfaceNotFound:
+					case InterfaceNotFound:
 						puts_P(PSTR("Invalid Device Type.\r\n"));
-						break;
-					case IncorrectProtocol:
-						puts_P(PSTR("Invalid Protocol.\r\n"));
 						break;
 					default:
 						puts_P(PSTR("Control Error.\r\n"));
@@ -268,7 +263,6 @@ uint8_t GetConfigDescriptorData(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
-	bool     FoundHIDInterfaceDescriptor = false;
 	
 	/* Get Configuration Descriptor size from the device */
 	if (AVR_HOST_GetDeviceConfigDescriptorSize(&ConfigDescriptorSize) != HOST_SENDCONTROL_Sucessful)
@@ -288,7 +282,7 @@ uint8_t GetConfigDescriptorData(void)
 	if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type != DTYPE_Configuration)
 	  return ControlError;
 	
-	while (!(FoundHIDInterfaceDescriptor))
+	while (ConfigDescriptorSize)
 	{
 		/* Find next interface descriptor */
 		while (ConfigDescriptorSize)
@@ -303,20 +297,20 @@ uint8_t GetConfigDescriptorData(void)
 
 		/* If reached end of configuration descriptor, error out */
 		if (ConfigDescriptorSize == 0)
-		  return HIDInterfaceNotFound;
+		  return InterfaceNotFound;	
 
-		/* Check the HID descriptor class, set the flag if class matches expected class */
-		if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Class == MASS_STORE_CLASS)
-		  FoundHIDInterfaceDescriptor = true;
+		/* Check the descriptor's class/subclass/protocol, break out if class matches expected values */
+		if ((((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Class    == MASS_STORE_CLASS) &&
+		    (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->SubClass == MASS_STORE_SUBCLASS) &&
+			(((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Protocol == MASS_STORE_PROTOCOL))
+		{
+			break;
+		}
 	}
-
-	/* Check subclass - error out if it is incorrect */
-	if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->SubClass != MASS_STORE_SUBCLASS)
-	  return IncorrectSubclass;
-
-	/* Check protocol - error out if it is incorrect */
-	if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Protocol != MASS_STORE_PROTOCOL)
-	  return IncorrectProtocol;
+	
+	/* If reached end of configuration descriptor, error out */
+	if (ConfigDescriptorSize == 0)
+	  return InterfaceNotFound;
 	
 	/* Find the IN and OUT endpoint descriptors after the mass storage interface descriptor */
 	while (ConfigDescriptorSize)
