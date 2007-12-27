@@ -83,7 +83,7 @@ void USB_Device_ProcessControlPacket(void)
 			break;
 	}
 
-	if (RequestHandled == false)
+	if (!(RequestHandled))
 	  RAISE_EVENT(USB_UnhandledControlPacket, Request, RequestType);
 	  
 	if (Endpoint_IsSetupRecieved())
@@ -115,11 +115,11 @@ static void USB_Device_SetConfiguration(void)
 	USB_Descriptor_Device_t* DevDescriptorPtr;
 	uint16_t                 DevDescriptorSize;
 
-	if (USB_GetDescriptor(DTYPE_Device, 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false)
-	  return;
-	
-	if (ConfigNum > pgm_read_byte(&DevDescriptorPtr->NumberOfConfigurations))
-	  return;
+	if ((USB_GetDescriptor(DTYPE_Device, 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false) ||
+	    (ConfigNum > pgm_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
+	{
+		return;
+	}
 	
 	USB_ConfigurationNumber = ConfigNum;
 
@@ -131,10 +131,9 @@ static void USB_Device_SetConfiguration(void)
 
 void USB_Device_GetConfiguration(void)
 {
-	Endpoint_ClearSetupReceived();
-	
 	Endpoint_Write_Byte(USB_ConfigurationNumber);
 	
+	Endpoint_ClearSetupReceived();	
 	Endpoint_Setup_In_Clear();
 
 	while (!(Endpoint_Setup_Out_IsReceived()));

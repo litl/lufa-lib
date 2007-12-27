@@ -209,7 +209,7 @@ void Mem_Free_PRV(void** MemPtr)
 	}
 	while (CurrBlockFlags & BLOCK_LINKED_MASK);
 	
-	MemBlockPtr = NULL;
+	MemPtr = NULL;
 }
 
 uint8_t Mem_TotalFreeBlocks(void)

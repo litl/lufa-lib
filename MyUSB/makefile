@@ -24,6 +24,7 @@ MYUSB_USB_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
 					 
 				  
 MYUSB_DRIVER_FILES = ./Scheduler/Scheduler.c                     \
+                     ./MemoryAllocator/DynAlloc.c                \
                      ./Drivers/USBKEY/Temperature.c              \
                      ./Drivers/USB1287/Serial.c                  \
                      ./Drivers/USB1287/Serial_Stream.c           \
