@@ -235,6 +235,7 @@
 			};
 
 		/* Function Prototypes: */
-			bool Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum, const uint8_t UECFG0Xdata, const uint8_t UECFG1Xdata);
+			bool Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum, const uint8_t UECFG0Xdata,
+			                                  const uint8_t UECFG1Xdata);
 
 #endif

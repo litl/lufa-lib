@@ -111,7 +111,6 @@
 					ALIAS_STUB(USB_Reset);
 					ALIAS_STUB(USB_DeviceError);
 				#endif
-
 			#endif
 			
 #endif

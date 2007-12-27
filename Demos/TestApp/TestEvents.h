@@ -42,6 +42,8 @@
 		#define EVENT_PREFIX ESC_INVERSE_ON "EVENT:" ESC_INVERSE_OFF " "
 
 	/* Function Prototypes: */
-		void Abort_Program(void) ATTR_NO_RETURN;
+		#if defined(INCLUDE_FROM_TESTEVENTS_C)
+			static void Abort_Program(void) ATTR_NO_RETURN;
+		#endif
 
 #endif

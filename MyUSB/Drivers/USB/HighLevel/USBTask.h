@@ -56,7 +56,7 @@
 			#endif
 
 			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
-			void USB_InitTaskPointer(void) ATTR_PURE;
+				void USB_InitTaskPointer(void) ATTR_PURE;
 			#endif
 
 #endif

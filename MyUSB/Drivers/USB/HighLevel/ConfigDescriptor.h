@@ -20,15 +20,15 @@
 		
 	/* Public Interface - May be used in end-application: */
 		/* Function Prototypes: */
-			uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* ConfigSizePtr)
+			uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* const ConfigSizePtr)
 					ATTR_NON_NULL_PTR_ARG(1);
-			uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t BufferSize, uint8_t* BufferPtr)
+			uint8_t AVR_HOST_GetDeviceConfigDescriptor(const uint16_t BufferSize, uint8_t* const BufferPtr)
 					ATTR_NON_NULL_PTR_ARG(2);
 
 		/* Inline Functions */
-			static inline void AVR_HOST_GetNextDescriptor(uint16_t* BytesRem, uint8_t** CurrConfigLoc) 
+			static inline void AVR_HOST_GetNextDescriptor(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc) 
 														  ATTR_NON_NULL_PTR_ARG(1, 2);									  
-			static inline void AVR_HOST_GetNextDescriptor(uint16_t* BytesRem, uint8_t** CurrConfigLoc)
+			static inline void AVR_HOST_GetNextDescriptor(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc)
 			{
 				uint16_t CurrDescriptorSize = ((USB_Descriptor_Header_t*)*CurrConfigLoc)->Size;
 

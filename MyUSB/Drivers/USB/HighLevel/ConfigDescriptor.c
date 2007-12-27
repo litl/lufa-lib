@@ -11,7 +11,7 @@
 #if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 #include "ConfigDescriptor.h"
 
-uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* ConfigSizePtr)
+uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* const ConfigSizePtr)
 {
 	uint8_t ErrorCode;
 	uint8_t Buffer[sizeof(USB_Descriptor_Configuration_Header_t)];
@@ -32,7 +32,7 @@ uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* ConfigSizePtr)
 	return ErrorCode;
 }
 
-uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t BufferSize, uint8_t* BufferPtr)
+uint8_t AVR_HOST_GetDeviceConfigDescriptor(const uint16_t BufferSize, uint8_t* const BufferPtr)
 {
 	USB_HostRequest = (USB_Host_Request_Header_t)
 		{

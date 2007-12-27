@@ -8,9 +8,10 @@
  Released under the LGPL Licence, Version 3
 */
 
+#define INCLUDE_FROM_TESTEVENTS_C
 #include "TestEvents.h"
 
-void Abort_Program(void)
+static void Abort_Program(void)
 {
 	USB_ShutDown();
 
