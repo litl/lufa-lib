@@ -25,13 +25,17 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define Mem_Realloc(ptr, bytes)   Mem_Realloc_PRV((const void**)ptr, bytes)  
-			#define Mem_Free(ptr)             Mem_Free_PRV((const void**)ptr)
+			#define DEREF(handle, type)       (*(type*)handle)
 		
+		/* Type Defines: */
+			typedef const void** Mem_Handle_t;
+
 		/* Function Prototypes: */
-			void**  Mem_Alloc(const uint16_t Bytes);
-			void**  Mem_Calloc(const uint16_t Bytes);
-			uint8_t Mem_TotalFreeBlocks(void);
+			Mem_Handle_t Mem_Alloc(const uint16_t Bytes);
+			Mem_Handle_t Mem_Calloc(const uint16_t Bytes);
+			Mem_Handle_t Mem_Realloc(Mem_Handle_t CurrAllocHdl, const uint16_t Bytes);
+			void         Mem_Free(Mem_Handle_t CurrAllocHdl);
+			uint8_t      Mem_TotalFreeBlocks(void);		
 		
 	/* Private Interface - For use in library only: */
 		/* Macros: */
@@ -39,9 +43,6 @@
 			#define BLOCK_LINKED_MASK         (1 << 1)
 			
 		/* Function Prototypes: */
-			void**  Mem_Realloc_PRV(const void** CurrAllocPtr, const uint16_t Bytes);
-			void    Mem_Free_PRV(const void** MemPtr);
-
 			#if defined(INCLUDE_FROM_DYNALLOC_C)
 				static uint8_t Mem_GetBlockFlags(const uint8_t BlockNum);
 				static void    Mem_SetBlockFlags(const uint8_t BlockNum, const uint8_t Flags);
