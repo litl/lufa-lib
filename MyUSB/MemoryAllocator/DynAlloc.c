@@ -8,6 +8,7 @@
  Released under the LGPL Licence, Version 3
 */
 
+#define INCLUDE_FROM_DYNALLOC_C
 #include "DynAlloc.h"
 
 struct
@@ -83,36 +84,25 @@ static inline void Mem_Defrag(void)
 	}
 }
 
-static inline bool Mem_FindFreeBlocks_PRV(uint8_t* RetStartPtr, const uint8_t Blocks, const bool ExactMatch)
+static inline bool Mem_FindFreeBlocks_PRV(uint8_t* const RetStartPtr, const uint8_t Blocks, const bool ExactMatch)
 {
-	uint8_t FreeInCurrSec  = 0;
-	uint8_t StartOfFree    = 0;
-	bool    FoundStart     = false;
+	uint8_t FreeInCurrSec = 0;
 
-	for (uint8_t CurrBlock = 0; CurrBlock < NUM_BLOCKS; CurrBlock++)
+	for (int16_t CurrBlock = (NUM_BLOCKS - 1); CurrBlock >= -1; CurrBlock--)
 	{
-		if (!(FoundStart) && !(Mem_GetBlockFlags(CurrBlock) & BLOCK_USED_MASK))
+		if (!(Mem_GetBlockFlags(CurrBlock) & BLOCK_USED_MASK) && (CurrBlock != -1))
 		{
-			StartOfFree    = CurrBlock;
-			FreeInCurrSec  = 0;
-			FoundStart     = true;
+			FreeInCurrSec++;
 		}
-		
-		if (FoundStart)
+		else
 		{
-			if (!(Mem_GetBlockFlags(CurrBlock) & BLOCK_USED_MASK))
-			  FreeInCurrSec++;
-			else
-			  FoundStart = false;
-
-			if (FreeInCurrSec >= Blocks)
+			if ((FreeInCurrSec >= Blocks) && (!(ExactMatch && (FreeInCurrSec != Blocks))))
 			{
-				if (ExactMatch && (FreeInCurrSec != Blocks))
-				  continue;
-				
-				*RetStartPtr = StartOfFree;
+				*RetStartPtr = (CurrBlock + 1);
 				return true;
 			}
+			
+			FreeInCurrSec = 0;
 		}
 	}
 
@@ -152,10 +142,10 @@ void** Mem_Alloc(const uint16_t Bytes)
 
 	if (Allocate)
 	{
-		for (uint8_t UsedBlock = 0; UsedBlock < (Blocks - 1); UsedBlock++)
+		for (uint8_t UsedBlock = 0; UsedBlock < (ReqBlocks - 1); UsedBlock++)
 		  Mem_SetBlockFlags((StartBlock + UsedBlock), BLOCK_USED_MASK | BLOCK_LINKED_MASK);
 
-		Mem_SetBlockFlags((StartBlock + (Blocks - 1)), BLOCK_USED_MASK);
+		Mem_SetBlockFlags((StartBlock + (ReqBlocks - 1)), BLOCK_USED_MASK);
 		
 		for (uint8_t AllocEntry = 0; AllocEntry < ALLOC_TABLE_SIZE; AllocEntry++)
 		{
@@ -170,7 +160,7 @@ void** Mem_Alloc(const uint16_t Bytes)
 	return NULL;
 }
 
-void** Mem_Realloc_PRV(void** CurrAllocPtr, const uint16_t Bytes)
+void** Mem_Realloc_PRV(const void** CurrAllocPtr, const uint16_t Bytes)
 {
 	Mem_Free(CurrAllocPtr);
 	return Mem_Alloc(Bytes);
@@ -191,7 +181,7 @@ void** Mem_Calloc(const uint16_t Bytes)
 	return AllocPtr;
 }
 
-void Mem_Free_PRV(void** MemPtr)
+void Mem_Free_PRV(const void** MemPtr)
 {
 	const void* MemBlockPtr = *MemPtr;
 	uint8_t CurrBlock = ((uint16_t)((char*)MemBlockPtr - Mem_MemData.Mem_Heap) / BLOCK_SIZE);
@@ -209,7 +199,7 @@ void Mem_Free_PRV(void** MemPtr)
 	}
 	while (CurrBlockFlags & BLOCK_LINKED_MASK);
 	
-	MemPtr = NULL;
+	*MemPtr = NULL;
 }
 
 uint8_t Mem_TotalFreeBlocks(void)
