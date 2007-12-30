@@ -17,11 +17,11 @@
 
 		#include "Descriptors.h"
 				
-		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
-		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
-		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
-		#include <MyUSB/Drivers/USB1287/ADC.h>            // ADC driver
-		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
+		#include <MyUSB/Common/ButtLoadTag.h>           // PROGMEM tags readable by the ButtLoad project
+		#include <MyUSB/Drivers/USB/USB.h>              // USB Functionality
+		#include <MyUSB/Drivers/USBKEY/Bicolour.h>      // Bicolour LEDs driver for the USBKEY
+		#include <MyUSB/Drivers/AT90USB_64x_128x/ADC.h> // ADC driver
+		#include <MyUSB/Scheduler/Scheduler.h>          // Simple scheduler for task management
 
 	/* Macros: */
 		#define MIC_IN_ADC_CHANNEL               1

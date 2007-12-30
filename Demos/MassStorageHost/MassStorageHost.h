@@ -18,12 +18,12 @@
 
 		#include "../MassStorage/SCSI_Codes.h"
 
-		#include <MyUSB/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project
-		#include <MyUSB/Drivers/Misc/TerminalCodes.h>     // ANSI Terminal Escape Codes
-		#include <MyUSB/Drivers/USB/USB.h>                // USB Functionality
-		#include <MyUSB/Drivers/USB1287/Serial_Stream.h>  // Serial stream driver for the USB1287
-		#include <MyUSB/Drivers/USBKEY/Bicolour.h>        // Bicolour LEDs driver for the USBKEY
-		#include <MyUSB/Scheduler/Scheduler.h>            // Simple scheduler for task management
+		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
+		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
+		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
+		#include <MyUSB/Drivers/AT90USB_64x_128x/Serial_Stream.h> // Serial stream driver for the USB1287
+		#include <MyUSB/Drivers/USBKEY/Bicolour.h>                // Bicolour LEDs driver for the USBKEY
+		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 		
 	/* Macros */
 		#define MASS_STORAGE_RESET               0xFF

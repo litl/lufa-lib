@@ -27,8 +27,8 @@ MYUSB_DRIVER_FILES = ./Scheduler/Scheduler.c                     \
                      ./MemoryAllocator/DynAlloc.c                \
                      ./Drivers/USBKEY/Dataflash.c                \
                      ./Drivers/USBKEY/Temperature.c              \
-                     ./Drivers/USB1287/Serial.c                  \
-                     ./Drivers/USB1287/Serial_Stream.c           \
+                     ./Drivers/AT90USB_64x_128x/Serial.c         \
+                     ./Drivers/AT90USB_64x_128x/Serial_Stream.c  \
 
 all:
 	
