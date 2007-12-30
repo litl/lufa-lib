@@ -53,17 +53,25 @@
 			static inline void USB_INT_DisableAllInterrupts(void)
 			{
 				USBCON &= ~((1 << VBUSTE) | (1 << IDTE));
+				
+				#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 				UHIEN   = 0;
-				UDIEN   = 0;
 				OTGIEN  = 0;
+				#endif
+				
+				UDIEN   = 0;
 			}
 
 			static inline void USB_INT_ClearAllInterrupts(void)
 			{
 				USBINT  = 0;
+				
+				#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 				UHINT   = 0;
-				UDINT   = 0;
 				OTGINT  = 0;
+				#endif
+				
+				UDINT   = 0;
 			}
 
 		/* Macros: */

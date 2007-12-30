@@ -8,6 +8,10 @@
  Released under the LGPL Licence, Version 3
 */
 
+#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
+	#define USB_DEVICE_ONLY
+#endif
+
 #define INCLUDE_FROM_EVENTS_C
 #include "Events.h"
 

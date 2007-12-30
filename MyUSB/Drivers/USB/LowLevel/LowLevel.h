@@ -36,7 +36,13 @@
 		#if (F_CPU == 8000000)
 			#define USB_PLL_PSC                    ((1 << PLLP1) | (1 << PLLP0))
 		#elif (F_CPU == 16000000)
-			#define USB_PLL_PSC                    ((1 << PLLP2) | (1 << PLLP1))
+			#if (defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__))
+				#define USB_PLL_PSC                ((1 << PLLP2) | (1 << PLLP1))
+			#elseif (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__))
+				#define USB_PLL_PSC                ((1 << PLLP2) | (1 << PLLP0))
+			#else
+				#error USB AVR Model unsupported for chosen F_CPU value.
+			#endif
 		#else
 			#error No PLL prescale value avaliable for chosen F_CPU value.
 		#endif

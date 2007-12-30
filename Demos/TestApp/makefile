@@ -143,7 +143,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL -DNUM_BLOCKS=100 -DBLOCK_SIZE=8 -DALLOC_TABLE_SIZE=20
+CDEFS = -DF_CPU=$(F_CPU)UL -DNUM_BLOCKS=100 -DBLOCK_SIZE=8 -DNUM_HANDLES=20
 
 
 # Place -D or -U options here for ASM sources

@@ -14,7 +14,7 @@
 struct
 {
 	char    Mem_Heap[NUM_BLOCKS * BLOCK_SIZE];
-	void*   Mem_AllocTable[ALLOC_TABLE_SIZE];
+	void*   Mem_Handles[NUM_HANDLES];
 	uint8_t Mem_Block_Flags[(NUM_BLOCKS / 4) + 1];
 	uint8_t FlagMaskLookupMask[4];
 	uint8_t FlagMaskLookupNum[4];
@@ -64,11 +64,11 @@ static inline void Mem_Defrag(void)
 		{
 			char* UsedStart = &Mem_MemData.Mem_Heap[CurrBlock * BLOCK_SIZE];
 			
-			for (uint8_t AllocEntry = 0; AllocEntry < ALLOC_TABLE_SIZE; AllocEntry++)
+			for (uint8_t HandleNum = 0; HandleNum < NUM_HANDLES; HandleNum++)
 			{
-				if (Mem_MemData.Mem_AllocTable[AllocEntry] == UsedStart)
+				if (Mem_MemData.Mem_Handles[HandleNum] == UsedStart)
 				{
-					Mem_MemData.Mem_AllocTable[AllocEntry] = FreeStart;
+					Mem_MemData.Mem_Handles[HandleNum] = FreeStart;
 					break;
 				}
 			}
@@ -114,47 +114,36 @@ Mem_Handle_t Mem_Alloc(const uint16_t Bytes)
 	uint8_t ReqBlocks = (Bytes / BLOCK_SIZE);
 	uint8_t StartBlock;
 	uint8_t Blocks;
-	bool    Allocate = false;
 	
 	if (Bytes % BLOCK_SIZE)
 	  ReqBlocks++;
 	
-	for (uint8_t SearchBlockSize = ReqBlocks; SearchBlockSize < NUM_BLOCKS; SearchBlockSize++)
+	for (Blocks = ReqBlocks; Blocks < NUM_BLOCKS; Blocks++)
 	{
-		if (Mem_FindFreeBlocks(&StartBlock, SearchBlockSize, true))
-		{
-			Blocks   = SearchBlockSize;
-			Allocate = true;
-			break;
-		}
+		if (Mem_FindFreeBlocks(&StartBlock, Blocks, true))
+		  break;
 	}
 	
-	if (!(Allocate))
+	if (Blocks == NUM_BLOCKS)
 	{
 		Mem_Defrag();
 		
-		if (Mem_FindFreeBlocks(&StartBlock, ReqBlocks, false))
-		{
-			Blocks   = ReqBlocks;
-			Allocate = true;
-		}
+		if (!(Mem_FindFreeBlocks(&StartBlock, ReqBlocks, false)))
+		  return NULL;
 	}
 
-	if (Allocate)
-	{
-		for (uint8_t UsedBlock = 0; UsedBlock < (ReqBlocks - 1); UsedBlock++)
-		  Mem_SetBlockFlags((StartBlock + UsedBlock), BLOCK_USED_MASK | BLOCK_LINKED_MASK);
+	for (uint8_t UsedBlock = 0; UsedBlock < (ReqBlocks - 1); UsedBlock++)
+	  Mem_SetBlockFlags((StartBlock + UsedBlock), BLOCK_USED_MASK | BLOCK_LINKED_MASK);
 
-		Mem_SetBlockFlags((StartBlock + (ReqBlocks - 1)), BLOCK_USED_MASK);
-		
-		for (uint8_t AllocEntry = 0; AllocEntry < ALLOC_TABLE_SIZE; AllocEntry++)
+	Mem_SetBlockFlags((StartBlock + (ReqBlocks - 1)), BLOCK_USED_MASK);
+	
+	for (uint8_t AllocEntry = 0; AllocEntry < NUM_HANDLES; AllocEntry++)
+	{
+		if (Mem_MemData.Mem_Handles[AllocEntry] == NULL)
 		{
-			if (Mem_MemData.Mem_AllocTable[AllocEntry] == NULL)
-			{
-				Mem_MemData.Mem_AllocTable[AllocEntry] = &Mem_MemData.Mem_Heap[StartBlock * BLOCK_SIZE];
-				return (Mem_Handle_t)&Mem_MemData.Mem_AllocTable[AllocEntry];
-			}
-		}		
+			Mem_MemData.Mem_Handles[AllocEntry] = &Mem_MemData.Mem_Heap[StartBlock * BLOCK_SIZE];
+			return ((Mem_Handle_t)&Mem_MemData.Mem_Handles[AllocEntry]);
+		}
 	}
 
 	return NULL;
@@ -183,8 +172,8 @@ Mem_Handle_t Mem_Calloc(const uint16_t Bytes)
 
 void Mem_Free(Mem_Handle_t CurrAllocHdl)
 {
-	const void* MemBlockPtr = DEREF(CurrAllocHdl, const void*);
-	uint8_t CurrBlock = ((uint16_t)((char*)MemBlockPtr - Mem_MemData.Mem_Heap) / BLOCK_SIZE);
+	char*   MemBlockPtr = DEREF(CurrAllocHdl, char*);
+	uint8_t CurrBlock   = ((uint16_t)(MemBlockPtr - Mem_MemData.Mem_Heap) / BLOCK_SIZE);
 	uint8_t CurrBlockFlags;
 
 	if ((CurrAllocHdl == NULL) || (MemBlockPtr == NULL))
@@ -213,4 +202,17 @@ uint8_t Mem_TotalFreeBlocks(void)
 	}
 	
 	return FreeBlocks;
+}
+
+uint8_t Mem_TotalFreeHandles(void)
+{
+	uint8_t FreeHandles = 0;
+	
+	for (uint8_t CurrHandle = 0; CurrHandle < NUM_HANDLES; CurrHandle++)
+	{
+		if (Mem_MemData.Mem_Handles[CurrHandle] != NULL)
+		  FreeHandles++;
+	}
+	
+	return FreeHandles;
 }

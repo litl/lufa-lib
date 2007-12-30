@@ -19,8 +19,8 @@
 		#include "../Common/Common.h"
 	
 	/* Preprocessor Checks: */
-		#if (!defined(NUM_BLOCKS) || !defined(BLOCK_SIZE) || !defined(ALLOC_TABLE_SIZE))
-			#error NUM_BLOCKS, BLOCK_SIZE and ALLOC_TABLE_SIZE must be defined before use via makefile.
+		#if (!defined(NUM_BLOCKS) || !defined(BLOCK_SIZE) || !defined(NUM_HANDLES))
+			#error NUM_BLOCKS, BLOCK_SIZE and NUM_HANDLES must be defined before use via makefile.
 		#endif
 
 	/* Public Interface - May be used in end-application: */
@@ -35,7 +35,8 @@
 			Mem_Handle_t Mem_Calloc(const uint16_t Bytes);
 			Mem_Handle_t Mem_Realloc(Mem_Handle_t CurrAllocHdl, const uint16_t Bytes);
 			void         Mem_Free(Mem_Handle_t CurrAllocHdl);
-			uint8_t      Mem_TotalFreeBlocks(void);		
+			uint8_t      Mem_TotalFreeBlocks(void);
+			uint8_t      Mem_TotalFreeHandles(void);
 		
 	/* Private Interface - For use in library only: */
 		/* Macros: */

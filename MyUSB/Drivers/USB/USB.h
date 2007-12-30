@@ -11,9 +11,15 @@
 #ifndef __USB_H__
 #define __USB_H__
 
+	#include <avr/io.h>
+
 	/* Preprocessor Checks: */
 		#if (defined(USB_HOST_ONLY) && defined(USB_DEVICE_ONLY))
 			#error USB_HOST_ONLY and USB_DEVICE_ONLY are mutually exclusive.
+		#endif
+		
+		#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
+			#define USB_DEVICE_ONLY
 		#endif
 
 	/* Includes: */
