@@ -59,7 +59,9 @@
 				OTGIEN  = 0;
 				#endif
 				
+				#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 				UDIEN   = 0;
+				#endif
 			}
 
 			static inline void USB_INT_ClearAllInterrupts(void)
@@ -71,7 +73,9 @@
 				OTGINT  = 0;
 				#endif
 				
+				#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 				UDINT   = 0;
+				#endif
 			}
 
 		/* Macros: */
