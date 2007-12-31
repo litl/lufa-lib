@@ -19,13 +19,36 @@
 		#include "StdDescriptors.h"
 		
 	/* Public Interface - May be used in end-application: */
-		/* Function Prototypes: */
-			uint8_t AVR_HOST_GetDeviceConfigDescriptorSize(uint16_t* const ConfigSizePtr)
-					ATTR_NON_NULL_PTR_ARG(1);
-			uint8_t AVR_HOST_GetDeviceConfigDescriptor(const uint16_t BufferSize, uint8_t* const BufferPtr)
-					ATTR_NON_NULL_PTR_ARG(2);
-
 		/* Inline Functions */
+			static inline uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr,
+																	 uint8_t* BufferPtr)
+																	 ATTR_NON_NULL_PTR_ARG(1);
+
+			static inline uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr, uint8_t* BufferPtr)
+			{
+				uint8_t ErrorCode;
+
+				USB_HostRequest = (USB_Host_Request_Header_t)
+					{
+						RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
+						RequestData: REQ_GetDescriptor,
+						Value:       (DTYPE_Configuration << 8),
+						Index:       0,
+						DataLength:  *ConfigSizePtr,
+					};
+				
+				if (BufferPtr == NULL)
+				{
+					USB_HostRequest.DataLength = sizeof(USB_Descriptor_Configuration_Header_t);
+					BufferPtr = __builtin_alloca(sizeof(USB_Descriptor_Configuration_Header_t));
+				}
+
+				ErrorCode      = USB_Host_SendControlRequest(BufferPtr);
+				*ConfigSizePtr = ((USB_Descriptor_Configuration_Header_t*)BufferPtr)->TotalConfigurationSize;
+
+				return ErrorCode;
+			}
+
 			static inline void AVR_HOST_GetNextDescriptor(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc) 
 														  ATTR_NON_NULL_PTR_ARG(1, 2);									  
 			static inline void AVR_HOST_GetNextDescriptor(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc)

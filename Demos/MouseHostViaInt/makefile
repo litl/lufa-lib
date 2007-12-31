@@ -88,7 +88,6 @@ SRC = $(TARGET).c                                           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Pipe.c               \
 	  ../../MyUSB/Drivers/USB/LowLevel/Host.c               \
 	  ../../MyUSB/Drivers/USB/LowLevel/HostChapter9.c       \
-	  ../../MyUSB/Drivers/USB/HighLevel/ConfigDescriptor.c  \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
 	  ../../MyUSB/Drivers/USB/HighLevel/Events.c            \

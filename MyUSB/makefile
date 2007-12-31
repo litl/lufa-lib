@@ -19,9 +19,7 @@ MYUSB_USB_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
                      ./Drivers/USB/HighLevel/USBTask.c           \
                      ./Drivers/USB/HighLevel/USBInterrupt.c      \
                      ./Drivers/USB/HighLevel/Events.c            \
-                     ./Drivers/USB/HighLevel/StdDescriptors.c    \
-                     ./Drivers/USB/HighLevel/ConfigDescriptor.c  \
-					 
+                     ./Drivers/USB/HighLevel/StdDescriptors.c    \					 
 				  
 MYUSB_DRIVER_FILES = ./Scheduler/Scheduler.c                     \
                      ./MemoryAllocator/DynAlloc.c                \

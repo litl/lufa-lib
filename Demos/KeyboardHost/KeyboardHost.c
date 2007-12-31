@@ -229,7 +229,7 @@ uint8_t GetConfigDescriptorData(void)
 	bool     FoundHIDInterfaceDescriptor = false;
 	
 	/* Get Configuration Descriptor size from the device */
-	if (AVR_HOST_GetDeviceConfigDescriptorSize(&ConfigDescriptorSize) != HOST_SENDCONTROL_Sucessful)
+	if (AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Sucessful)
 	  return ControlError;
 	
 	/* Ensure that the Configuration Descriptor isn't too large */
@@ -240,7 +240,7 @@ uint8_t GetConfigDescriptorData(void)
 	ConfigDescriptorData = __builtin_alloca(ConfigDescriptorSize);
 
 	/* Retrieve the entire configuration descriptor into the allocated buffer */
-	AVR_HOST_GetDeviceConfigDescriptor(ConfigDescriptorSize, ConfigDescriptorData);
+	AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, ConfigDescriptorData);
 	
 	/* Validate returned data - ensure first entry is a configuration header descriptor */
 	if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type != DTYPE_Configuration)
