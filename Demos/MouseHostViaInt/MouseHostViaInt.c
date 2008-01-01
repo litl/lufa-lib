@@ -119,7 +119,7 @@ TASK(USB_Mouse_Host)
 			/* Send the request, display error and wait for device detatch if request fails */
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
-				puts_P(PSTR("Control error."));
+				puts_P(PSTR("Control error.\r\n"));
 
 				/* Indicate error via status LEDs */
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);

@@ -40,6 +40,8 @@ void Pipe_ClearPipes(void)
 		Pipe_ResetPipe(PNum);
 		Pipe_SelectPipe(PNum);
 		UPIENX = 0;
+		Pipe_ClearError();
+		Pipe_ClearErrorFlags();
 		Pipe_DeallocateMemory();
 		Pipe_DisablePipe();
 	}

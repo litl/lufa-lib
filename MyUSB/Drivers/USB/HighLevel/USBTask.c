@@ -102,7 +102,8 @@ static void USB_HostTask(void)
 				RAISE_EVENT(USB_Connect);
 					
 				USB_HOST_SOFGeneration_Enable();
-					
+				Pipe_ClearPipes();	
+				
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
 					USB_HOST_VBUS_Off();
@@ -148,8 +149,7 @@ static void USB_HostTask(void)
 				USB_HostState = HOST_STATE_Unattached;
 				break;
 			}
-
-			Pipe_ClearPipes();		 
+ 
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,
 							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 							   PIPE_CONTROLPIPE_DEFAULT_SIZE, PIPE_BANK_SINGLE);

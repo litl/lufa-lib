@@ -14,14 +14,20 @@
 	#include <avr/io.h>
 
 	/* Preprocessor Checks: */
+		#if (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__))
+			#if !(defined(USB_DEVICE_ONLY))
+				#define USB_DEVICE_ONLY
+			#endif
+			
+			#if defined(USB_HOST_ONLY)
+				#error USB_HOST_ONLY is not avaliable for the currently selected USB AVR model.
+			#endif
+		#endif
+
 		#if (defined(USB_HOST_ONLY) && defined(USB_DEVICE_ONLY))
 			#error USB_HOST_ONLY and USB_DEVICE_ONLY are mutually exclusive.
 		#endif
 		
-		#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-			#define USB_DEVICE_ONLY
-		#endif
-
 	/* Includes: */
 		#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 			#include "HighLevel/ConfigDescriptor.h"

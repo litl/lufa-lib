@@ -31,7 +31,11 @@
 			#include "Endpoint.h"
 			#include "DevChapter9.h"
 		#endif
-		
+
+		#if (!defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY)) // All modes
+			#include "OTG.h"
+		#endif
+
 	/* Preprocessor Checks and Defines: */
 		#if (F_CPU == 8000000)
 			#define USB_PLL_PSC                    ((1 << PLLP1) | (1 << PLLP0))
