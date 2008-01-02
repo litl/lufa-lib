@@ -1,6 +1,6 @@
 ==========================================
              MyUSB Library
-     Copyright (C) Dean Camera, 2007.
+     Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
@@ -20,7 +20,7 @@ Please consider donating a small amount to myself, to support my future Open Sou
   GENERAL INFORMATION:
 --------------------------------------------
 
-This library is currently in its development stages and thus is not complete in several areas. For the latest documentation, check out the project entry on the Four Walled Cubicle site Wiki, at http://wiki.fourwalledcubicle.com.
+For the latest documentation, check out the project entry on the Four Walled Cubicle site Wiki, at http://wiki.fourwalledcubicle.com.
 
 For code updates, be sure to visit my website, at http://www.fourwalledcubicle. MyUSB developments are frequently discussed on my development blog, at http://blog.fourwalledcubicle.com.
 
