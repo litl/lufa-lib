@@ -15,8 +15,7 @@
 		#include <avr/io.h>
 		#include <stdio.h>
 		#include <stdbool.h>
-		
-		#include "../Common/Common.h"
+		#include <string.h>
 	
 	/* Preprocessor Checks: */
 		#if (!defined(NUM_BLOCKS) || !defined(BLOCK_SIZE) || !defined(NUM_HANDLES))

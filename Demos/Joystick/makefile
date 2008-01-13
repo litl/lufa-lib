@@ -551,8 +551,7 @@ extcoff: $(TARGET).elf
 	@echo
 	@echo $(MSG_SYMBOL_TABLE) $@
 	$(NM) -n $< > $@
-
-
+	$(NM) --size-sort $< > SS.txt
 
 # Create library from object files.
 .SECONDARY : $(TARGET).a
