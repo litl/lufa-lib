@@ -228,10 +228,7 @@ TASK(USB_MassStore_Host)
 
 			/* Create a new buffer capabable of holding a single block from the device */
 			uint8_t BlockBuffer[DEVICE_BLOCK_SIZE];
-			
-			/* Wait until the device is ready to recieve commands */
-			MassStore_WaitDeviceReady();
-			
+						
 			/* Read in the first 512 byte block from the device */
 			if (!(MassStore_ReadDeviceBlock(0, 1, BlockBuffer)))
 			{
@@ -355,30 +352,6 @@ uint8_t GetConfigDescriptorData(void)
 	return SuccessfulConfigRead;
 }
 
-void MassStore_WaitDeviceReady(void)
-{
-	/* Select the IN data pipe for status checking */
-	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-	Pipe_Unfreeze();
-	
-	/* Wait until the device stops NAKing the pipe */
-	do
-	{
-		/* Wait 5ms (5 USB frames) */
-		USB_Host_WaitMS(5);
-
-		Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-		UPINTX &= ~(1 << NAKEDI);
-
-		/* Check to see if the device was disconnected, if so exit function */
-		if (!(USB_IsConnected))
-		  return;
-	} while (UPINTX & (1 << NAKEDI));
-	
-	/* Freeze the pipe afterwards */
-	Pipe_Freeze();
-}
-
 bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
 {
 	uint16_t BytesRem = (Blocks * DEVICE_BLOCK_SIZE);
@@ -414,7 +387,7 @@ bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks
 	uint8_t* CommandByte = (uint8_t*)&SCSICommand;
 
 	MassStore_Tag++;
-	
+
 	/* Select the OUT data pipe for CBW transmission */
 	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 	Pipe_Unfreeze();
@@ -476,6 +449,9 @@ bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks
 	while (!(Pipe_ReadWriteAllowed()));
 	Pipe_FIFOCON_Clear();
 	Pipe_Freeze();
+
+	/* Wait one frame for the device to prepare for next command */
+	USB_Host_WaitMS(1);
 
 	return true;
 }
@@ -560,6 +536,9 @@ bool MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Block
 	while (!(Pipe_ReadWriteAllowed()));
 	Pipe_FIFOCON_Clear();
 	Pipe_Freeze();
+
+	/* Wait one frame for the device to prepare for next command */
+	USB_Host_WaitMS(1);
 
 	return true;
 }

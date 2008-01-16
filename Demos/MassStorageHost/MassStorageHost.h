@@ -97,7 +97,6 @@
 		
 	/* Function Prototypes: */
 		uint8_t GetConfigDescriptorData(void);
-		void    MassStore_WaitDeviceReady(void);
 		bool    MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
 		                                   uint8_t* Buffer) ATTR_NON_NULL_PTR_ARG(3);
 		bool    MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
