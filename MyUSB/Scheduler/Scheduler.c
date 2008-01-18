@@ -45,11 +45,11 @@ bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* co
 	return false;
 }
 
-void Scheduler_SetTaskMode(const uint8_t id, const bool run)
+void Scheduler_SetTaskMode(const uint8_t TaskID, const bool Run)
 {
 	for (uint8_t i = 0; i < Scheduler_TotalTasks; i++)
 	{
-		if (Scheduler_TaskList[i].TaskID == id)
-		  Scheduler_TaskList[i].TaskStatus = run;
+		if (Scheduler_TaskList[i].TaskID == TaskID)
+		  Scheduler_TaskList[i].TaskStatus = Run;
 	}
 }

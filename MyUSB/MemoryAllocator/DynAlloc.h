@@ -13,7 +13,6 @@
 
 	/* Includes : */
 		#include <avr/io.h>
-		#include <stdio.h>
 		#include <stdbool.h>
 		#include <string.h>
 	

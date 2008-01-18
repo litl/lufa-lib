@@ -13,7 +13,6 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-		#include <stdbool.h>
 		
 		#include "../../Common/Common.h"
 		#include "../Misc/DataflashCommandBytes.h"

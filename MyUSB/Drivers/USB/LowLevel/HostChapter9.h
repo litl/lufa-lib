@@ -13,7 +13,6 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-		#include <avr/pgmspace.h>
 		#include <stdbool.h>
 		
 		#include "LowLevel.h"

@@ -11,8 +11,6 @@
 #ifndef __USB_H__
 #define __USB_H__
 
-	#include <avr/io.h>
-
 	/* Preprocessor Checks: */
 		#if (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__))
 			#if !(defined(USB_DEVICE_ONLY))
