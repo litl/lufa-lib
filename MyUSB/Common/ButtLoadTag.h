@@ -30,8 +30,8 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define BUTTLOADTAG(id, data) const struct ButtLoadTagData BUTTTAG_##id             \
-			                               PROGMEM  __attribute__((used, externally_visible)) = \
-			                               {MagicString: BT_TAGHEADER, TagData: data} \
+			                               PROGMEM __attribute__((used, externally_visible)) =  \
+			                               {MagicString: BT_TAGHEADER, TagData: data}
 										  
 
 	/* Private Interface - For use in library only: */	

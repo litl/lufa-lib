@@ -27,7 +27,7 @@
 		
 	/* Macros */
 		#define MASS_STORAGE_RESET               0xFF
-		#define GET_NUMBER_OF_LUNS               0xFE
+		#define GET_MAX_LUN                      0xFE
 
 		#define MASS_STORE_DATA_IN_PIPE          0x01
 		#define MASS_STORE_DATA_OUT_PIPE         0x02
@@ -94,6 +94,7 @@
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);
 		HANDLES_EVENT(USB_HostError);
+		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 		
 	/* Function Prototypes: */
 		uint8_t GetConfigDescriptorData(void);

@@ -20,8 +20,11 @@
 		#define SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL          0x1E
 		#define SCSI_CMD_WRITE_10                              0x2A
 		#define SCSI_CMD_READ_10                               0x28
+		#define SCSI_CMD_WRITE_6                               0x0A
+		#define SCSI_CMD_READ_6                                0x08
 		#define SCSI_CMD_VERIFY_10                             0x2F
 		#define SCSI_CMD_MODE_SENSE_6                          0x1A
+		#define SCSI_CMD_MODE_SENSE_10                         0x5A
 		
 		#define SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY        0x01
 		#define SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS       0x1C

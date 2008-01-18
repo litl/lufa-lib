@@ -42,7 +42,7 @@ static void Mem_SetBlockFlags(const Block_Number_t BlockNum, const uint8_t Flags
 
 static inline void Mem_Defrag(void)
 {
-	char           FreeStartBlock = 0;
+	uint8_t        FreeStartBlock = 0;
 	char*          FreeStartPtr   = NULL;
 	char*          UsedStartPtr   = NULL;
 	Block_Number_t CurrBlock;

@@ -26,7 +26,7 @@
 
 	/* Macros: */
 		#define MASS_STORAGE_RESET         0xFF
-		#define GET_NUMBER_OF_LUNS         0xFE
+		#define GET_MAX_LUN                0xFE
 
 		#define MAX_SCSI_COMMAND_LENGTH    16
 		

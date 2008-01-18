@@ -32,6 +32,11 @@
 		#define DATA_READ                                  true
 		#define DATA_WRITE                                 false
 		
+		#define MODE_10                                    true
+		#define MODE_6                                     false
+		
+		#define INFORMATIONAL_PAGE_OVERHEAD(pages)         (3 + (2 * pages))
+		
 	/* Type Defines: */
 		typedef struct
 		{
@@ -137,11 +142,13 @@
 			static bool SCSI_Command_Request_Sense(void);
 			static bool SCSI_Command_Read_Capacity_10(void);
 			static bool SCSI_Command_Send_Diagnostic(void);
-			static bool SCSI_Command_ReadWrite_10(const bool IsDataRead);
-			static bool SCSI_Command_Mode_Sense_6(void);
+			static bool SCSI_Command_ReadWrite_6_10(const bool IsDataRead, const bool IsMode10);
+			static bool SCSI_Command_Mode_Sense_6_10(const bool IsMode10);
+			static void SCSI_WriteSensePageHeader(const uint8_t DataLength, const bool IsMode10);
 			static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
 											const uint8_t* PageDataPtr,
-			                                const int16_t AllocationLength)
+			                                const int16_t AllocationLength,
+											const bool IsMode10)
 			                                ATTR_NON_NULL_PTR_ARG(3);
 		#endif
 		

@@ -107,7 +107,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 
 			break;
-		case GET_NUMBER_OF_LUNS:
+		case GET_MAX_LUN:
 			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();			
@@ -165,9 +165,9 @@ static void ProcessCommandBlock(void)
 		Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);
 
 		/* Stall both data pipes until reset by host */
-		Endpoint_Stall_Transaction();
+		Endpoint_StallTransaction();
 		Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
-		Endpoint_Stall_Transaction();
+		Endpoint_StallTransaction();
 		
 		return;
 	}
@@ -193,7 +193,7 @@ static void ProcessCommandBlock(void)
 	if ((CommandStatus.Status == Command_Fail) &&
 	    (CommandStatus.SCSICommandResidue))
 	{
-		Endpoint_Stall_Transaction();
+		Endpoint_StallTransaction();
 	}
 }
 

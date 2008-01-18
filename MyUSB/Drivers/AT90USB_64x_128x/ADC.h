@@ -20,7 +20,6 @@
 		/* Macros: */
 			#define  ADC_Init(mode)          MACROS{ ADCSRA = ((1 << ADEN) | mode);         }MACROE
 			#define  ADC_Off()               MACROS{ ADCSRA = 0;                            }MACROE
-			#define  ADC_On()                MACROS{ ADCSRA = ((1 << ADEN) | (7 << ADPS0)); }MACROE
 			#define  ADC_GetStatus()                 (ADCSRA & (1 << ADEN)
 
 			#define  ADC_IsReadingComplete()         (!(ADCSRA & (1 << ADSC)))

@@ -97,6 +97,12 @@ EVENT_HANDLER(USB_HostError)
 	Abort_Program();
 }
 
+EVENT_HANDLER(USB_DeviceEnumerationFailed)
+{
+	puts_P(PSTR(ESC_BG_RED "Dev Enum Error\r\n"));
+	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
+}
+
 EVENT_HANDLER(USB_DeviceError)
 {
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Device Mode Error\r\n"));

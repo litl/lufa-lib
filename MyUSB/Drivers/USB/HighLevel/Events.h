@@ -44,6 +44,7 @@
 				#define USB_HostError_P               (const uint8_t ErrorCode)
 				#define USB_DeviceAttached_P          (void)
 				#define USB_DeviceUnattached_P        (void)
+				#define USB_DeviceEnumerationFailed_P (const uint8_t ErrorCode)
 			#endif
 			
 			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
@@ -71,6 +72,7 @@
 				#define USB_HostError_M               NO_EVENT_ATTRIBUTES
 				#define USB_DeviceAttached_M          NO_EVENT_ATTRIBUTES 
 				#define USB_DeviceUnattached_M        NO_EVENT_ATTRIBUTES
+				#define USB_DeviceEnumerationFailed_M NO_EVENT_ATTRIBUTES
 			#endif
 			
 			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
@@ -101,6 +103,7 @@
 					ALIAS_STUB(USB_HostError);
 					ALIAS_STUB(USB_DeviceAttached);
 					ALIAS_STUB(USB_DeviceUnattached);
+					ALIAS_STUB(USB_DeviceEnumerationFailed);
 				#endif
 
 				#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY

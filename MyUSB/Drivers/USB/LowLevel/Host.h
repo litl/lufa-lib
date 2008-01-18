@@ -52,6 +52,14 @@
 				HOST_ERROR_VBusVoltageDip       = 0,
 			};
 			
+			enum USB_Host_EnumerationErrorCodes
+			{
+				HOST_ENUMERROR_WaitStage        = 0,
+				HOST_ENUMERROR_NoDeviceDetected = 1,
+				HOST_ENUMERROR_ControlError     = 2,
+				HOST_ENUMERROR_PipeConfigError  = 3,
+			};
+
 			enum USB_Host_WaitMSErrorCodes
 			{
 				HOST_WAITERROR_Sucessful        = 0,

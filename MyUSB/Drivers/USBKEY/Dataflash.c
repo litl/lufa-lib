@@ -21,7 +21,7 @@ void Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 		if (PageAddress & 0x01)
 		  Dataflash_SelectChip(DATAFLASH_CHIP2);
 		else
-		  Dataflash_SelectChip(DATAFLASH_CHIP1);		
+		  Dataflash_SelectChip(DATAFLASH_CHIP1);
 	}
 }
 

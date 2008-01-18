@@ -38,6 +38,7 @@
 				RAISES_EVENT(USB_HostError);
 				RAISES_EVENT(USB_DeviceAttached);
 				RAISES_EVENT(USB_DeviceUnattached);
+				RAISES_EVENT(USB_DeviceEnumerationFailed);
 			#endif
 
 		/* Tasks: */

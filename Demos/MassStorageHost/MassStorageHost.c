@@ -95,6 +95,13 @@ EVENT_HANDLER(USB_HostError)
 	for(;;);
 }
 
+EVENT_HANDLER(USB_DeviceEnumerationFailed)
+{
+	puts_P(PSTR(ESC_BG_RED "Dev Enum Error\r\n"));
+	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
+	printf_P(PSTR(" -- In State %d\r\n"), USB_HostState);
+}
+
 TASK(USB_MassStore_Host)
 {
 	uint8_t ErrorCode;
@@ -207,7 +214,7 @@ TASK(USB_MassStore_Host)
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
 					RequestType: (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE),
-					RequestData: GET_NUMBER_OF_LUNS,
+					RequestData: GET_MAX_LUN,
 					Value:       0,
 					Index:       0,
 					DataLength:  1,

@@ -77,7 +77,7 @@
 			#define Endpoint_Setup_Out_IsReceived()    ((UEINTX  &   (1 << RXOUTI)) ? true: false)
 			
 			#define Endpoint_ClearSetupReceived()      MACROS{ UEINTX  &= ~(1 << RXSTPI);               }MACROE
-			#define Endpoint_Stall_Transaction()       MACROS{ UECONX  |=  (1 << STALLRQ);              }MACROE
+			#define Endpoint_StallTransaction()        MACROS{ UECONX  |=  (1 << STALLRQ);              }MACROE
 			#define Endpoint_ClearStall()              MACROS{ UECONX  &= ~(1 << STALLRQ);              }MACROE
 			#define Endpoint_IsStalled()                     ((UECONX  &   (1 << STALLRQ)) ? true : false)
 

@@ -32,6 +32,7 @@
 		HANDLES_EVENT(USB_UIDChange);
 		HANDLES_EVENT(USB_PowerOnFail);
 		HANDLES_EVENT(USB_HostError);
+		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 		HANDLES_EVENT(USB_DeviceError);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 		HANDLES_EVENT(USB_CreateEndpoints);

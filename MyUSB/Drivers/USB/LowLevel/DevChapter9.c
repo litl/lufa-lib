@@ -92,7 +92,7 @@ void USB_Device_ProcessControlPacket(void)
 	  
 	if (Endpoint_IsSetupRecieved())
 	{
-		Endpoint_Stall_Transaction();
+		Endpoint_StallTransaction();
 		Endpoint_ClearSetupReceived();		
 	}
 }
@@ -283,7 +283,7 @@ static void USB_Device_SetFeature(const uint8_t RequestType)
 				if (Endpoint_IsEnabled())
 				{				
 					if (EndpointIndex != ENDPOINT_CONTROLEP)
-					  Endpoint_Stall_Transaction();
+					  Endpoint_StallTransaction();
 					
 					Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 					Endpoint_ClearSetupReceived();

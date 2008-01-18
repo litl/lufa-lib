@@ -92,6 +92,13 @@ EVENT_HANDLER(USB_HostError)
 	for(;;);
 }
 
+EVENT_HANDLER(USB_DeviceEnumerationFailed)
+{
+	puts_P(PSTR(ESC_BG_RED "Dev Enum Error\r\n"));
+	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
+	printf_P(PSTR(" -- In State %d\r\n"), USB_HostState);
+}
+
 TASK(USB_Mouse_Host)
 {
 	uint8_t ErrorCode;
