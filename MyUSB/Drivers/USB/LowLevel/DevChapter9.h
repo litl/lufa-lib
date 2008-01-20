@@ -32,7 +32,7 @@
 		/* Function Prototypes: */
 			void USB_Device_ProcessControlPacket(void);
 			
-			#if defined(INCLUDE_FROM_DECCHAPTER9_C)
+			#if defined(INCLUDE_FROM_DEVCHAPTER9_C)
 				static void USB_Device_SetAddress(void);
 				static void USB_Device_SetConfiguration(void);
 				static void USB_Device_GetConfiguration(void);

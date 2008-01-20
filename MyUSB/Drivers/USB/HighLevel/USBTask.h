@@ -17,9 +17,10 @@
 		#include <stddef.h>
 		
 		#include "../../../Scheduler/Scheduler.h"
-		#include "../HighLevel/Events.h"
 		#include "../LowLevel/LowLevel.h"
 		#include "../LowLevel/HostChapter9.h"
+		#include "../LowLevel/USBMode.h"
+		#include "Events.h"
 		#include "StdDescriptors.h"
 		
 	/* Public Interface - May be used in end-application: */
@@ -27,14 +28,14 @@
 			extern volatile bool    USB_IsConnected;
 			extern volatile bool    USB_IsInitialized;
 
-			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+			#if defined(USB_CAN_BE_HOST)
 			extern volatile uint8_t USB_HostState;
 			#endif
 
 		/* Throwable Events: */
 			RAISES_EVENT(USB_Connect);
 
-			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+			#if defined(USB_CAN_BE_HOST)
 				RAISES_EVENT(USB_HostError);
 				RAISES_EVENT(USB_DeviceAttached);
 				RAISES_EVENT(USB_DeviceUnattached);
@@ -47,16 +48,16 @@
 	/* Private Interface - For use in library only: */
 		/* Function Prototypes: */
 			#if defined(INCLUDE_FROM_USBTASK_C)
-				#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+				#if defined(USB_CAN_BE_HOST)
 					static void USB_HostTask(void);
 				#endif
 				
-				#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+				#if defined(USB_CAN_BE_DEVICE)
 					static void USB_DeviceTask(void);
 				#endif
 			#endif
 
-			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+			#if defined(USB_ALL_MODES)
 				void USB_InitTaskPointer(void) ATTR_PURE;
 			#endif
 

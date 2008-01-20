@@ -8,9 +8,7 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
+#include "../LowLevel/USBMode.h"
 
 #define INCLUDE_FROM_USBTASK_C
 #include "USBTask.h"
@@ -18,28 +16,28 @@
 volatile bool      USB_IsConnected;
 volatile bool      USB_IsInitialized;
 
-#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+#if defined(USB_ALL_MODES)
          TaskPtr_t USB_TaskPtr;
 #endif
 
-#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+#if defined(USB_CAN_BE_HOST)
 volatile uint8_t   USB_HostState;
 #endif
 
 TASK(USB_USBTask)
 {
-	#if defined(USB_HOST_ONLY) // USB_HOST_ONLY
+	#if defined(USB_HOST_ONLY)
 		if (USB_IsInitialized)
 		  USB_HostTask();
-	#elif defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
+	#elif defined(USB_DEVICE_ONLY)
 		USB_DeviceTask();
-	#else  // All modes
+	#else
 		if (USB_IsInitialized)
 		  (*USB_TaskPtr)();
 	#endif
 }
 
-#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+#if defined(USB_ALL_MODES)
 void USB_InitTaskPointer(void)
 {
 	if (USB_CurrentMode != USB_MODE_NONE)
@@ -60,7 +58,7 @@ void USB_InitTaskPointer(void)
 }
 #endif
 
-#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+#if defined(USB_CAN_BE_DEVICE)
 static void USB_DeviceTask(void)
 {
 	if (USB_IsConnected)
@@ -73,7 +71,7 @@ static void USB_DeviceTask(void)
 }
 #endif
 
-#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+#if defined(USB_CAN_BE_HOST)
 static void USB_HostTask(void)
 {
 	switch (USB_HostState)

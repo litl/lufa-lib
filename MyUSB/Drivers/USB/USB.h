@@ -12,14 +12,8 @@
 #define __USB_H__
 
 	/* Preprocessor Checks: */
-		#if (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__))
-			#if !(defined(USB_DEVICE_ONLY))
-				#define USB_DEVICE_ONLY
-			#endif
-			
-			#if defined(USB_HOST_ONLY)
-				#error USB_HOST_ONLY is not avaliable for the currently selected USB AVR model.
-			#endif
+		#if ((defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__)) && defined(USB_HOST_ONLY))
+			#error USB_HOST_ONLY is not avaliable for the currently selected USB AVR model.
 		#endif
 
 		#if (defined(USB_HOST_ONLY) && defined(USB_DEVICE_ONLY))
@@ -27,14 +21,17 @@
 		#endif
 		
 	/* Includes: */
-		#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+		#include "LowLevel/USBMode.h"
+	
+		#if defined(USB_CAN_BE_HOST)
 			#include "HighLevel/ConfigDescriptor.h"
 			#include "LowLevel/Host.h"
 			#include "LowLevel/HostChapter9.h"
 			#include "LowLevel/Pipe.h"
+			#include "LowLevel/OTG.h"
 		#endif
 		
-		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+		#if defined(USB_CAN_BE_DEVICE)
 			#include "LowLevel/Device.h"
 			#include "LowLevel/DevChapter9.h"
 			#include "LowLevel/Endpoint.h"

@@ -8,12 +8,10 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
+#include "USBMode.h"
+#if defined(USB_CAN_BE_DEVICE)
 
-#if (!defined(USB_HOST_ONLY)) // All modes or USB_DEVICE_ONLY
-#define  INCLUDE_FROM_DECCHAPTER9_C
+#define  INCLUDE_FROM_DEVCHAPTER9_C
 #include "DevChapter9.h"
 
 uint8_t USB_ConfigurationNumber;
@@ -331,4 +329,5 @@ static void USB_Device_ClearFeature(const uint8_t RequestType)
 			break;
 	}
 }
+
 #endif

@@ -8,11 +8,9 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
+#include "../LowLevel/USBMode.h"
+#if defined(USB_CAN_BE_DEVICE)
 
-#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 #include "StdDescriptors.h"
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
@@ -22,4 +20,5 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 
 	return false;
 };
+
 #endif

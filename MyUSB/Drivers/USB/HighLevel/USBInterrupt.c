@@ -8,15 +8,12 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
-
+#include "../LowLevel/USBMode.h"
 #include "USBInterrupt.h"
 
 ISR(USB_GEN_vect)
 {
-	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+	#if defined(USB_CAN_BE_DEVICE)
 	if (USB_INT_HasOccurred(USB_INT_VBUS) && USB_INT_IsEnabled(USB_INT_VBUS))
 	{
 		USB_INT_Clear(USB_INT_VBUS);
@@ -93,7 +90,7 @@ ISR(USB_GEN_vect)
 	}
 	#endif
 	
-	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+	#if defined(USB_ALL_MODES)
 	if (USB_INT_HasOccurred(USB_INT_IDTI) && USB_INT_IsEnabled(USB_INT_IDTI))
 	{		
 		USB_INT_Clear(USB_INT_IDTI);
@@ -105,7 +102,7 @@ ISR(USB_GEN_vect)
 	}
 	#endif
 	
-	#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+	#if defined(USB_CAN_BE_HOST)
 	if (USB_INT_HasOccurred(USB_INT_DDISCI) && USB_INT_IsEnabled(USB_INT_DDISCI))
 	{
 		USB_INT_Clear(USB_INT_DDISCI);

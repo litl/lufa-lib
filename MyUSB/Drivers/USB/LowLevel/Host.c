@@ -8,11 +8,9 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
+#include "USBMode.h"
+#if defined(USB_CAN_BE_HOST)
 
-#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 #include "Host.h"
 
 uint8_t USB_Host_WaitMS(uint8_t MS)
@@ -94,4 +92,5 @@ void USB_Host_ResetDevice(void)
 
 	USB_INT_Enable(USB_INT_DDISCI);
 }
+
 #endif

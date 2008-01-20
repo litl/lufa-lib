@@ -20,20 +20,18 @@
 		#include "../HighLevel/Events.h"
 		#include "../HighLevel/USBTask.h"
 		#include "../HighLevel/USBInterrupt.h"
+		#include "USBMode.h"
 		
-		#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+		#if defined(USB_CAN_BE_HOST)
 			#include "Host.h"
 			#include "Pipe.h"
+			#include "OTG.h"
 		#endif
 		
-		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+		#if defined(USB_CAN_BE_DEVICE)
 			#include "Device.h"
 			#include "Endpoint.h"
 			#include "DevChapter9.h"
-		#endif
-
-		#if (!defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY)) // All modes
-			#include "OTG.h"
 		#endif
 
 	/* Preprocessor Checks and Defines: */

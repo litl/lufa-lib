@@ -8,11 +8,9 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
+#include "USBMode.h"
+#if defined(USB_CAN_BE_DEVICE)
 
-#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
 #include "Endpoint.h"
 
 bool Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum,
@@ -41,4 +39,5 @@ void Endpoint_ClearEndpoints(void)
 		Endpoint_DisableEndpoint();
 	}
 }
+
 #endif

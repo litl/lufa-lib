@@ -16,7 +16,8 @@
 		
 		#include "../../../Common/Common.h"
 		#include "../LowLevel/LowLevel.h"
-		#include "../HighLevel/Events.h"
+		#include "../LowLevel/USBMode.h"
+		#include "Events.h"
 		
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
@@ -33,18 +34,18 @@
 			RAISES_EVENT(USB_VBUSConnect);
 			RAISES_EVENT(USB_VBUSDisconnect);
 
-			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+			#if defined(USB_CAN_BE_DEVICE)
 				RAISES_EVENT(USB_Suspend);
 				RAISES_EVENT(USB_WakeUp);
 				RAISES_EVENT(USB_Reset);
 			#endif
 			
-			#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+			#if defined(USB_CAN_BE_HOST)
 				RAISES_EVENT(USB_HostError);
 				RAISES_EVENT(USB_DeviceUnattached);
 			#endif
 
-			#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+			#if defined(USB_ALL_MODES)
 				RAISES_EVENT(USB_UIDChange);
 			#endif
 			
@@ -54,12 +55,12 @@
 			{
 				USBCON &= ~((1 << VBUSTE) | (1 << IDTE));
 				
-				#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+				#if defined(USB_CAN_BE_HOST)
 				UHIEN   = 0;
 				OTGIEN  = 0;
 				#endif
 				
-				#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+				#if defined(USB_CAN_BE_DEVICE)
 				UDIEN   = 0;
 				#endif
 			}
@@ -68,12 +69,12 @@
 			{
 				USBINT  = 0;
 				
-				#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+				#if defined(USB_CAN_BE_HOST)
 				UHINT   = 0;
 				OTGINT  = 0;
 				#endif
 				
-				#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+				#if defined(USB_CAN_BE_DEVICE)
 				UDINT   = 0;
 				#endif
 			}

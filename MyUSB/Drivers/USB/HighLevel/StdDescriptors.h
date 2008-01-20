@@ -16,9 +16,10 @@
 		#include <stdbool.h>
 
 		#include "../../../Common/Common.h"
+		#include "../LowLevel/USBMode.h"
 		#include "Events.h"
 		
-		#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+		#if defined(USB_CAN_BE_DEVICE)
 			#include "../LowLevel/Device.h"
 		#endif
 
@@ -49,7 +50,7 @@
 			#define ENDPOINT_USAGE_IMPLICIT_FEEDBACK  (0b10 << 4)
 
 		/* Events: */
-			#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+			#if defined(USB_CAN_BE_DEVICE)
 				RAISES_EVENT(USB_DeviceError);
 			#endif
 			

@@ -8,11 +8,9 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
+#include "USBMode.h"
+#if defined(USB_CAN_BE_HOST)
 
-#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 #include "Pipe.h"
 
 uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
@@ -46,4 +44,5 @@ void Pipe_ClearPipes(void)
 		Pipe_DisablePipe();
 	}
 }
+
 #endif

@@ -8,11 +8,9 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
+#include "USBMode.h"
+#if defined(USB_CAN_BE_HOST)
 
-#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
 #include "HostChapter9.h"
 
 USB_Host_Request_Header_t USB_HostRequest;
@@ -185,4 +183,5 @@ End_Of_Control_Send:
 
 	return ReturnStatus;
 }
+
 #endif

@@ -8,10 +8,7 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
-	#define USB_DEVICE_ONLY
-#endif
-
+#include "USBMode.h"
 #include "LowLevel.h"
 
 volatile uint8_t USB_CurrentMode = USB_MODE_NONE;
@@ -30,17 +27,17 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 		return;
 	}
 
-	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
+	#if defined(USB_DEVICE_ONLY)
 	if (Mode != USB_MODE_DEVICE)
 	  RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_UnavailableUSBModeSpecified);
 	else
 	  UHWCON |=  (1 << UIMOD);
-	#elif defined(USB_HOST_ONLY) // USB_HOST_ONLY
+	#elif defined(USB_HOST_ONLY)
 	if (Mode != USB_MODE_HOST)
 	  RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_UnavailableUSBModeSpecified);
 	else
 	  UHWCON &= ~(1 << UIMOD);
-	#else // All modes
+	#else
 	if (Mode == USB_MODE_UID)
 	{
 		UHWCON |=  (1 << UIDE);
@@ -61,14 +58,14 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	  USB_CurrentMode = USB_GetUSBModeFromUID();
 	#endif
 
-	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+	#if defined(USB_ALL_MODES)
 	USB_InitTaskPointer();
-	#else // USB_HOST_ONLY or USB_DEVICE_ONLY
+	#else
 	USB_IsInitialized = true;
 	USB_IsConnected   = false;
 	#endif
 
-	#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+	#if defined(USB_CAN_BE_HOST)
 	USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 	#endif
 	
@@ -76,11 +73,11 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	
 	USB_Options = Options;
 
-	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
+	#if defined(USB_DEVICE_ONLY)
 	USB_INT_Enable(USB_INT_VBUS);
-	#elif defined(USB_HOST_ONLY) // USB_HOST_ONLY
+	#elif defined(USB_HOST_ONLY)
 	USB_SetupInterface();
-	#else // All modes
+	#else
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	  USB_INT_Enable(USB_INT_VBUS);
 	else
@@ -102,7 +99,7 @@ void USB_ShutDown(void)
 	USB_REG_Off();
 	USB_OTGPAD_Off();
 
-	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+	#if defined(USB_ALL_MODES)
 	UHWCON &= ~(1 << UIDE);
 	#endif
 }
@@ -115,11 +112,11 @@ void USB_ResetInterface(void)
 	USB_INT_DisableAllInterrupts();
 	USB_INT_ClearAllInterrupts();
 
-	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+	#if defined(USB_CAN_BE_DEVICE)
 	Endpoint_ClearEndpoints();
 	#endif
 
-	#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+	#if defined(USB_CAN_BE_HOST)
 	Pipe_ClearPipes();
 	USB_HOST_VBUS_Off();
 	USB_HOST_HostModeOff();
@@ -131,11 +128,11 @@ void USB_ResetInterface(void)
 	USB_IsConnected         = false;
 	USB_IsInitialized       = false;
 
-	#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+	#if defined(USB_CAN_BE_HOST)
 	USB_HostState           = HOST_STATE_Unattached;
 	#endif
 
-	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+	#if defined(USB_CAN_BE_DEVICE)
 	USB_ConfigurationNumber = 0;
 	#endif
 }
@@ -144,7 +141,7 @@ bool USB_SetupInterface(void)
 {	
 	USB_ResetInterface();
 
-	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+	#if defined(USB_ALL_MODES)
 	if (UHWCON & (1 << UIDE))
 	{
 		USB_INT_Clear(USB_INT_IDTI);
@@ -152,23 +149,21 @@ bool USB_SetupInterface(void)
 	}
 	#endif
 
-	#if !defined(USB_HOST_ONLY) // All modes or USB_DEVICE_ONLY
+	#if defined(USB_CAN_BE_DEVICE)
 	Endpoint_ClearEndpoints();
 	#endif
 	
-	#if !defined(USB_DEVICE_ONLY) // All modes or USB_HOST_ONLY
+	#if defined(USB_CAN_BE_HOST)
 	Pipe_ClearPipes();
 	#endif
 	
-	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+	#if defined(USB_ALL_MODES)
 	if (UHWCON & (1 << UIDE))
 	{
 		USB_INT_Enable(USB_INT_IDTI);
 		USB_CurrentMode = USB_GetUSBModeFromUID();
 	}
-	#endif
-	
-	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
 		if (USB_Options & USB_DEV_OPT_LOWSPEED)
@@ -178,7 +173,7 @@ bool USB_SetupInterface(void)
 		  
 		USB_INT_Enable(USB_INT_VBUS);
 	}
-	#elif defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
+	#elif defined(USB_DEVICE_ONLY)
 	if (USB_Options & USB_DEV_OPT_LOWSPEED)
 	  USB_DEV_SetLowSpeed();
 	else
@@ -198,11 +193,11 @@ bool USB_SetupInterface(void)
 	USB_Interface_Enable();
 	USB_CLK_Unfreeze();
 
-	#if !defined(USB_DEVICE_ONLY)
+	#if defined(USB_CAN_BE_HOST)
 	USB_INT_Enable(USB_INT_VBERRI);
 	#endif
 	
-	#if defined(USB_DEVICE_ONLY) // USB_DEVICE_ONLY
+	#if defined(USB_DEVICE_ONLY)
 	if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, EP_TYPE_CONTROL,
 	                               ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
 								   ENDPOINT_BANK_SINGLE) == ENDPOINT_CONFIG_OK)
@@ -217,10 +212,10 @@ bool USB_SetupInterface(void)
 
 	USB_INT_Enable(USB_INT_SUSPEND);
 	USB_INT_Enable(USB_INT_EORSTI);	
-	#elif defined(USB_HOST_ONLY) // USB_HOST_ONLY
+	#elif defined(USB_HOST_ONLY)
 	USB_Attach();
 	USB_HOST_HostModeOn();
-	#else // All modes
+	#else
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
 		if (Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, EP_TYPE_CONTROL,
@@ -245,7 +240,7 @@ bool USB_SetupInterface(void)
 	}
 	#endif
 	
-	#if !defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY) // All modes
+	#if defined(USB_ALL_MODES)
 	USB_InitTaskPointer();
 	#else
 	USB_IsInitialized = true;
