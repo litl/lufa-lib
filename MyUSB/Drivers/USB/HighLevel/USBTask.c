@@ -80,20 +80,22 @@ static void USB_HostTask(void)
 	{
 		case HOST_STATE_Unattached:
 			USB_HOST_VBUS_On();
-
+			
+			USB_INT_Disable(USB_INT_DDISCI);
+							
 			if (USB_VBUS_GetStatus())
 			{
+				USB_INT_Clear(USB_INT_DCONNI);
+				USB_INT_Clear(USB_INT_DDISCI);
 				USB_INT_Clear(USB_INT_BCERRI);
+
 				USB_HostState = HOST_STATE_Attached;
 			}
 
 			break;
 		case HOST_STATE_Attached:
 			if (USB_INT_HasOccurred(USB_INT_DCONNI))
-			{
-				USB_INT_Clear(USB_INT_DCONNI);
-				USB_INT_Clear(USB_INT_DDISCI);
-				
+			{	
 				USB_INT_Enable(USB_INT_DDISCI);
 
 				RAISE_EVENT(USB_DeviceAttached);
@@ -102,7 +104,7 @@ static void USB_HostTask(void)
 				RAISE_EVENT(USB_Connect);
 					
 				USB_HOST_SOFGeneration_Enable();
-				Pipe_ClearPipes();	
+				Pipe_ClearPipes();
 				
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
@@ -137,9 +139,6 @@ static void USB_HostTask(void)
 				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_NoDeviceDetected);
 
 				USB_HOST_VBUS_Off();
-
-				RAISE_EVENT(USB_DeviceUnattached);
-				USB_INT_Clear(USB_INT_BCERRI);
 
 				USB_HostState = HOST_STATE_Unattached;
 			}

@@ -68,16 +68,30 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 
 void USB_Host_ResetDevice(void)
 {
-	USB_INT_Disable(USB_INT_DCONNI);
+	bool SOFGenEnabled = USB_HOST_SOFGeneration_IsEnabled();
 
-	USB_HOST_ResetBus();
-
-	USB_INT_Disable(USB_INT_DDISCI);
 	USB_INT_Disable(USB_INT_DDISCI);
 	
+	USB_HOST_ResetBus();
 	while (!(USB_HOST_ResetBus_IsDone()));
 
+	USB_INT_Clear(USB_INT_HSOFI);
+	USB_HOST_SOFGeneration_Enable();	
+	
+	for (uint8_t MSRem = 100; MSRem != 0; MSRem--)
+	{
+		if (USB_INT_HasOccurred(USB_INT_HSOFI))
+		{
+			USB_INT_Clear(USB_INT_DDISCI);
+			break;
+		}
+		
+		_delay_ms(1);
+	}
+
+	if (!(SOFGenEnabled))
+	  USB_HOST_SOFGeneration_Disable();
+
 	USB_INT_Enable(USB_INT_DDISCI);
-	USB_INT_Enable(USB_INT_DCONNI);
 }
 #endif
