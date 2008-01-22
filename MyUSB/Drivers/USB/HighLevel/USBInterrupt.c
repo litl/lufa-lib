@@ -90,18 +90,6 @@ ISR(USB_GEN_vect)
 	}
 	#endif
 	
-	#if defined(USB_ALL_MODES)
-	if (USB_INT_HasOccurred(USB_INT_IDTI) && USB_INT_IsEnabled(USB_INT_IDTI))
-	{		
-		USB_INT_Clear(USB_INT_IDTI);
-
-		RAISE_EVENT(USB_UIDChange);
-		RAISE_EVENT(USB_Disconnect);
-		
-		USB_SetupInterface();
-	}
-	#endif
-	
 	#if defined(USB_CAN_BE_HOST)
 	if (USB_INT_HasOccurred(USB_INT_DDISCI) && USB_INT_IsEnabled(USB_INT_DDISCI))
 	{
@@ -124,6 +112,18 @@ ISR(USB_GEN_vect)
 			
 		USB_IsConnected = false;
 		USB_HostState   = HOST_STATE_Unattached;
+	}
+	#endif
+
+	#if defined(USB_CAN_BE_BOTH)
+	if (USB_INT_HasOccurred(USB_INT_IDTI) && USB_INT_IsEnabled(USB_INT_IDTI))
+	{		
+		USB_INT_Clear(USB_INT_IDTI);
+
+		RAISE_EVENT(USB_UIDChange);
+		RAISE_EVENT(USB_Disconnect);
+		
+		USB_SetupInterface();
 	}
 	#endif
 }

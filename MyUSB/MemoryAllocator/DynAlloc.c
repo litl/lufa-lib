@@ -176,7 +176,7 @@ void Mem_Free(Mem_Handle_t CurrAllocHdl)
 	}
 	while (CurrBlockFlags & BLOCK_LINKED_MASK);
 	
-	*CurrAllocHdl = NULL;
+	DEREF(CurrAllocHdl, void*) = NULL;
 }
 
 Block_Number_t Mem_TotalFreeBlocks(void)

@@ -26,7 +26,6 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 		if (USB_INT_HasOccurred(USB_INT_HSOFI))
 		{
 			USB_INT_Clear(USB_INT_HSOFI);
-						
 			MS--;
 		}
 					
@@ -76,8 +75,13 @@ void USB_Host_ResetDevice(void)
 	USB_INT_Clear(USB_INT_HSOFI);
 	USB_HOST_SOFGeneration_Enable();	
 	
-	for (uint8_t MSRem = 100; MSRem != 0; MSRem--)
+	for (uint8_t MSRem = 10; MSRem != 0; MSRem--)
 	{
+		/* Workaround for powerless-pullup devices. After a USB bus reset,
+		   all disconnection/connection interrupts are supressed while a
+		   USB frame is looked for - if it is found within 10ms, the device
+		   is still present.                                                */
+
 		if (USB_INT_HasOccurred(USB_INT_HSOFI))
 		{
 			USB_INT_Clear(USB_INT_DDISCI);

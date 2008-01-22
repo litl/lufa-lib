@@ -45,7 +45,7 @@
 				RAISES_EVENT(USB_DeviceUnattached);
 			#endif
 
-			#if defined(USB_ALL_MODES)
+			#if defined(USB_CAN_BE_BOTH)
 				RAISES_EVENT(USB_UIDChange);
 			#endif
 			

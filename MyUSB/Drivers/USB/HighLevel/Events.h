@@ -37,7 +37,7 @@
 			#define USB_Disconnect_P                  (void)
 			#define USB_PowerOnFail_P                 (const uint8_t ErrorCode)
 
-			#if defined(USB_ALL_MODES)
+			#if defined(USB_CAN_BE_BOTH)
 				#define USB_UIDChange_P               (void)
 			#endif
 
@@ -65,7 +65,7 @@
 			#define USB_Disconnect_M                  NO_EVENT_ATTRIBUTES
 			#define USB_PowerOnFail_M                 NO_EVENT_ATTRIBUTES
 
-			#if defined(USB_ALL_MODES)
+			#if defined(USB_CAN_BE_BOTH)
 				#define USB_UIDChange_M               
 			#endif
 
@@ -96,7 +96,7 @@
 				ALIAS_STUB(USB_Disconnect);
 				ALIAS_STUB(USB_PowerOnFail);
 				
-				#if defined(USB_ALL_MODES)
+				#if defined(USB_CAN_BE_BOTH)
 					ALIAS_STUB(USB_UIDChange);
 				#endif
 				

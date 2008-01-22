@@ -117,10 +117,12 @@ TASK(USB_Audio_Task)
 			TCCR0A  = (1 << WGM01);  // CTC mode
 			TCCR0B  = (1 << CS00);   // Fcpu speed
 			
+#if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
 			/* PWM speaker timer initialization */
 			TCCR3A  = ((1 << WGM30) | (1 << COM3A1) | (1 << COM3A0)
 			                        | (1 << COM3B1) | (1 << COM3B0)); // Set on match, clear on TOP
 			TCCR3B  = ((1 << CS30));  // Phase Correct 8-Bit PWM, Fcpu speed
+#endif
 
 #if defined(AUDIO_OUT_MONO)
 			/* Set speaker as output */
@@ -170,21 +172,21 @@ TASK(USB_Audio_Task)
 				  RightSample_8Bit = -RightSample_8Bit;
 
 				/* Set first LED based on sample value */
-				if (LeftSample_8Bit < (128 / 8))
+				if (LeftSample_8Bit == 0)
 				  Bicolour_SetLed(1, BICOLOUR_LED1_OFF);
-				else if (LeftSample_8Bit < ((128 / 8) * 3))
+				else if (LeftSample_8Bit < ((128 / 8) * 1))
 				  Bicolour_SetLed(1, BICOLOUR_LED1_GREEN);
-				else if (LeftSample_8Bit < ((128 / 8) * 5))
+				else if (LeftSample_8Bit < ((128 / 8) * 3))
 				  Bicolour_SetLed(1, BICOLOUR_LED1_ORANGE);
 				else
 				  Bicolour_SetLed(1, BICOLOUR_LED1_RED);
 
 				/* Set second LED based on sample value */
-				if (RightSample_8Bit < (128 / 8))
+				if (RightSample_8Bit == 0)
 				  Bicolour_SetLed(2, BICOLOUR_LED2_OFF);
-				else if (RightSample_8Bit < ((128 / 8) * 3))
+				else if (RightSample_8Bit < ((128 / 8) * 1))
 				  Bicolour_SetLed(2, BICOLOUR_LED2_GREEN);
-				else if (RightSample_8Bit < ((128 / 8) * 5))
+				else if (RightSample_8Bit < ((128 / 8) * 3))
 				  Bicolour_SetLed(2, BICOLOUR_LED2_ORANGE);
 				else
 				  Bicolour_SetLed(2, BICOLOUR_LED2_RED);
@@ -203,8 +205,9 @@ TASK(USB_Audio_Task)
 	{
 		/* Stop the timers */
 		TCCR0B = 0;
+#if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
 		TCCR3B = 0;
-		
+#endif		
 		HasConfiguredTimers = false;
 	}
 }

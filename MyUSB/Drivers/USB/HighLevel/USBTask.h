@@ -57,7 +57,7 @@
 				#endif
 			#endif
 
-			#if defined(USB_ALL_MODES)
+			#if defined(USB_CAN_BE_BOTH)
 				void USB_InitTaskPointer(void) ATTR_PURE;
 			#endif
 

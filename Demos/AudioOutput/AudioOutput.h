@@ -25,9 +25,9 @@
 	/* Preprocessor Checks: */
 		#if (!defined(AUDIO_OUT_MONO) && !defined(AUDIO_OUT_STEREO) && !defined(AUDIO_OUT_LEDS))
 			#error One of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
-		#elif ((defined(AUDIO_OUT_MONO) && (defined(AUDIO_OUT_STEREO) || defined(AUDIO_OUT_LEDS))) || \
-		       (defined(AUDIO_OUT_STEREO) && (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_LEDS))) || \
-		       (defined(AUDIO_OUT_LEDS) && (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))))
+		#elif ((defined(AUDIO_OUT_MONO)   && (defined(AUDIO_OUT_STEREO) || defined(AUDIO_OUT_LEDS))) || \
+		       (defined(AUDIO_OUT_STEREO) && (defined(AUDIO_OUT_MONO)   || defined(AUDIO_OUT_LEDS))) || \
+		       (defined(AUDIO_OUT_LEDS)   && (defined(AUDIO_OUT_MONO)   || defined(AUDIO_OUT_STEREO))))
 			#error Only one of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
 		#endif
 

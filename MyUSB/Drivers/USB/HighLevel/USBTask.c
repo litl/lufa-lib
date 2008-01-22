@@ -16,7 +16,7 @@
 volatile bool      USB_IsConnected;
 volatile bool      USB_IsInitialized;
 
-#if defined(USB_ALL_MODES)
+#if defined(USB_CAN_BE_BOTH)
          TaskPtr_t USB_TaskPtr;
 #endif
 
@@ -37,7 +37,7 @@ TASK(USB_USBTask)
 	#endif
 }
 
-#if defined(USB_ALL_MODES)
+#if defined(USB_CAN_BE_BOTH)
 void USB_InitTaskPointer(void)
 {
 	if (USB_CurrentMode != USB_MODE_NONE)

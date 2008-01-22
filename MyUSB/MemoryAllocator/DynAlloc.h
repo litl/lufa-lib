@@ -24,7 +24,7 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define DEREF(handle, type)       (*(type*)handle)
-			#define ALLOCABLE_BYTES           (NUM_BLOCKS * BLOCK_SIZE)
+			#define ALLOCABLE_BYTES           (1UL * NUM_BLOCKS * BLOCK_SIZE)
 		
 		/* Type Defines: */
 			typedef const void** Mem_Handle_t;

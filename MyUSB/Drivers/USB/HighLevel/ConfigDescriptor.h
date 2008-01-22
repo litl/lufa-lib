@@ -34,17 +34,24 @@
 						RequestData: REQ_GetDescriptor,
 						Value:       (DTYPE_Configuration << 8),
 						Index:       0,
-						DataLength:  *ConfigSizePtr,
+						DataLength:  0,
 					};
 				
 				if (BufferPtr == NULL)
 				{
-					USB_HostRequest.DataLength = sizeof(USB_Descriptor_Configuration_Header_t);
 					BufferPtr = __builtin_alloca(sizeof(USB_Descriptor_Configuration_Header_t));
-				}
 
-				ErrorCode      = USB_Host_SendControlRequest(BufferPtr);
-				*ConfigSizePtr = ((USB_Descriptor_Configuration_Header_t*)BufferPtr)->TotalConfigurationSize;
+					USB_HostRequest.DataLength = sizeof(USB_Descriptor_Configuration_Header_t);					
+					ErrorCode      = USB_Host_SendControlRequest(BufferPtr);
+
+					*ConfigSizePtr = ((USB_Descriptor_Configuration_Header_t*)BufferPtr)->TotalConfigurationSize;
+				}
+				else
+				{
+					USB_HostRequest.DataLength = *ConfigSizePtr;
+					
+					ErrorCode      = USB_Host_SendControlRequest(BufferPtr);				
+				}
 
 				return ErrorCode;
 			}

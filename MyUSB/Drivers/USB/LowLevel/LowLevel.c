@@ -58,7 +58,7 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	  USB_CurrentMode = USB_GetUSBModeFromUID();
 	#endif
 
-	#if defined(USB_ALL_MODES)
+	#if defined(USB_CAN_BE_BOTH)
 	USB_InitTaskPointer();
 	#else
 	USB_IsInitialized = true;
@@ -99,7 +99,7 @@ void USB_ShutDown(void)
 	USB_REG_Off();
 	USB_OTGPAD_Off();
 
-	#if defined(USB_ALL_MODES)
+	#if defined(USB_CAN_BE_BOTH)
 	UHWCON &= ~(1 << UIDE);
 	#endif
 }
@@ -141,7 +141,7 @@ bool USB_SetupInterface(void)
 {	
 	USB_ResetInterface();
 
-	#if defined(USB_ALL_MODES)
+	#if defined(USB_CAN_BE_BOTH)
 	if (UHWCON & (1 << UIDE))
 	{
 		USB_INT_Clear(USB_INT_IDTI);
@@ -157,7 +157,7 @@ bool USB_SetupInterface(void)
 	Pipe_ClearPipes();
 	#endif
 	
-	#if defined(USB_ALL_MODES)
+	#if defined(USB_CAN_BE_BOTH)
 	if (UHWCON & (1 << UIDE))
 	{
 		USB_INT_Enable(USB_INT_IDTI);
@@ -240,7 +240,7 @@ bool USB_SetupInterface(void)
 	}
 	#endif
 	
-	#if defined(USB_ALL_MODES)
+	#if defined(USB_CAN_BE_BOTH)
 	USB_InitTaskPointer();
 	#else
 	USB_IsInitialized = true;

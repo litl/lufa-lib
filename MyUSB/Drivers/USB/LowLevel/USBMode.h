@@ -18,14 +18,12 @@
 			#endif
 
 			#if (!defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY))
-				#define USB_ALL_MODES
+				#define USB_CAN_BE_BOTH
 				#define USB_CAN_BE_HOST
 				#define USB_CAN_BE_DEVICE
 			#elif defined(USB_HOST_ONLY)
-				#define USB_NOT_DEVICE_ONLY
 				#define USB_CAN_BE_HOST
 			#elif defined(USB_DEVICE_ONLY)
-				#define USB_NOT_HOST_ONLY
 				#define USB_CAN_BE_DEVICE
 			#endif
 
