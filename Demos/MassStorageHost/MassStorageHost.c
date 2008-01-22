@@ -239,9 +239,11 @@ TASK(USB_MassStore_Host)
 			/* Read in the first 512 byte block from the device */
 			if (!(MassStore_ReadDeviceBlock(0, 1, BlockBuffer)))
 			{
+				puts_P(PSTR(ESC_BG_RED "Error reading disk.\r\n"));
+
 				/* Indicate device error via the status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
-				
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);				
+
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;

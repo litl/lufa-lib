@@ -71,14 +71,19 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define USB_HOST_HostModeOn()              MACROS{ USBCON |=  (1 << HOST);           }MACROE
-			#define USB_HOST_HostModeOff()             MACROS{ USBCON &= ~(1 << HOST);           }MACROE
+			#define USB_HOST_HostMode_On()          MACROS{ USBCON |=  (1 << HOST);           }MACROE
+			#define USB_HOST_HostMode_Off()         MACROS{ USBCON &= ~(1 << HOST);           }MACROE
 
-			#define USB_HOST_VBUS_On()                 MACROS{ UHWCON |=  (1 << UVCONE); OTGCON |= (1 << VBUSREQ); }MACROE
-			#define USB_HOST_VBUS_Off()                MACROS{ OTGCON |=  (1 << VBUSRQC);        }MACROE 
+			#define USB_HOST_VBUS_Auto_Enable()     MACROS{ OTGCON &= ~(1 << VBUSHWC); UHWCON |=  (1 << UVCONE);                    }MACROE
+			#define USB_HOST_VBUS_Manual_Enable()   MACROS{ OTGCON |=  (1 << VBUSHWC); UHWCON &= ~(1 << UVCONE); DDRE |= (1 << 7); }MACROE
 
-			#define USB_HOST_ResetDevice()             MACROS{ UHCON  |=  (1 << RESET);          }MACROE
-			#define USB_HOST_SetDeviceAddress(addr)    MACROS{ UHADDR  =  (addr & 0b00111111);   }MACROE
+			#define USB_HOST_VBUS_Auto_On()         MACROS{ OTGCON |= (1 << VBUSREQ);         }MACROE
+			#define USB_HOST_VBUS_Manual_On()       MACROS{ PORTE  |= (1 << 7);               }MACROE
+
+			#define USB_HOST_VBUS_Auto_Off()        MACROS{ OTGCON |= (1 << VBUSRQC);         }MACROE
+			#define USB_HOST_VBUS_Manual_Off()      MACROS{ PORTE  &= ~(1 << 7);              }MACROE
+
+			#define USB_HOST_SetDeviceAddress(addr) MACROS{ UHADDR  =  (addr & 0b00111111);   }MACROE
 
 		/* Function Prototypes: */
 			uint8_t USB_Host_WaitMS(uint8_t MS);

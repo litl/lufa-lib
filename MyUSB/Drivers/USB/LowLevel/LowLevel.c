@@ -118,8 +118,9 @@ void USB_ResetInterface(void)
 
 	#if defined(USB_CAN_BE_HOST)
 	Pipe_ClearPipes();
-	USB_HOST_VBUS_Off();
-	USB_HOST_HostModeOff();
+	USB_HOST_VBUS_Auto_Enable();
+	USB_HOST_VBUS_Auto_Off();
+	USB_HOST_HostMode_Off();
 	#endif
 	
 	USB_Detach();
@@ -214,7 +215,7 @@ bool USB_SetupInterface(void)
 	USB_INT_Enable(USB_INT_EORSTI);	
 	#elif defined(USB_HOST_ONLY)
 	USB_Attach();
-	USB_HOST_HostModeOn();
+	USB_HOST_HostMode_On();
 	#else
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
@@ -236,7 +237,7 @@ bool USB_SetupInterface(void)
 	else if (USB_CurrentMode == USB_MODE_HOST)
 	{
 		USB_Attach();
-		USB_HOST_HostModeOn();
+		USB_HOST_HostMode_On();
 	}
 	#endif
 	
