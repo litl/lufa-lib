@@ -56,17 +56,17 @@
 			#define PIPE_INT_OUT                           UPIENX, (1 << TXOUTE), UPINTX, (1 << TXOUTI)
 
 			#define Pipe_BytesInPipe()                     UPBCX
-			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST    =  (1 << pipenum); UPRST = 0;                }MACROE
-			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM    =  (pipenum & PIPE_PIPENUM_MASK);            }MACROE
-			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X |=  (1 << ALLOC);                             }MACROE
-			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X &= ~(1 << ALLOC);                             }MACROE
-			#define Pipe_EnablePipe()              MACROS{ UPCONX  |=  (1 << PEN);                               }MACROE
-			#define Pipe_DisablePipe()             MACROS{ UPCONX  &= ~(1 << PEN);                               }MACROE
+			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST    =  (1 << pipenum); UPRST = 0;                  }MACROE
+			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM    =  (pipenum & PIPE_PIPENUM_MASK);              }MACROE
+			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X |=  (1 << ALLOC);                               }MACROE
+			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X &= ~(1 << ALLOC);                               }MACROE
+			#define Pipe_EnablePipe()              MACROS{ UPCONX  |=  (1 << PEN);                                 }MACROE
+			#define Pipe_DisablePipe()             MACROS{ UPCONX  &= ~(1 << PEN);                                 }MACROE
 			#define Pipe_IsEnabled()                     ((UPCONX  &   (1 << PEN)) ? true : false)
-			#define Pipe_SetToken(token)           MACROS{ UPCFG0X  = ((UPCFG0X & ~PIPE_TOKEN_MASK) | token); }MACROE
+			#define Pipe_SetToken(token)           MACROS{ UPCFG0X  = ((UPCFG0X & ~PIPE_TOKEN_MASK) | token);      }MACROE
 			
-			#define Pipe_SetInfiniteINRequests()   MACROS{ UPCONX  |=  (1 << INMODE);                            }MACROE
-			#define Pipe_SetFiniteINRequests(n)    MACROS{ UPCONX  &= ~(1 << INMODE); UPINRQX = n;               }MACROE
+			#define Pipe_SetInfiniteINRequests()   MACROS{ UPCONX  |=  (1 << INMODE);                              }MACROE
+			#define Pipe_SetFiniteINRequests(n)    MACROS{ UPCONX  &= ~(1 << INMODE); UPINRQX = n;                 }MACROE
 			
 			#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
 												   MACROS{ Pipe_ConfigurePipe_P(num,         \
@@ -81,21 +81,21 @@
 			#define Pipe_Unfreeze()                MACROS{ UPCONX  &= ~(1 << PFREEZE);                             }MACROE
 			#define Pipe_Freeze()                  MACROS{ UPCONX  |=  (1 << PFREEZE);                             }MACROE
 
-			#define Pipe_ClearError()              MACROS{ UPINTX  &= ~(1 << PERRI);                              }MACROE
+			#define Pipe_ClearError()              MACROS{ UPINTX  &= ~(1 << PERRI);                               }MACROE
 			#define Pipe_IsError()                       ((UPINTX  &   (1 << PERRI)) ? true : false)
-			#define Pipe_ClearErrorFlags()         MACROS{ UPERRX   = 0;                                            }MACROE
+			#define Pipe_ClearErrorFlags()         MACROS{ UPERRX   = 0;                                           }MACROE
 			#define Pipe_GetErrorFlags()                   UPERRX
 
 			#define Pipe_ReadWriteAllowed()              ((UPINTX  & (1 << RWAL)) ? true : false)
 
-			#define Pipe_ClearSetupSent()          MACROS{ UPINTX  &= ~(1 << TXSTPI);                             }MACROE
+			#define Pipe_ClearSetupSent()          MACROS{ UPINTX  &= ~(1 << TXSTPI);                              }MACROE
 			#define Pipe_IsSetupSent()                   ((UPINTX  &   (1 << TXSTPI)) ? true : false)
-			#define Pipe_ClearStall()              MACROS{ UPINTX  &= ~(1 << RXSTALLI);                           }MACROE             
+			#define Pipe_ClearStall()              MACROS{ UPINTX  &= ~(1 << RXSTALLI);                            }MACROE             
 			#define Pipe_IsStalled()                     ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
 
-			#define Pipe_Setup_In_Clear()          MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);   }MACROE
+			#define Pipe_Setup_In_Clear()          MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);    }MACROE
 			#define Pipe_Setup_In_IsReceived()           ((UPINTX  &   (1 << RXINI)) ? true : false)
-			#define Pipe_Setup_Out_Clear()         MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);  }MACROE
+			#define Pipe_Setup_Out_Clear()         MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
 			#define Pipe_Setup_Out_IsReady()             ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 
 		/* Function Aliases */
@@ -246,7 +246,7 @@
 				else if (Bytes <= 256)
 				  return PIPE_SIZE_256_MASK;
 				else
-				  return PIPE_SIZE_512_MASK;		
+				  return PIPE_SIZE_512_MASK;
 			};
 		
 		/* Function Prototypes: */

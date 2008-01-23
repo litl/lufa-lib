@@ -13,7 +13,7 @@
 	Omron V3B-4K) by Denver Gingerich. See http://ossguy.com/ss_usb/ for the
 	demonstration project website, including construction and support details.
 
-	To use, connect your magentic card reader device to the AT90USB1289 IC as
+	To use, connect your magentic card reader device to the AT90USB1287 IC as
 	follows:
 	
 	 ---- Signal ---+--- AVR Port ----
@@ -42,18 +42,11 @@ BUTTLOADTAG(ProjName,  "MyUSB Magstripe App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
-/* Scheduler Task ID list */
-TASK_ID_LIST
-{
-	USB_USBTask_ID,
-	USB_Keyboard_Report_ID,
-};
-
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ TaskID: USB_Keyboard_Report_ID  , TaskName: USB_Keyboard_Report  , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
+	{ Task: USB_Keyboard_Report  , TaskStatus: TASK_RUN  },
 };
 
 int main(void)

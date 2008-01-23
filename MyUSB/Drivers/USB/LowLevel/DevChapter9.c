@@ -290,6 +290,8 @@ static void USB_Device_SetFeature(const uint8_t RequestType)
 				
 				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			
 			}
+			
+			break;
 	}
 }
 

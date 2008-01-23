@@ -21,7 +21,6 @@
 		/* Macros */
 			#define TASK(name)                        void name (void)
 			#define TASK_LIST                         extern TaskEntry_t Scheduler_TaskList[]; TaskEntry_t Scheduler_TaskList[] = 
-			#define TASK_ID_LIST                      enum TaskIDs
 			
 			#define TASK_MAX_DELAY                    (MAX_DELAYCTR_COUNT - 1)
 
@@ -35,8 +34,7 @@
 			typedef uint16_t SchedulerDelayCounter_t;
 			typedef struct
 			{
-				uint8_t   TaskID;
-				TaskPtr_t TaskName;
+				TaskPtr_t Task;
 				bool      TaskStatus;
 			} TaskEntry_t;			
 
@@ -56,7 +54,7 @@
 					for (uint8_t CurrTask = 0; CurrTask < TotalTasks; CurrTask++)
 					{
 						if (Scheduler_TaskList[CurrTask].TaskStatus == TASK_RUN)
-						  Scheduler_TaskList[CurrTask].TaskName();
+						  Scheduler_TaskList[CurrTask].Task();
 					}
 				}
 			}
@@ -75,7 +73,7 @@
 			bool Scheduler_HasDelayElapsed(const uint16_t Delay,
 			                               SchedulerDelayCounter_t* const TaskCounter)
 										   ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(2);
-			void Scheduler_SetTaskMode(const uint8_t TaskID, const bool Run) ATTR_PURE;
+			void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool Run);
 
 	/* Private Interface - For use in library only: */		
 		/* Macros */

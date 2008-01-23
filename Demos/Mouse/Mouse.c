@@ -27,18 +27,11 @@ BUTTLOADTAG(ProjName,  "MyUSB Mouse App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
-/* Scheduler Task ID list */
-TASK_ID_LIST
-{
-	USB_USBTask_ID,
-	USB_Mouse_Report_ID,
-};
-
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ TaskID: USB_Mouse_Report_ID     , TaskName: USB_Mouse_Report     , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
+	{ Task: USB_Mouse_Report     , TaskStatus: TASK_RUN  },
 };
 
 int main(void)

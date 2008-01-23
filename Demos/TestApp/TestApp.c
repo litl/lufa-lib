@@ -49,22 +49,13 @@ BUTTLOADTAG(ProjName,  "MyUSB Test App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
-/* Scheduler Task ID list */
-TASK_ID_LIST
-{
-	TestApp_CheckJoystick_ID,
-	TestApp_CheckHWB_ID,
-	TestApp_CheckTemp_ID,
-	USB_USBTask_ID,
-};
-
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ TaskID: TestApp_CheckJoystick_ID, TaskName: TestApp_CheckJoystick, TaskStatus: TASK_RUN  },
-	{ TaskID: TestApp_CheckHWB_ID     , TaskName: TestApp_CheckHWB     , TaskStatus: TASK_RUN  },
-	{ TaskID: TestApp_CheckTemp_ID    , TaskName: TestApp_CheckTemp    , TaskStatus: TASK_RUN  },
-	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
+	{ Task: TestApp_CheckJoystick, TaskStatus: TASK_RUN  },
+	{ Task: TestApp_CheckHWB     , TaskStatus: TASK_RUN  },
+	{ Task: TestApp_CheckTemp    , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
 };
 
 int main(void)
@@ -158,7 +149,7 @@ TASK(TestApp_CheckHWB)
 				   
 			if (BlockingJoystickTask == false)
 			{
-				Scheduler_SetTaskMode(TestApp_CheckJoystick_ID, TASK_STOP);
+				Scheduler_SetTaskMode(TestApp_CheckJoystick, TASK_STOP);
 				BlockingJoystickTask = true;
 			}
 
@@ -169,11 +160,11 @@ TASK(TestApp_CheckHWB)
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);
 				puts_P(PSTR(ESC_BG_WHITE "USB Power Off.\r\n"));
 				
-				Scheduler_SetTaskMode(TestApp_CheckTemp_ID, TASK_RUN);
+				Scheduler_SetTaskMode(TestApp_CheckTemp, TASK_RUN);
 			}
 			else
 			{
-				Scheduler_SetTaskMode(TestApp_CheckTemp_ID, TASK_STOP);
+				Scheduler_SetTaskMode(TestApp_CheckTemp, TASK_STOP);
 
 				Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
 				puts_P(PSTR(ESC_BG_YELLOW "USB Power On.\r\n"));

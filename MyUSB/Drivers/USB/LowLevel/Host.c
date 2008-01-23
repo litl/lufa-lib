@@ -29,8 +29,7 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 			MS--;
 		}
 					
-		if (USB_INT_HasOccurred(USB_INT_DDISCI) || (USB_IsConnected == false) ||
-		    USB_INT_HasOccurred(USB_INT_BCERRI) || (USB_CurrentMode == USB_MODE_DEVICE))
+		if ((USB_IsConnected == false) || (USB_CurrentMode == USB_MODE_DEVICE))
 		{
 			ErrorCode = HOST_WAITERROR_DeviceDisconnect;
 			
@@ -48,7 +47,6 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 		if (Pipe_IsStalled() == true)
 		{
 			Pipe_ClearStall();
-
 			ErrorCode = HOST_WAITERROR_SetupStalled;
 			
 			break;			
@@ -57,8 +55,6 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 
 	if (!(SOFGenEnabled))
 	  USB_HOST_SOFGeneration_Disable();
-
-	USB_INT_Clear(USB_INT_HSOFI);
 
 	return ErrorCode;
 }
@@ -69,6 +65,8 @@ void USB_Host_ResetDevice(void)
 
 	USB_INT_Disable(USB_INT_DDISCI);
 	
+	USB_Host_WaitMS(20);
+
 	USB_HOST_ResetBus();
 	while (!(USB_HOST_ResetBus_IsDone()));
 

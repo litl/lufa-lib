@@ -13,7 +13,11 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define ANSI_ESCAPE_SEQUENCE(c)  "\33[" c
+			#ifndef DISABLE_TERMINAL_CODES
+				#define ANSI_ESCAPE_SEQUENCE(c)  "\33[" c
+			#else
+				#define ANSI_ESCAPE_SEQUENCE(c)
+			#endif
 
 			#define ESC_RESET                ANSI_ESCAPE_SEQUENCE("0m")
 			#define ESC_BOLD_ON              ANSI_ESCAPE_SEQUENCE("1m")

@@ -30,18 +30,11 @@ BUTTLOADTAG(ProjName,  "MyUSB CDC App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
-/* Scheduler Task ID list */
-TASK_ID_LIST
-{
-	USB_USBTask_ID,
-	CDC_Task_ID
-};
-
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ TaskID: CDC_Task_ID             , TaskName: CDC_Task             , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
+	{ Task: CDC_Task             , TaskStatus: TASK_RUN  },
 };
 
 /* Globals: */

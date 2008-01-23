@@ -32,13 +32,13 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 
 	Pipe_SelectPipe(PIPE_CONTROLPIPE);
 	Pipe_SetToken(PIPE_TOKEN_SETUP);
-	Pipe_ClearSetupSent();
 
 	Pipe_Unfreeze();
 
 	for (uint8_t i = 0; i < sizeof(USB_Host_Request_Header_t); i++)
 	  Pipe_Write_Byte(*(HeaderByte++));
 
+	Pipe_ClearSetupSent();
 	Pipe_Setup_Out_Clear();
 	
 	TimeoutCounter = 0;
@@ -54,9 +54,6 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		}
 	}
 
-	Pipe_ClearSetupSent();
-	Pipe_Freeze();
-
 	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
 	  goto End_Of_Control_Send;
 
@@ -67,8 +64,6 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		
 		while ((DataBuffer != NULL) && DataLen)
 		{
-			Pipe_Unfreeze();
-		
 			TimeoutCounter = 0;
 			while (!(Pipe_Setup_In_IsReceived()))
 			{
@@ -91,12 +86,10 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 				DataLen--;
 			}
 		
-			Pipe_Freeze();
 			Pipe_Setup_In_Clear();
 		}
 
 		Pipe_SetToken(PIPE_TOKEN_OUT);
-		Pipe_Unfreeze();
 		
 		TimeoutCounter = 0;
 		while (!(Pipe_Setup_Out_IsReady()))
@@ -116,11 +109,9 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 	else
 	{
 		Pipe_SetToken(PIPE_TOKEN_OUT);
-
+			
 		while ((DataBuffer != NULL) && DataLen)
 		{
-			Pipe_Unfreeze();
-			
 			if (DataLen <= USB_ControlPipeSize)
 			{
 				while (DataLen--)
@@ -152,9 +143,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			Pipe_Setup_Out_Clear();
 		}
 		
-		Pipe_Freeze();
 		Pipe_SetToken(PIPE_TOKEN_IN);
-		Pipe_Unfreeze();
 
 		TimeoutCounter = 0;
 		while (!(Pipe_Setup_In_IsReceived()))
@@ -169,7 +158,6 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			}
 		}
 
-		Pipe_Freeze();
 		Pipe_Setup_In_Clear();
 	}
 

@@ -48,13 +48,13 @@
 			#define Endpoint_BytesInEndpoint()                 UEBCX
 			#define Endpoint_GetCurrentEndpoint()             (UENUM   & ENDPOINT_EPNUM_MASK)
 			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM    =  (epnum & ENDPOINT_EPNUM_MASK); }MACROE
-			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST    =  (1 << (epnum & ENDPOINT_EPNUM_MASK)); UERST = 0;       }MACROE
-			#define Endpoint_EnableEndpoint()          MACROS{ UECONX  |=  (1 << EPEN);                  }MACROE
-			#define Endpoint_DisableEndpoint()         MACROS{ UECONX  &= ~(1 << EPEN);                  }MACROE
+			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST    =  (1 << (epnum & ENDPOINT_EPNUM_MASK)); UERST = 0; }MACROE
+			#define Endpoint_EnableEndpoint()          MACROS{ UECONX  |=  (1 << EPEN);                   }MACROE
+			#define Endpoint_DisableEndpoint()         MACROS{ UECONX  &= ~(1 << EPEN);                   }MACROE
 			#define Endpoint_IsEnabled()                     ((UECONX  &   (1 << EPEN)) ? true : false)
 			#define Endpoint_ResetEndpoint(epnum)      MACROS{ UENUM    =  (epnum & ENDPOINT_EPNUM_MASK); uint8_t temp = UECONX; UECONX = (temp | (1 << EPEN)); UECONX = (temp & ~(1 << EPEN)); }MACROE
-			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);                }MACROE
-			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);                }MACROE
+			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);                  }MACROE
+			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);                  }MACROE
 			
 			#define Endpoint_ReadWriteAllowed()              ((UEINTX  & (1 << RWAL)) ? true : false)
 
@@ -68,17 +68,17 @@
 			#define Endpoint_ClearEndpointInterrupt(n) MACROS{ UEINT   &= ~(1 << n);                     }MACROE
 			#define Endpoint_HasEndpointInterrupted(n)       ((UEINT   & (1 << (n & ENDPOINT_EPNUM_MASK))) ? true : false)
 
-			#define Endpoint_FIFOCON_Clear()           MACROS{ UEINTX  &= ~(1 << FIFOCON);              }MACROE
+			#define Endpoint_FIFOCON_Clear()           MACROS{ UEINTX  &= ~(1 << FIFOCON);               }MACROE
 			
-			#define Endpoint_Setup_In_Clear()          MACROS{ UEINTX  &= ~(1 << TXINI); UEINTX &= ~(1 << FIFOCON); }MACROE
+			#define Endpoint_Setup_In_Clear()          MACROS{ UEINTX  &= ~(1 << TXINI); UEINTX &= ~(1 << FIFOCON);  }MACROE
 			#define Endpoint_Setup_Out_Clear()         MACROS{ UEINTX  &= ~(1 << RXOUTI); UEINTX &= ~(1 << FIFOCON); }MACROE
 
-			#define Endpoint_Setup_In_IsReady()        ((UEINTX  &   (1 << TXINI)) ? true : false)
-			#define Endpoint_Setup_Out_IsReceived()    ((UEINTX  &   (1 << RXOUTI)) ? true: false)
+			#define Endpoint_Setup_In_IsReady()        ((UEINTX  &   (1 << TXINI)) ? true  : false)
+			#define Endpoint_Setup_Out_IsReceived()    ((UEINTX  &   (1 << RXOUTI)) ? true : false)
 			
-			#define Endpoint_ClearSetupReceived()      MACROS{ UEINTX  &= ~(1 << RXSTPI);               }MACROE
-			#define Endpoint_StallTransaction()        MACROS{ UECONX  |=  (1 << STALLRQ);              }MACROE
-			#define Endpoint_ClearStall()              MACROS{ UECONX  &= ~(1 << STALLRQ);              }MACROE
+			#define Endpoint_ClearSetupReceived()      MACROS{ UEINTX  &= ~(1 << RXSTPI);                }MACROE
+			#define Endpoint_StallTransaction()        MACROS{ UECONX  |=  (1 << STALLRQ);               }MACROE
+			#define Endpoint_ClearStall()              MACROS{ UECONX  &= ~(1 << STALLRQ);               }MACROE
 			#define Endpoint_IsStalled()                     ((UECONX  &   (1 << STALLRQ)) ? true : false)
 
 			#define Endpoint_ResetDataToggle()         MACROS{ UECONX  |= (1 << RSTDT);                  }MACROE

@@ -42,7 +42,7 @@ static void Mem_SetBlockFlags(const Block_Number_t BlockNum, const uint8_t Flags
 
 static inline void Mem_Defrag(void)
 {
-	uint8_t        FreeStartBlock = 0;
+	Block_Number_t FreeStartBlock = 0;
 	char*          FreeStartPtr   = NULL;
 	char*          UsedStartPtr   = NULL;
 	Block_Number_t CurrBlock;
@@ -86,7 +86,7 @@ static inline void Mem_Defrag(void)
 	}
 }
 
-static inline bool Mem_FindFreeBlocks(uint8_t* const RetStartPtr, const Block_Number_t Blocks)
+static inline bool Mem_FindFreeBlocks(Block_Number_t* const RetStartPtr, const Block_Number_t Blocks)
 {
 	Block_Number_t FreeInCurrSec = 0;
 

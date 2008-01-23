@@ -26,18 +26,11 @@ BUTTLOADTAG(ProjName,  "MyUSB MS Host App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
-/* Scheduler Task ID list */
-TASK_ID_LIST
-{
-	USB_USBTask_ID,
-	USB_MassStore_Host_ID,
-};
-
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ TaskID: USB_MassStore_Host_ID   , TaskName: USB_MassStore_Host   , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
+	{ Task: USB_MassStore_Host   , TaskStatus: TASK_RUN  },
 };
 
 /* Globals */
@@ -395,6 +388,7 @@ bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks
 			
 	uint8_t* CommandByte = (uint8_t*)&SCSICommand;
 
+	/* Each transmission should have a unique tag value */
 	MassStore_Tag++;
 
 	/* Select the OUT data pipe for CBW transmission */
@@ -500,6 +494,7 @@ bool MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Block
 			
 	uint8_t* CommandByte = (uint8_t*)&SCSICommand;
 			
+	/* Each transmission should have a unique tag value */
 	MassStore_Tag++;
 
 	/* Select the OUT data pipe for CBW transmission */

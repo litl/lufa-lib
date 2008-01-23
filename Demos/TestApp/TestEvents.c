@@ -65,7 +65,18 @@ EVENT_HANDLER(USB_Reset)
 
 EVENT_HANDLER(USB_UIDChange)
 {
-	puts_P(PSTR(EVENT_PREFIX "UID Change\r\n"));	
+	char* ModeStrPtr;
+
+	puts_P(PSTR(EVENT_PREFIX "UID Change\r\n"));
+
+	if (USB_CurrentMode == USB_MODE_DEVICE)
+	  ModeStrPtr = PSTR("HOST");
+	else if (USB_CurrentMode == USB_MODE_HOST)
+	  ModeStrPtr = PSTR("DEVICE");
+	else
+	  ModeStrPtr = PSTR("N/A");
+	
+	printf_P(PSTR(" -- New Mode %S\r\n"), ModeStrPtr);
 }
 
 EVENT_HANDLER(USB_PowerOnFail)

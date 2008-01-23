@@ -28,18 +28,11 @@ BUTTLOADTAG(ProjName,  "MyUSB Joystick App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 
-/* Scheduler Task ID list */
-TASK_ID_LIST
-{
-	USB_USBTask_ID,
-	USB_Joystick_Report_ID,
-};
-
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ TaskID: USB_USBTask_ID          , TaskName: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ TaskID: USB_Joystick_Report_ID     , TaskName: USB_Joystick_Report     , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
+	{ Task: USB_Joystick_Report  , TaskStatus: TASK_RUN  },
 };
 
 int main(void)

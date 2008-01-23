@@ -209,18 +209,6 @@ static void USB_HostTask(void)
 			
 			USB_ControlPipeSize = DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size)];
 			
-			if (USB_Host_WaitMS(20) != HOST_WAITERROR_Sucessful)
-			{
-				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_WaitStage);
-
-				USB_HOST_VBUS_Auto_Off();
-
-				RAISE_EVENT(USB_DeviceUnattached);
-
-				USB_HostState = HOST_STATE_Unattached;
-				break;
-			}
-
 			USB_Host_ResetDevice();
 			
 			if (USB_Host_WaitMS(200) != HOST_WAITERROR_Sucessful)
