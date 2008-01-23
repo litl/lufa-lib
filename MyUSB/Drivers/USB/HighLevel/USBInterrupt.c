@@ -134,6 +134,9 @@ ISR(USB_GEN_vect)
 		}
 
 		RAISE_EVENT(USB_UIDChange);	
+	
+		USB_HOST_VBUS_Auto_Enable();
+		USB_OTGPAD_On();
 
 		USB_SetupInterface();	
 	}

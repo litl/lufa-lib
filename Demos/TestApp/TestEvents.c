@@ -76,6 +76,8 @@ EVENT_HANDLER(USB_UIDChange)
 	else
 	  ModeStrPtr = PSTR("N/A");
 	
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+
 	printf_P(PSTR(" -- New Mode %S\r\n"), ModeStrPtr);
 }
 
