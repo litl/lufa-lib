@@ -231,7 +231,7 @@ static void USB_HostTask(void)
 			                   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 			                   USB_ControlPipeSize, PIPE_BANK_SINGLE);
 
-			if (Pipe_IsConfigured() == PIPE_CONFIG_FAIL)
+			if (!(Pipe_IsConfigured()))
 			{
 				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_PipeConfigError);
 

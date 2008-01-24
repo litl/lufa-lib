@@ -15,7 +15,7 @@
 
 uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 
-bool Pipe_ConfigurePipe_P(const uint8_t PipeNum,
+void Pipe_ConfigurePipe_P(const uint8_t PipeNum,
                           const uint8_t UPCFG0Xdata,
                           const uint8_t UPCFG1Xdata)
 {
@@ -27,8 +27,6 @@ bool Pipe_ConfigurePipe_P(const uint8_t PipeNum,
 	UPCFG2X = 0;
 	
 	Pipe_AllocateMemory();
-	
-	return Pipe_IsConfigured();
 }
 
 void Pipe_ClearPipes(void)

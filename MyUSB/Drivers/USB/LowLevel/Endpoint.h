@@ -19,9 +19,6 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define ENDPOINT_CONFIG_OK                         true
-			#define ENDPOINT_CONFIG_FAIL                       false
-
 			#define ENDPOINT_DIR_OUT                           0
 			#define ENDPOINT_DIR_IN                            (1 << EPDIR)
 			
@@ -63,7 +60,7 @@
 												       Endpoint_ConfigureEndpoint_P(num,              \
                                                        ((type << EPTYPE0) | dir),                     \
 											           (Endpoint_BytesToEPSizeMask(size) | banks))
-			#define Endpoint_IsConfigured()                  ((UESTA0X & (1 << CFGOK)) ? ENDPOINT_CONFIG_OK : ENDPOINT_CONFIG_FAIL)
+			#define Endpoint_IsConfigured()                  ((UESTA0X & (1 << CFGOK)) ? true : false)
 			#define Endpoint_GetEndpointInterrupts()           UEINT
 			#define Endpoint_ClearEndpointInterrupt(n) MACROS{ UEINT   &= ~(1 << n);                     }MACROE
 			#define Endpoint_HasEndpointInterrupted(n)       ((UEINT   & (1 << (n & ENDPOINT_EPNUM_MASK))) ? true : false)
@@ -235,7 +232,7 @@
 			};
 
 		/* Function Prototypes: */
-			bool Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum, const uint8_t UECFG0Xdata,
+			void Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum, const uint8_t UECFG0Xdata,
 			                                  const uint8_t UECFG1Xdata);
 
 #endif

@@ -19,9 +19,6 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define PIPE_CONFIG_OK                         true
-			#define PIPE_CONFIG_FAIL                       false
-
 			#define PIPE_ERRORFLAG_CRC16                   (1 << 4)
 			#define PIPE_ERRORFLAG_TIMEOUT                 (1 << 3)
 			#define PIPE_ERRORFLAG_PID                     (1 << 2)
@@ -72,7 +69,7 @@
 												   MACROS{ Pipe_ConfigurePipe_P(num,         \
 																			  ((type << PTYPE0) | token | ((epnum & PIPE_EPNUM_MASK) << PEPNUM0)),   \
 																			  (Pipe_BytesToEPSizeMask(size) | banks)); }MACROE
-			#define Pipe_IsConfigured()                  ((UPSTAX  & (1 << CFGOK)) ? PIPE_CONFIG_OK : PIPE_CONFIG_FAIL)
+			#define Pipe_IsConfigured()                  ((UPSTAX  & (1 << CFGOK)) ? true : false)
 			#define Pipe_SetInterruptFreq(ms)      MACROS{ UPCFG2X  = ms;                                          }MACROE
 			#define Pipe_GetPipeInterrupts()               UPINT
 			#define Pipe_ClearPipeInterrupt(n)     MACROS{ UPINT   &= ~(1 << n);                                   }MACROE
@@ -250,7 +247,7 @@
 			};
 		
 		/* Function Prototypes: */
-			bool    Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata,
+			void    Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata,
 			                             const uint8_t UPCFG1Xdata);
 
 #endif
