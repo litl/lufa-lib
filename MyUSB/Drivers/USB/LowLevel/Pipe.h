@@ -92,7 +92,7 @@
 
 			#define Pipe_Setup_In_Clear()          MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);    }MACROE
 			#define Pipe_Setup_In_IsReceived()           ((UPINTX  &   (1 << RXINI)) ? true : false)
-			#define Pipe_Setup_Out_Clear()         MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
+			#define Pipe_Setup_Out_Clear()          MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
 			#define Pipe_Setup_Out_IsReady()             ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 
 		/* Function Aliases */
