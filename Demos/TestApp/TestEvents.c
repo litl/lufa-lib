@@ -148,3 +148,8 @@ EVENT_HANDLER(USB_DeviceUnattached)
 {
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_YELLOW "Device -\r\n"));
 }
+
+EVENT_HANDLER(USB_DeviceEnumerationComplete)
+{
+	puts_P(PSTR(EVENT_PREFIX "Device Enumeration Complete"));
+}

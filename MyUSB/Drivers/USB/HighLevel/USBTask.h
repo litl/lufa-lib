@@ -40,6 +40,7 @@
 				RAISES_EVENT(USB_DeviceAttached);
 				RAISES_EVENT(USB_DeviceUnattached);
 				RAISES_EVENT(USB_DeviceEnumerationFailed);
+				RAISES_EVENT(USB_DeviceEnumerationComplete);
 			#endif
 
 		/* Tasks: */

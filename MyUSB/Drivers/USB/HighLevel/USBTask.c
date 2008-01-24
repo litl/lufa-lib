@@ -266,6 +266,7 @@ static void USB_HostTask(void)
 
 			USB_HOST_SetDeviceAddress(USB_HOST_DEVICEADDRESS);
 			
+			RAISE_EVENT(USB_DeviceEnumerationComplete);
 			USB_HostState = HOST_STATE_Addressed;
 
 			break;
