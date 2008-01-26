@@ -409,7 +409,7 @@ uint8_t MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blo
 	Pipe_Unfreeze();
 
 	/* Write the CBW command to the OUT pipe */
-	for (uint8_t Byte = 0; Byte < (sizeof(SCSICommand.Header) + SCSICommand.Header.SCSICommandLength); Byte++)
+	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
 	  Pipe_Write_Byte(*(CommandByte++));
 
 	/* Send the data in the OUT pipe to the attached device */
