@@ -86,7 +86,7 @@
 
 		/* Global Variables: */
 			extern volatile uint8_t USB_CurrentMode;
-			extern          uint8_t USB_Options;
+			extern volatile uint8_t USB_Options;
 
 		/* Throwable Events: */
 			RAISES_EVENT(USB_Disconnect);

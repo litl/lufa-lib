@@ -23,10 +23,11 @@
 			#define EVENT_HANDLER(e)              void Event_ ## e e ## _P
 			#define HANDLES_EVENT(e)              EVENT_HANDLER(e) e ## _M
 			#define RAISES_EVENT(e)               HANDLES_EVENT(e)
-			#define ALIAS_STUB(e)                 EVENT_HANDLER(e) ATTR_WEAK ATTR_ALIAS(__stub)
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
+			#define ALIAS_STUB(e)                 EVENT_HANDLER(e) ATTR_WEAK ATTR_ALIAS(__stub)
+
 			#define NO_EVENT_ATTRIBUTES
 		
 			// Event Parameters:

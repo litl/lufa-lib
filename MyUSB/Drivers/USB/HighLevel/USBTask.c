@@ -27,8 +27,7 @@ volatile uint8_t   USB_HostState;
 TASK(USB_USBTask)
 {
 	#if defined(USB_HOST_ONLY)
-		if (USB_IsInitialized)
-		  USB_HostTask();
+		USB_HostTask();
 	#elif defined(USB_DEVICE_ONLY)
 		USB_DeviceTask();
 	#else
@@ -76,44 +75,11 @@ static void USB_HostTask(void)
 {
 	switch (USB_HostState)
 	{
-		case HOST_STATE_Unattached:
-			USB_INT_Disable(USB_INT_DDISCI);
-
-			USB_HOST_VBUS_Auto_Off();
-			USB_OTGPAD_Off();
-
-			USB_HOST_VBUS_Manual_Enable();
-			USB_HOST_VBUS_Manual_On();
-			
-			if (USB_INT_HasOccurred(USB_INT_SRPI))
-			{
-				USB_INT_Clear(USB_INT_SRPI);
-			
-				USB_HOST_VBUS_Manual_Off();
-
-				USB_OTGPAD_On();
-				USB_HOST_VBUS_Auto_Enable();
-				USB_HOST_VBUS_Auto_On();
-
-				USB_HostState = HOST_STATE_Attached;
-			}
-
-			if (USB_INT_HasOccurred(USB_INT_BCERRI))
-			{
-				USB_INT_Clear(USB_INT_BCERRI);
-				
-				USB_HOST_VBUS_Manual_Off();
-			}
-				
-			break;
 		case HOST_STATE_Attached:
 			if (USB_INT_HasOccurred(USB_INT_DCONNI))
 			{	
 				USB_INT_Clear(USB_INT_DCONNI);
 				USB_INT_Clear(USB_INT_DDISCI);
-				USB_INT_Enable(USB_INT_DDISCI);
-
-				RAISE_EVENT(USB_DeviceAttached);
 
 				USB_IsConnected = true;
 				RAISE_EVENT(USB_Connect);
@@ -129,7 +95,7 @@ static void USB_HostTask(void)
 
 					RAISE_EVENT(USB_DeviceUnattached);
 
-					USB_HostState = HOST_STATE_Unattached;
+					USB_Host_PrepareForDeviceConnect();
 					break;
 				}
 					
@@ -143,7 +109,7 @@ static void USB_HostTask(void)
 
 					RAISE_EVENT(USB_DeviceUnattached);
 
-					USB_HostState = HOST_STATE_Unattached;
+					USB_Host_PrepareForDeviceConnect();
 					break;
 				}
 
@@ -158,7 +124,7 @@ static void USB_HostTask(void)
 
 				USB_HOST_VBUS_Auto_Off();
 
-				USB_HostState = HOST_STATE_Unattached;
+				USB_Host_PrepareForDeviceConnect();
 			}
 				
 			break;
@@ -171,7 +137,7 @@ static void USB_HostTask(void)
 
 				RAISE_EVENT(USB_DeviceUnattached);
 
-				USB_HostState = HOST_STATE_Unattached;
+				USB_Host_PrepareForDeviceConnect();
 				break;
 			}
  
@@ -203,7 +169,7 @@ static void USB_HostTask(void)
 
 				RAISE_EVENT(USB_DeviceUnattached);
 
-				USB_HostState = HOST_STATE_Unattached;
+				USB_Host_PrepareForDeviceConnect();
 				break;
 			}
 			
@@ -219,7 +185,7 @@ static void USB_HostTask(void)
 
 				RAISE_EVENT(USB_DeviceUnattached);
 
-				USB_HostState = HOST_STATE_Unattached;
+				USB_Host_PrepareForDeviceConnect();
 				break;
 			}
 
@@ -239,7 +205,7 @@ static void USB_HostTask(void)
 
 				RAISE_EVENT(USB_DeviceUnattached);
 
-				USB_HostState = HOST_STATE_Unattached;
+				USB_Host_PrepareForDeviceConnect();
 				break;
 			}
 
@@ -260,7 +226,7 @@ static void USB_HostTask(void)
 
 				RAISE_EVENT(USB_DeviceUnattached);
 
-				USB_HostState = HOST_STATE_Unattached;
+				USB_Host_PrepareForDeviceConnect();
 				break;
 			}
 

@@ -29,8 +29,8 @@ BUTTLOADTAG(BuildDate, __DATE__);
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ Task: USB_MassStore_Host   , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
+	{ Task: USB_MassStore_Host   , TaskStatus: TASK_STOP },
 };
 
 /* Globals */
@@ -53,26 +53,37 @@ int main(void)
 	
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
-	
-	/* Initialize USB Subsystem */
-	USB_Init(USB_MODE_HOST, USB_OPT_REG_ENABLED);
 
 	/* Startup message */
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
 	       "MassStore Host Demo running.\r\n" ESC_INVERSE_OFF));
 		   
-	/* Scheduling - routine never returns, so put this last in the main function */
+	/* Initialize Scheduler so that it can be used */
+	Scheduler_Init();
+
+	/* Initialize USB Subsystem */
+	USB_Init(USB_MODE_HOST, USB_OPT_REG_ENABLED);
+	
+	/* Scheduling routine never returns, so put this last in the main function */
 	Scheduler_Start();
 }
 
 EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR("Device Attached.\r\n"));
-	Bicolour_SetLeds(BICOLOUR_NO_LEDS);	
+	Bicolour_SetLeds(BICOLOUR_NO_LEDS);
+	
+	/* Start USB management and Mass Storage tasks */
+	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
+	Scheduler_SetTaskMode(USB_MassStore_Host, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_DeviceUnattached)
 {
+	/* Stop USB management and Mass Storage tasks */
+	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
+	Scheduler_SetTaskMode(USB_MassStore_Host, TASK_STOP);
+
 	puts_P(PSTR("\r\nDevice Unattached.\r\n"));
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 }
@@ -228,11 +239,13 @@ TASK(USB_MassStore_Host)
 
 			/* Create a new buffer capabable of holding a single block from the device */
 			uint8_t BlockBuffer[DEVICE_BLOCK_SIZE];
-						
+
 			/* Read in the first 512 byte block from the device */
-			if (!(MassStore_ReadDeviceBlock(0, 1, BlockBuffer)))
+			uint8_t ReadErrorCode = MassStore_ReadDeviceBlock(0, 1, BlockBuffer);
+			if (ReadErrorCode)
 			{
 				puts_P(PSTR(ESC_BG_RED "Error reading disk.\r\n"));
+				printf_P(PSTR("  -- Error Code: %d"), ReadErrorCode);
 
 				/* Indicate device error via the status LEDs */
 				Bicolour_SetLeds(BICOLOUR_LED1_RED);				
@@ -354,7 +367,7 @@ uint8_t GetConfigDescriptorData(void)
 	return SuccessfulConfigRead;
 }
 
-bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
+uint8_t MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
 {
 	uint16_t BytesRem = (Blocks * DEVICE_BLOCK_SIZE);
 
@@ -395,10 +408,10 @@ bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks
 	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 	Pipe_Unfreeze();
 
-	/* Write the CBW to the OUT pipe */
-	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
+	/* Write the CBW command to the OUT pipe */
+	for (uint8_t Byte = 0; Byte < (sizeof(SCSICommand.Header) + SCSICommand.Header.SCSICommandLength); Byte++)
 	  Pipe_Write_Byte(*(CommandByte++));
-	  
+
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_FIFOCON_Clear();
 	Pipe_Freeze();
@@ -414,17 +427,17 @@ bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks
 
 		/* Check if pipe stalled (command failed by device) */
 		if (Pipe_IsStalled())
-		  return false;
+		  return OutPipeStalled;
 
 		Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 
 		/* Check if pipe stalled (command failed by device) */
 		if (Pipe_IsStalled())
-		  return false;
+		  return InPipeStalled;
 		  
 		/* Check to see if the device was disconnected, if so exit function */
 		if (!(USB_IsConnected))
-		  return false;
+		  return DeviceDisconnected;
 	};
 	
 	/* Loop until all bytes read */
@@ -438,12 +451,13 @@ bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks
 		
 		/* Check to see if the device was disconnected, if so exit function */
 		if (!(USB_IsConnected))
-		  return false;
+		  return DeviceDisconnected;
 
 		/* When pipe is empty, clear it and wait for the next packet */
 		if (!(Pipe_BytesInPipe()))
 		{
 			Pipe_FIFOCON_Clear();
+			
 			while (!(Pipe_ReadWriteAllowed()));
 		}
 	}
@@ -456,10 +470,10 @@ bool MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks
 	/* Wait one frame for the device to prepare for next command */
 	USB_Host_WaitMS(1);
 
-	return true;
+	return NoError;
 }
 
-bool MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
+uint8_t MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
 {
 	uint16_t BytesRem        = (Blocks * DEVICE_BLOCK_SIZE);
 	uint16_t BytesInEndpoint = 0;
@@ -544,5 +558,5 @@ bool MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Block
 	/* Wait one frame for the device to prepare for next command */
 	USB_Host_WaitMS(1);
 
-	return true;
+	return NoError;
 }

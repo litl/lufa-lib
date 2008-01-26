@@ -31,8 +31,8 @@ BUTTLOADTAG(BuildDate, __DATE__);
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ Task: USB_Mouse_Host       , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
+	{ Task: USB_Mouse_Host       , TaskStatus: TASK_STOP },
 };
 
 /* Globals */
@@ -53,6 +53,9 @@ int main(void)
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	
+	/* Initialize Scheduler so that it can be used */
+	Scheduler_Init();
+
 	/* Initialize USB Subsystem */
 	USB_Init(USB_MODE_HOST, USB_OPT_REG_ENABLED);
 
@@ -67,12 +70,20 @@ int main(void)
 EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR("Device Attached.\r\n"));
-	Bicolour_SetLeds(BICOLOUR_NO_LEDS);	
+	Bicolour_SetLeds(BICOLOUR_NO_LEDS);
+	
+	/* Start mouse and USB management task */
+	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
+	Scheduler_SetTaskMode(USB_Mouse_Host, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_DeviceUnattached)
 {
-	puts_P(PSTR("Device Unattached.\r\n"));
+	/* Stop mouse and USB management task */
+	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
+	Scheduler_SetTaskMode(USB_Mouse_Host, TASK_STOP);
+
+	puts_P(PSTR("\r\nDevice Unattached.\r\n"));
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 }
 

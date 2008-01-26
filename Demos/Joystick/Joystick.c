@@ -31,8 +31,8 @@ BUTTLOADTAG(BuildDate, __DATE__);
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
-	{ Task: USB_Joystick_Report  , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
+	{ Task: USB_Joystick_Report  , TaskStatus: TASK_STOP },
 };
 
 int main(void)
@@ -49,11 +49,33 @@ int main(void)
 	/* Initial LED colour - Double red to indicate USB not ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	
+	/* Initialize Scheduler so that it can be used */
+	Scheduler_Init();
+
 	/* Initialize USB Subsystem */
 	USB_Init(USB_MODE_DEVICE, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
 
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
+}
+
+EVENT_HANDLER(USB_Connect)
+{
+	/* Start USB management task */
+	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
+
+	/* Red/green to indicate USB enumerating */
+	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_GREEN);
+}
+
+EVENT_HANDLER(USB_Disconnect)
+{
+	/* Stop running joystick reporting and USB management tasks */
+	Scheduler_SetTaskMode(USB_Joystick_Report, TASK_STOP);
+	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
+
+	/* Double red to indicate USB not ready */
+	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
@@ -65,6 +87,9 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 	/* Double green to indicate USB connected and ready */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+
+	/* Start joystick reporting task */
+	Scheduler_SetTaskMode(USB_Joystick_Report, TASK_RUN);
 }
 
 TASK(USB_Joystick_Report)

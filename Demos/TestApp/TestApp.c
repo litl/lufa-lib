@@ -55,7 +55,7 @@ TASK_LIST
 	{ Task: TestApp_CheckJoystick, TaskStatus: TASK_RUN  },
 	{ Task: TestApp_CheckHWB     , TaskStatus: TASK_RUN  },
 	{ Task: TestApp_CheckTemp    , TaskStatus: TASK_RUN  },
-	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
+	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
 };
 
 int main(void)

@@ -137,7 +137,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_DEVICE_ONLY
+CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_DEVICE_ONLY -DDISABLE_TERMINAL_CODES
 
 
 # Place -D or -U options here for ASM sources

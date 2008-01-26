@@ -33,6 +33,8 @@
 		#define SERIAL_2X_UBBRVAL(baud)      (((F_CPU / 8) / baud) - 1)
 
 	/* Event Handlers: */
+		HANDLES_EVENT(USB_Connect);
+		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_CreateEndpoints);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 		

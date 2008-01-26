@@ -11,7 +11,7 @@
 #include "Scheduler.h"
 
 volatile SchedulerDelayCounter_t Scheduler_TickCounter;
-         uint8_t                 Scheduler_TotalTasks;
+volatile uint8_t                 Scheduler_TotalTasks;
 
 bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* const TaskCounter)
 {

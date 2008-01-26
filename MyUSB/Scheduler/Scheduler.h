@@ -28,6 +28,7 @@
 			#define TASK_STOP                         false
 			
 			#define Scheduler_Start()                 Scheduler_GoSchedule(TOTAL_TASKS);
+			#define Scheduler_Init()                  Scheduler_InitScheduler(TOTAL_TASKS);
 
 		/* Type Defines */
 			typedef void (*TaskPtr_t)(void);
@@ -40,10 +41,15 @@
 
 		/* Global Variables */
 			extern          TaskEntry_t               Scheduler_TaskList[];
-			extern          uint8_t                   Scheduler_TotalTasks;
+			extern volatile uint8_t                   Scheduler_TotalTasks;
 			extern volatile SchedulerDelayCounter_t   Scheduler_TickCounter;
 
 		/* Inline Functions */
+			static inline void Scheduler_InitScheduler(const uint8_t TotalTasks)
+			{
+				Scheduler_TotalTasks = TotalTasks;
+			}
+		
 			static inline void Scheduler_GoSchedule(const uint8_t TotalTasks) ATTR_NO_RETURN;
 			static inline void Scheduler_GoSchedule(const uint8_t TotalTasks)
 			{

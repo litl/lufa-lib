@@ -95,4 +95,18 @@ void USB_Host_ResetDevice(void)
 	USB_INT_Enable(USB_INT_DDISCI);
 }
 
+void USB_Host_PrepareForDeviceConnect(void)
+{
+	USB_HOST_VBUS_Auto_Off();
+	USB_OTGPAD_Off();
+
+	USB_HOST_VBUS_Manual_Enable();
+	USB_HOST_VBUS_Manual_On();
+	
+	USB_INT_Enable(USB_INT_SRPI);
+	USB_INT_Enable(USB_INT_BCERRI);
+
+	USB_HostState = HOST_STATE_Unattached;
+}
+
 #endif

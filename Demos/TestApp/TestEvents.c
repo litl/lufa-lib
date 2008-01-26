@@ -38,10 +38,14 @@ EVENT_HANDLER(USB_Connect)
 {
 	puts_P(PSTR(EVENT_PREFIX "USB  +\r\n"));
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
+	
+	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_Disconnect)
 {
+	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
+
 	puts_P(PSTR(EVENT_PREFIX "USB  -\r\n"));
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
 }
@@ -142,6 +146,8 @@ EVENT_HANDLER(USB_CreateEndpoints)
 EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_GREEN "Device +\r\n"));
+
+	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_DeviceUnattached)

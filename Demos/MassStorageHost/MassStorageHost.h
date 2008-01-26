@@ -85,7 +85,15 @@
 			Command_Pass = 0,
 			Command_Fail = 1,
 			Phase_Error  = 2
-		} CommandStatusCodes;
+		} CommandStatusCodes_t;
+		
+		enum
+		{
+			NoError            = 0,
+			InPipeStalled      = 1,
+			OutPipeStalled     = 2,
+			DeviceDisconnected = 3,
+		} ReadWriteErrorCodes_t;
 
 	/* Task Definitions: */
 		TASK(USB_MassStore_Host);
@@ -98,9 +106,9 @@
 		
 	/* Function Prototypes: */
 		uint8_t GetConfigDescriptorData(void);
-		bool    MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
+		uint8_t MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
 		                                   uint8_t* Buffer) ATTR_NON_NULL_PTR_ARG(3);
-		bool    MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
+		uint8_t MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
 		                                   uint8_t* BufferPtr) ATTR_NON_NULL_PTR_ARG(3);
 		
 #endif

@@ -12,7 +12,7 @@
 #include "LowLevel.h"
 
 volatile uint8_t USB_CurrentMode = USB_MODE_NONE;
-         uint8_t USB_Options;
+volatile uint8_t USB_Options;
 
 void USB_Init(const uint8_t Mode, const uint8_t Options)
 {
@@ -195,6 +195,9 @@ bool USB_SetupInterface(void)
 
 	#if defined(USB_CAN_BE_HOST)
 	USB_INT_Enable(USB_INT_VBERRI);
+	
+	if (USB_CurrentMode == USB_MODE_HOST)
+	  USB_Host_PrepareForDeviceConnect();
 	#endif
 	
 	#if defined(USB_DEVICE_ONLY)

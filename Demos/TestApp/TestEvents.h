@@ -14,11 +14,13 @@
 	/* Includes: */
 		#include <avr/io.h>
 
+		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
 		#include <MyUSB/Common/Common.h>                          // Function Attribute, Atomic, Debug and ISR Macros
 		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>                // Bicolour LED driver for USBKEY
 		#include <MyUSB/Drivers/AT90USB_64x_128x/Serial_Stream.h> // USART Stream driver
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
+		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 
 	/* Event Catch List: */
 		HANDLES_EVENT(USB_VBUSChange);
