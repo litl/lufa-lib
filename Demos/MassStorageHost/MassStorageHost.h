@@ -16,7 +16,7 @@
 		#include <avr/pgmspace.h>
 		#include <stdio.h>
 
-		#include "../MassStorage/SCSI_Codes.h"
+		#include "MassStoreCommands.h"
 
 		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
@@ -26,49 +26,11 @@
 		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 		
 	/* Macros */
-		#define MASS_STORAGE_RESET               0xFF
-		#define GET_MAX_LUN                      0xFE
-
-		#define MASS_STORE_DATA_IN_PIPE          0x01
-		#define MASS_STORE_DATA_OUT_PIPE         0x02
-
 		#define MASS_STORE_CLASS                 0x08
 		#define MASS_STORE_SUBCLASS              0x06
 		#define MASS_STORE_PROTOCOL              0x50
 		
 		#define MAX_CONFIG_DESCRIPTOR_SIZE       512
-		
-		#define CBW_SIGNATURE                    0x43425355UL // USBC
-		#define CSW_SIGNATURE                    0x53425355UL // USBS
-		
-		#define COMMAND_DIRECTION_DATA_OUT       (0 << 7)
-		#define COMMAND_DIRECTION_DATA_IN        (1 << 7)
-		
-		#define DEVICE_BLOCK_SIZE                512
-
-	/* Type defines: */
-		typedef struct
-		{
-			struct
-			{
-				uint32_t Signature;
-				uint32_t Tag;
-				uint32_t DataTransferLength;
-				uint8_t  Flags;
-				uint8_t  LUN;
-				uint8_t  SCSICommandLength;			
-			} Header;
-			
-			uint8_t SCSICommandData[16];
-		} CommandBlockWrapper_t;
-		
-		typedef struct
-		{
-			const uint32_t Signature;
-			      uint32_t Tag;
-			      uint32_t SCSICommandResidue;
-			      uint8_t  Status;			
-		} CommandStatusWrapper_t;
 
 	/* Enums */
 		enum
@@ -80,21 +42,6 @@
 			SuccessfulConfigRead = 6,
 		} GetConfigDescriptorDataCodes_t;
 
-		enum
-		{
-			Command_Pass = 0,
-			Command_Fail = 1,
-			Phase_Error  = 2
-		} CommandStatusCodes_t;
-		
-		enum
-		{
-			NoError            = 0,
-			InPipeStalled      = 1,
-			OutPipeStalled     = 2,
-			DeviceDisconnected = 3,
-		} ReadWriteErrorCodes_t;
-
 	/* Task Definitions: */
 		TASK(USB_MassStore_Host);
 
@@ -104,11 +51,12 @@
 		HANDLES_EVENT(USB_HostError);
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 		
+	/* External Variables: */
+		extern uint16_t MassStoreEndpointSize_IN;
+		extern uint16_t MassStoreEndpointSize_OUT;
+		
 	/* Function Prototypes: */
+		void    ShowDiskReadError(uint8_t ErrorCode);
 		uint8_t GetConfigDescriptorData(void);
-		uint8_t MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
-		                                   uint8_t* Buffer) ATTR_NON_NULL_PTR_ARG(3);
-		uint8_t MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks,
-		                                   uint8_t* BufferPtr) ATTR_NON_NULL_PTR_ARG(3);
 		
 #endif

@@ -34,12 +34,11 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t  MassStoreEndpointNumber_IN;
-uint8_t  MassStoreEndpointNumber_OUT;
-uint16_t MassStoreEndpointSize_IN;
-uint16_t MassStoreEndpointSize_OUT;
-uint8_t  MassStore_NumberOfLUNs;
-uint32_t MassStore_Tag = 1;
+uint8_t                MassStoreEndpointNumber_IN;
+uint8_t                MassStoreEndpointNumber_OUT;
+uint16_t               MassStoreEndpointSize_IN;
+uint16_t               MassStoreEndpointSize_OUT;
+uint8_t                MassStore_NumberOfLUNs;
 
 int main(void)
 {
@@ -236,30 +235,57 @@ TASK(USB_MassStore_Host)
 				while (USB_IsConnected);
 				break;
 			}
+			
+			/* Print number of LUNs detected in the attached device */
+			printf_P(PSTR("Total LUNs: %d.\r\n"), (MassStore_NumberOfLUNs + 1));
+			
+			/* Get sense data from the device - it will not respond to requests until this is done */
+			SCSI_Request_Sense_Response_t SenseData;
+			MassStore_RequestSense(0, &SenseData);
+			
+			/* Set the prevent removal flag for the device, allowing it to be accessed */
+			MassStore_PreventAllowMediumRemoval(0, true);
+			
+			puts_P(PSTR("Waiting until ready.\r\n"));
+			
+			/* Wait until disk ready */
+			do
+			{
+				Serial_TxByte('.');
+				MassStore_TestUnitReady(0);
+			}
+			while (SCSICommandStatus.Status != Command_Pass);
+			
+			puts_P(PSTR("\r\nRetrieving Capacity.\r\n"));
 
+			/* Create new structure for the disk's capacity in blocks and block size */
+			SCSI_Capacity_t DiskCapacity;
+
+			/* Retrieve disk capacity */
+			if ((ErrorCode = MassStore_ReadCapacity(0, &DiskCapacity)) != 0)
+			{
+				ShowDiskReadError(ErrorCode);
+				break;
+			}
+			
+			/* Display the disk capacity in blocks * block size bytes */
+			printf_P(PSTR("Capacity: %u*%u bytes.\r\n"), DiskCapacity.Blocks, DiskCapacity.BlockSize);
+			
 			/* Create a new buffer capabable of holding a single block from the device */
 			uint8_t BlockBuffer[DEVICE_BLOCK_SIZE];
 
 			/* Read in the first 512 byte block from the device */
-			uint8_t ReadErrorCode = MassStore_ReadDeviceBlock(0, 1, BlockBuffer);
-			if (ReadErrorCode)
+			if ((ErrorCode = MassStore_ReadDeviceBlock(0, 0, 1, BlockBuffer)) != 0)
 			{
-				puts_P(PSTR(ESC_BG_RED "Error reading disk.\r\n"));
-				printf_P(PSTR("  -- Error Code: %d"), ReadErrorCode);
-
-				/* Indicate device error via the status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);				
-
-				/* Wait until USB device disconnected */
-				while (USB_IsConnected);
+				ShowDiskReadError(ErrorCode);
 				break;
 			}
-			else
-			{
-				/* Print the block bytes out through the serial USART */
-				for (uint16_t Byte = 0; Byte < DEVICE_BLOCK_SIZE; Byte++)
-				  Serial_TxByte(BlockBuffer[Byte]);
-			}
+			
+			puts_P(PSTR("Contents of first block:\r\n"));
+			
+			/* Print the block bytes out through the serial USART */
+			for (uint16_t Byte = 0; Byte < DEVICE_BLOCK_SIZE; Byte++)
+			  Serial_TxByte(BlockBuffer[Byte]);
 			
 			/* Indicate device no longer busy */
 			Bicolour_SetLeds(BICOLOUR_LED2_GREEN);			
@@ -269,6 +295,19 @@ TASK(USB_MassStore_Host)
 			
 			break;
 	}
+}
+
+void ShowDiskReadError(uint8_t ErrorCode)
+{
+	/* Display the error code */
+	puts_P(PSTR(ESC_BG_RED "Command error.\r\n"));
+	printf_P(PSTR("  -- Error Code: %d"), ErrorCode);
+
+	/* Indicate device error via the status LEDs */
+	Bicolour_SetLeds(BICOLOUR_LED1_RED);				
+
+	/* Wait until USB device disconnected */
+	while (USB_IsConnected);
 }
 
 uint8_t GetConfigDescriptorData(void)
@@ -365,198 +404,4 @@ uint8_t GetConfigDescriptorData(void)
 	
 	/* Valid data found, return success */
 	return SuccessfulConfigRead;
-}
-
-uint8_t MassStore_ReadDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
-{
-	uint16_t BytesRem = (Blocks * DEVICE_BLOCK_SIZE);
-
-	/* Create a CBW with a SCSI command to read in the given blocks from the device */
-	CommandBlockWrapper_t SCSICommand =
-		{
-			Header:
-				{
-					Signature:          CBW_SIGNATURE,
-					Tag:                MassStore_Tag,
-					DataTransferLength: BytesRem,
-					Flags:              COMMAND_DIRECTION_DATA_IN,
-					LUN:                0x00,
-					SCSICommandLength:  10
-				},
-					
-			SCSICommandData:
-				{
-					SCSI_CMD_READ_10,
-					0x00,                   // Unused (control bits, all off)
-					(BlockAddress >> 24),   // MSB of Block Address
-					(BlockAddress >> 16),
-					(BlockAddress >> 8),
-					(BlockAddress & 0xFF),  // LSB of Block Address
-					0x00,                   // Unused (reserved)
-					0x00,                   // MSB of Total Blocks to Read
-					Blocks,                 // LSB of Total Blocks to Read
-					0x00                    // Unused (control)
-				}
-		};
-			
-	uint8_t* CommandByte = (uint8_t*)&SCSICommand;
-
-	/* Each transmission should have a unique tag value */
-	MassStore_Tag++;
-
-	/* Select the OUT data pipe for CBW transmission */
-	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-	Pipe_Unfreeze();
-
-	/* Write the CBW command to the OUT pipe */
-	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
-	  Pipe_Write_Byte(*(CommandByte++));
-
-	/* Send the data in the OUT pipe to the attached device */
-	Pipe_FIFOCON_Clear();
-	Pipe_Freeze();
-
-	/* Select the IN data pipe for data reception */
-	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-	Pipe_Unfreeze();	
-		
-	/* Wait until data recieved in the IN pipe */
-	while (!(Pipe_ReadWriteAllowed()))
-	{
-		Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-
-		/* Check if pipe stalled (command failed by device) */
-		if (Pipe_IsStalled())
-		  return OutPipeStalled;
-
-		Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-
-		/* Check if pipe stalled (command failed by device) */
-		if (Pipe_IsStalled())
-		  return InPipeStalled;
-		  
-		/* Check to see if the device was disconnected, if so exit function */
-		if (!(USB_IsConnected))
-		  return DeviceDisconnected;
-	};
-	
-	/* Loop until all bytes read */
-	while (BytesRem)
-	{
-		/* Load each byte into the buffer */
-		*(BufferPtr++) = Pipe_Read_Byte();
-		
-		/* Decrement the bytes remaining counter */
-		BytesRem--;
-		
-		/* Check to see if the device was disconnected, if so exit function */
-		if (!(USB_IsConnected))
-		  return DeviceDisconnected;
-
-		/* When pipe is empty, clear it and wait for the next packet */
-		if (!(Pipe_BytesInPipe()))
-		{
-			Pipe_FIFOCON_Clear();
-			
-			while (!(Pipe_ReadWriteAllowed()));
-		}
-	}
-			
-	/* Ignore the returned CSW */
-	while (!(Pipe_ReadWriteAllowed()));
-	Pipe_FIFOCON_Clear();
-	Pipe_Freeze();
-
-	/* Wait one frame for the device to prepare for next command */
-	USB_Host_WaitMS(1);
-
-	return NoError;
-}
-
-uint8_t MassStore_WriteDeviceBlock(const uint32_t BlockAddress, const uint8_t Blocks, uint8_t* BufferPtr)
-{
-	uint16_t BytesRem        = (Blocks * DEVICE_BLOCK_SIZE);
-	uint16_t BytesInEndpoint = 0;
-
-	/* Create a CBW with a SCSI command to write the given blocks to the device */
-	CommandBlockWrapper_t SCSICommand =
-		{
-			Header:
-				{
-					Signature:          CBW_SIGNATURE,
-					Tag:                MassStore_Tag,
-					DataTransferLength: BytesRem,
-					Flags:              COMMAND_DIRECTION_DATA_OUT,
-					LUN:                0x00,
-					SCSICommandLength:  10
-				},
-					
-			SCSICommandData:
-				{
-					SCSI_CMD_WRITE_10,
-					0x00,                   // Unused (control bits, all off)
-					(BlockAddress >> 24),   // MSB of Block Address
-					(BlockAddress >> 16),
-					(BlockAddress >> 8),
-					(BlockAddress & 0xFF),  // LSB of Block Address
-					0x00,                   // Unused (reserved)
-					0x00,                   // MSB of Total Blocks to Read
-					Blocks,                 // LSB of Total Blocks to Read
-					0x00                    // Unused (control)
-				}
-		};
-			
-	uint8_t* CommandByte = (uint8_t*)&SCSICommand;
-			
-	/* Each transmission should have a unique tag value */
-	MassStore_Tag++;
-
-	/* Select the OUT data pipe for CBW transmission */
-	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-	Pipe_Unfreeze();
-
-	/* Write the CBW to the OUT pipe */
-	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
-	  Pipe_Write_Byte(*(CommandByte++));
-	  
-	/* Send the data in the OUT pipe to the attached device */
-	Pipe_FIFOCON_Clear();
-
-	/* Write the block data to the pipe */
-	while (BytesRem)
-	{
-		Pipe_Write_Byte(*(BufferPtr++));
-		
-		BytesRem--;
-		BytesInEndpoint++;
-		
-		/* Check if the pipe is full */
-		if (BytesInEndpoint == MassStoreEndpointSize_OUT)
-		{
-			/* Send the pipe data, clear the counter */
-			Pipe_FIFOCON_Clear();
-			BytesInEndpoint = 0;
-		}
-	}
-	
-	/* Check to see if any data is still in the pipe - if so, send it */
-	if (BytesInEndpoint)
-	  Pipe_FIFOCON_Clear();
-	
-	/* Freeze OUT pipe after use */
-	Pipe_Unfreeze();	
-
-	/* Select the IN data pipe for data reception */
-	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-	Pipe_Unfreeze();	
-
-	/* Ignore the returned CSW */
-	while (!(Pipe_ReadWriteAllowed()));
-	Pipe_FIFOCON_Clear();
-	Pipe_Freeze();
-
-	/* Wait one frame for the device to prepare for next command */
-	USB_Host_WaitMS(1);
-
-	return NoError;
 }

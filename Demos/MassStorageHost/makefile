@@ -81,6 +81,7 @@ OBJDIR = .
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                           \
+	  MassStoreCommands.c                                   \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
 	  ../../MyUSB/Drivers/AT90USB_64x_128x/Serial_Stream.c  \
 	  ../../MyUSB/Drivers/AT90USB_64x_128x/Serial.c         \
@@ -135,7 +136,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_HOST_ONLY -DDISABLE_TERMINAL_CODES
+CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_HOST_ONLY
 
 
 # Place -D or -U options here for ASM sources
