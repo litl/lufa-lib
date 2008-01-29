@@ -28,6 +28,8 @@
 		
 		#define COMMAND_DIRECTION_DATA_OUT       (0 << 7)
 		#define COMMAND_DIRECTION_DATA_IN        (1 << 7)
+		
+		#define COMMAND_DATA_TIMEOUT_MS          5000
 
 		#define MASS_STORE_DATA_IN_PIPE          0x01
 		#define MASS_STORE_DATA_OUT_PIPE         0x02
@@ -52,10 +54,10 @@
 		
 		typedef struct
 		{
-			const uint32_t Signature;
-			      uint32_t Tag;
-			      uint32_t SCSICommandResidue;
-			      uint8_t  Status;			
+			uint32_t Signature;
+			uint32_t Tag;
+			uint32_t SCSICommandResidue;
+			uint8_t  Status;			
 		} CommandStatusWrapper_t;
 		
 		typedef struct
@@ -100,6 +102,7 @@
 			InPipeStalled      = 1,
 			OutPipeStalled     = 2,
 			DeviceDisconnected = 3,
+			CommandTimeout     = 4
 		} ReadWriteErrorCodes_t;
 		
 	/* External Variables */
@@ -108,14 +111,15 @@
 	/* Function Prototypes */
 		void    MassStore_SendCommand(void);
 		uint8_t MassStore_WaitForDataRecieved(void);
-		uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr);
+		uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr) ATTR_NON_NULL_PTR_ARG(1);
 		void    MassStore_GetReturnedStatus(void);
 		
+		uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum);
+
 		uint8_t MassStore_RequestSense(const uint8_t LUNIndex, SCSI_Request_Sense_Response_t* SensePtr)
 		                                  ATTR_NON_NULL_PTR_ARG(2);
 		uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
 		                                  const uint8_t Blocks, uint8_t* BufferPtr) ATTR_NON_NULL_PTR_ARG(4);
-		uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum);
 		uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* CapacityPtr)
 		                                  ATTR_NON_NULL_PTR_ARG(2);
 		void    MassStore_TestUnitReady(const uint8_t LUNIndex);

@@ -42,6 +42,9 @@ void MassStore_SendCommand(void)
 
 uint8_t MassStore_WaitForDataRecieved(void)
 {
+	uint8_t  ErrorCode    = NoError;
+	uint16_t TimeoutMSRem = COMMAND_DATA_TIMEOUT_MS;
+
 	/* Unfreeze the OUT pipe so that it can be checked */
 	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 	Pipe_Unfreeze();
@@ -53,21 +56,33 @@ uint8_t MassStore_WaitForDataRecieved(void)
 	/* Wait until data recieved in the IN pipe */
 	while (!(Pipe_ReadWriteAllowed()))
 	{
+		/* Check to see if a new frame has been issued (1ms elapsed) */
+		if (USB_INT_HasOccurred(USB_INT_HSOFI))
+		{
+			/* Clear the flag and decrement the timout period counter */
+			USB_INT_Clear(USB_INT_HSOFI);
+			TimeoutMSRem--;
+
+			/* Check to see if the timeout period for the command has elapsed */
+			if (!(TimeoutMSRem))
+			{
+				/* Set error code and break out of the loop */
+				ErrorCode = CommandTimeout;
+				break;		
+			}
+		}
+	
 		Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 
 		/* Check if pipe stalled (command failed by device) */
 		if (Pipe_IsStalled())
 		{
-			/* Freeze IN and OUT pipes after use */
-			Pipe_Freeze();
-			Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-			Pipe_Freeze();
-			
-			/* Clear the stall condition on the IN pipe */
+			/* Clear the stall condition on the OUT pipe */
 			MassStore_ClearPipeStall(MASS_STORE_DATA_OUT_PIPE);
 
-			/* Return error code */
-			return OutPipeStalled;
+			/* Set error code and break out of the loop */
+			ErrorCode = OutPipeStalled;
+			break;
 		}
 
 		Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
@@ -75,37 +90,30 @@ uint8_t MassStore_WaitForDataRecieved(void)
 		/* Check if pipe stalled (command failed by device) */
 		if (Pipe_IsStalled())
 		{
-			/* Freeze IN and OUT pipes after use */
-			Pipe_Freeze();
-			Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-			Pipe_Freeze();
-
-			/* Clear the stall condition on the OUT pipe */
+			/* Clear the stall condition on the IN pipe */
 			MassStore_ClearPipeStall(MASS_STORE_DATA_IN_PIPE);
 
-			/* Return error code */
-			return InPipeStalled;
+			/* Set error code and break out of the loop */
+			ErrorCode = InPipeStalled;
+			break;
 		}
 		  
 		/* Check to see if the device was disconnected, if so exit function */
 		if (!(USB_IsConnected))
 		{
-			/* Freeze IN and OUT pipes after use */
-			Pipe_Freeze();
-			Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-			Pipe_Freeze();
-
-			/* Return error code */
-			return DeviceDisconnected;
+			/* Set error code and break out of the loop */
+			ErrorCode = DeviceDisconnected;
+			break;
 		}
 	};
 	
 	/* Freeze IN and OUT pipes after use */
+	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 	Pipe_Freeze();
 	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 	Pipe_Freeze();
 	
-	return NoError;
+	return ErrorCode;
 }
 
 uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
@@ -203,6 +211,20 @@ void MassStore_GetReturnedStatus(void)
 	Pipe_Freeze();
 }
 
+uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum)
+{
+	USB_HostRequest = (USB_Host_Request_Header_t)
+		{
+			RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_ENDPOINT),
+			RequestData: REQ_ClearFeature,
+			Value:       FEATURE_ENDPOINT,
+			Index:       PipeEndpointNum,
+			DataLength:  0,
+		};
+	
+	return USB_Host_SendControlRequest(NULL);
+}
+
 uint8_t MassStore_RequestSense(const uint8_t LUNIndex, SCSI_Request_Sense_Response_t* SensePtr)
 {
 	uint8_t ReturnCode = NoError;
@@ -296,20 +318,6 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 	MassStore_GetReturnedStatus();
 	
 	return ReturnCode;
-}
-
-uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum)
-{
-	USB_HostRequest = (USB_Host_Request_Header_t)
-		{
-			RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_ENDPOINT),
-			RequestData: REQ_ClearFeature,
-			Value:       FEATURE_ENDPOINT,
-			Index:       PipeEndpointNum,
-			DataLength:  0,
-		};
-	
-	return USB_Host_SendControlRequest(NULL);
 }
 
 void MassStore_TestUnitReady(const uint8_t LUNIndex)

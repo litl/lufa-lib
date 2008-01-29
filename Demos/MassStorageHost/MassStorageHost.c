@@ -34,11 +34,11 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t                MassStoreEndpointNumber_IN;
-uint8_t                MassStoreEndpointNumber_OUT;
-uint16_t               MassStoreEndpointSize_IN;
-uint16_t               MassStoreEndpointSize_OUT;
-uint8_t                MassStore_NumberOfLUNs;
+uint8_t  MassStoreEndpointNumber_IN;
+uint8_t  MassStoreEndpointNumber_OUT;
+uint16_t MassStoreEndpointSize_IN;
+uint16_t MassStoreEndpointSize_OUT;
+uint8_t  MassStore_NumberOfLUNs;
 
 int main(void)
 {
@@ -285,7 +285,7 @@ TASK(USB_MassStore_Host)
 			
 			/* Print the block bytes out through the serial USART */
 			for (uint16_t Byte = 0; Byte < DEVICE_BLOCK_SIZE; Byte++)
-			  Serial_TxByte(BlockBuffer[Byte]);
+			  printf_P(PSTR("0x%.2X "), BlockBuffer[Byte]);
 			
 			/* Indicate device no longer busy */
 			Bicolour_SetLeds(BICOLOUR_LED2_GREEN);			
