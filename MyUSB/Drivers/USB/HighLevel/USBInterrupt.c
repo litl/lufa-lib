@@ -145,6 +145,7 @@ ISR(USB_GEN_vect)
 		USB_INT_Clear(USB_INT_BCERRI);
 		
 		USB_HOST_VBUS_Manual_Off();
+		USB_Host_PrepareForDeviceConnect();
 	}
 	#endif
 

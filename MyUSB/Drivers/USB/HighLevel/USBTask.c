@@ -73,6 +73,8 @@ static void USB_DeviceTask(void)
 #if defined(USB_CAN_BE_HOST)
 static void USB_HostTask(void)
 {
+	uint8_t ErrorCode = 0;
+
 	switch (USB_HostState)
 	{
 		case HOST_STATE_Attached:
@@ -89,13 +91,7 @@ static void USB_HostTask(void)
 				
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
-					RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_WaitStage);
-
-					USB_HOST_VBUS_Auto_Off();
-
-					RAISE_EVENT(USB_DeviceUnattached);
-
-					USB_Host_PrepareForDeviceConnect();
+					ErrorCode = HOST_ENUMERROR_WaitStage;
 					break;
 				}
 					
@@ -103,13 +99,7 @@ static void USB_HostTask(void)
 					
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 				{
-					RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_WaitStage);
-
-					USB_HOST_VBUS_Auto_Off();
-
-					RAISE_EVENT(USB_DeviceUnattached);
-
-					USB_Host_PrepareForDeviceConnect();
+					ErrorCode = HOST_ENUMERROR_WaitStage;
 					break;
 				}
 
@@ -120,11 +110,7 @@ static void USB_HostTask(void)
 			{
 				USB_INT_Clear(USB_INT_BCERRI);
 
-				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_NoDeviceDetected);
-
-				USB_HOST_VBUS_Auto_Off();
-
-				USB_Host_PrepareForDeviceConnect();
+				ErrorCode = HOST_ENUMERROR_NoDeviceDetected;
 				break;
 			}
 				
@@ -132,13 +118,7 @@ static void USB_HostTask(void)
 		case HOST_STATE_Powered:
 			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
 			{
-				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_WaitStage);
-
-				USB_HOST_VBUS_Auto_Off();
-
-				RAISE_EVENT(USB_DeviceUnattached);
-
-				USB_Host_PrepareForDeviceConnect();
+				ErrorCode = HOST_ENUMERROR_WaitStage;
 				break;
 			}
  
@@ -161,16 +141,9 @@ static void USB_HostTask(void)
 
 			uint8_t* DataBuffer = __builtin_alloca(offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1);
 			
-			if (USB_Host_SendControlRequest(DataBuffer)
-			    != HOST_SENDCONTROL_Sucessful)
+			if (USB_Host_SendControlRequest(DataBuffer) != HOST_SENDCONTROL_Sucessful)
 			{
-				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_ControlError);
-
-				USB_HOST_VBUS_Auto_Off();
-
-				RAISE_EVENT(USB_DeviceUnattached);
-
-				USB_Host_PrepareForDeviceConnect();
+				ErrorCode = HOST_ENUMERROR_ControlError;
 				break;
 			}
 			
@@ -180,13 +153,7 @@ static void USB_HostTask(void)
 			
 			if (USB_Host_WaitMS(200) != HOST_WAITERROR_Sucessful)
 			{
-				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_WaitStage);
-
-				USB_HOST_VBUS_Auto_Off();
-
-				RAISE_EVENT(USB_DeviceUnattached);
-
-				USB_Host_PrepareForDeviceConnect();
+				ErrorCode = HOST_ENUMERROR_WaitStage;
 				break;
 			}
 
@@ -200,13 +167,7 @@ static void USB_HostTask(void)
 
 			if (!(Pipe_IsConfigured()))
 			{
-				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_PipeConfigError);
-
-				USB_HOST_VBUS_Auto_Off();
-
-				RAISE_EVENT(USB_DeviceUnattached);
-
-				USB_Host_PrepareForDeviceConnect();
+				ErrorCode = HOST_ENUMERROR_PipeConfigError;
 				break;
 			}
 
@@ -221,13 +182,7 @@ static void USB_HostTask(void)
 
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
 			{
-				RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_ControlError);
-
-				USB_HOST_VBUS_Auto_Off();
-
-				RAISE_EVENT(USB_DeviceUnattached);
-
-				USB_Host_PrepareForDeviceConnect();
+				ErrorCode = HOST_ENUMERROR_ControlError;
 				break;
 			}
 
@@ -237,6 +192,20 @@ static void USB_HostTask(void)
 			USB_HostState = HOST_STATE_Addressed;
 
 			break;
+	}
+
+	if (ErrorCode)
+	{
+		RAISE_EVENT(USB_DeviceEnumerationFailed, ErrorCode);
+
+		USB_HOST_VBUS_Auto_Off();
+
+		RAISE_EVENT(USB_DeviceUnattached);
+		
+		if (USB_IsConnected)
+		  RAISE_EVENT(USB_Disconnect);
+
+		USB_Host_PrepareForDeviceConnect();
 	}
 }
 #endif

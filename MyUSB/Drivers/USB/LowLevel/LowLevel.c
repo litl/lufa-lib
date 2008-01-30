@@ -9,6 +9,8 @@
 */
 
 #include "USBMode.h"
+
+#define INCLUDE_FROM_LOWLEVEL_C
 #include "LowLevel.h"
 
 volatile uint8_t USB_CurrentMode = USB_MODE_NONE;
@@ -103,7 +105,7 @@ void USB_ShutDown(void)
 	#endif
 }
 
-void USB_ResetInterface(void)
+static void USB_ResetInterface(void)
 {
 	if (USB_IsConnected)
 	  RAISE_EVENT(USB_Disconnect);
