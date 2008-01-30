@@ -31,11 +31,14 @@ void Pipe_ConfigurePipe_P(const uint8_t PipeNum,
 
 void Pipe_ClearPipes(void)
 {
+	UPINT = 0;
+
 	for (uint8_t PNum = 0; PNum < PIPE_MAXPIPES; PNum++)
 	{
 		Pipe_ResetPipe(PNum);
 		Pipe_SelectPipe(PNum);
 		UPIENX = 0;
+		UPINTX = 0;
 		Pipe_ClearError();
 		Pipe_ClearErrorFlags();
 		Pipe_DeallocateMemory();

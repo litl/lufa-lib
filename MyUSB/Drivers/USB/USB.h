@@ -15,6 +15,11 @@
 		#if ((defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__)) && defined(USB_HOST_ONLY))
 			#error USB_HOST_ONLY is not avaliable for the currently selected USB AVR model.
 		#endif
+		
+		#if (!(defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB647__) \
+		    || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__)))
+			#error The currently selected AVR model is not supported under the USB component of the MyUSB library.
+		#endif
 
 		#if (defined(USB_HOST_ONLY) && defined(USB_DEVICE_ONLY))
 			#error USB_HOST_ONLY and USB_DEVICE_ONLY are mutually exclusive.

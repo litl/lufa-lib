@@ -125,6 +125,7 @@ static void USB_HostTask(void)
 				USB_HOST_VBUS_Auto_Off();
 
 				USB_Host_PrepareForDeviceConnect();
+				break;
 			}
 				
 			break;
@@ -158,7 +159,7 @@ static void USB_HostTask(void)
 					DataLength:  PIPE_CONTROLPIPE_DEFAULT_SIZE,
 				};
 
-			uint8_t DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1];
+			uint8_t* DataBuffer = __builtin_alloca(offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1);
 			
 			if (USB_Host_SendControlRequest(DataBuffer)
 			    != HOST_SENDCONTROL_Sucessful)

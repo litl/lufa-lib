@@ -22,8 +22,8 @@ void MassStore_SendCommand(void)
 	/* Each transmission should have a unique tag value */
 	MassStore_Tag++;
 
-	/* Wait 5 frames before issuing a command to ensure device is ready */
-	USB_Host_WaitMS(5);
+	/* Wait 3 frames before issuing a command to ensure device is ready */
+	USB_Host_WaitMS(3);
 
 	/* Select the OUT data pipe for CBW transmission */
 	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
@@ -38,6 +38,9 @@ void MassStore_SendCommand(void)
 	
 	/* Freeze pipe after use */
 	Pipe_Freeze();
+	
+	/* Wait 3 frames before continuing to ensure device is ready */
+	USB_Host_WaitMS(3);
 }
 
 uint8_t MassStore_WaitForDataRecieved(void)
@@ -149,7 +152,15 @@ uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
 			{
 				Pipe_FIFOCON_Clear();
 				
-				while (!(Pipe_ReadWriteAllowed()));
+				while (!(Pipe_ReadWriteAllowed()))
+				{
+					if (!(USB_IsConnected))
+					{
+						Pipe_Freeze();
+
+						return DeviceDisconnected;
+					}
+				}
 			}
 		}
 	}
@@ -172,8 +183,17 @@ uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
 			/* Check if the pipe is full */
 			if (BytesInEndpoint == MassStoreEndpointSize_OUT)
 			{
-				/* Send the pipe data, clear the counter */
 				Pipe_FIFOCON_Clear();
+				while (!(Pipe_ReadWriteAllowed()))
+				{
+					if (!(USB_IsConnected))
+					{
+						Pipe_Freeze();
+
+						return DeviceDisconnected;
+					}					
+				}
+				
 				BytesInEndpoint = 0;
 			}
 		}
@@ -198,7 +218,15 @@ void MassStore_GetReturnedStatus(void)
 	Pipe_Unfreeze();
 
 	/* Wait until pipe is ready to be read from (contains data) */
-	while (!(Pipe_ReadWriteAllowed()));
+	while (!(Pipe_ReadWriteAllowed()))
+	{
+		/* If USB device is disconnected during transfer, exit function */
+		if (!(USB_IsConnected))
+		{
+			Pipe_Freeze();
+			return;
+		}
+	}
 	
 	/* Load in the CSW from the attached device */
 	for (uint8_t CSWLen = 0; CSWLen < sizeof(CommandStatusWrapper_t); CSWLen++)
@@ -311,6 +339,52 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 	  return ReturnCode;
 
 	/* Read the returned block data into the buffer */
+	if ((ReturnCode = MassStore_SendRecieveData(BufferPtr)) != NoError)
+	  return ReturnCode;	
+	
+	/* Read in the returned CSW from the device */
+	MassStore_GetReturnedStatus();
+	
+	return ReturnCode;
+}
+
+uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
+                                   const uint8_t Blocks, uint8_t* BufferPtr)
+{
+	uint8_t ReturnCode = NoError;
+
+	/* Create a CBW with a SCSI command to write the given blocks to the device */
+	SCSICommandBlock = (CommandBlockWrapper_t)
+		{
+			Header:
+				{
+					Signature:          CBW_SIGNATURE,
+					Tag:                MassStore_Tag,
+					DataTransferLength: (Blocks * DEVICE_BLOCK_SIZE),
+					Flags:              COMMAND_DIRECTION_DATA_OUT,
+					LUN:                LUNIndex,
+					SCSICommandLength:  10
+				},
+					
+			SCSICommandData:
+				{
+					SCSI_CMD_WRITE_10,
+					0x00,                   // Unused (control bits, all off)
+					(BlockAddress >> 24),   // MSB of Block Address
+					(BlockAddress >> 16),
+					(BlockAddress >> 8),
+					(BlockAddress & 0xFF),  // LSB of Block Address
+					0x00,                   // Unused (reserved)
+					0x00,                   // MSB of Total Blocks to Write
+					Blocks,                 // LSB of Total Blocks to Write
+					0x00                    // Unused (control)
+				}
+		};
+	
+	/* Send SCSI command to the attached device */
+	MassStore_SendCommand();
+
+	/* Write the data to the device from the buffer */
 	if ((ReturnCode = MassStore_SendRecieveData(BufferPtr)) != NoError)
 	  return ReturnCode;	
 	

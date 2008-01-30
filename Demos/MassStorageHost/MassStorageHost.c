@@ -241,7 +241,11 @@ TASK(USB_MassStore_Host)
 			
 			/* Get sense data from the device - it will not respond to requests until this is done */
 			SCSI_Request_Sense_Response_t SenseData;
-			MassStore_RequestSense(0, &SenseData);
+			if ((ErrorCode = MassStore_RequestSense(0, &SenseData)) != 0)
+			{
+				ShowDiskReadError(ErrorCode);
+				break;
+			}
 			
 			/* Set the prevent removal flag for the device, allowing it to be accessed */
 			MassStore_PreventAllowMediumRemoval(0, true);

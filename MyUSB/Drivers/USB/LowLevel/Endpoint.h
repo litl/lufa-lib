@@ -208,7 +208,7 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define Endpoint_IsSetupRecieved()             ((UEINTX  &   (1 << RXSTPI)) ? true : false)
+			#define Endpoint_IsSetupRecieved()             ((UEINTX & (1 << RXSTPI)) ? true : false)
 	
 		/* Inline Functions: */
 			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)

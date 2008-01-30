@@ -108,5 +108,4 @@ void USB_Host_PrepareForDeviceConnect(void)
 
 	USB_HostState = HOST_STATE_Unattached;
 }
-
 #endif

@@ -28,11 +28,14 @@ void Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum,
 
 void Endpoint_ClearEndpoints(void)
 {
+	UEINT = 0;
+
 	for (uint8_t EPNum = 0; EPNum < ENDPOINT_MAXENDPOINTS; EPNum++)
 	{
 		Endpoint_ResetEndpoint(EPNum);
 		Endpoint_SelectEndpoint(EPNum);		
 		UEIENX = 0;
+		UEINTX = 0;
 		Endpoint_DeallocateMemory();
 		Endpoint_DisableEndpoint();
 	}
