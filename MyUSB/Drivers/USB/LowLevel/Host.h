@@ -55,10 +55,11 @@
 			
 			enum USB_Host_EnumerationErrorCodes
 			{
-				HOST_ENUMERROR_WaitStage        = 0,
-				HOST_ENUMERROR_NoDeviceDetected = 1,
-				HOST_ENUMERROR_ControlError     = 2,
-				HOST_ENUMERROR_PipeConfigError  = 3,
+				HOST_ENUMERROR_NoError          = 0,
+				HOST_ENUMERROR_WaitStage        = 1,
+				HOST_ENUMERROR_NoDeviceDetected = 2,
+				HOST_ENUMERROR_ControlError     = 3,
+				HOST_ENUMERROR_PipeConfigError  = 4,
 			};
 
 			enum USB_Host_WaitMSErrorCodes

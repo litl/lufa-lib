@@ -53,7 +53,7 @@
 			static inline void Scheduler_GoSchedule(const uint8_t TotalTasks) ATTR_NO_RETURN;
 			static inline void Scheduler_GoSchedule(const uint8_t TotalTasks)
 			{
-				Scheduler_TotalTasks = TotalTasks;
+				Scheduler_InitScheduler(TotalTasks);
 			
 				for (;;)
 				{

@@ -73,7 +73,7 @@ static void USB_DeviceTask(void)
 #if defined(USB_CAN_BE_HOST)
 static void USB_HostTask(void)
 {
-	uint8_t ErrorCode = 0;
+	uint8_t ErrorCode = HOST_ENUMERROR_NoError;
 
 	switch (USB_HostState)
 	{
@@ -139,7 +139,7 @@ static void USB_HostTask(void)
 					DataLength:  PIPE_CONTROLPIPE_DEFAULT_SIZE,
 				};
 
-			uint8_t* DataBuffer = __builtin_alloca(offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1);
+			uint8_t* DataBuffer = alloca(offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1);
 			
 			if (USB_Host_SendControlRequest(DataBuffer) != HOST_SENDCONTROL_Sucessful)
 			{
@@ -194,7 +194,7 @@ static void USB_HostTask(void)
 			break;
 	}
 
-	if (ErrorCode)
+	if (ErrorCode != HOST_ENUMERROR_NoError)
 	{
 		RAISE_EVENT(USB_DeviceEnumerationFailed, ErrorCode);
 

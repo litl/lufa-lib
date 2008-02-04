@@ -255,13 +255,13 @@ uint8_t GetConfigDescriptorData(void)
 	  return DescriptorTooLarge;
 	  
 	/* Allocate enough memory for the entire config descriptor */
-	ConfigDescriptorData = __builtin_alloca(ConfigDescriptorSize);
+	ConfigDescriptorData = alloca(ConfigDescriptorSize);
 
 	/* Retrieve the entire configuration descriptor into the allocated buffer */
 	AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, ConfigDescriptorData);
 	
 	/* Validate returned data - ensure first entry is a configuration header descriptor */
-	if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type != DTYPE_Configuration)
+	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
 	  return ControlError;
 	
 	while (!(FoundHIDInterfaceDescriptor))
@@ -270,10 +270,10 @@ uint8_t GetConfigDescriptorData(void)
 		while (ConfigDescriptorSize)
 		{
 			/* Get the next descriptor from the configuration descriptor data */
-			AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);
+			AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  
 
 			/* Check to see if the next descriptor is an interface descriptor, if so break out */
-			if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Interface)
+			if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Interface)
 			  break;
 		}
 
@@ -282,12 +282,12 @@ uint8_t GetConfigDescriptorData(void)
 		  return HIDInterfaceNotFound;
 
 		/* Check the HID descriptor class, set the flag if class matches expected class */
-		if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Class == MOUSE_CLASS)
+		if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class == MOUSE_CLASS)
 		  FoundHIDInterfaceDescriptor = true;
 	}
 
 	/* Check protocol - error out if it is incorrect */
-	if (((USB_Descriptor_Interface_t*)ConfigDescriptorData)->Protocol != MOUSE_PROTOCOL)
+	if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Protocol != MOUSE_PROTOCOL)
 	  return IncorrectProtocol;
 	
 	/* Find the next IN endpoint descriptor after the keyboard interface descriptor */
@@ -296,26 +296,28 @@ uint8_t GetConfigDescriptorData(void)
 		/* Get the next descriptor from the configuration descriptor data */
 		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
 
-		/* Check if current descritor is an IN endpoint descriptor */
-		if ((((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Endpoint) &&
-		   (((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN))
+		/* Check if current descriptor is an endpoint descriptor */
+		if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Endpoint)
 		{
-			  break;
+			/* Break out of the loop and process the endpoint descriptor if it is of the IN type */
+			if (DESCRIPTOR_CAST(ConfigDescriptorData,
+			                    USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+			{
+				break;
+			}
 		}
-		
 		/* If new interface descriptor found (indicating the end of the current interface), error out */
-		if (((USB_Descriptor_Header_t*)ConfigDescriptorData)->Type == DTYPE_Interface)
+		else if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Interface)
 		  return NoEndpointFound;
 	}	
 
 	/* If reached end of configuration descriptor, error out */
 	if (ConfigDescriptorSize == 0)
-	  return NoEndpointFound;	
+	  return NoEndpointFound;
 
-	/* Retrieve the endpoint address/interrupt frequency from the endpoint descriptor */
-	MouseDataEndpointNumber = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointAddress;
-	MouseDataEndpointSize   = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->EndpointSize;
-	MouseDataEndpointPollMS = ((USB_Descriptor_Endpoint_t*)ConfigDescriptorData)->PollingIntervalMS;
+	/* Retrieve the endpoint address from the endpoint descriptor */
+	MouseDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
+	MouseDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
 	
 	/* Valid data found, return success */
 	return SuccessfulConfigRead;

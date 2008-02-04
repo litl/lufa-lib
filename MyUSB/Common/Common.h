@@ -19,14 +19,19 @@
 		
 		#if (__AVR_LIBC_VERSION__ < 10501UL)		
 			#include "ISRMacro.h"
-			#include "Atomic.h"
+			#include "Atomic.h"			
 		#else
 			#include <util/atomic.h>
 			#include <avr/interrupt.h>
+			#include <alloca.h>
 		#endif
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
+			#if !defined(alloca)
+				#define alloca(x)           __builtin_alloca(x)
+			#endif
+		
 			#define MACROS                  do
 			#define MACROE                  while (0)
 			

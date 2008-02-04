@@ -8,8 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-#ifndef __CONFIG_DESCRIPTOR_API_H__
-#define __CONFIG_DESCRIPTOR_API_H__
+#ifndef __CONFIG_DESCRIPTOR_H__
+#define __CONFIG_DESCRIPTOR_H__
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -19,7 +19,13 @@
 		#include "StdDescriptors.h"
 		
 	/* Public Interface - May be used in end-application: */
-		/* Inline Functions */
+		/* Macros: */
+			#define DESCRIPTOR_PCAST(data, type) ((type*)data)
+			#define DESCRIPTOR_CAST(data, type)  (*DESCRIPTOR_PCAST(data, type))
+			#define DESCRIPTOR_TYPE(data)        DESCRIPTOR_CAST(data, USB_Descriptor_Header_t).Type
+			#define DESCRIPTOR_SIZE(data)        DESCRIPTOR_CAST(data, USB_Descriptor_Header_t).Size
+	
+		/* Inline Functions: */
 			static inline uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr,
 																	 uint8_t* BufferPtr)
 																	 ATTR_NON_NULL_PTR_ARG(1);
@@ -39,7 +45,7 @@
 				
 				if (BufferPtr == NULL)
 				{
-					BufferPtr = __builtin_alloca(sizeof(USB_Descriptor_Configuration_Header_t));
+					BufferPtr = alloca(sizeof(USB_Descriptor_Configuration_Header_t));
 
 					USB_HostRequest.DataLength = sizeof(USB_Descriptor_Configuration_Header_t);					
 					ErrorCode      = USB_Host_SendControlRequest(BufferPtr);

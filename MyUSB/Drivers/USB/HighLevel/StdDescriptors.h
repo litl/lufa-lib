@@ -49,6 +49,8 @@
 			#define ENDPOINT_USAGE_FEEDBACK           (0b01 << 4)
 			#define ENDPOINT_USAGE_IMPLICIT_FEEDBACK  (0b10 << 4)
 
+			#define DESCRIPTOR_ADDRESS(x)             ((void*)&x)
+
 		/* Events: */
 			#if defined(USB_CAN_BE_DEVICE)
 				RAISES_EVENT(USB_DeviceError);

@@ -85,11 +85,8 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			if (Pipe_BytesInPipe() == 0)
 			  DataLen = 0;
 			
-			while (Pipe_BytesInPipe() && DataLen)
-			{
-				*(DataBuffer++) = Pipe_Read_Byte();
-				DataLen--;
-			}
+			while (Pipe_BytesInPipe() && DataLen--)
+			  *(DataBuffer++) = Pipe_Read_Byte();
 		
 			Pipe_Freeze();
 			Pipe_Setup_In_Clear();
@@ -116,11 +113,10 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 	else
 	{
 		Pipe_SetToken(PIPE_TOKEN_OUT);
+		Pipe_Unfreeze();	
 
 		while ((DataBuffer != NULL) && DataLen)
 		{
-			Pipe_Unfreeze();
-			
 			if (DataLen <= USB_ControlPipeSize)
 			{
 				while (DataLen--)
