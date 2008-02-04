@@ -49,7 +49,7 @@
 			#define ENDPOINT_USAGE_FEEDBACK           (0b01 << 4)
 			#define ENDPOINT_USAGE_IMPLICIT_FEEDBACK  (0b10 << 4)
 
-			#define DESCRIPTOR_ADDRESS(x)             ((void*)&x)
+			#define DESCRIPTOR_ADDRESS(Descriptor)    ((void*)&Descriptor)
 
 		/* Events: */
 			#if defined(USB_CAN_BE_DEVICE)

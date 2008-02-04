@@ -20,10 +20,10 @@
 		
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define DESCRIPTOR_PCAST(data, type) ((type*)data)
-			#define DESCRIPTOR_CAST(data, type)  (*DESCRIPTOR_PCAST(data, type))
-			#define DESCRIPTOR_TYPE(data)        DESCRIPTOR_CAST(data, USB_Descriptor_Header_t).Type
-			#define DESCRIPTOR_SIZE(data)        DESCRIPTOR_CAST(data, USB_Descriptor_Header_t).Size
+			#define DESCRIPTOR_PCAST(DescriptorPtr, Type) ((type*)data)
+			#define DESCRIPTOR_CAST(DescriptorPtr, Type)  (*DESCRIPTOR_PCAST(DescriptorPtr, Type))
+			#define DESCRIPTOR_TYPE(DescriptorPtr)        DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Type
+			#define DESCRIPTOR_SIZE(DescriptorPtr)        DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Size
 	
 		/* Inline Functions: */
 			static inline uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr,
