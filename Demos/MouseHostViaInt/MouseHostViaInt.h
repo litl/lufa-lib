@@ -24,7 +24,7 @@
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>                // Bicolour LEDs driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 		
-	/* Macros */
+	/* Macros: */
 		#define MOUSE_DATAPIPE              1
 		#define MOUSE_CLASS                 0x03
 		#define MOUSE_PROTOCOL              0x02
@@ -39,7 +39,7 @@
 			int8_t  Y;
 		} USB_MouseReport_Data_t;
 		
-	/* Enums */
+	/* Enums: */
 		enum
 		{
 			ControlError         = 0,

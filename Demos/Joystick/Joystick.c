@@ -19,6 +19,8 @@
 	
 	Moving the joystick on the USBKEY moves the joystick location on the
 	host computer.
+	
+	Currently only single interface joysticks are supported.
 */
 
 #include "Joystick.h"

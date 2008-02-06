@@ -19,7 +19,7 @@
 
 		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
 
-	/* Macros */
+	/* Macros: */
 		#define MASS_STORAGE_RESET               0xFF
 		#define GET_MAX_LUN                      0xFE
 
@@ -88,7 +88,7 @@
 			uint32_t BlockSize;
 		} SCSI_Capacity_t;
 
-	/* Enums */
+	/* Enums: */
 		enum
 		{
 			Command_Pass = 0,
@@ -105,10 +105,10 @@
 			CommandTimeout     = 4
 		} ReadWriteErrorCodes_t;
 		
-	/* External Variables */
+	/* External Variables: */
 		extern CommandStatusWrapper_t SCSICommandStatus;
 		
-	/* Function Prototypes */
+	/* Function Prototypes: */
 		void    MassStore_SendCommand(void);
 		uint8_t MassStore_WaitForDataRecieved(void);
 		uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr) ATTR_NON_NULL_PTR_ARG(1);

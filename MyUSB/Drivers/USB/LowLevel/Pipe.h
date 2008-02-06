@@ -95,7 +95,7 @@
 			#define Pipe_Setup_Out_Clear()         MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
 			#define Pipe_Setup_Out_IsReady()             ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 
-		/* Function Aliases */
+		/* Function Aliases: */
 			static inline uint16_t Pipe_Read_Word(void)            ATTR_ALIAS(Pipe_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
 			static inline void     Pipe_Write_Word(uint16_t Word)  ATTR_ALIAS(Pipe_Write_Word_LE);
 			static inline uint32_t Pipe_Read_DWord(void)           ATTR_ALIAS(Pipe_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;

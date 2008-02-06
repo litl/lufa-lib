@@ -29,7 +29,7 @@
 			int8_t Temperature_GetTemperature(void) ATTR_WARN_UNUSED_RESULT;
 
 	/* Private Interface - For use in library only: */
-		/* Macros */
+		/* Macros: */
 			#define TEMP_TABLE_SIZE   (sizeof(Temperature_Lookup) / sizeof(Temperature_Lookup[0]))
 			#define TEMP_TABLE_OFFSET -20		
 

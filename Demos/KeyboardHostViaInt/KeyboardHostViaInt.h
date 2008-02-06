@@ -24,7 +24,7 @@
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>                // Bicolour LEDs driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 		
-	/* Macros */
+	/* Macros: */
 		#define KEYBOARD_DATAPIPE              1
 		#define KEYBOARD_CLASS                 0x03
 		#define KEYBOARD_PROTOCOL              0x01
@@ -38,7 +38,7 @@
 			uint8_t KeyCode;
 		} USB_KeyboardReport_Data_t;
 		
-	/* Enums */
+	/* Enums: */
 		enum
 		{
 			ControlError         = 0,

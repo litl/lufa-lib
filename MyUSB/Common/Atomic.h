@@ -21,7 +21,7 @@
 		#include <avr/version.h>
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define ATOMIC_BLOCK(exitmode)     for ( exitmode, __ToDo = __iCliRetVal(); __ToDo ; __ToDo = 0 )
 
 			#define ATOMIC_RESTORESTATE        uint8_t sreg_save __attribute__((__cleanup__(__iRestore)))  = SREG

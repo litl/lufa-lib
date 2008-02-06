@@ -18,7 +18,7 @@
 	printed out the serial terminal as formatted dY, dY and button
 	status information.
 
-	Currently only single-interface mice are supported.	
+	Currently only single interface mice are supported.	
 */
 
 #include "MouseHostViaInt.h"

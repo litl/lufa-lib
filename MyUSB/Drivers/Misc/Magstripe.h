@@ -57,10 +57,7 @@
 		/* Inline Functions: */
 			static inline void Magstripe_Init(void)
 			{
-				/* Magstripe Inputs */
 				MAG_DDR &= ~(MAG_MASK);
-
-				/* Turn on Magstripe pullups */
 				MAG_PORT |= MAG_MASK;
 			};
 

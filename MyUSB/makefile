@@ -29,8 +29,12 @@ MYUSB_DRIVER_FILES = ./Scheduler/Scheduler.c                     \
                      ./Drivers/AT90USB_64x_128x/Serial_Stream.c  \
 
 all:
+	make -C Bootloader/ clean
+	make -C Bootloader/ all
 	
 clean:
+	make -C Bootloader/ clean
+
 	rm -f $(MYUSB_USB_FILES:%.c=%.o)
 	rm -f $(MYUSB_DRIVER_FILES:%.c=%.o)
 	

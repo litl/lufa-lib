@@ -20,7 +20,8 @@ void MassStore_SendCommand(void)
 	uint8_t* CommandByte = (uint8_t*)&SCSICommandBlock;
 
 	/* Each transmission should have a unique tag value */
-	MassStore_Tag++;
+	if (MassStore_Tag++ == 0xFFFFFFFE)
+	  MassStore_Tag = 1;
 
 	/* Wait 3 frames before issuing a command to ensure device is ready */
 	USB_Host_WaitMS(3);

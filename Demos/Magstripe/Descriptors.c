@@ -152,48 +152,57 @@ USB_Descriptor_String_t SerialNumberString PROGMEM =
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
                        void** const DescriptorAddr, uint16_t* const Size)
 {
+	void*    DescriptorAddress = NULL;
+	uint16_t DescriptorSize    = 0;
+
 	switch (Type)
 	{
 		case DTYPE_Device:
-			*DescriptorAddr = DESCRIPTOR_ADDRESS(DeviceDescriptor);
-			*Size           = sizeof(USB_Descriptor_Device_t);
-			return true;
+			DescriptorAddress = DESCRIPTOR_ADDRESS(DeviceDescriptor);
+			DescriptorSize    = sizeof(USB_Descriptor_Device_t);
+			break;
 		case DTYPE_Configuration:
-			*DescriptorAddr = DESCRIPTOR_ADDRESS(ConfigurationDescriptor);
-			*Size           = sizeof(USB_Descriptor_Configuration_t);
-			return true;
+			DescriptorAddress = DESCRIPTOR_ADDRESS(ConfigurationDescriptor);
+			DescriptorSize    = sizeof(USB_Descriptor_Configuration_t);
+			break;
 		case DTYPE_String:
 			switch (Index)
 			{
 				case 0x00:
-					*DescriptorAddr = DESCRIPTOR_ADDRESS(LanguageString);
-					*Size           = sizeof(USB_Descriptor_Language_t);
-					return true;
+					DescriptorAddress = DESCRIPTOR_ADDRESS(LanguageString);
+					DescriptorSize    = sizeof(USB_Descriptor_Language_t);
+					break;
 				case 0x01:
-					*DescriptorAddr = DESCRIPTOR_ADDRESS(ManafacturerString);
-					*Size           = pgm_read_byte(&ManafacturerString.Header.Size);
-					return true;
+					DescriptorAddress = DESCRIPTOR_ADDRESS(ManafacturerString);
+					DescriptorSize    = pgm_read_byte(&ManafacturerString.Header.Size);
+					break;
 				case 0x02:
-					*DescriptorAddr = DESCRIPTOR_ADDRESS(ProductString);
-					*Size           = pgm_read_byte(&ProductString.Header.Size);
-					return true;
+					DescriptorAddress = DESCRIPTOR_ADDRESS(ProductString);
+					DescriptorSize    = pgm_read_byte(&ProductString.Header.Size);
+					break;
 				case 0x03:
-					*DescriptorAddr = DESCRIPTOR_ADDRESS(SerialNumberString);
-					*Size           = pgm_read_byte(&SerialNumberString.Header.Size);
-					return true;
+					DescriptorAddress = DESCRIPTOR_ADDRESS(SerialNumberString);
+					DescriptorSize    = pgm_read_byte(&SerialNumberString.Header.Size);
+					break;
 			}
 			
 			break;
 		case DTYPE_HID:
-			*DescriptorAddr = DESCRIPTOR_ADDRESS(ConfigurationDescriptor.KeyboardHID);
-			*Size           = sizeof(USB_Descriptor_HID_t);
-
-			return true;
+			DescriptorAddress = DESCRIPTOR_ADDRESS(ConfigurationDescriptor.KeyboardHID);
+			DescriptorSize    = sizeof(USB_Descriptor_HID_t);
+			break;
 		case DTYPE_Report:
-			*DescriptorAddr = DESCRIPTOR_ADDRESS(KeyboardReport);
-			*Size           = sizeof(USB_Descriptor_HID_Keyboard_Report_t);
+			DescriptorAddress = DESCRIPTOR_ADDRESS(KeyboardReport);
+			DescriptorSize    = sizeof(USB_Descriptor_HID_Keyboard_Report_t);
+			break;
+	}
+	
+	if (DescriptorAddress != NULL)
+	{
+		*DescriptorAddr = DescriptorAddress;
+		*Size           = DescriptorSize;
 
-			return true;
+		return true;
 	}
 		
 	return false;

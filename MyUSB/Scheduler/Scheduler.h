@@ -11,14 +11,14 @@
 #ifndef __SCHEDULER_H__
 #define __SCHEDULER_H__
 
-	/* Includes */
+	/* Includes: */
 		#include <avr/io.h>
 		#include <stdbool.h>
 
 		#include "../Common/Common.h"
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros */
+		/* Macros: */
 			#define TASK(name)                        void name (void)
 			#define TASK_LIST                         extern TaskEntry_t Scheduler_TaskList[]; TaskEntry_t Scheduler_TaskList[] = 
 			
@@ -30,7 +30,7 @@
 			#define Scheduler_Start()                 Scheduler_GoSchedule(TOTAL_TASKS);
 			#define Scheduler_Init()                  Scheduler_InitScheduler(TOTAL_TASKS);
 
-		/* Type Defines */
+		/* Type Defines: */
 			typedef void (*TaskPtr_t)(void);
 			typedef uint16_t SchedulerDelayCounter_t;
 			typedef struct
@@ -39,12 +39,12 @@
 				bool      TaskStatus;
 			} TaskEntry_t;			
 
-		/* Global Variables */
+		/* Global Variables: */
 			extern          TaskEntry_t               Scheduler_TaskList[];
 			extern volatile uint8_t                   Scheduler_TotalTasks;
 			extern volatile SchedulerDelayCounter_t   Scheduler_TickCounter;
 
-		/* Inline Functions */
+		/* Inline Functions: */
 			static inline void Scheduler_InitScheduler(const uint8_t TotalTasks)
 			{
 				Scheduler_TotalTasks = TotalTasks;
@@ -75,14 +75,14 @@
 				}
 			}
 		
-		/* Function Prototypes */
+		/* Function Prototypes: */
 			bool Scheduler_HasDelayElapsed(const uint16_t Delay,
 			                               SchedulerDelayCounter_t* const TaskCounter)
 										   ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(2);
 			void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool Run);
 
 	/* Private Interface - For use in library only: */		
-		/* Macros */
+		/* Macros: */
 			#define TOTAL_TASKS                       (sizeof(Scheduler_TaskList) / sizeof(TaskEntry_t))
 			#define MAX_DELAYCTR_COUNT                0xFFFF
 		

@@ -39,7 +39,7 @@
 #if !defined(__ISRMACRO_H__) && defined(__COMMON_H__)
 #define __ISRMACRO_H__
 
-	/* Preprocessor Checks and Defines */
+	/* Preprocessor Checks and Defines: */
 		#if defined(ISR)
 			#undef ISR
 		#endif

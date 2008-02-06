@@ -97,7 +97,6 @@ void USB_ShutDown(void)
 
 	USB_Interface_Disable();
 	USB_PLL_Off();
-	USB_REG_Off();
 	USB_OTGPAD_Off();
 
 	#if defined(USB_CAN_BE_BOTH)
@@ -202,49 +201,21 @@ bool USB_SetupInterface(void)
 	  USB_Host_PrepareForDeviceConnect();
 	#endif
 	
-	#if defined(USB_DEVICE_ONLY)
-	Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, EP_TYPE_CONTROL,
-	                           ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
-	                           ENDPOINT_BANK_SINGLE);
+	USB_Attach();
 
-	if (Endpoint_IsConfigured())
-	{
-		USB_Attach();
-	}
-	else
-	{
-		RAISE_EVENT(USB_DeviceError, DEVICE_ERROR_ControlEndpointCreationFailed);
-		return USB_SETUPINTERFACE_FAIL;
-	}
-
+	#if defined(USB_DEVICE_ONLY)	
 	USB_INT_Enable(USB_INT_SUSPEND);
 	USB_INT_Enable(USB_INT_EORSTI);	
 	#elif defined(USB_HOST_ONLY)
-	USB_Attach();
 	USB_HOST_HostMode_On();
 	#else
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
-		Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, EP_TYPE_CONTROL,
-		                           ENDPOINT_DIR_OUT, ENDPOINT_CONTROLEP_SIZE,
-		                           ENDPOINT_BANK_SINGLE);
-
-		if (Endpoint_IsConfigured())
-		{
-			USB_Attach();
-		}
-		else
-		{
-			RAISE_EVENT(USB_PowerOnFail, DEVICE_ERROR_ControlEndpointCreationFailed);
-			return USB_SETUPINTERFACE_FAIL;
-		}
-
 		USB_INT_Enable(USB_INT_SUSPEND);
 		USB_INT_Enable(USB_INT_EORSTI);
 	}
 	else if (USB_CurrentMode == USB_MODE_HOST)
 	{
-		USB_Attach();
 		USB_HOST_HostMode_On();
 	}
 	#endif

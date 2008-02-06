@@ -80,7 +80,7 @@
 
 			#define Endpoint_ResetDataToggle()         MACROS{ UECONX  |= (1 << RSTDT);                  }MACROE
 
-		/* Function Aliases */
+		/* Function Aliases: */
 			static inline uint16_t Endpoint_Read_Word(void)            ATTR_ALIAS(Endpoint_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
 			static inline void     Endpoint_Write_Word(uint16_t Word)  ATTR_ALIAS(Endpoint_Write_Word_LE);
 			static inline uint32_t Endpoint_Read_DWord(void)           ATTR_ALIAS(Endpoint_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;

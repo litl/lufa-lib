@@ -18,11 +18,11 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Class:                  0x00,
 	SubClass:               0x00,
 	Protocol:               0x00,
-			
+				
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
 	VendorID:               0x0000,
-	ProductID:              USB_PRODUCT_ID('T', 'A'),
+	ProductID:              USB_PRODUCT_ID('B', 'L'),
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
@@ -36,36 +36,45 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 {
 	Config:
 		{
-			Header:                 {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
-			
-			TotalConfigurationSize: (  sizeof(USB_Descriptor_Configuration_Header_t)
-			                         + sizeof(USB_Descriptor_Interface_t)           ),
+			Header:                   {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
-			TotalInterfaces:        1,
+			TotalConfigurationSize:   sizeof(USB_Descriptor_Configuration_t),
+			TotalInterfaces:          1,
+
+			ConfigurationNumber:      1,
+			ConfigurationStrIndex:    NO_DESCRIPTOR_STRING,
+				
+			ConfigAttributes:         (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
 			
-			ConfigurationNumber:    1,
-			ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
-				
-			ConfigAttributes:       (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
-				
-			MaxPowerConsumption:    USB_CONFIG_POWER_MA(100)
+			MaxPowerConsumption:      USB_CONFIG_POWER_MA(100)
 		},
 		
-	Interface:
+	DFUInterface:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
-			InterfaceNumber:        1,
+			InterfaceNumber:        0,
 			AlternateSetting:       0,
-				
-			TotalEndpoints:         0,
 			
-			Class:                  0xFF,
-			SubClass:               0x00,
-			Protocol:               0x00,
+			TotalEndpoints:         0,
 				
+			Class:                  0xFE,
+			SubClass:               0x01,
+			Protocol:               0x02,
+
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
+		
+	DFUFunctional:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Header_t), Type: DTYPE_DFUFunctional},
+			
+			Attributes:             (ATTR_CAN_UPLOAD | ATTR_CAN_DOWNLOAD),
+			DetatchTimeout:         0x0000,
+			TransferSize:           0,
+		
+			DFUSpecification:       0x0101
+		}
 };
 
 USB_Descriptor_Language_t LanguageString PROGMEM =
@@ -84,9 +93,9 @@ USB_Descriptor_String_t ManafacturerString PROGMEM =
 
 USB_Descriptor_String_t ProductString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(10), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','D','e','m','o'}
+	UnicodeString:          {'M','y','U','S','B',' ','B','o','o','t','l','o','a','d','e','r'}
 };
 
 USB_Descriptor_String_t SerialNumberString PROGMEM =

@@ -17,13 +17,13 @@
 	Pressed alpha-numeric, enter or space key is transmitted through the serial
 	USART at serial settings 9600, 8, N, 1.
 
-	Currently only single-interface keyboards are supported.
+	Currently only single interface keyboards are supported.
 */
 
 #include "KeyboardHostViaInt.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,  "MyUSB Keyboard Host App");
+BUTTLOADTAG(ProjName,  "MyUSB KBD Host App");
 BUTTLOADTAG(BuildTime, __TIME__);
 BUTTLOADTAG(BuildDate, __DATE__);
 

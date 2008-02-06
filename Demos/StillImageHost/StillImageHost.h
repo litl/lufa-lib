@@ -8,8 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-#ifndef _MOUSE_HOST_H_
-#define _MOUSE_HOST_H_
+#ifndef _KEYBOARD_HOST_H_
+#define _KEYBOARD_HOST_H_
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -24,33 +24,46 @@
 		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 		
 	/* Macros: */
-		#define MOUSE_DATAPIPE              1
-		#define MOUSE_CLASS                 0x03
-		#define MOUSE_PROTOCOL              0x02
-
-		#define MAX_CONFIG_DESCRIPTOR_SIZE  512
-
+		#define SIMAGE_CLASS                   0x06
+		#define SIMAGE_SUBCLASS                0x01
+		#define SIMAGE_PROTOCOL                0x01
+		
+		#define SIMAGE_DATA_IN_PIPE            0x01
+		#define SIMAGE_DATA_OUT_PIPE           0x02
+		#define SIMAGE_EVENTS_PIPE             0x03
+	
+		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
+	
 	/* Type Defines: */
 		typedef struct
 		{
-			uint8_t Button;
-			int8_t  X;
-			int8_t  Y;
-		} USB_MouseReport_Data_t;
-		
+			uint32_t Length;
+			uint16_t Type;
+			uint16_t Code;
+			uint32_t TransactionID;
+		} PIMA_Container_Header_t;
+	
 	/* Enums: */
 		enum
 		{
-			ControlError         = 0,
-			DescriptorTooLarge   = 1,
-			HIDInterfaceNotFound = 2,
-			IncorrectProtocol    = 3,
-			NoEndpointFound      = 4,
-			SuccessfulConfigRead = 5,
+			CType_Undefined         = 0,
+			CType_CommandBlock      = 1,
+			CType_DataBlock         = 2,
+			CType_ResponseBlock     = 3,
+			CType_EventBlock        = 4,
+		} PIMA_Container_Types_t;
+	
+		enum
+		{
+			ControlError            = 0,
+			DescriptorTooLarge      = 1,
+			InterfaceNotFound       = 2,
+			NoEndpointFound         = 3,
+			SuccessfulConfigRead    = 4,
 		} GetConfigDescriptorDataCodes_t;
 
 	/* Task Definitions: */
-		TASK(USB_Mouse_Host);
+		TASK(USB_SImage_Host);
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_DeviceAttached);

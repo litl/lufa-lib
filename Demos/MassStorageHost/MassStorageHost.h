@@ -25,14 +25,14 @@
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>                // Bicolour LEDs driver for the USBKEY
 		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 		
-	/* Macros */
+	/* Macros: */
 		#define MASS_STORE_CLASS                 0x08
 		#define MASS_STORE_SUBCLASS              0x06
 		#define MASS_STORE_PROTOCOL              0x50
 		
 		#define MAX_CONFIG_DESCRIPTOR_SIZE       512
 
-	/* Enums */
+	/* Enums: */
 		enum
 		{
 			ControlError         = 0,
