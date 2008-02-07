@@ -57,7 +57,7 @@ void USB_Device_ProcessControlPacket(void)
 			
 			break;
 		case REQ_GetStatus:
-			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER) &&
+			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) == REQREC_Device) &&
 			     (RequestType & CONTROL_REQTYPE_TYPE) != REQTYPE_VENDOR)
 			{
 				USB_Device_GetStatus(RequestType);
@@ -66,7 +66,7 @@ void USB_Device_ProcessControlPacket(void)
 
 			break;
 		case REQ_SetFeature:
-			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER) &&
+			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) == REQREC_Device) &&
 			     (RequestType & CONTROL_REQTYPE_TYPE) != REQTYPE_VENDOR)
 			{
 				USB_Device_SetFeature(RequestType);
@@ -75,7 +75,7 @@ void USB_Device_ProcessControlPacket(void)
 
 			break;
 		case REQ_ClearFeature:
-			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER) &&
+			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) == REQREC_Device) &&
 			     (RequestType & CONTROL_REQTYPE_TYPE) != REQTYPE_VENDOR)
 			{
 				USB_Device_ClearFeature(RequestType);
@@ -133,9 +133,10 @@ static void USB_Device_SetConfiguration(void)
 
 void USB_Device_GetConfiguration(void)
 {
+	Endpoint_ClearSetupReceived();	
+
 	Endpoint_Write_Byte(USB_ConfigurationNumber);
 	
-	Endpoint_ClearSetupReceived();	
 	Endpoint_Setup_In_Clear();
 
 	while (!(Endpoint_Setup_Out_IsReceived()));
@@ -258,8 +259,6 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 	
 	while (!(Endpoint_Setup_Out_IsReceived()));
 	Endpoint_Setup_Out_Clear();
-
-	Endpoint_ClearSetupReceived();
 }
 
 static void USB_Device_SetFeature(const uint8_t RequestType)
