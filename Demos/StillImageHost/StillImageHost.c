@@ -37,7 +37,11 @@ uint8_t  SImageEndpointNumber_EVENTS;
 uint16_t SImageEndpointSize_IN;
 uint16_t SImageEndpointSize_OUT;
 uint16_t SImageEndpointSize_EVENTS;
+uint8_t  SImageEndpointIntFreq_EVENTS;
 
+PIMA_Container_t PIMA_Command;
+PIMA_Container_t PIMA_Response;
+uint32_t         PIMA_TransactionID = 1;
 
 int main(void)
 {
@@ -184,7 +188,7 @@ TASK(USB_SImage_Host)
 			
 			Pipe_SelectPipe(SIMAGE_EVENTS_PIPE);
 			Pipe_SetInfiniteINRequests();
-			Pipe_SetInterruptFreq(1);
+			Pipe_SetInterruptFreq(SImageEndpointIntFreq_EVENTS);
 
 			puts_P(PSTR("Still Image Device Enumerated.\r\n"));
 				
@@ -193,8 +197,53 @@ TASK(USB_SImage_Host)
 		case HOST_STATE_Ready:
 			/* Indicate device busy via the status LEDs */
 			Bicolour_SetLeds(BICOLOUR_LED2_ORANGE);
+			
+			PIMA_Command = (PIMA_Container_t)
+				{
+					DataLength:    40,
+					Type:          CType_CommandBlock,
+					Code:          PIMA_GETDEVICEINFO,
+					TransactionID: PIMA_TransactionID,
+					Parameters:    {0, 0, 0, 0, 0}
+				};
+			
+			Pipe_SelectPipe(SIMAGE_DATA_OUT_PIPE);
+			Pipe_Unfreeze();
 
-			// TODO - Use device
+			uint8_t* CommandByte = (uint8_t*)&PIMA_Command;
+			
+			for (uint8_t Byte = 0; Byte < sizeof(PIMA_Container_t); Byte++)
+			  Pipe_Write_Byte(*(CommandByte++));
+			
+			Pipe_FIFOCON_Clear();
+			
+			Pipe_Freeze();
+
+			Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
+			Pipe_Unfreeze();
+			
+			bool InData = true;
+			
+			while (InData)
+			{
+				while (!(Pipe_ReadWriteAllowed()));
+				
+				Pipe_Ignore_DWord();
+				
+				if (Pipe_Read_Word_LE() == CType_ResponseBlock)
+				  InData = false;
+				  
+				Pipe_FIFOCON_Clear();
+			}
+
+			while (!(Pipe_ReadWriteAllowed()));
+			Pipe_FIFOCON_Clear();
+
+			Pipe_Freeze();		
+
+			/* Indicate device ready via the status LEDs */
+			Bicolour_SetLeds(BICOLOUR_LED2_GREEN);
+			
 			break;
 	}
 }
@@ -282,16 +331,19 @@ uint8_t GetConfigDescriptorData(void)
 			}
 			else if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_INTERRUPT)
 			{
-				uint8_t  EPAddress = DESCRIPTOR_CAST(ConfigDescriptorData,
-				                                     USB_Descriptor_Endpoint_t).EndpointAddress;
-				uint16_t EPSize    = DESCRIPTOR_CAST(ConfigDescriptorData,
-				                                     USB_Descriptor_Endpoint_t).EndpointSize;
+				uint8_t  EPAddress    = DESCRIPTOR_CAST(ConfigDescriptorData,
+				                                        USB_Descriptor_Endpoint_t).EndpointAddress;
+				uint16_t EPSize       = DESCRIPTOR_CAST(ConfigDescriptorData,
+				                                        USB_Descriptor_Endpoint_t).EndpointSize;
+				uint8_t EPPollingInt  = DESCRIPTOR_CAST(ConfigDescriptorData,
+				                                        USB_Descriptor_Endpoint_t).PollingIntervalMS;
 			
 				/* If the endpoint is an IN type, store the endpoint data */
 				if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 				{
-					SImageEndpointNumber_EVENTS = EPAddress;
-					SImageEndpointSize_EVENTS   = EPSize;
+					SImageEndpointNumber_EVENTS  = EPAddress;
+					SImageEndpointSize_EVENTS    = EPSize;
+					SImageEndpointIntFreq_EVENTS = EPPollingInt;
 				}
 			}
 			

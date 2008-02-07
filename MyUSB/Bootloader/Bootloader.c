@@ -13,6 +13,10 @@
 	as a DFU Class device, allowing for DFU-compatible programming
 	software to load firmware onto the AVR.
 	
+	This bootloader is compatible with Atmel's FLIP application.
+	However, it requires the use of Atmel's DFU drivers. You will
+	need to install Atmel's FDU drivers prior to using this bootloader.
+	
 	*** WORK IN PROGRESS - NOT CURRENTLY FUNCTIONING ***
 */
 
@@ -29,21 +33,31 @@ int main (void)
 	USB_Init(USB_MODE_DEVICE, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
 
 	while (RunBootloader)
-	{
-		USB_USBTask();
-	}
+	  USB_USBTask();
 	
 	USB_ShutDown();
 	
 	Bicolour_SetLeds(BICOLOUR_LED1_ORANGE);
 }
 
-EVENT_HANDLER(USB_CreateEndpoints)
+EVENT_HANDLER(USB_Connect)
 {
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
 }
 
+EVENT_HANDLER(USB_Disconnect)
+{
+	RunBootloader = false;
+}
+
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	
+	switch (Request)
+	{
+		case DFU_GETSTATUS:
+		
+			break;
+		default:
+			Bicolour_SetLeds(BICOLOUR_LED1_ORANGE | BICOLOUR_LED2_ORANGE);
+	}
 }

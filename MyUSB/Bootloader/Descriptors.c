@@ -21,8 +21,8 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 				
 	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
 		
-	VendorID:               0x0000,
-	ProductID:              USB_PRODUCT_ID('B', 'L'),
+	VendorID:               0x03EB,
+	ProductID:              0x2FFB,
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
@@ -69,9 +69,9 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Header_t), Type: DTYPE_DFUFunctional},
 			
-			Attributes:             (ATTR_CAN_UPLOAD | ATTR_CAN_DOWNLOAD),
+			Attributes:             (ATTR_CAN_UPLOAD | ATTR_CAN_DOWNLOAD | ATTR_WILL_DETATCH),
 			DetatchTimeout:         0x0000,
-			TransferSize:           0,
+			TransferSize:           ENDPOINT_CONTROLEP_SIZE,
 		
 			DFUSpecification:       0x0101
 		}

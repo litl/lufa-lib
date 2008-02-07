@@ -15,6 +15,8 @@
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 		#include <stdio.h>
+		
+		#include "PIMACodes.h"
 
 		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
@@ -37,11 +39,12 @@
 	/* Type Defines: */
 		typedef struct
 		{
-			uint32_t Length;
+			uint32_t DataLength;
 			uint16_t Type;
 			uint16_t Code;
 			uint32_t TransactionID;
-		} PIMA_Container_Header_t;
+			uint32_t Parameters[5];
+		} PIMA_Container_t;
 	
 	/* Enums: */
 		enum
