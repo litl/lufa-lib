@@ -21,11 +21,20 @@
 	with the Linux Atmel USB DFU Programmer software, avaliable
 	for download at http://sourceforge.net/projects/dfu-programmer/.
 	
+    If SECURE_MODE is defined, upon startup the bootloader will be
+    locked, with only the chip erase function avaliable (similar to
+    Atmel's DFU bootloader). If SECURE_MODE is undefined, all functions
+    are usable on startup without the prerequisite firmware erase.
+    
 	*** WORK IN PROGRESS - NOT CURRENTLY FUNCTIONING ***
 */
 
 #define INCLUDE_FROM_BOOTLOADER_C
 #include "Bootloader.h"
+
+#if defined(SECURE_MODE)
+bool      IsSecure      = true;
+#endif
 
 bool      RunBootloader = true;
 uint8_t   DFU_State     = appIDLE;
@@ -36,34 +45,48 @@ FuncPtr_t AppStartPtr   = 0x0000;
 
 int main (void)
 {
+	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
 
+	/* Hardware initialization */
 	Bicolour_Init();
 	
+	/* Staus LED set to red by default */
 	Bicolour_SetLeds(BICOLOUR_LED1_RED);
 
+	/* Initialize the USB subsystem */
 	USB_Init(USB_MODE_DEVICE, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
 
+	/* Run the USB management task while the bootload is supposed to be running */
 	while (RunBootloader)
 	  USB_USBTask();
 	
+	/* Shut down the USB subsystem */
 	USB_ShutDown();
 	
+	/* Relocate the interrupt vector table back to the application section */
 	MCUCR = (1 << IVCE);
 	MCUCR = 0;
+
+	/* Reset any used hardware ports back to their defaults */
+	PORTD = 0;
+	DDRD = 0;
 	
+	/* Start the user application */
 	boot_rww_enable();
 	AppStartPtr();
 }
 
 EVENT_HANDLER(USB_Connect)
 {
+	/* Status LED green when USB connected */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
 }
 
 EVENT_HANDLER(USB_Disconnect)
 {
+	/* Upon disconnection, run user application */
 	RunBootloader = false;
 }
 
@@ -75,6 +98,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	uint16_t TransactionSize = Endpoint_Read_Word_LE();
 	uint8_t* CommandDataPtr  = (uint8_t*)&CommandData;
 
+	/* Processing request - status LED orange */
 	Bicolour_SetLeds(BICOLOUR_LED1_ORANGE);
 
 	switch (Request)
@@ -169,11 +193,27 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			break;
 	}
 
+	/* End of request processing - status LED green */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
 }
 
 static void ProcessBootloaderCommand(void)
 {
+	#if defined(SECURE_MODE)
+	/* Check if device is in secure mode, but erase command is not being issued */
+	if (IsSecure && ((CommandData[0] != COMMAND_WRITE) ||
+	                 (CommandData[1] != 0x00)          ||
+		             (CommandData[2] != 0xFF)))
+	{
+		/* Set the state and status variables to indicate the error */
+		DFU_State  = dfuERROR;
+		DFU_Status = errCHECK_ERASED;
+		
+		/* Don't process the command */
+		return;
+	}
+	#endif
+
 	switch (CommandData[0])
 	{
 		case COMMAND_WRITE:
@@ -195,7 +235,13 @@ static void ProcessBootloaderCommand(void)
 			else if (CommandData[1] == 0x00)
 			{
 				if (CommandData[2] == 0xFF)       // Erase flash
-				  EraseFlash();
+                {
+					EraseFlash();
+					
+					#if defined(SECURE_MODE)
+					IsSecure = false;
+					#endif
+				}
 			}
 			
 			break;
@@ -233,6 +279,7 @@ static void EraseFlash(void)
 {
 	uint32_t FlashAddr = 0;
 
+	/* Clear the application section of flash */
 	while (FlashAddr < BOOT_START_ADDR)
 	{
 		boot_page_erase(FlashAddr);
