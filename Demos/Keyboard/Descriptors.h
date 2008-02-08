@@ -21,6 +21,8 @@
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
 
+		#include <avr/pgmspace.h>
+
 	/* Type Defines: */
 		typedef struct
 		{

@@ -14,6 +14,8 @@
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
 
+		#include <avr/pgmspace.h>
+
 	/* Macros: */
 		#define CDC_FUNCTIONAL_DESCRIPTOR(size)                      \
 		     struct                                                  \

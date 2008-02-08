@@ -118,7 +118,11 @@ static void USB_Device_SetConfiguration(void)
 	uint16_t                 DevDescriptorSize;
 
 	if ((USB_GetDescriptor(DTYPE_Device, 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false) ||
+#if defined(USE_RAM_DESCRIPTORS)
+	    (ConfigNum > DevDescriptorPtr->NumberOfConfigurations))
+#else
 	    (ConfigNum > pgm_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
+#endif
 	{
 		return;
 	}
@@ -184,7 +188,12 @@ static void USB_Device_GetDescriptor(void)
 		
 		while (DescriptorBytesRem && (BytesInPacket++ < ENDPOINT_CONTROLEP_SIZE))
 		{
+			#if defined(USE_RAM_DESCRIPTORS)
+			Endpoint_Write_Byte(*((uint8_t*)DescriptorPointer++));
+			#else
 			Endpoint_Write_Byte(pgm_read_byte(DescriptorPointer++));
+			#endif
+			
 			DescriptorBytesRem--;
 		}
 		
@@ -225,7 +234,11 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 			if (USB_GetDescriptor(DTYPE_Configuration, USB_ConfigurationNumber, (void*)&ConfigDescriptorPtr, &ConfigDescriptorSize) == false)
 			  return;
 			
+#if defined(USE_RAM_DESCRIPTORS)
+			ConfigAttributes = ConfigDescriptorPtr->ConfigAttributes;
+#else
 			ConfigAttributes = pgm_read_byte(&ConfigDescriptorPtr->ConfigAttributes);
+#endif
 
 			if (ConfigAttributes & USB_CONFIG_ATTR_SELFPOWERED)
 			  StatusByte  = FEATURE_SELFPOWERED;

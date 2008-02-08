@@ -10,7 +10,7 @@
 
 #include "Descriptors.h"
 
-USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
+USB_Descriptor_Device_t DeviceDescriptor =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
@@ -32,7 +32,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	NumberOfConfigurations: 1
 };
 	
-USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
+USB_Descriptor_Configuration_t ConfigurationDescriptor =
 {
 	Config:
 		{
@@ -69,7 +69,9 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Header_t), Type: DTYPE_DFUFunctional},
 			
-			Attributes:             (ATTR_CAN_UPLOAD | ATTR_CAN_DOWNLOAD | ATTR_WILL_DETATCH),
+			Attributes:             (ATTR_CAN_UPLOAD   | ATTR_CAN_DOWNLOAD |
+			                         ATTR_WILL_DETATCH | ATTR_MANEFESTATION_TOLLERANT),
+
 			DetatchTimeout:         0x0000,
 			TransferSize:           ENDPOINT_CONTROLEP_SIZE,
 		
@@ -77,28 +79,28 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		}
 };
 
-USB_Descriptor_Language_t LanguageString PROGMEM =
+USB_Descriptor_Language_t LanguageString =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Language_t), Type: DTYPE_String},
 		
 	LanguageID:             LANGUAGE_ID_ENG
 };
 
-USB_Descriptor_String_t ManafacturerString PROGMEM =
+USB_Descriptor_String_t ManafacturerString =
 {
 	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
 		
 	UnicodeString:          {'D','e','a','n',' ','C','a','m','e','r','a'}
 };
 
-USB_Descriptor_String_t ProductString PROGMEM =
+USB_Descriptor_String_t ProductString =
 {
 	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
 		
 	UnicodeString:          {'M','y','U','S','B',' ','B','o','o','t','l','o','a','d','e','r'}
 };
 
-USB_Descriptor_String_t SerialNumberString PROGMEM =
+USB_Descriptor_String_t SerialNumberString =
 {
 	Header:                 {Size: USB_STRING_LEN(13), Type: DTYPE_String},
 		
@@ -130,15 +132,15 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 					break;
 				case 0x01:
 					DescriptorAddress = DESCRIPTOR_ADDRESS(ManafacturerString);
-					DescriptorSize    = pgm_read_byte(&ManafacturerString.Header.Size);
+					DescriptorSize    = ManafacturerString.Header.Size;
 					break;
 				case 0x02:
 					DescriptorAddress = DESCRIPTOR_ADDRESS(ProductString);
-					DescriptorSize    = pgm_read_byte(&ProductString.Header.Size);
+					DescriptorSize    = ProductString.Header.Size;
 					break;
 				case 0x03:
 					DescriptorAddress = DESCRIPTOR_ADDRESS(SerialNumberString);
-					DescriptorSize    = pgm_read_byte(&SerialNumberString.Header.Size);
+					DescriptorSize    = SerialNumberString.Header.Size;
 					break;
 			}
 			

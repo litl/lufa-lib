@@ -24,20 +24,22 @@
 	*** WORK IN PROGRESS - NOT CURRENTLY FUNCTIONING ***
 */
 
+#define INCLUDE_FROM_BOOTLOADER_C
 #include "Bootloader.h"
 
-bool    RunBootloader = true;
-uint8_t DFU_State     = appIDLE;
-uint8_t DFU_Status    = OK;
+bool      RunBootloader = true;
+uint8_t   DFU_State     = appIDLE;
+uint8_t   DFU_Status    = OK;
+uint8_t   CommandData[ENDPOINT_CONTROLEP_SIZE];
+uint8_t   DataSize;
+FuncPtr_t AppStartPtr   = 0x0000;
 
 int main (void)
 {
-	/* Disable clock division */
-	CLKPR = (1 << CLKPCE);
-	CLKPR = 0;
+	MCUCR = (1 << IVCE);
+	MCUCR = (1 << IVSEL);
 
 	Bicolour_Init();
-	SerialStream_Init(9600);
 	
 	Bicolour_SetLeds(BICOLOUR_LED1_RED);
 
@@ -49,6 +51,11 @@ int main (void)
 	USB_ShutDown();
 	
 	Bicolour_SetLeds(BICOLOUR_LED1_ORANGE);
+	
+	MCUCR = (1 << IVCE);
+	MCUCR = 0;
+	
+	AppStartPtr();
 }
 
 EVENT_HANDLER(USB_Connect)
@@ -63,10 +70,11 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	uint16_t BlockNum = Endpoint_Read_Word_LE();
+	Endpoint_Ignore_Word();
 	Endpoint_Ignore_Word();
 
-	printf("Sent: %d\r\n", Request);
+	uint16_t TransactionSize = Endpoint_Read_Word_LE();
+	uint8_t* CommandDataPtr  = (uint8_t*)&CommandData;
 
 	switch (Request)
 	{
@@ -118,26 +126,97 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 			break;			
 		case DFU_DNLOAD:
+			if (DFU_State == dfuERROR)
+				return;
+				
 			Endpoint_ClearSetupReceived();
 			
-			uint8_t  BlockData[ENDPOINT_CONTROLEP_SIZE];
-			uint16_t TransactionSize = Endpoint_Read_Word_LE();
-
 			while (!(Endpoint_Setup_Out_IsReceived()));
 		
 			for (uint16_t DataByte = 0; DataByte < TransactionSize; DataByte++)
-			  BlockData[DataByte] = Endpoint_Read_Word();
+			  *(CommandDataPtr++) = Endpoint_Read_Byte();
+			
+			DataSize = (TransactionSize - sizeof(uint8_t));
 			
 			Endpoint_Setup_Out_Clear();
 
 			Endpoint_Setup_In_Clear();
 			while (!(Endpoint_Setup_In_IsReady()));
+			
+			ProcessBootloaderCommand();
 				
 			break;
-		default:
-			printf("Unused: %d\r\n", Request);
-			Bicolour_SetLeds(BICOLOUR_LED1_ORANGE | BICOLOUR_LED2_ORANGE);
+		case DFU_UPLOAD:
+			if (DFU_State == dfuERROR)
+				return;
+
+			Endpoint_ClearSetupReceived();
+
+			for (uint16_t DataByte = 0; DataByte < TransactionSize; DataByte++)
+			{
+				Endpoint_Write_Byte(*(CommandDataPtr++));
+
+				if (DataByte == DataSize)
+				  break;
+			}
+
+			Endpoint_Setup_In_Clear();
+
+			while (!(Endpoint_Setup_Out_IsReceived()));
+			Endpoint_Setup_Out_Clear();			
+		
+			break;
 	}
-	
-	printf("Done: %d\r\n", Request);
+}
+
+static void ProcessBootloaderCommand(void)
+{
+	switch (CommandData[0])
+	{
+		case COMMAND_WRITE:
+			if (CommandData[1] == 0x03)           // Start application
+			{
+				if (CommandData[2] == 0x00)       // Hardware reset
+				{
+					wdt_enable(WDTO_15MS);
+					for (;;);
+				}
+				else                              // Jump to address
+				{
+					uint16_t JumpAddress = ((CommandData[3] << 8) | CommandData[4]);
+
+					AppStartPtr = (FuncPtr_t)JumpAddress;
+					RunBootloader = false;
+				}
+			}
+		
+			break;
+		case COMMAND_READ:
+			if (CommandData[1] == 0x00)           // Read bootloader info
+			{
+				DataSize = 1;
+
+				if (CommandData[2] == 0x00)       // Bootloader version
+				  CommandData[0] = BOOTLOADER_VERSION;
+				else                              // Boot IDs
+				  CommandData[0] = 0x00;
+			}
+			else if (CommandData[1] == 0x01)      // Read chip info
+			{
+				DataSize = 1;
+				
+				uint8_t SigVal = 0;
+				
+				if (CommandData[2] == 0x30)       // Sig Byte 1
+				  SigVal = ReadSigByte(0);
+				else if (CommandData[2] == 0x31)  // Sig Byte 2
+				  SigVal = ReadSigByte(2);
+				else if (CommandData[2] == 0x60)  // Sig Byte 3
+				  SigVal = ReadSigByte(4);
+
+				CommandData[0] = SigVal;
+			}
+			
+			break;
+	}
 }

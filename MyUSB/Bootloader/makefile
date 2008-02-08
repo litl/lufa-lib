@@ -82,9 +82,6 @@ OBJDIR = .
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                           \
 	  Descriptors.c                                         \
-	  ../../MyUSB/Scheduler/Scheduler.c                     \
-	  ../../MyUSB/Drivers/AT90USB_64x_128x/Serial_Stream.c  \
-	  ../../MyUSB/Drivers/AT90USB_64x_128x/Serial.c         \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
@@ -104,7 +101,7 @@ CPPSRC =
 #     Even though the DOS/Win* filesystem matches both .s and .S the same,
 #     it will preserve the spelling of the filenames, and gcc itself does
 #     care about how the name is spelled on its command-line.
-ASRC =
+ASRC = BootFuncs.S
 
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
@@ -136,7 +133,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_DEVICE_ONLY
+CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_DEVICE_ONLY -DUSE_RAM_DESCRIPTORS
 
 
 # Place -D or -U options here for ASM sources
@@ -271,8 +268,9 @@ EXTMEMOPTS =
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(TARGET).map,--cref
-LDFLAGS += -Wl,--relax 
+LDFLAGS += -Wl,--relax
 LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,--section-start=.text=0x1E000
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(EXTRALIBDIRS))
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)

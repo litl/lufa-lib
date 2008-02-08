@@ -14,6 +14,8 @@
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
 
+		#include <avr/pgmspace.h>
+
 	/* Macros: */
 		#define MASS_STORAGE_IN_EPNUM          1	
 		#define MASS_STORAGE_OUT_EPNUM         2	

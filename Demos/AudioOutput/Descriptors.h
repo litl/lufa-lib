@@ -14,6 +14,8 @@
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
 
+		#include <avr/pgmspace.h>
+
 	/* Macros: */
 		#define DTYPE_AudioInterface        0x24
 		#define DTYPE_AudioEndpoint         0x25
