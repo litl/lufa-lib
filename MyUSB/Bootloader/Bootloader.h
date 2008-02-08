@@ -16,9 +16,9 @@
 		#include "BootFuncs.h"
 		
 		#include <avr/io.h>
-		#include <avr/boot.h>
 		#include <avr/wdt.h>
-		#include <stdbool.h>	
+		#include <avr/boot.h>
+		#include <stdbool.h>
 	
 		#include <MyUSB/Drivers/USB/USB.h>
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>
@@ -84,6 +84,7 @@
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_BOOTLOADER_C)
 			static void ProcessBootloaderCommand(void);
+			static void EraseFlash(void);
 		#endif
 		
 #endif

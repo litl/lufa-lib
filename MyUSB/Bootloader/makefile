@@ -132,8 +132,12 @@ EXTRAINCDIRS = ../../
 CSTANDARD = -std=gnu99
 
 
+# Starting byte address of the bootloader
+BOOT_START = 0x1E000
+
+
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_DEVICE_ONLY -DUSE_RAM_DESCRIPTORS
+CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_DEVICE_ONLY -DUSE_RAM_DESCRIPTORS -DBOOT_START_ADDR=$(BOOT_START)
 
 
 # Place -D or -U options here for ASM sources
@@ -270,7 +274,7 @@ EXTMEMOPTS =
 LDFLAGS = -Wl,-Map=$(TARGET).map,--cref
 LDFLAGS += -Wl,--relax
 LDFLAGS += -Wl,--gc-sections
-LDFLAGS += -Wl,--section-start=.text=0x1E000
+LDFLAGS += -Wl,--section-start=.text=$(BOOT_START)
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(EXTRALIBDIRS))
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)

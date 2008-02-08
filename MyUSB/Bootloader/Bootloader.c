@@ -50,11 +50,10 @@ int main (void)
 	
 	USB_ShutDown();
 	
-	Bicolour_SetLeds(BICOLOUR_LED1_ORANGE);
-	
 	MCUCR = (1 << IVCE);
 	MCUCR = 0;
 	
+	boot_rww_enable();
 	AppStartPtr();
 }
 
@@ -75,6 +74,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 	uint16_t TransactionSize = Endpoint_Read_Word_LE();
 	uint8_t* CommandDataPtr  = (uint8_t*)&CommandData;
+
+	Bicolour_SetLeds(BICOLOUR_LED1_ORANGE);
 
 	switch (Request)
 	{
@@ -167,6 +168,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		
 			break;
 	}
+
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
 }
 
 static void ProcessBootloaderCommand(void)
@@ -174,7 +177,7 @@ static void ProcessBootloaderCommand(void)
 	switch (CommandData[0])
 	{
 		case COMMAND_WRITE:
-			if (CommandData[1] == 0x03)           // Start application
+			if (CommandData[1] == 0x03)           // Start application command
 			{
 				if (CommandData[2] == 0x00)       // Hardware reset
 				{
@@ -189,10 +192,15 @@ static void ProcessBootloaderCommand(void)
 					RunBootloader = false;
 				}
 			}
-		
+			else if (CommandData[1] == 0x00)
+			{
+				if (CommandData[2] == 0xFF)       // Erase flash
+				  EraseFlash();
+			}
+			
 			break;
 		case COMMAND_READ:
-			if (CommandData[1] == 0x00)           // Read bootloader info
+			if (CommandData[1] == 0x00)           // Read bootloader info command
 			{
 				DataSize = 1;
 
@@ -201,7 +209,7 @@ static void ProcessBootloaderCommand(void)
 				else                              // Boot IDs
 				  CommandData[0] = 0x00;
 			}
-			else if (CommandData[1] == 0x01)      // Read chip info
+			else if (CommandData[1] == 0x01)      // Read chip info command
 			{
 				DataSize = 1;
 				
@@ -218,5 +226,20 @@ static void ProcessBootloaderCommand(void)
 			}
 			
 			break;
+	}
+}
+
+static void EraseFlash(void)
+{
+	uint32_t FlashAddr = 0;
+
+	while (FlashAddr < BOOT_START_ADDR)
+	{
+		boot_page_erase(FlashAddr);
+		boot_spm_busy_wait();
+		boot_page_write(FlashAddr);
+		boot_spm_busy_wait();
+
+		FlashAddr += SPM_PAGESIZE;
 	}
 }
