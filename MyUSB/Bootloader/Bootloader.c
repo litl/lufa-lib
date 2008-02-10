@@ -46,7 +46,7 @@ FuncPtr_t AppStartPtr   = 0x0000;
 int main (void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
-	wdt_disable();
+	wtd_disable_at90usb1287();
 
 	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);
@@ -235,7 +235,7 @@ static void ProcessWriteCommand(void)
 			{
 				if (!(DataSize))              // Empty data request starts the app
 				{
-					wdt_enable(WDTO_15MS);
+					wdt_enable(WDTO_250MS);
 					for (;;);
 				}
 			}
@@ -279,11 +279,13 @@ static void ProcessReadCommand(void)
 			break;
 		case 0x01:                            // Read chip info command
 			if (CommandData[2] == 0x30)       // Sig Byte 1
-			  CommandData[0] = ReadSigByte(0);
+			  CommandData[0] = boot_read_sig_byte(0);
 			else if (CommandData[2] == 0x31)  // Sig Byte 2
-			  CommandData[0] = ReadSigByte(2);
+			  CommandData[0] = boot_read_sig_byte(2);
 			else if (CommandData[2] == 0x60)  // Sig Byte 3
-			  CommandData[0] = ReadSigByte(4);
+			  CommandData[0] = boot_read_sig_byte(4);
+			
+			boot_spm_busy_wait();
 			
 			break;
 	}

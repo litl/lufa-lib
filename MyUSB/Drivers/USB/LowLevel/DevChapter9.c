@@ -57,8 +57,9 @@ void USB_Device_ProcessControlPacket(void)
 			
 			break;
 		case REQ_GetStatus:
-			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) == REQREC_Device) &&
-			     (RequestType & CONTROL_REQTYPE_TYPE) != REQTYPE_VENDOR)
+			if (((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
+			                          (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
+			     ((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
 			{
 				USB_Device_GetStatus(RequestType);
 				RequestHandled = true;
@@ -66,8 +67,9 @@ void USB_Device_ProcessControlPacket(void)
 
 			break;
 		case REQ_SetFeature:
-			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) == REQREC_Device) &&
-			     (RequestType & CONTROL_REQTYPE_TYPE) != REQTYPE_VENDOR)
+			if (((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
+			                          (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
+			     ((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
 			{
 				USB_Device_SetFeature(RequestType);
 				RequestHandled = true;
@@ -75,8 +77,9 @@ void USB_Device_ProcessControlPacket(void)
 
 			break;
 		case REQ_ClearFeature:
-			if (((RequestType & CONTROL_REQTYPE_RECIPIENT) == REQREC_Device) &&
-			     (RequestType & CONTROL_REQTYPE_TYPE) != REQTYPE_VENDOR)
+			if (((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
+			                          (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
+			     ((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
 			{
 				USB_Device_ClearFeature(RequestType);
 				RequestHandled = true;

@@ -20,6 +20,7 @@
 		#define  TOTAL_FLASH_PAGES        (((FLASHEND + 1) - (BOOT_SIZE_KB * 1024)) \
 		                                   / SPM_PAGESIZE)
 
+		#define  MEM_ADDR(sfr)           _SFR_MEM_ADDR(sfr)
 		#define  IO_ADDR(sfr)            _SFR_IO_ADDR(sfr)
 
 		#define  HIGH(val)               (val >> 8)
@@ -30,7 +31,8 @@
 
 	/* Function Prototypes: */
 		#if !defined(__ASSEMBLER__)
-			uint8_t ReadSigByte(uint8_t Address);
+			uint8_t boot_read_sig_byte(uint8_t Address);
+			void    wtd_disable_at90usb1287(void);
 		#endif
 
 #endif
