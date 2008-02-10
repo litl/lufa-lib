@@ -13,6 +13,7 @@
 
 	/* Includes: */
 		#include <avr/io.h>
+		#include <avr/wdt.h>
 
 		#include "Descriptors.h"
 		#include "SCSI.h"

@@ -39,6 +39,9 @@ uint16_t KeyboardDataEndpointSize;
 
 int main(void)
 {
+	/* Disable watchdog if enabled by bootloader/fuses */
+	wdt_disable();
+
 	/* Disable Clock Division */
 	CLKPR = (1 << CLKPCE);
 	CLKPR = 0;

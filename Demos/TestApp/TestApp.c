@@ -60,10 +60,13 @@ TASK_LIST
 
 int main(void)
 {
+	/* Disable watchdog if enabled by bootloader/fuses */
+	wdt_disable();
+
 	/* Disable clock division */
 	CLKPR = (1 << CLKPCE);
 	CLKPR = 0;
-
+	
 	/* Hardware initialization */
 	SerialStream_Init(9600);
 	ADC_Init(ADC_SINGLE_CONVERSION | ADC_PRESCALE_64);

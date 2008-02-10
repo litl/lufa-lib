@@ -13,8 +13,8 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-		#include <avr/pgmspace.h>
 		#include <avr/interrupt.h>
+		#include <avr/wdt.h>
 		#include <stdio.h>
 
 		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project

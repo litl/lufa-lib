@@ -51,6 +51,9 @@ CommandStatusWrapper_t CommandStatus = { Signature: CSW_SIGNATURE };
 
 int main(void)
 {
+	/* Disable watchdog if enabled by bootloader/fuses */
+	wdt_disable();
+
 	/* Disable Clock Division */
 	CLKPR = (1 << CLKPCE);
 	CLKPR = 0;

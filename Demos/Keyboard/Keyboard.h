@@ -20,7 +20,7 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-		#include <avr/pgmspace.h>
+		#include <avr/wdt.h>
 
 		#include "Descriptors.h"
 

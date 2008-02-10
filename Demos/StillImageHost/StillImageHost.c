@@ -45,6 +45,9 @@ uint32_t         PIMA_TransactionID = 1;
 
 int main(void)
 {
+	/* Disable watchdog if enabled by bootloader/fuses */
+	wdt_disable();
+
 	/* Disable Clock Division */
 	CLKPR = (1 << CLKPCE);
 	CLKPR = 0;
