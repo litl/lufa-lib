@@ -42,12 +42,14 @@ uint8_t   DFU_Status    = OK;
 uint8_t   CommandData[ENDPOINT_CONTROLEP_SIZE];
 uint8_t   DataSize;
 FuncPtr_t AppStartPtr   = 0x0000;
+uint8_t   Flash64KBPage = 0;
 
 int main (void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
-	wtd_disable_at90usb1287();
-
+	MCUSR &= ~(1 << WDRF);
+	wdt_disable();
+	
 	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
@@ -220,10 +222,51 @@ static void ProcessBootloaderCommand(void)
 	#endif
 
 	/* Dispatch the required command processing routine based on the command type */
-	if (CommandData[0] == COMMAND_WRITE)
-	  ProcessWriteCommand();
-	else if (CommandData[0] == COMMAND_READ)
-	  ProcessReadCommand();
+	switch (CommandData[0])
+	{
+		case COMMAND_WRITE:
+			ProcessWriteCommand();
+			break;
+		case COMMAND_READ:
+			ProcessReadCommand();
+			break;
+		case COMMAND_PROG_START:
+			ProcessMemProgCommand();
+			break;
+		case COMMAND_DISP_DATA:
+			ProcessMemReadCommand();
+			break;
+		case COMMAND_CHANGE_BASE_ADDR:
+			if (CommandData[1] == 0x03)
+			{
+				if (CommandData[2] == 0x00)   // Set 64KB flash page command
+				  Flash64KBPage = CommandData[3];
+			}
+
+			break;
+	}
+}
+
+static void ProcessMemProgCommand(void)
+{
+	uint16_t StartAddr = (((uint16_t)CommandData[2] << 8) | CommandData[3]);
+	uint16_t EndAddr   = (((uint16_t)CommandData[4] << 8) | CommandData[5]);
+
+	if (CommandData[1] == 0x02)               // Read EEPROM command
+	{
+	
+	}
+}
+
+static void ProcessMemReadCommand(void)
+{
+	uint16_t StartAddr = (((uint16_t)CommandData[2] << 8) | CommandData[3]);
+	uint16_t EndAddr   = (((uint16_t)CommandData[4] << 8) | CommandData[5]);
+
+	if (CommandData[1] == 0x01)               // Write EEPROM command
+	{
+	
+	}
 }
 
 static void ProcessWriteCommand(void)

@@ -32,7 +32,6 @@
 	/* Function Prototypes: */
 		#if !defined(__ASSEMBLER__)
 			uint8_t boot_read_sig_byte(uint8_t Address);
-			void    wtd_disable_at90usb1287(void);
 		#endif
 
 #endif

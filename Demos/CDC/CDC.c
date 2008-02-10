@@ -52,6 +52,7 @@ char JoystickPressedString[] PROGMEM = "Joystick Pressed\r\n";
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
+	MCUSR &= ~(1 << WDRF);
 	wdt_disable();
 
 	/* Disable Clock Division */
