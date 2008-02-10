@@ -45,6 +45,9 @@ FuncPtr_t AppStartPtr   = 0x0000;
 
 int main (void)
 {
+	/* Disable watchdog if enabled by bootloader/fuses */
+	wdt_disable();
+
 	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
@@ -56,7 +59,7 @@ int main (void)
 	Bicolour_SetLeds(BICOLOUR_LED1_RED);
 
 	/* Initialize the USB subsystem */
-	USB_Init(USB_MODE_DEVICE, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
+	USB_Init();
 
 	/* Run the USB management task while the bootload is supposed to be running */
 	while (RunBootloader)
@@ -92,11 +95,12 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
+	uint8_t* CommandDataPtr  = (uint8_t*)&CommandData;
+
 	Endpoint_Ignore_Word();
 	Endpoint_Ignore_Word();
 
-	uint16_t TransactionSize = Endpoint_Read_Word_LE();
-	uint8_t* CommandDataPtr  = (uint8_t*)&CommandData;
+	DataSize = Endpoint_Read_Word_LE();
 
 	/* Processing request - status LED orange */
 	Bicolour_SetLeds(BICOLOUR_LED1_ORANGE);
@@ -156,14 +160,15 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				
 			Endpoint_ClearSetupReceived();
 			
-			while (!(Endpoint_Setup_Out_IsReceived()));
-		
-			for (uint16_t DataByte = 0; DataByte < TransactionSize; DataByte++)
-			  *(CommandDataPtr++) = Endpoint_Read_Byte();
+			if (DataSize)
+			{
+				while (!(Endpoint_Setup_Out_IsReceived()));
 			
-			DataSize = (TransactionSize - sizeof(uint8_t));
-			
-			Endpoint_Setup_Out_Clear();
+				for (uint16_t DataByte = 0; DataByte < DataSize; DataByte++)
+				  *(CommandDataPtr++) = Endpoint_Read_Byte();
+				
+				Endpoint_Setup_Out_Clear();
+			}
 
 			Endpoint_Setup_In_Clear();
 			while (!(Endpoint_Setup_In_IsReady()));
@@ -177,7 +182,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 			Endpoint_ClearSetupReceived();
 
-			for (uint16_t DataByte = 0; DataByte < TransactionSize; DataByte++)
+			for (uint16_t DataByte = 0; DataByte < DataSize; DataByte++)
 			{
 				Endpoint_Write_Byte(*(CommandDataPtr++));
 
@@ -214,62 +219,71 @@ static void ProcessBootloaderCommand(void)
 	}
 	#endif
 
-	switch (CommandData[0])
+	/* Dispatch the required command processing routine based on the command type */
+	if (CommandData[0] == COMMAND_WRITE)
+	  ProcessWriteCommand();
+	else if (CommandData[0] == COMMAND_READ)
+	  ProcessReadCommand();
+}
+
+static void ProcessWriteCommand(void)
+{
+	switch (CommandData[1])
 	{
-		case COMMAND_WRITE:
-			if (CommandData[1] == 0x03)           // Start application command
+		case 0x03:                            // Start application command
+			if (CommandData[2] == 0x00)       // Hardware reset
 			{
-				if (CommandData[2] == 0x00)       // Hardware reset
+				if (!(DataSize))              // Empty data request starts the app
 				{
 					wdt_enable(WDTO_15MS);
 					for (;;);
 				}
-				else                              // Jump to address
-				{
-					uint16_t JumpAddress = ((CommandData[3] << 8) | CommandData[4]);
-
-					AppStartPtr = (FuncPtr_t)JumpAddress;
-					RunBootloader = false;
-				}
 			}
-			else if (CommandData[1] == 0x00)
+			else                              // Jump to address
 			{
-				if (CommandData[2] == 0xFF)       // Erase flash
-                {
-					EraseFlash();
-					
-					#if defined(SECURE_MODE)
-					IsSecure = false;
-					#endif
-				}
+				uint16_t JumpAddress = ((CommandData[3] << 8) | CommandData[4]);
+
+				if (!(DataSize))              // Empty data request starts the app
+				  RunBootloader = false;
+				else
+				  AppStartPtr = (FuncPtr_t)JumpAddress;
 			}
 			
 			break;
-		case COMMAND_READ:
-			if (CommandData[1] == 0x00)           // Read bootloader info command
+		case 0x00:
+			if (CommandData[2] == 0xFF)       // Erase flash
 			{
-				DataSize = 1;
-
-				if (CommandData[2] == 0x00)       // Bootloader version
-				  CommandData[0] = BOOTLOADER_VERSION;
-				else                              // Boot IDs
-				  CommandData[0] = 0x00;
+				EraseFlash();
+						
+				#if defined(SECURE_MODE)
+				IsSecure = false;
+				#endif
 			}
-			else if (CommandData[1] == 0x01)      // Read chip info command
-			{
-				DataSize = 1;
-				
-				uint8_t SigVal = 0;
-				
-				if (CommandData[2] == 0x30)       // Sig Byte 1
-				  SigVal = ReadSigByte(0);
-				else if (CommandData[2] == 0x31)  // Sig Byte 2
-				  SigVal = ReadSigByte(2);
-				else if (CommandData[2] == 0x60)  // Sig Byte 3
-				  SigVal = ReadSigByte(4);
+			
+			break;
+	}
+}
 
-				CommandData[0] = SigVal;
-			}
+static void ProcessReadCommand(void)
+{
+	DataSize = 1;
+
+	switch (CommandData[1])
+	{
+		case 0x00:                            // Read bootloader info command
+			if (CommandData[2] == 0x00)       // Bootloader version
+			  CommandData[0] = BOOTLOADER_VERSION;
+			else                              // Boot IDs
+			  CommandData[0] = 0x00;
+		
+			break;
+		case 0x01:                            // Read chip info command
+			if (CommandData[2] == 0x30)       // Sig Byte 1
+			  CommandData[0] = ReadSigByte(0);
+			else if (CommandData[2] == 0x31)  // Sig Byte 2
+			  CommandData[0] = ReadSigByte(2);
+			else if (CommandData[2] == 0x60)  // Sig Byte 3
+			  CommandData[0] = ReadSigByte(4);
 			
 			break;
 	}

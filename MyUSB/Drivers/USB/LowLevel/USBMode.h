@@ -23,8 +23,14 @@
 				#define USB_CAN_BE_DEVICE
 			#elif defined(USB_HOST_ONLY)
 				#define USB_CAN_BE_HOST
+				#define USB_CurrentMode USB_MODE_HOST
 			#elif defined(USB_DEVICE_ONLY)
 				#define USB_CAN_BE_DEVICE
+				#define USB_CurrentMode USB_MODE_DEVICE
+			#endif
+			
+			#if defined(USE_STATIC_OPTIONS)
+				#define USB_Options USE_STATIC_OPTIONS
 			#endif
 
 #endif

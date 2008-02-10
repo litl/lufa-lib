@@ -84,6 +84,8 @@
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_BOOTLOADER_C)
 			static void ProcessBootloaderCommand(void);
+			static void ProcessWriteCommand(void);
+			static void ProcessReadCommand(void);
 			static void EraseFlash(void);
 		#endif
 		

@@ -74,19 +74,38 @@
 			#define USB_Attach()               MACROS{ UDCON   &= ~(1 << DETACH);  }MACROE
 
 		/* Function Prototypes: */
-			void USB_Init(const uint8_t Mode, const uint8_t Options);
+			void USB_Init(
+			               #if defined(USB_CAN_BE_BOTH)
+			               const uint8_t Mode
+						   #endif
+
+			               #if (defined(USB_CAN_BE_BOTH) && !defined(USE_STATIC_OPTIONS))
+			               ,
+						   #elif (!(defined(USB_CAN_BE_BOTH)) && defined(USE_STATIC_OPTIONS))
+						   void
+			               #endif
+						   
+			               #if !(defined(USE_STATIC_OPTIONS))
+			               const uint8_t Options
+			               #endif
+			               );
+			
 			void USB_ShutDown(void);
 
 		/* Enums: */
 			enum USB_PowerOnErrorCodes
 			{
 				POWERON_ERROR_NoUSBModeSpecified          = 0,
-				POWERON_ERROR_UnavailableUSBModeSpecified = 1,
 			};
 
 		/* Global Variables: */
-			extern volatile uint8_t USB_CurrentMode;
-			extern volatile uint8_t USB_Options;
+			#if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
+				extern volatile uint8_t USB_CurrentMode;
+			#endif
+			
+			#if !defined(USE_STATIC_OPTIONS)
+				extern volatile uint8_t USB_Options;
+			#endif
 
 		/* Throwable Events: */
 			RAISES_EVENT(USB_Disconnect);

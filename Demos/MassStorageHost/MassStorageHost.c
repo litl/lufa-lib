@@ -64,7 +64,7 @@ int main(void)
 	Scheduler_Init();
 
 	/* Initialize USB Subsystem */
-	USB_Init(USB_MODE_HOST, USB_OPT_REG_ENABLED);
+	USB_Init();
 	
 	/* Scheduling routine never returns, so put this last in the main function */
 	Scheduler_Start();

@@ -135,7 +135,8 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL -DUSB_HOST_ONLY
+CDEFS  = -DF_CPU=$(F_CPU)UL
+CDEFS += -DUSB_HOST_ONLY -DUSE_STATIC_OPTIONS=USB_OPT_REG_ENABLED
 
 
 # Place -D or -U options here for ASM sources

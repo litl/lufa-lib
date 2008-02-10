@@ -13,34 +13,48 @@
 #define INCLUDE_FROM_LOWLEVEL_C
 #include "LowLevel.h"
 
+#if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
 volatile uint8_t USB_CurrentMode = USB_MODE_NONE;
-volatile uint8_t USB_Options;
+#endif
 
-void USB_Init(const uint8_t Mode, const uint8_t Options)
+#if !(defined(USE_STATIC_OPTIONS))
+volatile uint8_t USB_Options;
+#endif
+
+void USB_Init(
+			   #if defined(USB_CAN_BE_BOTH)
+			   const uint8_t Mode
+			   #endif
+
+			   #if (defined(USB_CAN_BE_BOTH) && !defined(USE_STATIC_OPTIONS))
+			   ,
+			   #elif (!(defined(USB_CAN_BE_BOTH)) && defined(USE_STATIC_OPTIONS))
+			   void
+			   #endif
+			   
+			   #if !(defined(USE_STATIC_OPTIONS))
+			   const uint8_t Options
+			   #endif
+			   )
 {
 	if (USB_IsInitialized)
 	  USB_ShutDown();
 
+	#if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
 	USB_CurrentMode = Mode;
-
+	#endif
+	
+	#if defined(USB_DEVICE_ONLY)
+	UHWCON |=  (1 << UIMOD);
+	#elif defined(USB_HOST_ONLY)
+	UHWCON &= ~(1 << UIMOD);
+	#else
 	if (Mode == USB_MODE_NONE)
 	{
 		RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_NoUSBModeSpecified);
 		return;
 	}
-
-	#if defined(USB_DEVICE_ONLY)
-	if (Mode != USB_MODE_DEVICE)
-	  RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_UnavailableUSBModeSpecified);
-	else
-	  UHWCON |=  (1 << UIMOD);
-	#elif defined(USB_HOST_ONLY)
-	if (Mode != USB_MODE_HOST)
-	  RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_UnavailableUSBModeSpecified);
-	else
-	  UHWCON &= ~(1 << UIMOD);
-	#else
-	if (Mode == USB_MODE_UID)
+	else if (Mode == USB_MODE_UID)
 	{
 		UHWCON |=  (1 << UIDE);
 
@@ -72,7 +86,9 @@ void USB_Init(const uint8_t Mode, const uint8_t Options)
 	
 	USB_OTGPAD_On();
 	
+	#if !(defined(USE_STATIC_OPTIONS))
 	USB_Options = Options;
+	#endif
 
 	#if defined(USB_DEVICE_ONLY)
 	USB_INT_Enable(USB_INT_VBUS);
@@ -92,8 +108,13 @@ void USB_ShutDown(void)
 {
 	USB_ResetInterface();
 
+	#if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
 	USB_CurrentMode = USB_MODE_NONE;
+	#endif
+	
+	#if !(defined(USE_STATIC_OPTIONS))
 	USB_Options     = 0;
+	#endif
 
 	USB_Interface_Disable();
 	USB_PLL_Off();
@@ -164,22 +185,7 @@ bool USB_SetupInterface(void)
 		USB_INT_Enable(USB_INT_IDTI);
 		USB_CurrentMode = USB_GetUSBModeFromUID();
 	}
-
-	if (USB_CurrentMode == USB_MODE_DEVICE)
-	{
-		if (USB_Options & USB_DEV_OPT_LOWSPEED)
-		  USB_DEV_SetLowSpeed();
-		else
-		  USB_DEV_SetHighSpeed();
-		  
-		USB_INT_Enable(USB_INT_VBUS);
-	}
 	#elif defined(USB_DEVICE_ONLY)
-	if (USB_Options & USB_DEV_OPT_LOWSPEED)
-	  USB_DEV_SetLowSpeed();
-	else
-	  USB_DEV_SetHighSpeed();
-		  
 	USB_INT_Enable(USB_INT_VBUS);
 	#endif
 		
@@ -193,6 +199,18 @@ bool USB_SetupInterface(void)
 	USB_Interface_Disable();
 	USB_Interface_Enable();
 	USB_CLK_Unfreeze();
+
+	#if defined(USB_CAN_BE_DEVICE)
+	if (USB_CurrentMode == USB_MODE_DEVICE)
+	{
+		if (USB_Options & USB_DEV_OPT_LOWSPEED)
+		  USB_DEV_SetLowSpeed();
+		else
+		  USB_DEV_SetHighSpeed();
+		  
+		USB_INT_Enable(USB_INT_VBUS);
+	}
+	#endif
 
 	#if defined(USB_CAN_BE_HOST)
 	USB_INT_Enable(USB_INT_VBERRI);
