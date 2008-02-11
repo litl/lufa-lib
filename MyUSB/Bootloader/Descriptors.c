@@ -73,7 +73,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 			                         ATTR_WILL_DETATCH | ATTR_MANEFESTATION_TOLLERANT),
 
 			DetatchTimeout:         0x0000,
-			TransferSize:           ENDPOINT_CONTROLEP_SIZE,
+			TransferSize:           SPM_PAGESIZE,
 		
 			DFUSpecification:       0x0101
 		}
