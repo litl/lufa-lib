@@ -39,3 +39,4 @@ clean:
 	rm -f $(MYUSB_DRIVER_FILES:%.c=%.o)
 	
 clean_list:
+	make -C Bootloader/ clean_list

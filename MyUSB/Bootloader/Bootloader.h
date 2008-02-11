@@ -18,13 +18,16 @@
 		#include <avr/io.h>
 		#include <avr/wdt.h>
 		#include <avr/boot.h>
+		#include <avr/eeprom.h>
 		#include <stdbool.h>
 	
 		#include <MyUSB/Drivers/USB/USB.h>
 		#include <MyUSB/Drivers/USBKEY/Bicolour.h>
 		
 	/* Macros: */
-		#define BOOTLOADER_VERSION       0x00
+		#define BOOTLOADER_VERSION_MINOR 0
+		#define BOOTLOADER_VERSION_REV   0
+		#define BOOTLOADER_VERSION       ((BOOTLOADER_VERSION_MINOR << 4) | BOOTLOADER_VERSION_REV)
 	
 		#define DFU_DETATCH              0x00
 		#define DFU_DNLOAD               0x01
@@ -39,9 +42,23 @@
 		#define COMMAND_WRITE            0x04
 		#define COMMAND_READ             0x05
 		#define COMMAND_CHANGE_BASE_ADDR 0x06
+		
+		#define OP_SINGLE_BYTE_RESPONSE  0x00
+		#define OP_READ_FLASH            0x01
+		#define OP_WRITE_FLASH           0x02
+		#define OP_BLANK_CHECK           0x03
+		#define OP_READ_EEPROM           0x04
+		#define OP_WRITE_EEPROM          0x05
 
 	/* Type Defines: */
 		typedef void (*FuncPtr_t)(void);
+		
+		typedef struct
+		{
+			uint8_t Command;
+			uint8_t Data[5];
+			uint16_t DataSize;
+		} DFU_Command_t;
 
 	/* Enums: */
 		enum

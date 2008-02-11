@@ -41,6 +41,9 @@
 			USB_DFU_Functional_Descriptor_t       DFUFunctional;
 		} USB_Descriptor_Configuration_t;
 		
+	/* External Variables: */
+		extern USB_Descriptor_Configuration_t ConfigurationDescriptor;
+		
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 							   void** const DescriptorAddr, uint16_t* const Size)
