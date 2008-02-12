@@ -20,10 +20,6 @@
 		    || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__)))
 			#error The currently selected AVR model is not supported under the USB component of the MyUSB library.
 		#endif
-
-		#if (defined(USB_HOST_ONLY) && defined(USB_DEVICE_ONLY))
-			#error USB_HOST_ONLY and USB_DEVICE_ONLY are mutually exclusive.
-		#endif
 		
 	/* Includes: */
 		#include "LowLevel/USBMode.h"

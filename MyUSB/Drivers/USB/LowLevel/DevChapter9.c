@@ -123,6 +123,8 @@ static void USB_Device_SetConfiguration(void)
 	if ((USB_GetDescriptor(DTYPE_Device, 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false) ||
 #if defined(USE_RAM_DESCRIPTORS)
 	    (ConfigNum > DevDescriptorPtr->NumberOfConfigurations))
+#elif defined (USE_EEPROM_DESCRIPTORS)
+	    (ConfigNum > eeprom_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
 #else
 	    (ConfigNum > pgm_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
 #endif
@@ -193,6 +195,8 @@ static void USB_Device_GetDescriptor(void)
 		{
 			#if defined(USE_RAM_DESCRIPTORS)
 			Endpoint_Write_Byte(*((uint8_t*)DescriptorPointer++));
+			#elif defined (USE_EEPROM_DESCRIPTORS)
+			Endpoint_Write_Byte(eeprom_read_byte(DescriptorPointer++));			
 			#else
 			Endpoint_Write_Byte(pgm_read_byte(DescriptorPointer++));
 			#endif
@@ -239,6 +243,8 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 			
 #if defined(USE_RAM_DESCRIPTORS)
 			ConfigAttributes = ConfigDescriptorPtr->ConfigAttributes;
+#elif defined (USE_EEPROM_DESCRIPTORS)
+			ConfigAttributes = eeprom_read_byte(&ConfigDescriptorPtr->ConfigAttributes);
 #else
 			ConfigAttributes = pgm_read_byte(&ConfigDescriptorPtr->ConfigAttributes);
 #endif

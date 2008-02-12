@@ -29,8 +29,16 @@
 				#define USB_CurrentMode USB_MODE_DEVICE
 			#endif
 			
+			#if (defined(USB_HOST_ONLY) && defined(USB_DEVICE_ONLY))
+				#error USB_HOST_ONLY and USB_DEVICE_ONLY are mutually exclusive.
+			#endif
+
+			#if (defined(USB_RAM_DESCRIPTORS) && defined(USE_EEPROM_DESCRIPTORS))
+				#error USB_RAM_DESCRIPTORS and USE_EEPROM_DESCRIPTORS are mutually exclusive.
+			#endif
+
 			#if defined(USE_STATIC_OPTIONS)
 				#define USB_Options USE_STATIC_OPTIONS
 			#endif
-
+			
 #endif

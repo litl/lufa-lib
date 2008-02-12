@@ -27,7 +27,11 @@
 	/* Macros: */
 		#define BOOTLOADER_VERSION_MINOR 0
 		#define BOOTLOADER_VERSION_REV   0
+
 		#define BOOTLOADER_VERSION       ((BOOTLOADER_VERSION_MINOR << 4) | BOOTLOADER_VERSION_REV)
+		
+		#define IS_ONEBYTE_COMMAND(dataarray, cb1)       (dataarray[0] == cb1)
+		#define IS_TWOBYTE_COMMAND(dataarray, cb1, cb2) ((dataarray[0] == cb1) && (dataarray[1] == cb2))
 	
 		#define DFU_DETATCH              0x00
 		#define DFU_DNLOAD               0x01

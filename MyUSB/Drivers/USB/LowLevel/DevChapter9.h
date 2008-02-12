@@ -14,6 +14,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
+		#include <avr/eeprom.h>
 		
 		#include "../HighLevel/StdDescriptors.h"
 		#include "../HighLevel/Events.h"
