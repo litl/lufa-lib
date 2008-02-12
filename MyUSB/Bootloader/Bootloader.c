@@ -64,6 +64,11 @@ int main (void)
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
 
+	/* Read in signature bytes from the AVR */
+	SigBytes[0] = boot_read_sig_byte(0);
+	SigBytes[1] = boot_read_sig_byte(2);
+	SigBytes[2] = boot_read_sig_byte(4);
+
 	/* Hardware initialization */
 	Bicolour_Init();
 	
@@ -72,13 +77,8 @@ int main (void)
 
 	/* Initialize the USB subsystem */
 	USB_Init();
-	
-	/* Read in signature bytes from the AVR */
-	SigBytes[0] = boot_read_sig_byte(0);
-	SigBytes[1] = boot_read_sig_byte(2);
-	SigBytes[2] = boot_read_sig_byte(4);
 
-	/* Run the USB management task while the bootload is supposed to be running */
+	/* Run the USB management task while the bootloader is supposed to be running */
 	while (RunBootloader)
 	  USB_USBTask();
 	
@@ -99,13 +99,13 @@ int main (void)
 }
 
 EVENT_HANDLER(USB_Connect)
-{
-	/* Status LED green when USB connected */
-	Bicolour_SetLed(1, BICOLOUR_LED1_GREEN);
-	
+{	
 	#if defined(SECURE_MODE)
-	/* Set second LED to red colour to indicate secure mode is active */
-	Bicolour_SetLed(2, BICOLOUR_LED2_RED);
+	/* Set status LEDs to red and green colour to indicate secure mode is active */
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+	#else
+	/* Status LED green when USB connected */
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
 	#endif
 }
 
@@ -132,7 +132,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case DFU_DNLOAD:
 			Endpoint_ClearSetupReceived();
 			
-			if (DFU_State == dfuIDLE)
+			if (DFU_State != dfuDNLOAD_IDLE)
 			{
 				/* If the request has a data stage, load it into the command struct */
 				if (SentCommand.DataSize)
@@ -156,9 +156,44 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				ProcessBootloaderCommand();
 			}
 			else
-			{	
-				DFU_State = dfuIDLE;
-				// TODO
+			{
+				if (!(SentCommand.DataSize))
+				{
+					DFU_State = dfuIDLE;
+				}
+				else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00)) // Write flash
+				{
+					uint16_t BytesToTransfer = ((EndAddr - StartAddr) + 1);
+
+					while (!(Endpoint_Setup_Out_IsReceived()));
+
+					while (SentCommand.DataSize && BytesToTransfer)
+					{
+						uint32_t CurrAddress = (((uint32_t)Flash64KBPage << 16) | StartAddr);
+
+						boot_page_erase(CurrAddress);
+						boot_spm_busy_wait();
+						
+						for (uint16_t BytesInFlashPage = 0; ((BytesInFlashPage < SPM_PAGESIZE) &&
+															  BytesToTransfer); BytesInFlashPage += 2)
+						{
+							if (!(Endpoint_BytesInEndpoint()))
+							{
+								Endpoint_Setup_Out_Clear();
+								while (!(Endpoint_Setup_Out_IsReceived()));
+							}
+
+							boot_page_fill((CurrAddress + BytesInFlashPage), Endpoint_Read_Word_LE());	
+
+							StartAddr            += 2;
+							BytesToTransfer      -= 2;
+							SentCommand.DataSize -= 2;
+						}
+							
+						boot_page_write (CurrAddress);
+						boot_spm_busy_wait();
+					}
+				}
 			}
 
 			/* Send ZLP to the host to acknowedge the request */
@@ -169,8 +204,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case DFU_UPLOAD:
 			Endpoint_ClearSetupReceived();
 
-			if (DFU_State == dfuIDLE)
+			while (!(Endpoint_Setup_In_IsReady()));
+
+			if (DFU_State != dfuUPLOAD_IDLE)
 			{
+				/* Idle state upload - send response to last issued command */
 				Endpoint_Write_Byte(ResponseByte);
 			}
 			else
@@ -178,25 +216,43 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00)  ||         // Read FLASH
 				    IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))            // Read EEPROM
 				{
-					uint16_t BytesToTransfer = ((EndAddr - StartAddr) + 1);
-				
-					while (SentCommand.DataSize-- && BytesToTransfer--)
+					uint16_t BlocksToTransfer = ((EndAddr - StartAddr) + 1);
+					uint32_t CurrFlashAddress = (((uint32_t)Flash64KBPage << 16) | (StartAddr << 1));
+					
+					while (SentCommand.DataSize-- && BlocksToTransfer)
 					{
+						/* Check if endpoint is empty - if so clear it and wait for next packet */
 						if (Endpoint_BytesInEndpoint() == ENDPOINT_CONTROLEP_SIZE)
 						{
 							Endpoint_Setup_In_Clear();
 							while (!(Endpoint_Setup_In_IsReady()));
 						}
 
+						/* Read in a byte from the selected memory and write it to the endpoint */
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02)) // Read EEPROM
-						  Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)StartAddr));
+						{
+							Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)StartAddr));
+
+							BlocksToTransfer--;
+							StartAddr++;
+						}
 						else                                            // Read FLASH
-						  Endpoint_Write_Byte(pgm_read_byte_far(((uint32_t)Flash64KBPage << 16) | StartAddr));						
-						
-						StartAddr++;
+						{
+							Endpoint_Write_Byte(pgm_read_word_far(CurrFlashAddress));						
+
+							/* Flash is word-addressed, so only alter the counters every odd byte */
+							if (CurrFlashAddress & 0x01)
+							{
+								BlocksToTransfer--;
+								StartAddr++;
+							}
+
+							CurrFlashAddress++;
+						}
 					}
 					
-					if (!(BytesToTransfer))
+					/* Check if the upload has finished, if so return to idle state */
+					if (!(BlocksToTransfer))
 					  DFU_State = dfuIDLE;
 				}
 				else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01)) // Blank Check
@@ -205,12 +261,14 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					   that the memory isn't blank, and the host is requesting the first non-blank address */
 					Endpoint_Write_Word_LE(StartAddr);
 					
+					/* Return to idle state */
 					DFU_State = dfuIDLE;
 				}
 			}
 
 			Endpoint_Setup_In_Clear();
 
+			/* Send ZLP to the host to acknowedge the request */
 			while (!(Endpoint_Setup_Out_IsReceived()));
 			Endpoint_Setup_Out_Clear();
 
@@ -270,15 +328,15 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			break;
 	}
 
-	/* End of request processing - status LED green */
-	Bicolour_SetLed(1, BICOLOUR_LED1_GREEN);
-
 	#if defined(SECURE_MODE)
 	/* If secure mode is active, second LED is red, otherwise off */
 	if (IsSecure)
-	  Bicolour_SetLed(2, BICOLOUR_LED2_RED);
+	  Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
 	else
-	  Bicolour_SetLed(2, BICOLOUR_LED2_OFF);
+	  Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
+	#else
+	/* End of request processing - status LED green */
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
 	#endif
 }
 
@@ -355,11 +413,10 @@ static void ProcessMemReadCommand(void)
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))          // Blank check FLASH command
 	{
-		do
+		uint32_t CurrAddress = 0;
+
+		while (CurrAddress < BOOT_START_ADDR)
 		{
-			/* Construct 24-bit far address from current flash page and current address */
-			uint32_t CurrAddress = (((uint32_t)Flash64KBPage << 16) | StartAddr);
-			
 			/* Check if the current byte is not blank */
 			if (pgm_read_byte_far(CurrAddress) != 0xFF)
 			{
@@ -369,42 +426,50 @@ static void ProcessMemReadCommand(void)
 
 				break;
 			}
-			
-			StartAddr++;
+
+			CurrAddress++;
 		}
-		while (StartAddr != EndAddr);
 	}
 }
 
 static void ProcessWriteCommand(void)
 {
-	if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x03, 0x00))         // Start application, hardware reset
+	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x03))                // Start application
 	{
 		/* Check if empty request data array - an empty request after a filled request retains the
 		   previous valid request data, but initializes the reset */
 		if (!(SentCommand.DataSize))
 		{
-			/* Start the watchdog, enter infinite loop to reset the AVR */
-			wdt_enable(WDTO_250MS);
-			for (;;);
+			if (SentCommand.Data[1] == 0x00)                       // Start via watchdog
+			{
+				/* Start the watchdog, enter infinite loop to reset the AVR */
+				wdt_enable(WDTO_250MS);
+				for (;;);
+			}
+			else                                                   // Start via jump
+			{
+				/* Load in the jump address into the application start address pointer */
+				AppStartPtr = (FuncPtr_t)((SentCommand.Data[2] << 8) | SentCommand.Data[3]);
+				
+				/* Set the flag to terminate the bootloader at next opportunity */
+				RunBootloader = false;			
+			}
 		}
-	}
-	else if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x03, 0x01))    // Start application, software jump
-	{
-		/* Check if empty request data array - an empty request after a filled request retains the
-		   previous valid request data, but initializes the jump */
-		if (!(SentCommand.DataSize))
-		{
-			/* Load in the jump address into the application start address pointer */
-			AppStartPtr = (FuncPtr_t)((SentCommand.Data[2] << 8) | SentCommand.Data[3]);
-			
-			/* Set the flag to terminate the bootloader at next opportunity */
-			RunBootloader = false;
-		}	
 	}
 	else if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x00, 0xFF))    // Erase flash
 	{
-		EraseFlash();
+		uint32_t CurrAddress = 0;
+
+		/* Clear the application section of flash */
+		while (CurrAddress < BOOT_START_ADDR)
+		{
+			boot_page_erase(CurrAddress);
+			boot_spm_busy_wait();
+			boot_page_write(CurrAddress);
+			boot_spm_busy_wait();
+
+			CurrAddress += SPM_PAGESIZE;
+		}
 					
 		#if defined(SECURE_MODE)
 		IsSecure = false;
@@ -414,40 +479,26 @@ static void ProcessWriteCommand(void)
 
 static void ProcessReadCommand(void)
 {
-	ResponseByte = 0x00;
+	uint8_t CommandResponse = 0x00;
 
 	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))               // Read bootloader info
 	{
 		if (SentCommand.Data[1] == 0x00)                          // Read version
-		  ResponseByte = BOOTLOADER_VERSION;
+		  CommandResponse = BOOTLOADER_VERSION;
 		else if (SentCommand.Data[1] == 0x01)                     // Read boot ID byte 1
-		  ResponseByte = BOOTLOADER_ID_BYTE1;
+		  CommandResponse = BOOTLOADER_ID_BYTE1;
 		else if (SentCommand.Data[1] == 0x02)                     // Read boot ID byte 2
-		  ResponseByte = BOOTLOADER_ID_BYTE2;
+		  CommandResponse = BOOTLOADER_ID_BYTE2;
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))          // Read signature byte
 	{
 		if (SentCommand.Data[1] == 0x30)                          // Read byte 1
-		  ResponseByte = SigBytes[0];
+		  CommandResponse = SigBytes[0];
 		else if (SentCommand.Data[1] == 0x31)                     // Read byte 2
-		  ResponseByte = SigBytes[1];
+		  CommandResponse = SigBytes[1];
 		else if (SentCommand.Data[1] == 0x60)                     // Read byte 3
-		  ResponseByte = SigBytes[2];
+		  CommandResponse = SigBytes[2];
 	}
-}
-
-static void EraseFlash(void)
-{
-	uint32_t FlashAddr = 0;
-
-	/* Clear the application section of flash */
-	while (FlashAddr < BOOT_START_ADDR)
-	{
-		boot_page_erase(FlashAddr);
-		boot_spm_busy_wait();
-		boot_page_write(FlashAddr);
-		boot_spm_busy_wait();
-
-		FlashAddr += SPM_PAGESIZE;
-	}
+	
+	ResponseByte = CommandResponse;
 }

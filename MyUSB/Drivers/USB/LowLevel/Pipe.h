@@ -156,7 +156,7 @@
 
 			static inline void Pipe_Ignore_Word(void)
 			{
-				volatile uint8_t Dummy;
+				uint8_t Dummy;
 				
 				Dummy = UPDATX;
 				Dummy = UPDATX;
@@ -210,7 +210,7 @@
 			
 			static inline void Pipe_Ignore_DWord(void)
 			{
-				volatile uint8_t Dummy;
+				uint8_t Dummy;
 				
 				Dummy = UPDATX;
 				Dummy = UPDATX;

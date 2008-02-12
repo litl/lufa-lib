@@ -141,7 +141,7 @@
 
 			static inline void Endpoint_Ignore_Word(void)
 			{
-				volatile uint8_t Dummy;
+				uint8_t Dummy;
 				
 				Dummy = UEDATX;
 				Dummy = UEDATX;
@@ -195,7 +195,7 @@
 
 			static inline void Endpoint_Ignore_DWord(void)
 			{
-				volatile uint8_t Dummy;
+				uint8_t Dummy;
 				
 				Dummy = UEDATX;
 				Dummy = UEDATX;

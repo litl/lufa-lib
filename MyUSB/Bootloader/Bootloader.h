@@ -107,7 +107,6 @@
 			static void ProcessMemReadCommand(void);
 			static void ProcessWriteCommand(void);
 			static void ProcessReadCommand(void);
-			static void EraseFlash(void);
 		#endif
 		
 #endif
