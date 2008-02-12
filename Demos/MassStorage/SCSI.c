@@ -139,7 +139,6 @@ static bool SCSI_Command_Inquiry(void)
 	                                         CommandBlock.SCSICommandData[4]);
 	uint8_t* InquiryDataPtr    = (uint8_t*)&InquiryData;
 	uint8_t  BytesTransferred  = 0;
-	uint8_t  BytesInEndpoint   = 0;
 
 	/* Only the standard INQUIRY data is supported, check if any optional INQUIRY bits set */
 	if ((CommandBlock.SCSICommandData[1] & ((1 << 0) | (1 << 1))) ||
@@ -167,18 +166,15 @@ static bool SCSI_Command_Inquiry(void)
 	while (BytesTransferred < AllocationLength)
 	{
 		/* When endpoint filled, send the data and wait until it is ready to be written to again */
-		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
+		if (Endpoint_BytesInEndpoint() == MASS_STORAGE_IO_EPSIZE)
 		{
 			Endpoint_FIFOCON_Clear();
 			while (!(Endpoint_ReadWriteAllowed()));
-
-			BytesInEndpoint = 0;
 		}
 					
 		Endpoint_Write_Byte(0x00);
 		
 		BytesTransferred++;
-		BytesInEndpoint++;
 	}
 	
 	/* Send the final endpoint data packet to the host */
@@ -194,7 +190,6 @@ static bool SCSI_Command_Request_Sense(void)
 	uint8_t  AllocationLength = CommandBlock.SCSICommandData[4];
 	uint8_t* SenseDataPtr     = (uint8_t*)&SenseData;
 	uint8_t  BytesTransferred = 0;
-	uint8_t  BytesInEndpoint  = 0;	
 	
 	/* Send the SENSE data - this indicates to the host the status of the last command */
 	for (uint8_t i = 0; i < sizeof(SenseData); i++)
@@ -204,25 +199,21 @@ static bool SCSI_Command_Request_Sense(void)
 					  
 		Endpoint_Write_Byte(*(SenseDataPtr++));
 		BytesTransferred++;
-		BytesInEndpoint++;
 	}
 	
 	/* Pad out remaining bytes with 0x00 */
 	while (BytesTransferred < AllocationLength)
 	{
 		/* When endpoint filled, send the data and wait until it is ready to be written to again */
-		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
+		if (Endpoint_BytesInEndpoint() == MASS_STORAGE_IO_EPSIZE)
 		{
 			Endpoint_FIFOCON_Clear();
 			while (!(Endpoint_ReadWriteAllowed()));
-
-			BytesInEndpoint = 0;
 		}
 					
 		Endpoint_Write_Byte(0x00);
 		
 		BytesTransferred++;
-		BytesInEndpoint++;
 	}
 
 	/* Send the final endpoint data packet to the host */

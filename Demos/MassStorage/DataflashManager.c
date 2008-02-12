@@ -113,7 +113,6 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	uint16_t CurrDFPage       = VirtualMemory_DFPageFromBlock(BlockAddress);
 	uint16_t CurrDFByte       = VirtualMemory_DFPageOffsetFromBlock(BlockAddress);
 	uint16_t BytesInCurrBlock = 0;
-	uint8_t  BytesInEndpoint  = 0;
 
 	/* Select the dataflash IC based on the page number */
 	Dataflash_SelectChipFromPage(CurrDFPage);
@@ -167,7 +166,6 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 		/* Update dataflash page byte, block byte and endpoint byte counters */
 		CurrDFByte       += 8;
 		BytesInCurrBlock += 8;
-		BytesInEndpoint  += 8;
 
 		/* Check if end of block reached */
 		if (BytesInCurrBlock == VIRTUAL_MEMORY_BLOCK_SIZE)
@@ -178,11 +176,10 @@ void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 		}
 
 		/* Check if endpoint full */
-		if (BytesInEndpoint == MASS_STORAGE_IO_EPSIZE)
+		if (Endpoint_BytesInEndpoint() == MASS_STORAGE_IO_EPSIZE)
 		{
-			/* Send endpoint data and reset the endpoint byte counter */
+			/* Send endpoint data */
 			Endpoint_FIFOCON_Clear();
-			BytesInEndpoint = 0;
 			
 			/* Check if any blocks remaining, if so wait until endpoint ready to be written to again */
 			if (TotalBlocks)

@@ -167,8 +167,6 @@ uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
 	}
 	else
 	{
-		uint16_t BytesInEndpoint = 0;
-
 		/* Select the OUT data pipe for data transmission */
 		Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
 		Pipe_Unfreeze();
@@ -179,10 +177,9 @@ uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
 			Pipe_Write_Byte(*(BufferPtr++));
 			
 			BytesRem--;
-			BytesInEndpoint++;
 			
 			/* Check if the pipe is full */
-			if (BytesInEndpoint == MassStoreEndpointSize_OUT)
+			if (Pipe_BytesInPipe() == MassStoreEndpointSize_OUT)
 			{
 				Pipe_FIFOCON_Clear();
 				while (!(Pipe_ReadWriteAllowed()))
@@ -194,13 +191,11 @@ uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
 						return DeviceDisconnected;
 					}					
 				}
-				
-				BytesInEndpoint = 0;
 			}
 		}
 
 		/* Check to see if any data is still in the pipe - if so, send it */
-		if (BytesInEndpoint)
+		if (Pipe_BytesInPipe())
 		  Pipe_FIFOCON_Clear();
 	}
 	
