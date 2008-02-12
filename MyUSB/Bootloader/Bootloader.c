@@ -29,7 +29,7 @@
 	*** WORK IN PROGRESS - NOT CURRENTLY FUNCTIONING ***
 */
 
-#define SECURE_MODE
+//#define SECURE_MODE
 
 #define INCLUDE_FROM_BOOTLOADER_C
 #include "Bootloader.h"
@@ -175,14 +175,19 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			else
 			{
-				if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||          // Read FLASH
+				if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00)  ||         // Read FLASH
 				    IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))            // Read EEPROM
 				{
-					while (SentCommand.DataSize-- && (StartAddr != EndAddr))
+					uint16_t BytesToTransfer = ((EndAddr - StartAddr) + 1);
+				
+					while (SentCommand.DataSize-- && BytesToTransfer--)
 					{
 						if (Endpoint_BytesInEndpoint() == ENDPOINT_CONTROLEP_SIZE)
-						  Endpoint_Setup_In_Clear();
-						  
+						{
+							Endpoint_Setup_In_Clear();
+							while (!(Endpoint_Setup_In_IsReady()));
+						}
+
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02)) // Read EEPROM
 						  Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)StartAddr));
 						else                                            // Read FLASH
@@ -190,8 +195,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 						
 						StartAddr++;
 					}
-
-					if (StartAddr == EndAddr)
+					
+					if (!(BytesToTransfer))
 					  DFU_State = dfuIDLE;
 				}
 				else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01)) // Blank Check
@@ -411,9 +416,14 @@ static void ProcessReadCommand(void)
 {
 	ResponseByte = 0x00;
 
-	if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x00, 0x00))         // Read bootloader info
+	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))               // Read bootloader info
 	{
-		ResponseByte = BOOTLOADER_VERSION;
+		if (SentCommand.Data[1] == 0x00)                          // Read version
+		  ResponseByte = BOOTLOADER_VERSION;
+		else if (SentCommand.Data[1] == 0x01)                     // Read boot ID byte 1
+		  ResponseByte = BOOTLOADER_ID_BYTE1;
+		else if (SentCommand.Data[1] == 0x02)                     // Read boot ID byte 2
+		  ResponseByte = BOOTLOADER_ID_BYTE2;
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))          // Read signature byte
 	{
