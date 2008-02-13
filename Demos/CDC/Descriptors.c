@@ -39,7 +39,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                 {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
 			TotalConfigurationSize: sizeof(USB_Descriptor_Configuration_t),
-			TotalInterfaces:        2,
+			TotalInterfaces:        4,
 				
 			ConfigurationNumber:    1,
 			ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
@@ -48,8 +48,10 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			
 			MaxPowerConsumption:    USB_CONFIG_POWER_MA(100)
 		},
+
+/* Start of CDC interface #1 */
 		
-	CCI_Interface:
+	CCI_Interface1:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
@@ -65,7 +67,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
 
-	CDC_Functional_IntHeader:
+	CDC_Functional_IntHeader1:
 		{
 			FuncHeader:             {Header:
 										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
@@ -75,7 +77,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Data:                   {0x10, 0x01}
 		},
 
-	CDC_Functional_CallManagement:
+	CDC_Functional_CallManagement1:
 		{
 			FuncHeader:             {Header:
 										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
@@ -85,7 +87,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Data:                   {0x03, 0x01}
 		},
 
-	CDC_Functional_AbstractControlManagement:
+	CDC_Functional_AbstractControlManagement1:
 		{
 			FuncHeader:             {Header:
 										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(1)),
@@ -95,7 +97,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Data:                   {0x06}
 		},
 		
-	CDC_Functional_Union:
+	CDC_Functional_Union1:
 		{
 			FuncHeader:             {Header:
 										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
@@ -105,17 +107,17 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Data:                   {0x00, 0x01}
 		},	
 
-	ManagementEndpoint:
+	ManagementEndpoint1:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 										 
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | CDC_NOTIFICATION_EPNUM),
 			Attributes:       		EP_TYPE_INTERRUPT,
-			EndpointSize:           CDC_NOTIFICATION_EPSIZE,
+			EndpointSize:           CDC1_NOTIFICATION_EPSIZE,
 			PollingIntervalMS:		0x02
 		},
 
-	DCI_Interface:
+	DCI_Interface1:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
@@ -131,25 +133,129 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
 
-	DataOutEndpoint:
+	DataOutEndpoint1:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 										 
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | CDC_RX_EPNUM),
 			Attributes:       		EP_TYPE_BULK,
-			EndpointSize:           CDC_TXRX_EPSIZE,
+			EndpointSize:           CDC1_TXRX_EPSIZE,
 			PollingIntervalMS:		0x00
 		},
 		
-	DataInEndpoint:
+	DataInEndpoint1:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 										 
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | CDC_TX_EPNUM),
 			Attributes:       		EP_TYPE_BULK,
+			EndpointSize:           CDC1_TXRX_EPSIZE,
+			PollingIntervalMS:		0x00
+		},
+
+/* Start of CDC interface #2 */
+	
+	CCI_Interface2:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
+
+			InterfaceNumber:        0,
+			AlternateSetting:       0,
+			
+			TotalEndpoints:         1,
+				
+			Class:                  0x02,
+			SubClass:               0x02,
+			Protocol:               0x01,
+				
+			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
+		},
+
+	CDC_Functional_IntHeader2:
+		{
+			FuncHeader:             {Header:
+										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
+										 Type: 0x24},
+									 SubType: 0x00},
+			
+			Data:                   {0x10, 0x01}
+		},
+
+	CDC_Functional_CallManagement2:
+		{
+			FuncHeader:             {Header:
+										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
+										 Type: 0x24},
+									 SubType: 0x01},
+			
+			Data:                   {0x03, 0x01}
+		},
+
+	CDC_Functional_AbstractControlManagement2:
+		{
+			FuncHeader:             {Header:
+										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(1)),
+										 Type: 0x24},
+									 SubType: 0x02},
+			
+			Data:                   {0x06}
+		},
+		
+	CDC_Functional_Union2:
+		{
+			FuncHeader:             {Header:
+										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
+										 Type: 0x24},
+									 SubType: 0x06},
+			
+			Data:                   {0x00, 0x01}
+		},	
+
+	ManagementEndpoint2:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+										 
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | CDC_NOTIFICATION_EPNUM),
+			Attributes:       		EP_TYPE_INTERRUPT,
+			EndpointSize:           CDC2_NOTIFICATION_EPSIZE,
+			PollingIntervalMS:		0x02
+		},
+
+	DCI_Interface2:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
+
+			InterfaceNumber:        1,
+			AlternateSetting:       0,
+			
+			TotalEndpoints:         2,
+				
+			Class:                  0x0A,
+			SubClass:               0,
+			Protocol:               0,
+				
+			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
+		},
+
+	DataOutEndpoint2:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+										 
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | CDC2_RX_EPNUM),
+			Attributes:       		EP_TYPE_BULK,
 			EndpointSize:           CDC_TXRX_EPSIZE,
 			PollingIntervalMS:		0x00
-		}
+		},
+		
+	DataInEndpoint2:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+										 
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | CDC2_TX_EPNUM),
+			Attributes:       		EP_TYPE_BULK,
+			EndpointSize:           CDC_TXRX_EPSIZE,
+			PollingIntervalMS:		0x00
+		}		
 };
 
 USB_Descriptor_Language_t LanguageString PROGMEM =
