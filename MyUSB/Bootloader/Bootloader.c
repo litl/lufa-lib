@@ -224,7 +224,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				    IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))         // Read EEPROM
 				{
 					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
-					uint32_t CurrFlashAddress   = ((((uint32_t)Flash64KBPage << 16) | StartAddr) << 1);
+					uint32_t CurrFlashAddress   = (((uint32_t)Flash64KBPage << 16) | StartAddr);
 					
 					while (SentCommand.DataSize && TransfersRemaining)
 					{
@@ -279,6 +279,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case DFU_GETSTATUS:
 			Endpoint_ClearSetupReceived();
 			
+			/* Write 8-bit status value */
 			Endpoint_Write_Byte(DFU_Status);
 			
 			/* Write 24-bit poll timeout value */
@@ -392,26 +393,26 @@ static void ProcessBootloaderCommand(void)
 
 static void ProcessMemProgCommand(void)
 {
-	/* Load in the start and ending programming addresses */
-	StartAddr = (((uint16_t)SentCommand.Data[1] << 8) | SentCommand.Data[2]);
-	EndAddr   = (((uint16_t)SentCommand.Data[3] << 8) | SentCommand.Data[4]);
-
 	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                   // Write FLASH command
 		IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))
 	{
+		/* Load in the start and ending programming addresses */
+		StartAddr = (((uint16_t)SentCommand.Data[1] << 8) | SentCommand.Data[2]);
+		EndAddr   = (((uint16_t)SentCommand.Data[3] << 8) | SentCommand.Data[4]);
+
 		DFU_State = dfuDNLOAD_IDLE;
 	}
 }
 
 static void ProcessMemReadCommand(void)
 {
-	/* Load in the start and ending reading addresses */
-	StartAddr = (((uint16_t)SentCommand.Data[1] << 8) | SentCommand.Data[2]);
-	EndAddr   = (((uint16_t)SentCommand.Data[3] << 8) | SentCommand.Data[4]);
-	
 	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                   // Read FLASH command
         IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))                     // Read EEPROM command
 	{
+		/* Load in the start and ending reading addresses */
+		StartAddr = (((uint16_t)SentCommand.Data[1] << 8) | SentCommand.Data[2]);
+		EndAddr   = (((uint16_t)SentCommand.Data[3] << 8) | SentCommand.Data[4]);	
+
 		DFU_State = dfuUPLOAD_IDLE;
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                // Blank check FLASH command
