@@ -15,7 +15,7 @@
 	
 	This bootloader is compatible with Atmel's FLIP application.
 	However, it requires the use of Atmel's DFU drivers. You will
-	need to install Atmel's FDU drivers prior to using this bootloader.
+	need to install Atmel's DFU drivers prior to using this bootloader.
 	
 	As an open-source option, this bootloader is also compatible
 	with the Linux Atmel USB DFU Programmer software, avaliable
@@ -162,26 +162,27 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			else
 			{
-/*
+/* START TEST CODE */
 				if (!(SentCommand.DataSize))
 				{
 					DFU_State = dfuIDLE;
 				}
 				else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00)) // Write flash
 				{
-					uint16_t BytesToTransfer = ((EndAddr - StartAddr) + 1);
+					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
 
 					while (!(Endpoint_Setup_Out_IsReceived()));
 
-					while (SentCommand.DataSize && BytesToTransfer)
+					while (SentCommand.DataSize && TransfersRemaining)
 					{
 						uint32_t CurrAddress = (((uint32_t)Flash64KBPage << 16) | StartAddr);
 
 						boot_page_erase(CurrAddress);
 						boot_spm_busy_wait();
 						
-						for (uint16_t BytesInFlashPage = 0; ((BytesInFlashPage < SPM_PAGESIZE) &&
-															  BytesToTransfer); BytesInFlashPage += 2)
+						for (uint16_t BytesInFlashPage = 0;
+						      ((BytesInFlashPage < SPM_PAGESIZE) && TransfersRemaining && SentCommand.DataSize);
+						      BytesInFlashPage += 2)
 						{
 							if (!(Endpoint_BytesInEndpoint()))
 							{
@@ -191,16 +192,17 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 							boot_page_fill((CurrAddress + BytesInFlashPage), Endpoint_Read_Word_LE());	
 
-							StartAddr            += 2;
-							BytesToTransfer      -= 2;
 							SentCommand.DataSize -= 2;
+
+							StartAddr++;
+							TransfersRemaining--;
 						}
 							
 						boot_page_write (CurrAddress);
 						boot_spm_busy_wait();
 					}
 				}
-*/
+/* END TEST CODE */
 			}
 
 			/* Send ZLP to the host to acknowedge the request */
@@ -324,7 +326,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			Endpoint_ClearSetupReceived();
 			
 			/* Reset the current state variable to the default idle state */
-			DFU_State = dfuIDLE;
+			//DFU_State = dfuIDLE;
 			
 			Endpoint_Setup_In_Clear();
 			while (!(Endpoint_Setup_In_IsReady()));
@@ -394,7 +396,7 @@ static void ProcessBootloaderCommand(void)
 static void ProcessMemProgCommand(void)
 {
 	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                   // Write FLASH command
-		IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))
+		IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                     // Write EEPROM command
 	{
 		/* Load in the start and ending programming addresses */
 		StartAddr = (((uint16_t)SentCommand.Data[1] << 8) | SentCommand.Data[2]);

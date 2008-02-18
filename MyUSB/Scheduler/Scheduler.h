@@ -37,6 +37,7 @@
 			{
 				TaskPtr_t Task;
 				bool      TaskStatus;
+				uint8_t   GroupID;
 			} TaskEntry_t;			
 
 		/* Global Variables: */
@@ -80,6 +81,7 @@
 			                               SchedulerDelayCounter_t* const TaskCounter)
 										   ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(2);
 			void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool Run);
+			void Scheduler_SetGroupTaskMode(const uint8_t GroupID, const bool Run);
 
 	/* Private Interface - For use in library only: */		
 		/* Macros: */

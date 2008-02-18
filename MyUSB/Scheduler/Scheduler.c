@@ -56,3 +56,12 @@ void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool Run)
 		}
 	}
 }
+
+void Scheduler_SetGroupTaskMode(const uint8_t GroupID, const bool Run)
+{
+	for (uint8_t i = 0; i < Scheduler_TotalTasks; i++)
+	{
+		if (Scheduler_TaskList[i].GroupID == GroupID)
+		  Scheduler_TaskList[i].TaskStatus = Run;
+	}
+}
