@@ -31,14 +31,17 @@
 			#define NO_EVENT_ATTRIBUTES
 		
 			// Event Parameters:
-			#define USB_VBUSChange_P                    (void)
-			#define USB_VBUSConnect_P                   (void)
-			#define USB_VBUSDisconnect_P                (void)
+			#if defined(USB_FULL_CONTROLLER)
+				#define USB_VBUSChange_P                    (void)
+				#define USB_VBUSConnect_P                   (void)
+				#define USB_VBUSDisconnect_P                (void)
+			#endif
+			
 			#define USB_Connect_P                       (void)
 			#define USB_Disconnect_P                    (void)
-			#define USB_PowerOnFail_P                   (const uint8_t ErrorCode)
-
+			
 			#if defined(USB_CAN_BE_BOTH)
+				#define USB_PowerOnFail_P               (const uint8_t ErrorCode)
 				#define USB_UIDChange_P                 (void)
 			#endif
 
@@ -60,14 +63,17 @@
 			#endif
 
 			// Event Modifiers (to deprecate old events):
-			#define USB_VBUSChange_M	                NO_EVENT_ATTRIBUTES
-			#define USB_VBUSConnect_M                   NO_EVENT_ATTRIBUTES
-			#define USB_VBUSDisconnect_M                NO_EVENT_ATTRIBUTES
+			#if defined(USB_FULL_CONTROLLER)
+				#define USB_VBUSChange_M	                NO_EVENT_ATTRIBUTES
+				#define USB_VBUSConnect_M                   NO_EVENT_ATTRIBUTES
+				#define USB_VBUSDisconnect_M                NO_EVENT_ATTRIBUTES
+			#endif
+			
 			#define USB_Connect_M                       NO_EVENT_ATTRIBUTES
 			#define USB_Disconnect_M                    NO_EVENT_ATTRIBUTES
-			#define USB_PowerOnFail_M                   NO_EVENT_ATTRIBUTES
 
 			#if defined(USB_CAN_BE_BOTH)
+				#define USB_PowerOnFail_M               NO_EVENT_ATTRIBUTES
 				#define USB_UIDChange_M               
 			#endif
 
@@ -97,9 +103,9 @@
 				ALIAS_STUB(USB_VBUSDisconnect);
 				ALIAS_STUB(USB_Connect);
 				ALIAS_STUB(USB_Disconnect);
-				ALIAS_STUB(USB_PowerOnFail);
 				
 				#if defined(USB_CAN_BE_BOTH)
+					ALIAS_STUB(USB_PowerOnFail);
 					ALIAS_STUB(USB_UIDChange);
 				#endif
 				

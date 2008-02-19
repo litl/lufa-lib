@@ -69,8 +69,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Header_t), Type: DTYPE_DFUFunctional},
 			
-			Attributes:             (ATTR_CAN_UPLOAD   | ATTR_CAN_DOWNLOAD |
-			                         ATTR_WILL_DETATCH | ATTR_MANEFESTATION_TOLLERANT),
+			Attributes:             (ATTR_CAN_UPLOAD | ATTR_CAN_DOWNLOAD),
 
 			DetatchTimeout:         0x0000,
 			TransferSize:           0x0c00,
@@ -102,9 +101,9 @@ USB_Descriptor_String_t ProductString =
 
 USB_Descriptor_String_t SerialNumberString =
 {
-	Header:                 {Size: USB_STRING_LEN(13), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(5), Type: DTYPE_String},
 		
-	UnicodeString:          {'0','.','0','.','0','.','0','.','0','.','0','.','0'}
+	UnicodeString:          {'1','.',('0'+  BOOTLOADER_VERSION_MINOR),'.',('0'+  BOOTLOADER_VERSION_REV)}
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,

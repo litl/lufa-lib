@@ -13,6 +13,8 @@
 
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
+		
+		#include "Bootloader.h"
 
 	/* Macros: */
 		#define DTYPE_DFUFunctional               0x21

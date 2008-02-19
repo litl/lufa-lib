@@ -78,7 +78,7 @@
 			#define Endpoint_ClearStall()              MACROS{ UECONX  &= ~(1 << STALLRQ);               }MACROE
 			#define Endpoint_IsStalled()                     ((UECONX  &   (1 << STALLRQ)) ? true : false)
 
-			#define Endpoint_ResetDataToggle()         MACROS{ UECONX  |= (1 << RSTDT);                  }MACROE
+			#define Endpoint_ResetDataToggle()         MACROS{ UECONX  |=  (1 << RSTDT);                 }MACROE
 
 		/* Function Aliases: */
 			static inline uint16_t Endpoint_Read_Word(void)            ATTR_ALIAS(Endpoint_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;

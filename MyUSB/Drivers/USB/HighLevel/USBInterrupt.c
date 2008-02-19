@@ -14,6 +14,7 @@
 ISR(USB_GEN_vect)
 {
 	#if defined(USB_CAN_BE_DEVICE)
+	#if defined(USB_FULL_CONTROLLER)
 	if (USB_INT_HasOccurred(USB_INT_VBUS) && USB_INT_IsEnabled(USB_INT_VBUS))
 	{
 		USB_INT_Clear(USB_INT_VBUS);
@@ -26,12 +27,11 @@ ISR(USB_GEN_vect)
 			
 			if (USB_IsInitialized)
 			{
-				if (USB_SetupInterface() == USB_SETUPINTERFACE_OK)
-				{
-					USB_IsConnected = true;
+				USB_SetupInterface();
+				
+				USB_IsConnected = true;
 					
-					RAISE_EVENT(USB_Connect);
-				}
+				RAISE_EVENT(USB_Connect);
 			}
 		}
 		else
@@ -48,6 +48,7 @@ ISR(USB_GEN_vect)
 			USB_IsConnected = false;
 		}
 	}
+	#endif
 
 	if (USB_INT_HasOccurred(USB_INT_SUSPEND) && USB_INT_IsEnabled(USB_INT_SUSPEND))
 	{
@@ -81,6 +82,7 @@ ISR(USB_GEN_vect)
 		USB_INT_Clear(USB_INT_EORSTI);
 
 		USB_ConfigurationNumber = 0;
+
 		USB_INT_Clear(USB_INT_SUSPEND);
 		USB_INT_Disable(USB_INT_SUSPEND);
 		USB_INT_Enable(USB_INT_WAKEUP);

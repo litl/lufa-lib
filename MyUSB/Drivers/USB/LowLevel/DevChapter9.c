@@ -27,35 +27,6 @@ void USB_Device_ProcessControlPacket(void)
 	
 	switch (Request)
 	{
-		case REQ_SetAddress:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
-			{
-				USB_Device_SetAddress();
-				RequestHandled = true;
-			}
-
-			break;
-		case REQ_SetConfiguration:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
-			{
-				USB_Device_SetConfiguration();
-				RequestHandled = true;
-			}
-
-			break;
-		case REQ_GetConfiguration:
-			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE))
-			{
-				USB_Device_GetConfiguration();
-				RequestHandled = true;
-			}
-
-			break;
-		case REQ_GetDescriptor:
-			USB_Device_GetDescriptor();
-			RequestHandled = true;
-			
-			break;
 		case REQ_GetStatus:
 			if (((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
 			                          (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
@@ -64,6 +35,16 @@ void USB_Device_ProcessControlPacket(void)
 				USB_Device_GetStatus(RequestType);
 				RequestHandled = true;
 			}			
+
+			break;
+		case REQ_ClearFeature:
+			if (((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
+			                          (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
+			     ((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
+			{
+				USB_Device_ClearFeature(RequestType);
+				RequestHandled = true;
+			}
 
 			break;
 		case REQ_SetFeature:
@@ -76,12 +57,31 @@ void USB_Device_ProcessControlPacket(void)
 			}			
 
 			break;
-		case REQ_ClearFeature:
-			if (((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
-			                          (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
-			     ((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
+		case REQ_SetAddress:
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
 			{
-				USB_Device_ClearFeature(RequestType);
+				USB_Device_SetAddress();
+				RequestHandled = true;
+			}
+
+			break;
+		case REQ_GetDescriptor:
+			USB_Device_GetDescriptor();
+			RequestHandled = true;
+			
+			break;
+		case REQ_GetConfiguration:
+			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE))
+			{
+				USB_Device_GetConfiguration();
+				RequestHandled = true;
+			}
+
+			break;
+		case REQ_SetConfiguration:
+			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
+			{
+				USB_Device_SetConfiguration();
 				RequestHandled = true;
 			}
 

@@ -17,7 +17,7 @@
 volatile uint8_t USB_CurrentMode = USB_MODE_NONE;
 #endif
 
-#if !(defined(USE_STATIC_OPTIONS))
+#if !defined(USE_STATIC_OPTIONS)
 volatile uint8_t USB_Options;
 #endif
 
@@ -28,11 +28,11 @@ void USB_Init(
 
 			   #if (defined(USB_CAN_BE_BOTH) && !defined(USE_STATIC_OPTIONS))
 			   ,
-			   #elif (!(defined(USB_CAN_BE_BOTH)) && defined(USE_STATIC_OPTIONS))
+			   #elif (!defined(USB_CAN_BE_BOTH) && defined(USE_STATIC_OPTIONS))
 			   void
 			   #endif
 			   
-			   #if !(defined(USE_STATIC_OPTIONS))
+			   #if !defined(USE_STATIC_OPTIONS)
 			   const uint8_t Options
 			   #endif
 			   )
@@ -45,7 +45,9 @@ void USB_Init(
 	#endif
 	
 	#if defined(USB_DEVICE_ONLY)
-	UHWCON |=  (1 << UIMOD);
+		#if defined(USB_FULL_CONTROLLER)
+		UHWCON |= (1 << UIMOD);
+		#endif
 	#elif defined(USB_HOST_ONLY)
 	UHWCON &= ~(1 << UIMOD);
 	#else
@@ -84,14 +86,21 @@ void USB_Init(
 	USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 	#endif
 	
+	#if defined(USB_FULL_CONTROLLER)
 	USB_OTGPAD_On();
+	#endif
 	
-	#if !(defined(USE_STATIC_OPTIONS))
+	#if !defined(USE_STATIC_OPTIONS)
 	USB_Options = Options;
 	#endif
 
 	#if defined(USB_DEVICE_ONLY)
-	USB_INT_Enable(USB_INT_VBUS);
+		#if defined(USB_FULL_CONTROLLER)
+		USB_INT_Enable(USB_INT_VBUS);
+		#else
+		USB_SetupInterface();
+		USB_IsConnected = true;
+		#endif
 	#elif defined(USB_HOST_ONLY)
 	USB_SetupInterface();
 	#else
@@ -112,13 +121,16 @@ void USB_ShutDown(void)
 	USB_CurrentMode = USB_MODE_NONE;
 	#endif
 	
-	#if !(defined(USE_STATIC_OPTIONS))
+	#if !defined(USE_STATIC_OPTIONS)
 	USB_Options     = 0;
 	#endif
 
 	USB_Interface_Disable();
 	USB_PLL_Off();
+	
+	#if defined(USB_FULL_CONTROLLER)
 	USB_OTGPAD_Off();
+	#endif
 
 	#if defined(USB_CAN_BE_BOTH)
 	UHWCON &= ~(1 << UIDE);
@@ -145,6 +157,7 @@ static void USB_ResetInterface(void)
 	#endif
 	
 	USB_Detach();
+	
 	USB_REG_Off();
 
 	USB_IsConnected         = false;
@@ -159,7 +172,7 @@ static void USB_ResetInterface(void)
 	#endif
 }
 
-bool USB_SetupInterface(void)
+void USB_SetupInterface(void)
 {	
 	USB_ResetInterface();
 
@@ -186,7 +199,9 @@ bool USB_SetupInterface(void)
 		USB_CurrentMode = USB_GetUSBModeFromUID();
 	}
 	#elif defined(USB_DEVICE_ONLY)
-	USB_INT_Enable(USB_INT_VBUS);
+		#if defined(USB_FULL_CONTROLLER)
+		USB_INT_Enable(USB_INT_VBUS);
+		#endif
 	#endif
 		
 	if (!(USB_Options & USB_OPT_REG_DISABLED))
@@ -196,11 +211,10 @@ bool USB_SetupInterface(void)
 			
 	while (!(USB_PLL_IsReady()));
 		
-	USB_Interface_Disable();
-	USB_Interface_Enable();
+	USB_Interface_Reset();
 	USB_CLK_Unfreeze();
 
-	#if defined(USB_CAN_BE_DEVICE)
+	#if (defined(USB_CAN_BE_DEVICE) && defined(USB_FULL_CONTROLLER))
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
 		if (USB_Options & USB_DEV_OPT_LOWSPEED)
@@ -244,6 +258,4 @@ bool USB_SetupInterface(void)
 	USB_IsInitialized = true;
 	USB_IsConnected   = false;
 	#endif
-
-	return USB_SETUPINTERFACE_OK;
 }

@@ -21,10 +21,10 @@
 	with the Linux Atmel USB DFU Programmer software, avaliable
 	for download at http://sourceforge.net/projects/dfu-programmer/.
 	
-    If SECURE_MODE is defined, upon startup the bootloader will be
-    locked, with only the chip erase function avaliable (similar to
-    Atmel's DFU bootloader). If SECURE_MODE is undefined, all functions
-    are usable on startup without the prerequisite firmware erase.
+    If SECURE_MODE is defined as true, upon startup the bootloader will
+	be locked, with only the chip erase function avaliable (similar to
+    Atmel's DFU bootloader). If SECURE_MODE is defined as false, all
+	functions are usable on startup without the prerequisite firmware erase.
 	
 	NOTE: This device spoofs Atmel's DFU Bootloader USB VID and PID.
 	      If you do not wish to use Atmel's codes, please manually
@@ -34,15 +34,12 @@
 	*** WORK IN PROGRESS - NOT CURRENTLY FUNCTIONING ***
 */
 
-//#define SECURE_MODE
+#define SECURE_MODE           false
 
 #define INCLUDE_FROM_BOOTLOADER_C
 #include "Bootloader.h"
 
-#if defined(SECURE_MODE)
-bool          IsSecure      = true;
-#endif
-
+bool          IsSecure      = SECURE_MODE;
 bool          RunBootloader = true;
 
 uint8_t       DFU_State     = dfuIDLE;
@@ -105,13 +102,8 @@ int main (void)
 
 EVENT_HANDLER(USB_Connect)
 {	
-	#if defined(SECURE_MODE)
-	/* Set status LEDs to red and green colour to indicate secure mode is active */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
-	#else
 	/* Status LED green when USB connected */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
-	#endif
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -129,8 +121,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 	SentCommand.DataSize = Endpoint_Read_Word_LE();
 
-	/* Processing request - status LED orange */
-	Bicolour_SetLed(1, BICOLOUR_LED1_ORANGE);
+	/* Processing request - status LEDs green/orange */
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
 
 	switch (Request)
 	{
@@ -163,26 +155,45 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			else
 			{
 /* START TEST CODE */
+				uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
+
 				if (!(SentCommand.DataSize))
 				{
 					DFU_State = dfuIDLE;
 				}
-				else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00)) // Write flash
+				else                                                           // Write FLASH or EEPROM
 				{
-					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
-
 					while (!(Endpoint_Setup_Out_IsReceived()));
 
-					while (SentCommand.DataSize && TransfersRemaining)
+					while (TransfersRemaining && SentCommand.DataSize)
 					{
-						uint32_t CurrAddress = (((uint32_t)Flash64KBPage << 16) | StartAddr);
+						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Write flash
+						{
+							uint32_t CurrFlashAddress = (((uint32_t)Flash64KBPage << 16) | StartAddr);
 
-						boot_page_erase(CurrAddress);
-						boot_spm_busy_wait();
-						
-						for (uint16_t BytesInFlashPage = 0;
-						      ((BytesInFlashPage < SPM_PAGESIZE) && TransfersRemaining && SentCommand.DataSize);
-						      BytesInFlashPage += 2)
+							boot_page_erase(CurrFlashAddress);
+							boot_spm_busy_wait();
+							
+							for (uint16_t BytesInFlashPage = 0; ((BytesInFlashPage < SPM_PAGESIZE) &&
+							      TransfersRemaining && SentCommand.DataSize); BytesInFlashPage += 2)
+							{
+								if (!(Endpoint_BytesInEndpoint()))
+								{
+									Endpoint_Setup_Out_Clear();
+									while (!(Endpoint_Setup_Out_IsReceived()));
+								}
+
+								boot_page_fill((CurrFlashAddress + BytesInFlashPage), Endpoint_Read_Word_LE());	
+
+								SentCommand.DataSize -= 2;
+								TransfersRemaining   -= 2;
+								StartAddr            += 2;
+							}
+								
+							boot_page_write(CurrFlashAddress);
+							boot_spm_busy_wait();
+						}
+						else                                                   // Write EEPROM
 						{
 							if (!(Endpoint_BytesInEndpoint()))
 							{
@@ -190,16 +201,12 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 								while (!(Endpoint_Setup_Out_IsReceived()));
 							}
 
-							boot_page_fill((CurrAddress + BytesInFlashPage), Endpoint_Read_Word_LE());	
+							eeprom_write_byte((uint8_t*)StartAddr, Endpoint_Read_Byte());	
 
-							SentCommand.DataSize -= 2;
-
-							StartAddr++;
-							TransfersRemaining--;
-						}
-							
-						boot_page_write (CurrAddress);
-						boot_spm_busy_wait();
+							SentCommand.DataSize    -= 1;
+							TransfersRemaining      -= 1;
+							StartAddr               += 1;
+						}						
 					}
 				}
 /* END TEST CODE */
@@ -222,13 +229,12 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			else
 			{
-				if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00)  ||      // Read FLASH
-				    IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))         // Read EEPROM
+				uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
+
+				if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||              // Read FLASH
+				    IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))                // Read EEPROM
 				{
-					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
-					uint32_t CurrFlashAddress   = (((uint32_t)Flash64KBPage << 16) | StartAddr);
-					
-					while (SentCommand.DataSize && TransfersRemaining)
+					while (TransfersRemaining && SentCommand.DataSize)
 					{
 						/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
 						if (Endpoint_BytesInEndpoint() == ENDPOINT_CONTROLEP_SIZE)
@@ -237,30 +243,27 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 							while (!(Endpoint_Setup_In_IsReady()));
 						}
 
-						/* Read in a byte from the selected memory and write it to the endpoint */
-						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02)) // Read EEPROM
+						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Read FLASH
+						{
+							uint32_t CurrFlashAddress = (((uint32_t)Flash64KBPage << 16) | StartAddr);
+
+							Endpoint_Write_Word_LE(pgm_read_word_far(CurrFlashAddress));
+
+							SentCommand.DataSize -= 2;
+							TransfersRemaining   -= 2;
+							StartAddr            += 2;					
+						}
+						else                                                   // Read EEPROM
 						{
 							Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)StartAddr));
 
 							SentCommand.DataSize -= 1;
+							TransfersRemaining   -= 1;
+							StartAddr            += 1;					
 						}
-						else                                            // Read FLASH
-						{
-							Endpoint_Write_Word_LE(pgm_read_word_far(CurrFlashAddress));
-
-							CurrFlashAddress     += 2;
-							SentCommand.DataSize -= 2;
-						}
-						
-						TransfersRemaining--;
-						StartAddr++;
 					}
-					
-					/* Check if the upload has finished, if so return to idle state */
-					if (!(TransfersRemaining))
-					  DFU_State = dfuIDLE;
 				}
-				else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01)) // Blank Check
+				else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))           // Blank Check
 				{
 					/* Blank checking is performed in the DFU_DNLOAD request - if we get here we've told the host
 					   that the memory isn't blank, and the host is requesting the first non-blank address */
@@ -269,6 +272,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					/* Return to idle state */
 					DFU_State = dfuIDLE;
 				}
+				
+				/* Return to idle state if a short frame was sent (last packet of data) */
+				if (!(TransfersRemaining))
+				  DFU_State = dfuIDLE;
 			}
 
 			Endpoint_Setup_In_Clear();
@@ -326,7 +333,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			Endpoint_ClearSetupReceived();
 			
 			/* Reset the current state variable to the default idle state */
-			//DFU_State = dfuIDLE;
+			DFU_State = dfuIDLE;
 			
 			Endpoint_Setup_In_Clear();
 			while (!(Endpoint_Setup_In_IsReady()));
@@ -334,21 +341,12 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			break;
 	}
 
-	#if defined(SECURE_MODE)
-	/* If secure mode is active, second LED is red, otherwise off */
-	if (IsSecure)
-	  Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
-	else
-	  Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
-	#else
-	/* End of request processing - status LED green */
+	/* Command processing finished, status LED green */
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
-	#endif
 }
 
 static void ProcessBootloaderCommand(void)
 {
-	#if defined(SECURE_MODE)
 	/* Check if device is in secure mode */
 	if (IsSecure)
 	{
@@ -368,7 +366,6 @@ static void ProcessBootloaderCommand(void)
 			return;
 		}
 	}
-	#endif
 
 	/* Dispatch the required command processing routine based on the command type */
 	switch (SentCommand.Command)
@@ -386,7 +383,7 @@ static void ProcessBootloaderCommand(void)
 			ProcessMemReadCommand();
 			break;
 		case COMMAND_CHANGE_BASE_ADDR:
-			if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x03, 0x00))       // Set 64KB flash page command
+			if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x03, 0x00))              // Set 64KB flash page command
 			  Flash64KBPage = SentCommand.Data[2];
 
 			break;
@@ -395,12 +392,12 @@ static void ProcessBootloaderCommand(void)
 
 static void ProcessMemProgCommand(void)
 {
-	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                   // Write FLASH command
-		IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                     // Write EEPROM command
+	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                          // Write FLASH command
+		IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                            // Write EEPROM command
 	{
 		/* Load in the start and ending programming addresses */
-		StartAddr = (((uint16_t)SentCommand.Data[1] << 8) | SentCommand.Data[2]);
-		EndAddr   = (((uint16_t)SentCommand.Data[3] << 8) | SentCommand.Data[4]);
+		StartAddr = *((uint16_t*)&SentCommand.Data[1]);
+		EndAddr   = *((uint16_t*)&SentCommand.Data[3]);
 
 		DFU_State = dfuDNLOAD_IDLE;
 	}
@@ -408,23 +405,23 @@ static void ProcessMemProgCommand(void)
 
 static void ProcessMemReadCommand(void)
 {
-	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                   // Read FLASH command
-        IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))                     // Read EEPROM command
+	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                          // Read FLASH command
+        IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))                            // Read EEPROM command
 	{
-		/* Load in the start and ending reading addresses */
-		StartAddr = (((uint16_t)SentCommand.Data[1] << 8) | SentCommand.Data[2]);
-		EndAddr   = (((uint16_t)SentCommand.Data[3] << 8) | SentCommand.Data[4]);	
+		/* Load in the start and ending read addresses */
+		StartAddr = *((uint16_t*)&SentCommand.Data[1]);
+		EndAddr   = *((uint16_t*)&SentCommand.Data[3]);
 
 		DFU_State = dfuUPLOAD_IDLE;
 	}
-	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                // Blank check FLASH command
+	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Blank check FLASH command
 	{
-		uint32_t CurrAddress = 0;
+		uint32_t CurrFlashAddress = 0;
 
-		while (CurrAddress < BOOT_START_ADDR)
+		while (CurrFlashAddress < BOOT_START_ADDR)
 		{
 			/* Check if the current byte is not blank */
-			if (pgm_read_byte_far(CurrAddress) != 0xFF)
+			if (pgm_read_byte_far(CurrFlashAddress) != 0xFF)
 			{
 				/* Set state and status variables to the appropriate error values */
 				DFU_State  = dfuERROR;
@@ -433,76 +430,71 @@ static void ProcessMemReadCommand(void)
 				break;
 			}
 
-			CurrAddress++;
+			CurrFlashAddress++;
 		}
 	}
 }
 
 static void ProcessWriteCommand(void)
 {
-	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x03))                     // Start application
+	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x03))                            // Start application
 	{
 		/* Check if empty request data array - an empty request after a filled request retains the
 		   previous valid request data, but initializes the reset */
 		if (!(SentCommand.DataSize))
 		{
-			if (SentCommand.Data[1] == 0x00)                            // Start via watchdog
+			if (SentCommand.Data[1] == 0x00)                                   // Start via watchdog
 			{
 				/* Start the watchdog, enter infinite loop to reset the AVR */
 				wdt_enable(WDTO_250MS);
 				for (;;);
 			}
-			else                                                        // Start via jump
+			else                                                               // Start via jump
 			{
 				/* Load in the jump address into the application start address pointer */
-				AppStartPtr = (FuncPtr_t)((SentCommand.Data[2] << 8) | SentCommand.Data[3]);
+				AppStartPtr = *(((FuncPtr_t*)&SentCommand.Data[3]));
 				
 				/* Set the flag to terminate the bootloader at next opportunity */
 				RunBootloader = false;			
 			}
 		}
 	}
-	else if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x00, 0xFF))          // Erase flash
+	else if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x00, 0xFF))                 // Erase flash
 	{
-		uint32_t CurrAddress = 0;
+		uint32_t CurrFlashAddress = 0;
 
 		/* Clear the application section of flash */
-		while (CurrAddress < BOOT_START_ADDR)
+		while (CurrFlashAddress < BOOT_START_ADDR)
 		{
-			boot_page_erase(CurrAddress);
+			boot_page_erase(CurrFlashAddress);
 			boot_spm_busy_wait();
-			boot_page_write(CurrAddress);
+			boot_page_write(CurrFlashAddress);
 			boot_spm_busy_wait();
 
-			CurrAddress += SPM_PAGESIZE;
+			CurrFlashAddress += SPM_PAGESIZE;
 		}
 					
-		#if defined(SECURE_MODE)
 		IsSecure = false;
-		#endif
 	}
 }
 
 static void ProcessReadCommand(void)
 {
+	const uint8_t BootloaderInfo[3] = {BOOTLOADER_VERSION, BOOTLOADER_ID_BYTE1, BOOTLOADER_ID_BYTE2};
+
 	uint8_t CommandResponse = 0x00;
 
-	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))                     // Read bootloader info
+	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))                            // Read bootloader info
 	{
-		if (SentCommand.Data[1] == 0x00)                                // Read version
-		  CommandResponse = BOOTLOADER_VERSION;
-		else if (SentCommand.Data[1] == 0x01)                           // Read boot ID byte 1
-		  CommandResponse = BOOTLOADER_ID_BYTE1;
-		else if (SentCommand.Data[1] == 0x02)                           // Read boot ID byte 2
-		  CommandResponse = BOOTLOADER_ID_BYTE2;
+		CommandResponse = BootloaderInfo[SentCommand.Data[1]];
 	}
-	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                // Read signature byte
+	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Read signature byte
 	{
-		if (SentCommand.Data[1] == 0x30)                                // Read byte 1
+		if (SentCommand.Data[1] == 0x30)                                       // Read byte 1
 		  CommandResponse = SigBytes[0];
-		else if (SentCommand.Data[1] == 0x31)                           // Read byte 2
+		else if (SentCommand.Data[1] == 0x31)                                  // Read byte 2
 		  CommandResponse = SigBytes[1];
-		else if (SentCommand.Data[1] == 0x60)                           // Read byte 3
+		else if (SentCommand.Data[1] == 0x60)                                  // Read byte 3
 		  CommandResponse = SigBytes[2];
 	}
 	

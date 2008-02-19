@@ -13,9 +13,16 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#if ((defined(__AVR_AT90USB1286__) || (defined(__AVR_AT90USB646__))) && !(defined(USB_DEVICE_ONLY)))
+			#if ((defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) ||   \
+			      defined(__AVR_AT90USB162__)  || defined(__AVR_AT90USB82__)) && !(defined(USB_DEVICE_ONLY)))
 				#define USB_DEVICE_ONLY
 			#endif
+			
+			#if (defined(__AVR_AT90USB162__)  || defined(__AVR_AT90USB82__))
+				#define USB_LIMITED_CONTROLLER
+			#else
+				#define USB_FULL_CONTROLLER		
+			#endif			
 
 			#if (!defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY))
 				#define USB_CAN_BE_BOTH

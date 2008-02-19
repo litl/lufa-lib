@@ -30,9 +30,14 @@
 			#define USB_INT_HasOccurred(int)               ((USB_INT_GET_INT_REG(int)  &    USB_INT_GET_INT_MASK(int)) ? true : false)
 		
 		/* Throwable Events: */
-			RAISES_EVENT(USB_VBUSChange);
-			RAISES_EVENT(USB_VBUSConnect);
-			RAISES_EVENT(USB_VBUSDisconnect);
+			RAISES_EVENT(USB_Connect);
+			RAISES_EVENT(USB_Disconnect);
+
+			#if defined(USB_FULL_CONTROLLER)
+				RAISES_EVENT(USB_VBUSChange);
+				RAISES_EVENT(USB_VBUSConnect);
+				RAISES_EVENT(USB_VBUSDisconnect);
+			#endif
 
 			#if defined(USB_CAN_BE_DEVICE)
 				RAISES_EVENT(USB_Suspend);
@@ -53,7 +58,9 @@
 		/* Inline Functions: */
 			static inline void USB_INT_DisableAllInterrupts(void)
 			{
+				#if defined(USB_FULL_CONTROLLER)
 				USBCON &= ~((1 << VBUSTE) | (1 << IDTE));
+				#endif
 				
 				#if defined(USB_CAN_BE_HOST)
 				UHIEN   = 0;
@@ -67,7 +74,9 @@
 
 			static inline void USB_INT_ClearAllInterrupts(void)
 			{
+				#if defined(USB_FULL_CONTROLLER)
 				USBINT  = 0;
+				#endif
 				
 				#if defined(USB_CAN_BE_HOST)
 				UHINT   = 0;
