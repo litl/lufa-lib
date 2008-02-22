@@ -395,9 +395,16 @@ static void ProcessMemProgCommand(void)
 	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                          // Write FLASH command
 		IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                            // Write EEPROM command
 	{
-		/* Load in the start and ending programming addresses */
-		StartAddr = *((uint16_t*)&SentCommand.Data[1]);
-		EndAddr   = *((uint16_t*)&SentCommand.Data[3]);
+		/* Load in the start and ending read addresses */
+		union
+		{
+			uint8_t  Bytes[2];
+			uint16_t Word;
+		} Address[2] = {{Bytes: {SentCommand.Data[2], SentCommand.Data[1]}},
+		                {Bytes: {SentCommand.Data[4], SentCommand.Data[3]}}};
+		
+		StartAddr = Address[0].Word;
+		EndAddr   = Address[1].Word;
 
 		DFU_State = dfuDNLOAD_IDLE;
 	}
@@ -409,8 +416,15 @@ static void ProcessMemReadCommand(void)
         IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))                            // Read EEPROM command
 	{
 		/* Load in the start and ending read addresses */
-		StartAddr = *((uint16_t*)&SentCommand.Data[1]);
-		EndAddr   = *((uint16_t*)&SentCommand.Data[3]);
+		union
+		{
+			uint8_t  Bytes[2];
+			uint16_t Word;
+		} Address[2] = {{Bytes: {SentCommand.Data[2], SentCommand.Data[1]}},
+		                {Bytes: {SentCommand.Data[4], SentCommand.Data[3]}}};
+		
+		StartAddr = Address[0].Word;
+		EndAddr   = Address[1].Word;
 
 		DFU_State = dfuUPLOAD_IDLE;
 	}
@@ -452,7 +466,13 @@ static void ProcessWriteCommand(void)
 			else                                                               // Start via jump
 			{
 				/* Load in the jump address into the application start address pointer */
-				AppStartPtr = *(((FuncPtr_t*)&SentCommand.Data[3]));
+				union
+				{
+					uint8_t   Bytes[2];
+					FuncPtr_t FuncPtr;
+				} Address = {Bytes: {SentCommand.Data[4], SentCommand.Data[3]}};
+
+				AppStartPtr = Address.FuncPtr;
 				
 				/* Set the flag to terminate the bootloader at next opportunity */
 				RunBootloader = false;			
