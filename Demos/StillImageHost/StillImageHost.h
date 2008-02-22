@@ -8,8 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-#ifndef _KEYBOARD_HOST_H_
-#define _KEYBOARD_HOST_H_
+#ifndef _STILL_IMAGE_HOST_H_
+#define _STILL_IMAGE_HOST_H_
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -17,6 +17,7 @@
 		#include <stdio.h>
 		
 		#include "PIMACodes.h"
+		#include "StillImageCommands.h"
 
 		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
@@ -30,32 +31,9 @@
 		#define SIMAGE_SUBCLASS                0x01
 		#define SIMAGE_PROTOCOL                0x01
 		
-		#define SIMAGE_DATA_IN_PIPE            0x01
-		#define SIMAGE_DATA_OUT_PIPE           0x02
-		#define SIMAGE_EVENTS_PIPE             0x03
-	
 		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
 	
-	/* Type Defines: */
-		typedef struct
-		{
-			uint32_t DataLength;
-			uint16_t Type;
-			uint16_t Code;
-			uint32_t TransactionID;
-			uint32_t Parameters[5];
-		} PIMA_Container_t;
-	
 	/* Enums: */
-		enum
-		{
-			CType_Undefined         = 0,
-			CType_CommandBlock      = 1,
-			CType_DataBlock         = 2,
-			CType_ResponseBlock     = 3,
-			CType_EventBlock        = 4,
-		} PIMA_Container_Types_t;
-	
 		enum
 		{
 			ControlError            = 0,

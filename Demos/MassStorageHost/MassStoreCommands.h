@@ -111,9 +111,8 @@
 	/* Function Prototypes: */
 		void    MassStore_SendCommand(void);
 		uint8_t MassStore_WaitForDataRecieved(void);
-		uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr) ATTR_NON_NULL_PTR_ARG(1);
+		uint8_t MassStore_SendReceiveData(uint8_t* BufferPtr) ATTR_NON_NULL_PTR_ARG(1);
 		void    MassStore_GetReturnedStatus(void);
-		
 		uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum);
 
 		uint8_t MassStore_RequestSense(const uint8_t LUNIndex, SCSI_Request_Sense_Response_t* SensePtr)

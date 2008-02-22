@@ -39,10 +39,6 @@ uint16_t SImageEndpointSize_OUT;
 uint16_t SImageEndpointSize_EVENTS;
 uint8_t  SImageEndpointIntFreq_EVENTS;
 
-PIMA_Container_t PIMA_Command;
-PIMA_Container_t PIMA_Response;
-uint32_t         PIMA_TransactionID = 1;
-
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -201,52 +197,25 @@ TASK(USB_SImage_Host)
 		case HOST_STATE_Ready:
 			/* Indicate device busy via the status LEDs */
 			Bicolour_SetLeds(BICOLOUR_LED2_ORANGE);
-			
-			PIMA_Command = (PIMA_Container_t)
-				{
-					DataLength:    40,
-					Type:          CType_CommandBlock,
-					Code:          PIMA_GETDEVICEINFO,
-					TransactionID: PIMA_TransactionID,
-					Parameters:    {0, 0, 0, 0, 0}
-				};
-			
-			Pipe_SelectPipe(SIMAGE_DATA_OUT_PIPE);
-			Pipe_Unfreeze();
 
-			uint8_t* CommandByte = (uint8_t*)&PIMA_Command;
+			uint8_t ReturnCode;
 			
-			for (uint8_t Byte = 0; Byte < sizeof(PIMA_Container_t); Byte++)
-			  Pipe_Write_Byte(*(CommandByte++));
-			
-			Pipe_FIFOCON_Clear();
-			
-			Pipe_Freeze();
-
-			Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
-			Pipe_Unfreeze();
-			
-			bool InData = true;
-			
-			while (InData)
+			if ((ReturnCode = SImage_GetInfo()) != NoError)
 			{
-				while (!(Pipe_ReadWriteAllowed()));
+				printf_P(PSTR("Device failed command %d: %d.\r\n"), PIMA_Command.Code, ReturnCode);
+			
+				/* Indicate error via status LEDs */
+				Bicolour_SetLeds(BICOLOUR_LED1_RED);
 				
-				Pipe_Ignore_DWord();
-				
-				if (Pipe_Read_Word_LE() == CType_ResponseBlock)
-				  InData = false;
-				  
-				Pipe_FIFOCON_Clear();
+				/* Wait until USB device disconnected */
+				while (USB_IsConnected);
+				break;				
 			}
-
-			while (!(Pipe_ReadWriteAllowed()));
-			Pipe_FIFOCON_Clear();
-
-			Pipe_Freeze();		
 
 			/* Indicate device ready via the status LEDs */
 			Bicolour_SetLeds(BICOLOUR_LED2_GREEN);
+			
+			for (;;);
 			
 			break;
 	}

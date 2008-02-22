@@ -44,7 +44,7 @@ void MassStore_SendCommand(void)
 	USB_Host_WaitMS(3);
 }
 
-uint8_t MassStore_WaitForDataRecieved(void)
+uint8_t MassStore_WaitForDataReceived(void)
 {
 	uint8_t  ErrorCode    = NoError;
 	uint16_t TimeoutMSRem = COMMAND_DATA_TIMEOUT_MS;
@@ -72,7 +72,7 @@ uint8_t MassStore_WaitForDataRecieved(void)
 			{
 				/* Set error code and break out of the loop */
 				ErrorCode = CommandTimeout;
-				break;		
+				break;
 			}
 		}
 	
@@ -281,7 +281,7 @@ uint8_t MassStore_RequestSense(const uint8_t LUNIndex, SCSI_Request_Sense_Respon
 	MassStore_SendCommand();
 
 	/* Wait until data recieved from the device */
-	if ((ReturnCode = MassStore_WaitForDataRecieved()) != NoError)
+	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
 
 	/* Read the returned sense data into the buffer */
@@ -331,7 +331,7 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 	MassStore_SendCommand();
 
 	/* Wait until data recieved from the device */
-	if ((ReturnCode = MassStore_WaitForDataRecieved()) != NoError)
+	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
 
 	/* Read the returned block data into the buffer */
@@ -459,7 +459,7 @@ uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* Capacity
 	MassStore_SendCommand();
 
 	/* Wait until data recieved from the device */
-	if ((ReturnCode = MassStore_WaitForDataRecieved()) != NoError)
+	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
 
 	/* Read the returned capacity data into the buffer */
