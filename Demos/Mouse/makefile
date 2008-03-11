@@ -139,7 +139,7 @@ CSTANDARD = -std=gnu99
 
 # Place -D or -U options here for C sources
 CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD)
-CDEFS += -DUSB_DEVICE_ONLY -DUSE_STATIC_OPTIONS=(USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED)
+CDEFS += -DUSB_DEVICE_ONLY -DUSE_STATIC_OPTIONS="(USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED)"
 
 
 # Place -D or -U options here for ASM sources
@@ -292,10 +292,10 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 # Type: avrdude -c ?
 # to get a full listing.
 #
-AVRDUDE_PROGRAMMER = stk500
+AVRDUDE_PROGRAMMER = jtagmkII
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = com1    # programmer connected to serial device
+AVRDUDE_PORT = usb
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep

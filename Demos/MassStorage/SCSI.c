@@ -242,8 +242,7 @@ static bool SCSI_Command_Read_Capacity_10(void)
 
 static bool SCSI_Command_Send_Diagnostic(void)
 {
-	uint8_t ReturnByte1;
-	uint8_t ReturnByte2;
+	uint8_t ReturnByte;
 
 	/* Check to see if the SELF TEST bit is not set */
 	if (!(CommandBlock.SCSICommandData[1] & (1 << 2)))
@@ -259,22 +258,11 @@ static bool SCSI_Command_Send_Diagnostic(void)
 	/* Test first Dataflash IC is present and responding to commands */
 	Dataflash_SelectChip(DATAFLASH_CHIP1);
 	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
-	ReturnByte1 = Dataflash_SendByte(0x00);
-	
-	/* Test second Dataflash IC is present and responding to commands, if present on selected board */
-	#if (DATAFLASH_TOTALCHIPS == 2)
-	Dataflash_SelectChip(DATAFLASH_CHIP2);
-	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
-	ReturnByte2 = Dataflash_SendByte(0x00);
-	#else
-	ReturnByte2 = DF_MANUFACTURER_ATMEL;
-	#endif
-	
-	/* Deselect second Dataflash IC */
+	ReturnByte = Dataflash_SendByte(0x00);
 	Dataflash_DeselectChip();
 
-	/* If returned data is invalid on either Dataflash IC, fail the command */
-	if ((ReturnByte1 != DF_MANUFACTURER_ATMEL) || (ReturnByte2 != DF_MANUFACTURER_ATMEL))
+	/* If returned data is invalid, fail the command */
+	if (ReturnByte != DF_MANUFACTURER_ATMEL)
 	{
 		/* Update SENSE key with a hardware error condition and return command fail */
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_HARDWARE_ERROR,
@@ -284,7 +272,26 @@ static bool SCSI_Command_Send_Diagnostic(void)
 		return false;
 	}
 
-	/* Both Dataflash ICs are working correctly, succeed the command */
+	#if (DATAFLASH_TOTALCHIPS == 2)
+	/* Test second Dataflash IC is present and responding to commands */
+	Dataflash_SelectChip(DATAFLASH_CHIP2);
+	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
+	ReturnByte = Dataflash_SendByte(0x00);
+	Dataflash_DeselectChip();
+
+	/* If returned data is invalid, fail the command */
+	if (ReturnByte != DF_MANUFACTURER_ATMEL)
+	{
+		/* Update SENSE key with a hardware error condition and return command fail */
+		SCSI_SET_SENSE(SCSI_SENSE_KEY_HARDWARE_ERROR,
+		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
+		               SCSI_ASENSEQ_NO_QUALIFIER);	
+	
+		return false;
+	}
+	#endif
+	
+	/* All Dataflash ICs are working correctly, succeed the command */
 	return true;
 }
 
@@ -319,7 +326,7 @@ static bool SCSI_Command_ReadWrite_6_10(const bool IsDataRead, const bool IsMode
 	}
 	
 	/* Check if the block address is outside the maximum allowable value */
-	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
+	if (BlockAddress > VIRTUAL_MEMORY_BLOCKS)
 	{
 		/* Block address is invalid, update SENSE key and return command fail */
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,

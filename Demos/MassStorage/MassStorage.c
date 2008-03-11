@@ -27,7 +27,7 @@
 	from the host and red when the host send an invalid USB command.
 	
 	You will need to format the mass storage device upon first run of this
-	demonstration.
+	demonstration. For speed reasons, this project is compiled with -O3.
 */
 
 #define INCLUDE_FROM_MASSSTORAGE_C

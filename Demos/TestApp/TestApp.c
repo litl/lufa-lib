@@ -76,7 +76,7 @@ int main(void)
 	Bicolour_Init();
 	HWB_Init();
 	
-	/* Millisecond timer initialization */
+	/* Millisecond timer initialization, with output compare interrupt enabled */
 	OCR0A  = 0x7D;
 	TCCR0A = (1 << WGM01);
 	TCCR0B = ((1 << CS01) | (1 << CS00));
@@ -96,7 +96,7 @@ int main(void)
 
 ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 {
-	/* Scheduler test - increment scheduler delay counter once each millisecond */
+	/* Scheduler test - increment scheduler tick counter once each millisecond */
 	Scheduler_TickCounter++;
 }
 
@@ -130,11 +130,13 @@ TASK(TestApp_CheckTemp)
 {
 	static SchedulerDelayCounter_t DelayCounter = 10000; // Force immediate run on startup
 
+	/* Task runs every 10000 ticks, 10 seconds for this demo */
 	if (Scheduler_HasDelayElapsed(10000, &DelayCounter))
 	{
 		printf_P(PSTR("Current temperature: %d Degrees Celcius\r\n\r\n"),
 		         (int)Temperature_GetTemperature());
 
+		/* Reset the delay counter, ready to count another 10000 tick interval */
 		Scheduler_ResetDelay(&DelayCounter);
 	}	
 }
@@ -145,18 +147,23 @@ TASK(TestApp_CheckHWB)
 	static bool                    IsPressed;
 	static bool                    BlockingJoystickTask;
 	
+	/* Check if HWB pressed (start USB) */
 	if (HWB_GetStatus() == true)
 	{
+		/* Debounce - check 100 ticks later to see if button is still being pressed */
 		if ((IsPressed == false) && (Scheduler_HasDelayElapsed(100, &DelayCounter)))
 		{
+			/* Set flag, indicating that current pressed state has been handled */
 			IsPressed = true;
-				   
+			
+			/* First start of the USB interface permenantly blocks the joystick task */
 			if (BlockingJoystickTask == false)
 			{
 				Scheduler_SetTaskMode(TestApp_CheckJoystick, TASK_STOP);
 				BlockingJoystickTask = true;
 			}
 
+			/* Toggle USB interface */
 			if (USB_IsInitialized == true)
 			{
 				USB_ShutDown();
@@ -179,6 +186,7 @@ TASK(TestApp_CheckHWB)
 	}
     else
     {
+		/* HWB not pressed - reset debounce interval counter and press handled flag */
 		Scheduler_ResetDelay(&DelayCounter);
 		IsPressed = false;
 	}

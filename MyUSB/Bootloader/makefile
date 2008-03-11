@@ -44,6 +44,10 @@
 MCU = at90usb1287
 
 
+# Target board (USBKEY, STK525, STK526, or blank for projects not requiring MyUSB board drivers)
+BOARD  = USBKEY
+
+
 # Processor frequency.
 #     This will define a symbol, F_CPU, in all source code files equal to the 
 #     processor frequency. You can then use this symbol in your source code to 
@@ -137,8 +141,8 @@ BOOT_START = 0x1E000
 
 
 # Place -D or -U options here for C sources
-CDEFS  = -DF_CPU=$(F_CPU)UL
-CDEFS += -DUSB_DEVICE_ONLY -DUSE_STATIC_OPTIONS=(USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED)
+CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD)
+CDEFS += -DUSB_DEVICE_ONLY -DUSE_STATIC_OPTIONS="(USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED)"
 CDEFS += -DUSE_RAM_DESCRIPTORS -DBOOT_START_ADDR=$(BOOT_START)UL
 
 
@@ -293,10 +297,10 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 # Type: avrdude -c ?
 # to get a full listing.
 #
-AVRDUDE_PROGRAMMER = stk500
+AVRDUDE_PROGRAMMER = jtagmkII
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = com1    # programmer connected to serial device
+AVRDUDE_PORT = usb
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep

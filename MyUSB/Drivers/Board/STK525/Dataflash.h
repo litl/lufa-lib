@@ -24,8 +24,8 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define DATAFLASH_USE_DOUBLESPEED            (1 << 7)
 			#define DATAFLASH_CHIPCS_MASK                (1 << 4)
+			#define DATAFLASH_USE_DOUBLESPEED            (1 << 7)
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
@@ -57,8 +57,9 @@
 		/* Inline Functions: */
 			static inline void Dataflash_Init(const uint8_t PrescalerMask)
 			{
-				PINB  |= (1 << 3);
+				PINB  |= (1 << 0);
 				DDRB  |= ((1 << 1) | (1 << 2) | DATAFLASH_CHIPCS_MASK);
+				PORTB |= DATAFLASH_CHIPCS_MASK;
 
 				SPCR   = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA) | (PrescalerMask & ~(1 << 7)));
 
