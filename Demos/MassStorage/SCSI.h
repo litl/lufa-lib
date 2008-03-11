@@ -17,7 +17,7 @@
 
 		#include <MyUSB/Common/Common.h>              // Function Attribute, Atomic, Debug and ISR Macros
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
-		#include <MyUSB/Drivers/USBKEY/Bicolour.h>    // Bicolour LEDs driver for the USBKEY
+		#include <MyUSB/Drivers/Board/Bicolour.h>     // Bicolour LEDs driver
 
 		#include "MassStorage.h"
 		#include "Descriptors.h"

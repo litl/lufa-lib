@@ -61,6 +61,10 @@ ISR(USB_GEN_vect)
 		USB_INT_Enable(USB_INT_WAKEUP);
 		
 		RAISE_EVENT(USB_Suspend);
+
+		#if defined(USB_LIMITED_CONTROLLER)
+		RAISE_EVENT(USB_Disconnect);
+		#endif
 	}
 
 	if (USB_INT_HasOccurred(USB_INT_WAKEUP) && USB_INT_IsEnabled(USB_INT_WAKEUP))
@@ -74,6 +78,10 @@ ISR(USB_GEN_vect)
 		USB_INT_Disable(USB_INT_WAKEUP);
 		USB_INT_Enable(USB_INT_SUSPEND);
 		
+		#if defined(USB_LIMITED_CONTROLLER)
+		RAISE_EVENT(USB_Connect);
+		#endif
+
 		RAISE_EVENT(USB_WakeUp);
 	}
    

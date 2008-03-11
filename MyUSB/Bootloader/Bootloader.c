@@ -169,9 +169,13 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					{
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Write flash
 						{
-							uint32_t CurrFlashAddress = (((uint32_t)Flash64KBPage << 16) | StartAddr);
+							union
+							{
+								uint16_t Words[2];
+								uint32_t Long;
+							} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
 
-							boot_page_erase(CurrFlashAddress);
+							boot_page_erase(CurrFlashAddress.Long);
 							boot_spm_busy_wait();
 							
 							for (uint16_t BytesInFlashPage = 0; ((BytesInFlashPage < SPM_PAGESIZE) &&
@@ -183,14 +187,14 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 									while (!(Endpoint_Setup_Out_IsReceived()));
 								}
 
-								boot_page_fill((CurrFlashAddress + BytesInFlashPage), Endpoint_Read_Word_LE());	
+								boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());	
 
 								SentCommand.DataSize -= 2;
 								TransfersRemaining   -= 2;
 								StartAddr            += 2;
 							}
 								
-							boot_page_write(CurrFlashAddress);
+							boot_page_write(CurrFlashAddress.Long);
 							boot_spm_busy_wait();
 						}
 						else                                                   // Write EEPROM
@@ -229,6 +233,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			else
 			{
+				/* Determine the number of transfers remaining in the current block */
 				uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
 
 				if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||              // Read FLASH
@@ -245,18 +250,27 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Read FLASH
 						{
-							uint32_t CurrFlashAddress = (((uint32_t)Flash64KBPage << 16) | StartAddr);
+							/* Create far flash psudo-pointer from address and 64KB flash page values */
+							union
+							{
+								uint16_t Words[2];
+								uint32_t Long;
+							} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
 
-							Endpoint_Write_Word_LE(pgm_read_word_far(CurrFlashAddress));
+							/* Read the flash word and send it via USB to the host */
+							Endpoint_Write_Word_LE(pgm_read_word_far(CurrFlashAddress.Long));
 
+							/* Adjust counters */
 							SentCommand.DataSize -= 2;
 							TransfersRemaining   -= 2;
 							StartAddr            += 2;					
 						}
 						else                                                   // Read EEPROM
 						{
+							/* Read the EEPROM byte and send it via USB to the host */
 							Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)StartAddr));
 
+							/* Adjust counters */
 							SentCommand.DataSize -= 1;
 							TransfersRemaining   -= 1;
 							StartAddr            += 1;					

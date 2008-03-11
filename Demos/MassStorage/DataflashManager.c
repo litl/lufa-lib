@@ -209,7 +209,8 @@ void VirtualMemory_ResetDataflashProtections(void)
 		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE4);
 	}
 	
-	/* Select second dataflash chip, send the read status register command */
+	/* Select second dataflash chip (if present on selected board), send read status register command */
+	#if (DATAFLASH_TOTALCHIPS == 2)
 	Dataflash_SelectChip(DATAFLASH_CHIP2);
 	Dataflash_SendByte(DF_CMD_GETSTATUS);
 	
@@ -224,8 +225,9 @@ void VirtualMemory_ResetDataflashProtections(void)
 		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE3);
 		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE4);
 	}
+	#endif
 	
-	/* Deselect second dataflash chip */
+	/* Deselect current dataflash chip */
 	Dataflash_DeselectChip();
 }
 

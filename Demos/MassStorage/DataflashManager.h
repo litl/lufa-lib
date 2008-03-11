@@ -19,7 +19,7 @@
 
 		#include <MyUSB/Common/Common.h>              // Function Attribute, Atomic, Debug and ISR Macros
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
-		#include <MyUSB/Drivers/USBKEY/Dataflash.h>   // Dataflash chip driver for the USBKEY
+		#include <MyUSB/Drivers/Board/Dataflash.h>    // Dataflash chip driver
 
 	/* Defines: */
 		#define VIRTUAL_MEMORY_BLOCK_SIZE           512

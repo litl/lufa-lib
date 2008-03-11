@@ -23,10 +23,10 @@ MYUSB_USB_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
 				  
 MYUSB_DRIVER_FILES = ./Scheduler/Scheduler.c                     \
                      ./MemoryAllocator/DynAlloc.c                \
-                     ./Drivers/USBKEY/Dataflash.c                \
-                     ./Drivers/USBKEY/Temperature.c              \
-                     ./Drivers/AT90USB_64x_128x/Serial.c         \
-                     ./Drivers/AT90USB_64x_128x/Serial_Stream.c  \
+                     ./Drivers/Board/Dataflash.c                 \
+                     ./Drivers/Board/Temperature.c               \
+                     ./Drivers/AT90USBXXX/Serial.c               \
+                     ./Drivers/AT90USBXXX/Serial_Stream.c        \
 
 all:
 	make -C Bootloader/ clean

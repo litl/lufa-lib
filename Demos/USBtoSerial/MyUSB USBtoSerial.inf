@@ -51,5 +51,5 @@ ServiceBinary=%12%\usbser.sys
 [Strings] 
 COMPANY="MyUSB Library"
 MFGNAME="Dean Camera"
-Modem3="Communications Port" 
-SERVICE="USB-232 CDC Driver"
+Modem3="USB Virtual Serial Port" 
+SERVICE="USB Virtual Serial Port CDC Driver"

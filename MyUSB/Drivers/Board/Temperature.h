@@ -14,7 +14,7 @@
 	/* Includes: */
 		#include <avr/pgmspace.h>
 
-		#include "../AT90USB_64x_128x/ADC.h"
+		#include "../AT90USBXXX/ADC.h"
 		#include "../../Common/Common.h"
 
 	/* Public Interface - May be used in end-application: */

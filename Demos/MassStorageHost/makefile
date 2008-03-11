@@ -44,6 +44,10 @@
 MCU = at90usb1287
 
 
+# Target board (USBKEY, STK525, STK526, or blank for projects not requiring MyUSB board drivers)
+BOARD  = USBKEY
+
+
 # Processor frequency.
 #     This will define a symbol, F_CPU, in all source code files equal to the 
 #     processor frequency. You can then use this symbol in your source code to 
@@ -83,8 +87,8 @@ OBJDIR = .
 SRC = $(TARGET).c                                           \
 	  MassStoreCommands.c                                   \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
-	  ../../MyUSB/Drivers/AT90USB_64x_128x/Serial_Stream.c  \
-	  ../../MyUSB/Drivers/AT90USB_64x_128x/Serial.c         \
+	  ../../MyUSB/Drivers/AT90USBXXX/Serial_Stream.c        \
+	  ../../MyUSB/Drivers/AT90USBXXX/Serial.c               \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Pipe.c               \
 	  ../../MyUSB/Drivers/USB/LowLevel/Host.c               \
@@ -136,7 +140,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS  = -DF_CPU=$(F_CPU)UL
+CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD)
 CDEFS += -DUSB_HOST_ONLY -DUSE_STATIC_OPTIONS=USB_OPT_REG_ENABLED
 
 

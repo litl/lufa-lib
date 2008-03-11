@@ -22,7 +22,7 @@
 		#include <stdbool.h>
 	
 		#include <MyUSB/Drivers/USB/USB.h>
-		#include <MyUSB/Drivers/USBKEY/Bicolour.h>
+		#include <MyUSB/Drivers/Board/Bicolour.h>
 		
 	/* Macros: */
 		#define BOOTLOADER_VERSION_MINOR 0

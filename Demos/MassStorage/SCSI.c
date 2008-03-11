@@ -261,11 +261,15 @@ static bool SCSI_Command_Send_Diagnostic(void)
 	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
 	ReturnByte1 = Dataflash_SendByte(0x00);
 	
-	/* Test second Dataflash IC is present and responding to commands */
+	/* Test second Dataflash IC is present and responding to commands, if present on selected board */
+	#if (DATAFLASH_TOTALCHIPS == 2)
 	Dataflash_SelectChip(DATAFLASH_CHIP2);
 	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
 	ReturnByte2 = Dataflash_SendByte(0x00);
-
+	#else
+	ReturnByte2 = DF_MANUFACTURER_ATMEL;
+	#endif
+	
 	/* Deselect second Dataflash IC */
 	Dataflash_DeselectChip();
 
