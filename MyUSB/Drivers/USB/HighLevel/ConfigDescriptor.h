@@ -71,4 +71,5 @@
 				*CurrConfigLoc += CurrDescriptorSize;
 				*BytesRem      -= CurrDescriptorSize;
 			}
+
 #endif

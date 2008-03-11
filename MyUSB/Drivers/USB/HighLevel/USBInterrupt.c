@@ -63,6 +63,7 @@ ISR(USB_GEN_vect)
 		RAISE_EVENT(USB_Suspend);
 
 		#if defined(USB_LIMITED_CONTROLLER)
+		USB_IsConnected = false;
 		RAISE_EVENT(USB_Disconnect);
 		#endif
 	}
@@ -79,6 +80,7 @@ ISR(USB_GEN_vect)
 		USB_INT_Enable(USB_INT_SUSPEND);
 		
 		#if defined(USB_LIMITED_CONTROLLER)
+		USB_IsConnected = true;
 		RAISE_EVENT(USB_Connect);
 		#endif
 

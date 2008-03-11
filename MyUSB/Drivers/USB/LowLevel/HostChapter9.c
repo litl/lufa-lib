@@ -11,6 +11,7 @@
 #include "USBMode.h"
 #if defined(USB_CAN_BE_HOST)
 
+#define  INCLUDE_FROM_HOSTCHAPTER9_C
 #include "HostChapter9.h"
 
 USB_Host_Request_Header_t USB_HostRequest;
@@ -21,7 +22,6 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
 	uint8_t* HeaderByte     = (uint8_t*)&USB_HostRequest;
 	uint16_t DataLen        = USB_HostRequest.DataLength;
-	uint16_t TimeoutCounter;
 
 	USB_HOST_SOFGeneration_Enable();
 	
@@ -41,18 +41,8 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 
 	Pipe_Setup_Out_Clear();
 	
-	TimeoutCounter = 0;
-	while (!(Pipe_IsSetupSent()))
-	{
-		if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
-		  goto End_Of_Control_Send;
-
-		if (TimeoutCounter++ == USB_HOST_TIMEOUT_MS)
-		{
-			ReturnStatus = HOST_SENDCONTROL_SoftwareTimeOut;
-			goto End_Of_Control_Send;
-		}
-	}
+	if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Setup_Sent)))
+	  goto End_Of_Control_Send;
 
 	Pipe_ClearSetupSent();
 	Pipe_Freeze();
@@ -69,20 +59,10 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		{
 			Pipe_Unfreeze();
 		
-			TimeoutCounter = 0;
-			while (!(Pipe_Setup_In_IsReceived()))
-			{
-				if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
-				  goto End_Of_Control_Send;
-			
-				if (TimeoutCounter++ == USB_HOST_TIMEOUT_MS)
-				{
-					ReturnStatus = HOST_SENDCONTROL_SoftwareTimeOut;
-					goto End_Of_Control_Send;
-				}
-			}
+			if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_In_Received)))
+			  goto End_Of_Control_Send;
 						
-			if (Pipe_BytesInPipe() == 0)
+			if (!(Pipe_BytesInPipe()))
 			  DataLen = 0;
 			
 			while (Pipe_BytesInPipe() && DataLen--)
@@ -95,18 +75,8 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		Pipe_SetToken(PIPE_TOKEN_OUT);
 		Pipe_Unfreeze();
 		
-		TimeoutCounter = 0;
-		while (!(Pipe_Setup_Out_IsReady()))
-		{
-			if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
-			  goto End_Of_Control_Send;
-			
-			if (TimeoutCounter++ == USB_HOST_TIMEOUT_MS)
-			{
-				ReturnStatus = HOST_SENDCONTROL_SoftwareTimeOut;
-				goto End_Of_Control_Send;
-			}
-		}
+		if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Out_Ready)))
+		  goto End_Of_Control_Send;
 
 		Pipe_Setup_Out_Clear();
 	}
@@ -132,18 +102,9 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 			
 			Pipe_Setup_Out_Clear();
 			
-			TimeoutCounter = 0;
-			while (!(Pipe_Setup_Out_IsReady()))
-			{
-				if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
-				  goto End_Of_Control_Send;
-			
-				if (TimeoutCounter++ == USB_HOST_TIMEOUT_MS)
-				{
-					ReturnStatus = HOST_SENDCONTROL_SoftwareTimeOut;
-					goto End_Of_Control_Send;
-				}
-			}
+			if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Out_Ready)))
+			  goto End_Of_Control_Send;
+
 			
 			Pipe_Setup_Out_Clear();
 		}
@@ -152,18 +113,8 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		Pipe_SetToken(PIPE_TOKEN_IN);
 		Pipe_Unfreeze();
 
-		TimeoutCounter = 0;
-		while (!(Pipe_Setup_In_IsReceived()))
-		{
-			if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
-			  goto End_Of_Control_Send;
-			
-			if (TimeoutCounter++ == USB_HOST_TIMEOUT_MS)
-			{
-				ReturnStatus = HOST_SENDCONTROL_SoftwareTimeOut;
-				goto End_Of_Control_Send;
-			}
-		}
+		if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_In_Received)))
+		  goto End_Of_Control_Send;
 
 		Pipe_Freeze();
 		Pipe_Setup_In_Clear();
@@ -176,6 +127,28 @@ End_Of_Control_Send:
 	  USB_HOST_SOFGeneration_Disable();
 
 	Pipe_ResetPipe(PIPE_CONTROLPIPE);
+
+	return ReturnStatus;
+}
+
+static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType)
+{
+	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
+	uint16_t TimeoutCounter = USB_HOST_TIMEOUT_MS;
+
+	while (!(((WaitType == Wait_For_Setup_Sent)  && Pipe_IsSetupSent())         ||
+	         ((WaitType == Wait_For_In_Received) && Pipe_Setup_In_IsReceived()) ||
+	         ((WaitType == Wait_For_Out_Ready)   && Pipe_Setup_Out_IsReady())))
+	{
+		if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
+		  return ReturnStatus;
+			
+		if (!(TimeoutCounter--))
+		{
+			ReturnStatus = HOST_SENDCONTROL_SoftwareTimeOut;
+			return ReturnStatus;
+		}
+	}
 
 	return ReturnStatus;
 }

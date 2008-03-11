@@ -27,5 +27,26 @@
 	#else
 		#error BOARD must be set in makefile to BOARD_USBKEY, BOARD_STK525 or BOARD_STK526.
 	#endif
+	
+	/* Public Interface - May be used in end-application: */
+		/* Function Prototypes: */
+			void Dataflash_SelectChipFromPage(const uint16_t PageAddress);
+			void Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte);
+			void Dataflash_ToggleSelectedChipCS(void);
+
+		/* Inline Functions: */
+			static inline uint8_t Dataflash_SendByte(const uint8_t Byte)
+			{
+				SPDR = Byte;
+				while (!(SPSR & (1 << SPIF)));
+				return SPDR;
+			}
+
+			static inline void Dataflash_WaitWhileBusy(void)
+			{
+				Dataflash_ToggleSelectedChipCS();			
+				Dataflash_SendByte(DF_CMD_GETSTATUS);
+				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
+			}	
 
 #endif

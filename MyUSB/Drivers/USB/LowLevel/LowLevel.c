@@ -22,20 +22,20 @@ volatile uint8_t USB_Options;
 #endif
 
 void USB_Init(
-			   #if defined(USB_CAN_BE_BOTH)
-			   const uint8_t Mode
-			   #endif
+               #if defined(USB_CAN_BE_BOTH)
+               const uint8_t Mode
+               #endif
 
-			   #if (defined(USB_CAN_BE_BOTH) && !defined(USE_STATIC_OPTIONS))
-			   ,
-			   #elif (!defined(USB_CAN_BE_BOTH) && defined(USE_STATIC_OPTIONS))
-			   void
-			   #endif
+               #if (defined(USB_CAN_BE_BOTH) && !defined(USE_STATIC_OPTIONS))
+               ,
+               #elif (!defined(USB_CAN_BE_BOTH) && defined(USE_STATIC_OPTIONS))
+               void
+               #endif
 			   
-			   #if !defined(USE_STATIC_OPTIONS)
-			   const uint8_t Options
-			   #endif
-			   )
+               #if !defined(USE_STATIC_OPTIONS)
+               const uint8_t Options
+               #endif
+               )
 {
 	if (USB_IsInitialized)
 	  USB_ShutDown();
@@ -95,12 +95,12 @@ void USB_Init(
 	#endif
 
 	#if defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER)
-		USB_INT_Enable(USB_INT_VBUS);
-		#else
-		USB_SetupInterface();
-		USB_IsConnected = true;
-		#endif
+	#if defined(USB_FULL_CONTROLLER)
+	USB_INT_Enable(USB_INT_VBUS);
+	#else
+	USB_SetupInterface();
+	USB_IsConnected = true;
+	#endif
 	#elif defined(USB_HOST_ONLY)
 	USB_SetupInterface();
 	#else

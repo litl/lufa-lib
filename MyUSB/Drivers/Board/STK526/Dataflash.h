@@ -34,7 +34,7 @@
 			#define DATAFLASH_NO_CHIP                    DATAFLASH_CHIPCS_MASK
 			#define DATAFLASH_CHIP1                      0
 			
-			#define DATAFLASH_PAGE_SIZE                  512
+			#define DATAFLASH_PAGE_SIZE                  1024
 			#define DATAFLASH_PAGES                      8192
 			
 			#define DATAFLASH_SPEED_FCPU_DIV_2           DATAFLASH_USE_DOUBLESPEED
@@ -49,37 +49,20 @@
 			#define Dataflash_SelectChip(mask)   MACROS{ PORTC = ((PORTC & ~DATAFLASH_CHIPCS_MASK) | mask); }MACROE
 			#define Dataflash_DeselectChip()             Dataflash_SelectChip(DATAFLASH_NO_CHIP)
 
-		/* Function Prototypes: */
-			void    Dataflash_SelectChipFromPage(const uint16_t PageAddress);
-			void    Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte);
-			void    Dataflash_ToggleSelectedChipCS(void);
-			
 		/* Inline Functions: */
 			static inline void Dataflash_Init(const uint8_t PrescalerMask)
 			{
-				PINB  |= (1 << 0);
 				DDRB  |= ((1 << 1) | (1 << 2));
+				PORTB |= (1 << 0);
+
 				DDRC  |= DATAFLASH_CHIPCS_MASK;
 				PORTC |= DATAFLASH_CHIPCS_MASK;
 
-				SPCR   = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA) | (PrescalerMask & ~(1 << 7)));
-
+				SPCR   = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA) |
+				          (PrescalerMask & ~DATAFLASH_USE_DOUBLESPEED));
+				
 				if (PrescalerMask & DATAFLASH_USE_DOUBLESPEED)
 				  SPSR = (1 << SPI2X);
-			}
-
-			static inline uint8_t Dataflash_SendByte(const uint8_t Byte)
-			{
-				SPDR = Byte;
-				while (!(SPSR & (1 << SPIF)));
-				return SPDR;
-			}
-
-			static inline void Dataflash_WaitWhileBusy(void)
-			{
-				Dataflash_ToggleSelectedChipCS();			
-				Dataflash_SendByte(DF_CMD_GETSTATUS);
-				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
 			}
 
 #endif

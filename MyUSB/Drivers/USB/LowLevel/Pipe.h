@@ -247,7 +247,7 @@
 			};
 		
 		/* Function Prototypes: */
-			void    Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata,
-			                             const uint8_t UPCFG1Xdata);
+			void Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata,
+			                          const uint8_t UPCFG1Xdata);
 
 #endif

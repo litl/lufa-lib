@@ -24,7 +24,8 @@
     If SECURE_MODE is defined as true, upon startup the bootloader will
 	be locked, with only the chip erase function avaliable (similar to
     Atmel's DFU bootloader). If SECURE_MODE is defined as false, all
-	functions are usable on startup without the prerequisite firmware erase.
+	functions are usable on startup without the prerequisite firmware
+	erase.
 	
 	NOTE: This device spoofs Atmel's DFU Bootloader USB VID and PID.
 	      If you do not wish to use Atmel's codes, please manually
@@ -179,7 +180,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 							boot_spm_busy_wait();
 							
 							for (uint16_t BytesInFlashPage = 0; ((BytesInFlashPage < SPM_PAGESIZE) &&
-							      TransfersRemaining && SentCommand.DataSize); BytesInFlashPage += 2)
+							     TransfersRemaining && SentCommand.DataSize); BytesInFlashPage += 2)
 							{
 								if (!(Endpoint_BytesInEndpoint()))
 								{
@@ -477,7 +478,7 @@ static void ProcessWriteCommand(void)
 				wdt_enable(WDTO_250MS);
 				for (;;);
 			}
-			else                                                               // Start via jump
+			else                                                                // Start via jump
 			{
 				/* Load in the jump address into the application start address pointer */
 				union

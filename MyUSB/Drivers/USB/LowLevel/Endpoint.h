@@ -42,7 +42,12 @@
 			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UPINTX, (1 << TXINI)
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UPINTX, (1 << RXOUTI)
 			
-			#define Endpoint_BytesInEndpoint()                 UEBCX
+			#if defined(USB_FULL_CONTROLLER)
+				#define Endpoint_BytesInEndpoint()             UEBCX
+			#else
+				#define Endpoint_BytesInEndpoint()             UEBCLX
+			#endif
+			
 			#define Endpoint_GetCurrentEndpoint()             (UENUM   & ENDPOINT_EPNUM_MASK)
 			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM    =  (epnum & ENDPOINT_EPNUM_MASK); }MACROE
 			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST    =  (1 << (epnum & ENDPOINT_EPNUM_MASK)); UERST = 0; }MACROE

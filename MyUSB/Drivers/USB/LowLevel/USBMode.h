@@ -21,7 +21,7 @@
 			#if (defined(__AVR_AT90USB162__)  || defined(__AVR_AT90USB82__))
 				#define USB_LIMITED_CONTROLLER
 			#else
-				#define USB_FULL_CONTROLLER		
+				#define USB_FULL_CONTROLLER
 			#endif			
 
 			#if (!defined(USB_DEVICE_ONLY) && !defined(USB_HOST_ONLY))

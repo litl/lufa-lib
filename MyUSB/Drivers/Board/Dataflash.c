@@ -12,26 +12,28 @@
 
 void Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 {
+	if (PageAddress > (DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS))
+	{
+		Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+		return;
+	}
+
 	#if (DATAFLASH_TOTALCHIPS == 2)
-		if (PageAddress > (DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS))
-		{
-			Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-		}
+		if (PageAddress & 0x01)
+		  Dataflash_SelectChip(DATAFLASH_CHIP2);
 		else
-		{
-			if (PageAddress & 0x01)
-			  Dataflash_SelectChip(DATAFLASH_CHIP2);
-			else
-			  Dataflash_SelectChip(DATAFLASH_CHIP1);
-		}
+		  Dataflash_SelectChip(DATAFLASH_CHIP1);
 	#else
+		Dataflash_SelectChip(DATAFLASH_NO_CHIP);
 		Dataflash_SelectChip(DATAFLASH_CHIP1);
 	#endif
 }
 
 void Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte)
-{
-	PageAddress >>= 1;
+{	
+	#if (DATAFLASH_TOTALCHIPS == 2)
+		PageAddress >>= 1;
+	#endif
 
 	Dataflash_SendByte(PageAddress >> 5);
 	Dataflash_SendByte((PageAddress << 3) | (BufferByte >> 8));
@@ -40,8 +42,13 @@ void Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte)
 
 void Dataflash_ToggleSelectedChipCS(void)
 {
-	uint8_t SelectedChipMask = Dataflash_GetSelectedChip();
-	
-	Dataflash_SelectChip(DATAFLASH_NO_CHIP);
-	Dataflash_SelectChip(SelectedChipMask);
+	#if (DATAFLASH_TOTALCHIPS == 2)
+		uint8_t SelectedChipMask = Dataflash_GetSelectedChip();
+		
+		Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+		Dataflash_SelectChip(SelectedChipMask);
+	#else
+		Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+		Dataflash_SelectChip(DATAFLASH_CHIP1);	
+	#endif
 }

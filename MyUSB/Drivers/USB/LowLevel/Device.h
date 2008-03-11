@@ -17,9 +17,10 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#if defined(USB_FULL_CONTROLLER)
-				#define USB_DEV_OPT_LOWSPEED                (1 << 0)
-				#define USB_DEV_OPT_HIGHSPEED               (0 << 0)
+				#define USB_DEV_OPT_LOWSPEED            (1 << 0)
 			#endif
+			
+			#define USB_DEV_OPT_HIGHSPEED               (0 << 0)
 				
 			#define USB_DEV_SendRemoteWakeup()   MACROS{ UDCON |= (1 << RMWKUP); }MACROE
 			#define USB_DEV_IsRemoteWakeupSent()       ((UDCON &  (1 << RMWKUP)) ? false : true)

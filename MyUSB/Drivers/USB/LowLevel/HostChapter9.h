@@ -44,5 +44,19 @@
 			
 		/* Function Prototypes: */
 			uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer);
+			
+	/* Private Interface - For use in library only: */
+		/* Enums: */
+			enum WaitForTypes
+			{
+				Wait_For_Setup_Sent,
+				Wait_For_In_Received,
+				Wait_For_Out_Ready,
+			};
+	
+		/* Function Prototypes: */
+			#if defined(INCLUDE_FROM_HOSTCHAPTER9_C)
+				static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType);
+			#endif
 
 #endif
