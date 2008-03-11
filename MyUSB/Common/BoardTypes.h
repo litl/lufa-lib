@@ -19,5 +19,6 @@
 		#define BOARD_USBKEY                 0
 		#define BOARD_STK525                 1
 		#define BOARD_STK526                 2
+		#define BOARD_USER                   3
 
 #endif

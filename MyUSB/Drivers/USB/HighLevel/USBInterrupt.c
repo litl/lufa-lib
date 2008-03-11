@@ -39,6 +39,8 @@ ISR(USB_GEN_vect)
 			RAISE_EVENT(USB_Disconnect);
 		
 			USB_Detach();
+			USB_CLK_Freeze();
+			USB_PLL_Off();
 			USB_REG_Off();
 
 			RAISE_EVENT(USB_VBUSDisconnect);

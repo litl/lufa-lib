@@ -24,7 +24,7 @@
 		#include <MyUSB/Scheduler/Scheduler.h>          // Simple scheduler for task management
 
 	/* Macros: */
-		#define MIC_IN_ADC_CHANNEL               1
+		#define MIC_IN_ADC_CHANNEL               2
 		
 		#define SAMPLE_MAX_RANGE                 0xFFFF
 		#define ADC_MAX_RANGE                    0x3FF

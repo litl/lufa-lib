@@ -18,8 +18,13 @@
 	as a USB microphone. Incomming audio from the ADC channel 1 will
 	be sampled and sent to the host computer.
 	
+	To use, connect a microphone to the ADC channel 2.
+	
 	Under Windows, if a driver request dialogue pops up, select the option
 	to automatically install the appropriate drivers.
+
+	      ( Input Terminal )--->---( Output Terminal )
+	      (   Microphone   )       (  USB Endpoint   )
 */
 
 #include "AudioInput.h"

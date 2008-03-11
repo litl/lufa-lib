@@ -32,8 +32,10 @@
 
 		#define BOOTLOADER_VERSION       ((BOOTLOADER_VERSION_MINOR << 4) | BOOTLOADER_VERSION_REV)
 		
-		#define IS_ONEBYTE_COMMAND(dataarray, cb1)       (dataarray[0] == cb1)
-		#define IS_TWOBYTE_COMMAND(dataarray, cb1, cb2) ((dataarray[0] == cb1) && (dataarray[1] == cb2))
+		#define IS_ONEBYTE_COMMAND(dataarr, cb1)       (dataarr[0] == cb1)
+		#define IS_TWOBYTE_COMMAND(dataarr, cb1, cb2) ((dataarr[0] == cb1) && (dataarr[1] == cb2))
+	
+		#define DFU_FILE_SUFFIX_SIZE     16
 	
 		#define DFU_DETATCH              0x00
 		#define DFU_DNLOAD               0x01
@@ -50,7 +52,7 @@
 		#define COMMAND_CHANGE_BASE_ADDR 0x06
 
 	/* Type Defines: */
-		typedef void (*FuncPtr_t)(void);
+		typedef void (*AppPtr_t)(void) ATTR_NO_RETURN;
 		
 		typedef struct
 		{

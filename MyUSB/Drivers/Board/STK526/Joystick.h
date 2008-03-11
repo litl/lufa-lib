@@ -28,8 +28,8 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define JOY_LEFT                  (1 << 4)
-			#define JOY_RIGHT                 (1 << 5)
-			#define JOY_UP                    (1 << 6)
+			#define JOY_RIGHT                 (1 << 6)
+			#define JOY_UP                    (1 << 5)
 			#define JOY_DOWN                  (1 << 7)
 			#define JOY_PRESS                 (1 << 0)
 			

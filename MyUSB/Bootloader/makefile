@@ -44,7 +44,9 @@
 MCU = at90usb1287
 
 
-# Target board (USBKEY, STK525, STK526, or blank for projects not requiring MyUSB board drivers)
+# Target board (USBKEY, STK525, STK526, USER or blank for projects not requiring
+# MyUSB board drivers). If USER is selected, put custom board drivers in a directory
+# called "Board" inside the application directory.
 BOARD  = USBKEY
 
 
@@ -313,7 +315,7 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 
 # Uncomment the following if you do /not/ wish a verification to be
 # performed after programming the device.
-#AVRDUDE_NO_VERIFY = -V
+AVRDUDE_NO_VERIFY = -V
 
 # Increase verbosity level.  Please use this when submitting bug
 # reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude> 

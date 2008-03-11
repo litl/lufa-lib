@@ -115,7 +115,7 @@
 
 			static inline void Pipe_Ignore_Byte(void)
 			{
-				volatile uint8_t Dummy;
+				uint8_t Dummy;
 				
 				Dummy = UPDATX;
 			}

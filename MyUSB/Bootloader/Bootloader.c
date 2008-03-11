@@ -49,13 +49,11 @@ uint8_t       DFU_Status    = OK;
 DFU_Command_t SentCommand;
 uint8_t       ResponseByte;
 
-FuncPtr_t     AppStartPtr   = 0x0000;
+AppPtr_t      AppStartPtr   = 0x0000;
 
 uint8_t       Flash64KBPage = 0;
 uint16_t      StartAddr     = 0x0000;
 uint16_t      EndAddr       = 0x0000;
-
-uint8_t       SigBytes[3];
 
 int main (void)
 {
@@ -66,11 +64,6 @@ int main (void)
 	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
-
-	/* Read in signature bytes from the AVR */
-	SigBytes[0] = boot_read_sig_byte(0);
-	SigBytes[1] = boot_read_sig_byte(2);
-	SigBytes[2] = boot_read_sig_byte(4);
 
 	/* Hardware initialization */
 	Bicolour_Init();
@@ -158,6 +151,24 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 /* START TEST CODE */
 				uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
 
+				while (TransfersRemaining && SentCommand.DataSize)
+				{
+					if (!(Endpoint_BytesInEndpoint()))
+					{
+						Endpoint_Setup_Out_Clear();
+						while (!(Endpoint_Setup_Out_IsReceived()));
+					}
+
+					SentCommand.DataSize -= 2;
+					TransfersRemaining   -= 2;
+					StartAddr            += 2;
+
+					Endpoint_Ignore_Word();
+				}
+				
+				Endpoint_Setup_Out_Clear();
+
+/*
 				if (!(SentCommand.DataSize))
 				{
 					DFU_State = dfuIDLE;
@@ -175,7 +186,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 								uint16_t Words[2];
 								uint32_t Long;
 							} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
-
+							
 							boot_page_erase(CurrFlashAddress.Long);
 							boot_spm_busy_wait();
 							
@@ -188,13 +199,13 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 									while (!(Endpoint_Setup_Out_IsReceived()));
 								}
 
-								boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());	
+								boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());
 
 								SentCommand.DataSize -= 2;
 								TransfersRemaining   -= 2;
 								StartAddr            += 2;
 							}
-								
+
 							boot_page_write(CurrFlashAddress.Long);
 							boot_spm_busy_wait();
 						}
@@ -214,6 +225,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 						}						
 					}
 				}
+*/
 /* END TEST CODE */
 			}
 
@@ -483,8 +495,8 @@ static void ProcessWriteCommand(void)
 				/* Load in the jump address into the application start address pointer */
 				union
 				{
-					uint8_t   Bytes[2];
-					FuncPtr_t FuncPtr;
+					uint8_t  Bytes[2];
+					AppPtr_t FuncPtr;
 				} Address = {Bytes: {SentCommand.Data[4], SentCommand.Data[3]}};
 
 				AppStartPtr = Address.FuncPtr;
@@ -525,12 +537,14 @@ static void ProcessReadCommand(void)
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Read signature byte
 	{
+		boot_rww_enable_safe();
+
 		if (SentCommand.Data[1] == 0x30)                                       // Read byte 1
-		  CommandResponse = SigBytes[0];
+		  CommandResponse = boot_read_sig_byte(0);
 		else if (SentCommand.Data[1] == 0x31)                                  // Read byte 2
-		  CommandResponse = SigBytes[1];
+		  CommandResponse = boot_read_sig_byte(2);
 		else if (SentCommand.Data[1] == 0x60)                                  // Read byte 3
-		  CommandResponse = SigBytes[2];
+		  CommandResponse = boot_read_sig_byte(4);
 	}
 	
 	ResponseByte = CommandResponse;

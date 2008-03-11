@@ -11,7 +11,7 @@
 #define INCLUDE_FROM_DATAFLASHMANAGER_C
 #include "DataflashManager.h"
 
-void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
+void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
 	uint16_t CurrDFPage       = VirtualMemory_DFPageFromBlock(BlockAddress);
 	uint16_t CurrDFByte       = VirtualMemory_DFPageOffsetFromBlock(BlockAddress);
@@ -108,7 +108,7 @@ void VirtualMemory_WriteBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
 	Dataflash_DeselectChip();
 }
 
-void VirtualMemory_ReadBlocks(uint32_t BlockAddress, uint16_t TotalBlocks)
+void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
 	uint16_t CurrDFPage       = VirtualMemory_DFPageFromBlock(BlockAddress);
 	uint16_t CurrDFByte       = VirtualMemory_DFPageOffsetFromBlock(BlockAddress);

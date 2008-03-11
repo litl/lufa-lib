@@ -37,7 +37,12 @@
 			#define ENDPOINT_CONTROLEP_SIZE                    64
 			
 			#define ENDPOINT_EPNUM_MASK                        0b111
-			#define ENDPOINT_MAXENDPOINTS                      7
+			
+			#if defined(USB_FULL_CONTROLLER)
+				#define ENDPOINT_MAXENDPOINTS                  7
+			#else
+				#define ENDPOINT_MAXENDPOINTS                  5			
+			#endif
 
 			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UPINTX, (1 << TXINI)
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UPINTX, (1 << RXOUTI)
@@ -105,7 +110,7 @@
 
 			static inline void Endpoint_Ignore_Byte(void)
 			{
-				volatile uint8_t Dummy;
+				uint8_t Dummy;
 				
 				Dummy = UEDATX;
 			}
@@ -226,6 +231,10 @@
 				  return ENDPOINT_SIZE_16_MASK;
 				else if (Bytes <= 32)
 				  return ENDPOINT_SIZE_32_MASK;
+				#if defined(USB_LIMITED_CONTROLLER)
+				else
+				  return ENDPOINT_SIZE_64_MASK;
+				#else
 				else if (Bytes <= 64)
 				  return ENDPOINT_SIZE_64_MASK;
 				else if (Bytes <= 128)
@@ -234,6 +243,7 @@
 				  return ENDPOINT_SIZE_256_MASK;
 				else
 				  return ENDPOINT_SIZE_512_MASK;
+				#endif
 			};
 
 		/* Function Prototypes: */
