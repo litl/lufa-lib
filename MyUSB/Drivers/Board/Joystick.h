@@ -11,38 +11,21 @@
 #ifndef __JOYSTICK_H__
 #define __JOYSTICK_H__
 
+	/* Macros: */
+	#define INCLUDE_FROM_JOYSTICK_H
+	#define INCLUDE_FROM_BOARD_DRIVER
+
 	/* Includes: */
-		#include <avr/io.h>
-		
-		#include "../../Common/Common.h"
-
-	/* Private Interface - For use in library only: */
-		/* Macros: */
-			#define JOY_BMASK                 ((1 << 5) | (1 << 6) | (1 << 7))
-			#define JOY_EMASK                 ((1 << 4) | (1 << 5))
-
-	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			#define JOY_LEFT                  (1 << 6)
-			#define JOY_RIGHT                 (1 << 3)
-			#define JOY_UP                    (1 << 4)
-			#define JOY_DOWN                  (1 << 7)
-			#define JOY_PRESS                 (1 << 5)
-			
-		/* Inline Functions: */
-			static inline void Joystick_Init(void)
-			{
-				DDRB &= ~(JOY_BMASK);
-				DDRE &= ~(JOY_EMASK);
-
-				PORTB |= JOY_BMASK;
-				PORTE |= JOY_EMASK;				
-			};
-			
-			static inline uint8_t Joystick_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
-			static inline uint8_t Joystick_GetStatus(void)
-			{
-				return ((~PINB & JOY_BMASK) | ((~PINE & JOY_EMASK) >> 1));
-			}
+	#include "../../Common/BoardTypes.h"
+	
+	#if defined(BOARD) && (BOARD == BOARD_USBKEY)
+		#include "USBKEY/Joystick.h"
+	#elif defined(BOARD) && (BOARD == BOARD_STK525)
+		#include "STK525/Joystick.h"
+	#elif defined(BOARD) && (BOARD == BOARD_STK526)
+		#include "STK526/Joystick.h"
+	#else
+		#error BOARD must be set in makefile to BOARD_USBKEY, BOARD_STK525 or BOARD_STK526.
+	#endif
 
 #endif

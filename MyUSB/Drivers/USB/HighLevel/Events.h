@@ -19,22 +19,22 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define RAISE_EVENT(e, ...)           Event_ ## e (__VA_ARGS__)
-			#define EVENT_HANDLER(e)              void Event_ ## e e ## _P
-			#define HANDLES_EVENT(e)              EVENT_HANDLER(e) e ## _M
-			#define RAISES_EVENT(e)               HANDLES_EVENT(e)
+			#define RAISE_EVENT(e, ...)                 Event_ ## e (__VA_ARGS__)
+			#define EVENT_HANDLER(e)                    void Event_ ## e e ## _P
+			#define HANDLES_EVENT(e)                    EVENT_HANDLER(e) e ## _M
+			#define RAISES_EVENT(e)                     HANDLES_EVENT(e)
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define ALIAS_STUB(e)                 EVENT_HANDLER(e) ATTR_WEAK ATTR_ALIAS(__stub)
+			#define ALIAS_STUB(e)                       EVENT_HANDLER(e) ATTR_WEAK ATTR_ALIAS(__stub)
 
 			#define NO_EVENT_ATTRIBUTES
 		
 			// Event Parameters:
 			#if defined(USB_FULL_CONTROLLER)
-				#define USB_VBUSChange_P                    (void)
-				#define USB_VBUSConnect_P                   (void)
-				#define USB_VBUSDisconnect_P                (void)
+				#define USB_VBUSChange_P                (void)
+				#define USB_VBUSConnect_P               (void)
+				#define USB_VBUSDisconnect_P            (void)
 			#endif
 			
 			#define USB_Connect_P                       (void)
@@ -64,9 +64,9 @@
 
 			// Event Modifiers (to deprecate old events):
 			#if defined(USB_FULL_CONTROLLER)
-				#define USB_VBUSChange_M	                NO_EVENT_ATTRIBUTES
-				#define USB_VBUSConnect_M                   NO_EVENT_ATTRIBUTES
-				#define USB_VBUSDisconnect_M                NO_EVENT_ATTRIBUTES
+				#define USB_VBUSChange_M	            NO_EVENT_ATTRIBUTES
+				#define USB_VBUSConnect_M               NO_EVENT_ATTRIBUTES
+				#define USB_VBUSDisconnect_M            NO_EVENT_ATTRIBUTES
 			#endif
 			
 			#define USB_Connect_M                       NO_EVENT_ATTRIBUTES
@@ -98,9 +98,12 @@
 			#if defined(INCLUDE_FROM_EVENTS_C)
 				static void __stub (void) ATTR_CONST;
 
+				#if defined(USB_FULL_CONTROLLER)
 				ALIAS_STUB(USB_VBUSChange);
 				ALIAS_STUB(USB_VBUSConnect);
 				ALIAS_STUB(USB_VBUSDisconnect);
+				#endif
+				
 				ALIAS_STUB(USB_Connect);
 				ALIAS_STUB(USB_Disconnect);
 				

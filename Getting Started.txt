@@ -40,6 +40,8 @@ A number of library demonstration applications are included, in the Demos/ direc
 
 Currently the library is designed for the AT90USB1286, AT90USB1287, AT90USB646, AT90USB647, AT90USB162 and AT90USB82 AVR microcontrollers. I recommend using MyUSB on a USBKEY board, although any board containing a supported AVR will work once the examples are recompiled.
 
+The board drivers currently support the USBKEY, STK525 and STK526. When using the board drivers, the "BOARD" symbol must be defined in the project's makefile to one of the BOARD_USBKEY, BOARD_STK525 or BOARD_STK526 constants.
+
 If you are using the USBKEY, I recommend purchasing a set of Tom Deutschman's USBKEY header adaptors (http://www.wizbangdesigns.com/10017_PCB.html) and female-female jumper wires (http://www.wizbangdesigns.com/20003.html) to make the board much easier and more plesant to work with.
 
 

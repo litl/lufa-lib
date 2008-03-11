@@ -18,12 +18,12 @@
 	/* Includes: */
 	#include "../../Common/BoardTypes.h"
 	
-	#if defined(BOARD) && (BOARD == BOARD_STK525)
-		#include "STK525/Dataflash.h"
-	#elif defined(BOARD) && (BOARD == BOARD_USBKEY)
+	#if defined(BOARD) && (BOARD == BOARD_USBKEY)
 		#include "USBKEY/Dataflash.h"
+	#elif defined(BOARD) && (BOARD == BOARD_STK525)
+		#include "STK525/Dataflash.h"
 	#elif defined(BOARD) && (BOARD == BOARD_STK526)
-		// TODO
+		#include "STK526/Dataflash.h"
 	#else
 		#error BOARD must be set in makefile to BOARD_USBKEY, BOARD_STK525 or BOARD_STK526.
 	#endif

@@ -11,24 +11,21 @@
 #ifndef __HWB_H__
 #define __HWB_H__
 
+	/* Macros: */
+	#define INCLUDE_FROM_HWB_H
+	#define INCLUDE_FROM_BOARD_DRIVER
+
 	/* Includes: */
-		#include <avr/io.h>
-		#include <stdbool.h>
+	#include "../../Common/BoardTypes.h"
+	
+	#if defined(BOARD) && (BOARD == BOARD_USBKEY)
+		#include "USBKEY/HWB.h"
+	#elif defined(BOARD) && (BOARD == BOARD_STK525)
+		#include "STK525/HWB.h"
+	#elif defined(BOARD) && (BOARD == BOARD_STK526)
+		#include "STK526/HWB.h"
+	#else
+		#error BOARD must be set in makefile to BOARD_USBKEY, BOARD_STK525 or BOARD_STK526.
+	#endif
 
-		#include "../../Common/Common.h"
-		
-	/* Public Interface - May be used in end-application: */
-		/* Inline Functions: */
-			static inline void HWB_Init(void)
-			{
-				DDRE  &= ~(1 << 2);
-				PORTE |=  (1 << 2);
-			}
-
-			static inline bool HWB_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
-			static inline bool HWB_GetStatus(void)
-			{
-				return (!(PINE & (1 << 2)));
-			}
-			
 #endif
