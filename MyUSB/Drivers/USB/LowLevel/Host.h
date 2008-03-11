@@ -30,7 +30,9 @@
 			#define USB_HOST_SOFGeneration_Enable()    MACROS{ UHCON |=  (1 << SOFEN);          }MACROE 
 			#define USB_HOST_SOFGeneration_Disable()   MACROS{ UHCON &= ~(1 << SOFEN);          }MACROE 
 			#define USB_HOST_SOFGeneration_IsEnabled()       ((UHCON &   (1 << SOFEN)) ? true : false)
-			
+		
+			#define USB_HOST_IsDeviceFullSpeed()             ((USBSTA &  (1 << SPEED)) ? true : false)
+
 			#define USB_HOST_IsRemoteWakeupSent()            ((UHINT &   (1 << RXRSMI)) ? true : false)
 			#define USB_HOST_ClearRemoteWakeupSent()   MACROS{ UHINT &= ~(1 << RXRSMI);         }MACROE
 			#define USB_HOST_SendResume()              MACROS{ UHCON |=  (1 << RESUME);         }MACROE

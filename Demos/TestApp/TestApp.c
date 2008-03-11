@@ -15,7 +15,7 @@
 	position will be indicated via the two Bicolour LEDs on the
 	USBKEY board. Pressing the HWB on the USBKEY will initiate
 	the USB subsystem, enumerating the device (which has no
-	actual functionality beyond enumeration as a device, or as a
+	actual functionality beyond enumeration as a device or as a
 	host in this demo, and serves only to demonstrate the USB portion
 	of the library). It will also suspend the joystick and
 	temperature monitoring tasks.
@@ -180,7 +180,7 @@ TASK(TestApp_CheckHWB)
 				Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
 				puts_P(PSTR(ESC_BG_YELLOW "USB Power On.\r\n"));
 				
-				USB_Init(USB_MODE_UID, USB_DEV_OPT_HIGHSPEED | USB_OPT_REG_ENABLED);
+				USB_Init(USB_MODE_UID, USB_DEV_OPT_FULLSPEED | USB_OPT_REG_ENABLED);
 			}
 		}
 	}

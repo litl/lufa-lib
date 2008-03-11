@@ -21,8 +21,8 @@
 		#include <MyUSB/MemoryAllocator/DynAlloc.h>              // Auto-defragmenting Dynamic Memory allocation
 		#include <MyUSB/Common/ButtLoadTag.h>                    // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>            // ANSI Terminal Escape Codes
-		#include <MyUSB/Drivers/AT90USBXXx/ADC.h>                // ADC driver
-		#include <MyUSB/Drivers/AT90USBXXx/Serial_Stream.h>      // USART Stream driver
+		#include <MyUSB/Drivers/AT90USBXXX/ADC.h>                // ADC driver
+		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>      // USART Stream driver
 		#include <MyUSB/Drivers/Board/Joystick.h>                // Joystick driver
 		#include <MyUSB/Drivers/Board/Bicolour.h>                // Bicolour LEDs driver
 		#include <MyUSB/Drivers/Board/HWB.h>                     // Hardware Button driver

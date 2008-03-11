@@ -60,6 +60,10 @@ int main (void)
 	/* Disable watchdog if enabled by bootloader/fuses */
 	MCUSR &= ~(1 << WDRF);
 	wdt_disable();
+
+	/* Disable Clock Division */
+	CLKPR = (1 << CLKPCE);
+	CLKPR = 0;
 	
 	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);
@@ -90,7 +94,6 @@ int main (void)
 	DDRD  = 0;
 	
 	/* Start the user application */
-	boot_rww_enable();
 	AppStartPtr();
 }
 
@@ -123,59 +126,48 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case DFU_DNLOAD:
 			Endpoint_ClearSetupReceived();
 			
-			if (DFU_State != dfuDNLOAD_IDLE)
+			/* If the request has a data stage, load it into the command struct */
+			if (SentCommand.DataSize)
 			{
-				/* If the request has a data stage, load it into the command struct */
-				if (SentCommand.DataSize)
-				{
-					while (!(Endpoint_Setup_Out_IsReceived()));
+				while (!(Endpoint_Setup_Out_IsReceived()));
 
-					/* First byte of the data stage is the DNLOAD request's command */
-					SentCommand.Command = Endpoint_Read_Byte();
+				/* First byte of the data stage is the DNLOAD request's command */
+				SentCommand.Command = Endpoint_Read_Byte();
 					
-					/* One byte of the data stage is the command, so subtract it from the total data bytes */
+				/* One byte of the data stage is the command, so subtract it from the total data bytes */
+				SentCommand.DataSize--;
+					
+				/* Load in the rest of the data stage as command parameters */
+				for (uint16_t DataByte = 0; (DataByte < sizeof(SentCommand.Data)) &&
+				     Endpoint_BytesInEndpoint(); DataByte++)
+				{
+					*(CommandDataPtr++) = Endpoint_Read_Byte();
 					SentCommand.DataSize--;
-					
-					/* Load in the rest of the data stage as command parameters */
-					for (uint16_t DataByte = 0; DataByte < SentCommand.DataSize; DataByte++)
-					  *(CommandDataPtr++) = Endpoint_Read_Byte();
-					
-					Endpoint_Setup_Out_Clear();
 				}
 
 				/* Process the command */
 				ProcessBootloaderCommand();
 			}
-			else
-			{
-/* START TEST CODE */
-				uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
-
-				while (TransfersRemaining && SentCommand.DataSize)
-				{
-					if (!(Endpoint_BytesInEndpoint()))
-					{
-						Endpoint_Setup_Out_Clear();
-						while (!(Endpoint_Setup_Out_IsReceived()));
-					}
-
-					SentCommand.DataSize -= 2;
-					TransfersRemaining   -= 2;
-					StartAddr            += 2;
-
-					Endpoint_Ignore_Word();
-				}
-				
-				Endpoint_Setup_Out_Clear();
-
-/*
+			
+			/* Check if currently downloading firmware */
+			if (DFU_State == dfuDNLOAD_IDLE)
+			{									
 				if (!(SentCommand.DataSize))
 				{
 					DFU_State = dfuIDLE;
 				}
-				else                                                           // Write FLASH or EEPROM
+				else
 				{
+					/* Subtract number of filler bytes from the total bytes remaining */
+					SentCommand.DataSize -= Endpoint_BytesInEndpoint();
+
+					/* Clear packet containing the memory write command */
+					Endpoint_Setup_Out_Clear();
+
+					/* Wait until next data packet received */
 					while (!(Endpoint_Setup_Out_IsReceived()));
+
+					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
 
 					while (TransfersRemaining && SentCommand.DataSize)
 					{
@@ -187,30 +179,36 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 								uint32_t Long;
 							} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
 							
-							boot_page_erase(CurrFlashAddress.Long);
-							boot_spm_busy_wait();
-							
+							/* Program in the flash pages from the received data packets */
 							for (uint16_t BytesInFlashPage = 0; ((BytesInFlashPage < SPM_PAGESIZE) &&
-							     TransfersRemaining && SentCommand.DataSize); BytesInFlashPage += 2)
+							     TransfersRemaining && SentCommand.DataSize); BytesInFlashPage++)
 							{
+								/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
 								if (!(Endpoint_BytesInEndpoint()))
 								{
 									Endpoint_Setup_Out_Clear();
 									while (!(Endpoint_Setup_Out_IsReceived()));
 								}
+								
+								/* Write the next word into the current flash page */
+								boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), 0xABCD);
+								Endpoint_Ignore_Word(); // TEMP
 
-								boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());
+//									boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());
 
+								/* Adjust counters */
 								SentCommand.DataSize -= 2;
 								TransfersRemaining   -= 2;
 								StartAddr            += 2;
 							}
 
+							/* Commit the flash page to memory */
 							boot_page_write(CurrFlashAddress.Long);
 							boot_spm_busy_wait();
 						}
 						else                                                   // Write EEPROM
-						{
+						{	
+							/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
 							if (!(Endpoint_BytesInEndpoint()))
 							{
 								Endpoint_Setup_Out_Clear();
@@ -219,15 +217,19 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 							eeprom_write_byte((uint8_t*)StartAddr, Endpoint_Read_Byte());	
 
+							/* Adjust counters */
 							SentCommand.DataSize    -= 1;
 							TransfersRemaining      -= 1;
 							StartAddr               += 1;
-						}						
+						}
 					}
+
+					/* Re-enable the RWW section of flash in case it was written to */
+					boot_rww_enable();
 				}
-*/
-/* END TEST CODE */
 			}
+
+			Endpoint_Setup_Out_Clear();
 
 			/* Send ZLP to the host to acknowedge the request */
 			Endpoint_Setup_In_Clear();
@@ -254,7 +256,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				{
 					while (TransfersRemaining && SentCommand.DataSize)
 					{
-						/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
+						/* Check if endpoint is full - if so clear it and wait until ready for next packet */
 						if (Endpoint_BytesInEndpoint() == ENDPOINT_CONTROLEP_SIZE)
 						{
 							Endpoint_Setup_In_Clear();
@@ -417,22 +419,29 @@ static void ProcessBootloaderCommand(void)
 	}
 }
 
+static void LoadStartEndAddresses(void)
+{
+	union
+	{
+		uint8_t  Bytes[2];
+		uint16_t Word;
+	} Address[2] = {{Bytes: {SentCommand.Data[2], SentCommand.Data[1]}},
+	                {Bytes: {SentCommand.Data[4], SentCommand.Data[3]}}};
+		
+	/* Load in the start and ending read addresses from the sent data packet */
+	StartAddr = Address[0].Word;
+	EndAddr   = Address[1].Word;
+}
+
 static void ProcessMemProgCommand(void)
 {
 	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                          // Write FLASH command
 		IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                            // Write EEPROM command
 	{
 		/* Load in the start and ending read addresses */
-		union
-		{
-			uint8_t  Bytes[2];
-			uint16_t Word;
-		} Address[2] = {{Bytes: {SentCommand.Data[2], SentCommand.Data[1]}},
-		                {Bytes: {SentCommand.Data[4], SentCommand.Data[3]}}};
+		LoadStartEndAddresses();
 		
-		StartAddr = Address[0].Word;
-		EndAddr   = Address[1].Word;
-
+		/* Set the state so that the next DNLOAD requests reads in the firmware */
 		DFU_State = dfuDNLOAD_IDLE;
 	}
 }
@@ -443,16 +452,9 @@ static void ProcessMemReadCommand(void)
         IS_ONEBYTE_COMMAND(SentCommand.Data, 0x02))                            // Read EEPROM command
 	{
 		/* Load in the start and ending read addresses */
-		union
-		{
-			uint8_t  Bytes[2];
-			uint16_t Word;
-		} Address[2] = {{Bytes: {SentCommand.Data[2], SentCommand.Data[1]}},
-		                {Bytes: {SentCommand.Data[4], SentCommand.Data[3]}}};
-		
-		StartAddr = Address[0].Word;
-		EndAddr   = Address[1].Word;
+		LoadStartEndAddresses();
 
+		/* Set the state so that the next UPLOAD requests read out the firmware */
 		DFU_State = dfuUPLOAD_IDLE;
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Blank check FLASH command
@@ -520,7 +522,11 @@ static void ProcessWriteCommand(void)
 
 			CurrFlashAddress += SPM_PAGESIZE;
 		}
+
+		/* Re-enable the RWW section of flash as writing to the flash locks it out */
+		boot_rww_enable();
 					
+		/* Memory has been erased, reset the security bit so that programming/reading is allowed */
 		IsSecure = false;
 	}
 }
@@ -537,8 +543,6 @@ static void ProcessReadCommand(void)
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Read signature byte
 	{
-		boot_rww_enable_safe();
-
 		if (SentCommand.Data[1] == 0x30)                                       // Read byte 1
 		  CommandResponse = boot_read_sig_byte(0);
 		else if (SentCommand.Data[1] == 0x31)                                  // Read byte 2

@@ -26,15 +26,17 @@
 			#define ENDPOINT_SIZE_16_MASK                      (0b001 << EPSIZE0)
 			#define ENDPOINT_SIZE_32_MASK                      (0b010 << EPSIZE0)
 			#define ENDPOINT_SIZE_64_MASK                      (0b011 << EPSIZE0)
-			#define ENDPOINT_SIZE_128_MASK                     (0b100 << EPSIZE0)
-			#define ENDPOINT_SIZE_256_MASK                     (0b101 << EPSIZE0)
-			#define ENDPOINT_SIZE_512_MASK                     (0b110 << EPSIZE0)
-			
+
+			#if defined(USB_FULL_CONTROLLER)
+				#define ENDPOINT_SIZE_128_MASK                     (0b100 << EPSIZE0)
+				#define ENDPOINT_SIZE_256_MASK                     (0b101 << EPSIZE0)
+			#endif
+
 			#define ENDPOINT_BANK_SINGLE                       0
 			#define ENDPOINT_BANK_DOUBLE                       (1 << EPBK0)
 			
 			#define ENDPOINT_CONTROLEP                         0
-			#define ENDPOINT_CONTROLEP_SIZE                    64
+			#define ENDPOINT_CONTROLEP_SIZE                    32
 			
 			#define ENDPOINT_EPNUM_MASK                        0b111
 			
@@ -85,7 +87,13 @@
 			
 			#define Endpoint_ClearSetupReceived()      MACROS{ UEINTX  &= ~(1 << RXSTPI);                }MACROE
 			#define Endpoint_StallTransaction()        MACROS{ UECONX  |=  (1 << STALLRQ);               }MACROE
-			#define Endpoint_ClearStall()              MACROS{ UECONX  &= ~(1 << STALLRQ);               }MACROE
+
+			#if defined(USB_FULL_CONTROLLER)
+				#define Endpoint_ClearStall()              MACROS{ UECONX &= ~(1 << STALLRQ);           }MACROE
+			#else
+				#define Endpoint_ClearStall()              MACROS{ UECONX |= (1 << STALLRQC);           }MACROE
+			#endif
+
 			#define Endpoint_IsStalled()                     ((UECONX  &   (1 << STALLRQ)) ? true : false)
 
 			#define Endpoint_ResetDataToggle()         MACROS{ UECONX  |=  (1 << RSTDT);                 }MACROE
@@ -239,10 +247,8 @@
 				  return ENDPOINT_SIZE_64_MASK;
 				else if (Bytes <= 128)
 				  return ENDPOINT_SIZE_128_MASK;
-				else if (Bytes <= 256)
-				  return ENDPOINT_SIZE_256_MASK;
 				else
-				  return ENDPOINT_SIZE_512_MASK;
+				  return ENDPOINT_SIZE_256_MASK;
 				#endif
 			};
 

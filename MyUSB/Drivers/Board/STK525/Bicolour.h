@@ -22,7 +22,7 @@
 		#endif
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros: */
+		/* Macros: */		
 			#define BICOLOUR_LED1        1
 			#define BICOLOUR_LED2        2
 		
@@ -36,5 +36,10 @@
 			#define BICOLOUR_LED2_ORANGE (BICOLOUR_LED2_RED | BICOLOUR_LED2_GREEN)
 			#define BICOLOUR_ALL_LEDS    (BICOLOUR_LED1_ORANGE | BICOLOUR_LED2_ORANGE)
 			#define BICOLOUR_NO_LEDS     0
+
+	/* Private Interface - For use in library only: */
+		/* Macros: */
+			#define BICOLOUR_PORT        PORTD
+			#define BICOLOUR_DDR         DDRD
 
 #endif

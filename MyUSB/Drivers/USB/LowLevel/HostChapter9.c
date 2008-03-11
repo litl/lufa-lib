@@ -100,12 +100,9 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 				DataLen -= USB_ControlPipeSize;			
 			}
 			
-			Pipe_Setup_Out_Clear();
-			
 			if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Out_Ready)))
 			  goto End_Of_Control_Send;
 
-			
 			Pipe_Setup_Out_Clear();
 		}
 		

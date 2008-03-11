@@ -105,6 +105,7 @@
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_BOOTLOADER_C)
 			static void ProcessBootloaderCommand(void);
+			static void LoadStartEndAddresses(void);
 			static void ProcessMemProgCommand(void);
 			static void ProcessMemReadCommand(void);
 			static void ProcessWriteCommand(void);

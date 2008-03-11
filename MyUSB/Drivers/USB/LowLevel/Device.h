@@ -20,11 +20,11 @@
 				#define USB_DEV_OPT_LOWSPEED            (1 << 0)
 			#endif
 			
-			#define USB_DEV_OPT_HIGHSPEED               (0 << 0)
+			#define USB_DEV_OPT_FULLSPEED               (0 << 0)
 				
 			#define USB_DEV_SendRemoteWakeup()   MACROS{ UDCON |= (1 << RMWKUP); }MACROE
 			#define USB_DEV_IsRemoteWakeupSent()       ((UDCON &  (1 << RMWKUP)) ? false : true)
-			#define USB_DEV_IsUSBSuspended()           ((UDCON &  (1 << SUSPI)) ? true : false)
+			#define USB_DEV_IsUSBSuspended()           ((UDINT &  (1 << SUSPI)) ? true : false)
 
 		/* Enums: */
 			enum USB_Device_ErrorCodes

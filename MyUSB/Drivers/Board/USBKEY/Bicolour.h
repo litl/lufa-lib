@@ -37,4 +37,9 @@
 			#define BICOLOUR_ALL_LEDS    (BICOLOUR_LED1_ORANGE | BICOLOUR_LED2_ORANGE)
 			#define BICOLOUR_NO_LEDS     0
 
+	/* Private Interface - For use in library only: */
+		/* Macros: */
+			#define BICOLOUR_PORT        PORTD
+			#define BICOLOUR_DDR         DDRD
+
 #endif
