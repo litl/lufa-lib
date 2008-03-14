@@ -89,21 +89,21 @@
 		} SCSI_Capacity_t;
 
 	/* Enums: */
-		enum
+		enum CommandStatusCodes_t
 		{
 			Command_Pass = 0,
 			Command_Fail = 1,
 			Phase_Error  = 2
-		} CommandStatusCodes_t;
+		};
 		
-		enum
+		enum ReadWriteErrorCodes_t
 		{
 			NoError            = 0,
 			InPipeStalled      = 1,
 			OutPipeStalled     = 2,
 			DeviceDisconnected = 3,
 			CommandTimeout     = 4
-		} ReadWriteErrorCodes_t;
+		};
 		
 	/* External Variables: */
 		extern CommandStatusWrapper_t SCSICommandStatus;

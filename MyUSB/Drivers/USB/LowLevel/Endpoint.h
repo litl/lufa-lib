@@ -16,6 +16,7 @@
 		#include <stdbool.h>
 
 		#include "../../../Common/Common.h"
+		#include "../HighLevel/USBTask.h"
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
@@ -98,12 +99,14 @@
 
 			#define Endpoint_ResetDataToggle()         MACROS{ UECONX  |=  (1 << RSTDT);                 }MACROE
 
-		/* Function Aliases: */
-			static inline uint16_t Endpoint_Read_Word(void)            ATTR_ALIAS(Endpoint_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
-			static inline void     Endpoint_Write_Word(uint16_t Word)  ATTR_ALIAS(Endpoint_Write_Word_LE);
-			static inline uint32_t Endpoint_Read_DWord(void)           ATTR_ALIAS(Endpoint_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;
-			static inline void     Endpoint_Write_DWord(uint32_t Word) ATTR_ALIAS(Endpoint_Write_DWord_LE);
-			
+		/* Enums: */
+			enum Endpoint_Stream_RW_ErrorCodes_t
+			{
+				ENDPOINT_RWSTREAM_ERROR_NoError            = 0,
+				ENDPOINT_RWSTREAM_ERROR_EndpointStalled    = 1,				
+				ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected = 2,
+			};
+
 		/* Inline Functions: */
 			static inline uint8_t Endpoint_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Endpoint_Read_Byte(void)
@@ -222,8 +225,20 @@
 			}
 
 		/* Function Prototypes: */
-			void Endpoint_ClearEndpoints(void);
+			void    Endpoint_ClearEndpoints(void);
+			uint8_t Endpoint_Write_Stream_LE(void* Data, uint16_t Length);
+			uint8_t Endpoint_Write_Stream_BE(void* Data, uint16_t Length);
+			uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length);
+			uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length);
 
+		/* Function Aliases: */
+			static inline uint16_t Endpoint_Read_Word(void)               ATTR_ALIAS(Endpoint_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
+			static inline void     Endpoint_Write_Word(uint16_t Word)     ATTR_ALIAS(Endpoint_Write_Word_LE);
+			static inline uint32_t Endpoint_Read_DWord(void)              ATTR_ALIAS(Endpoint_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;
+			static inline void     Endpoint_Write_DWord(uint32_t Word)    ATTR_ALIAS(Endpoint_Write_DWord_LE);
+
+			#define                Endpoint_Write_Stream(Data, Length)    Endpoint_Write_Stream_LE(Data, Length)
+			#define                Endpoint_Read_Stream(Buffer, Length)   Endpoint_Read_Stream_LE(Buffer, Length)
 	/* Private Interface - For use in library only: */
 		/* Macros: */
 			#define Endpoint_IsSetupRecieved()             ((UEINTX & (1 << RXSTPI)) ? true : false)

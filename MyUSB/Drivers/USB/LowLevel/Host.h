@@ -38,7 +38,7 @@
 			#define USB_HOST_SendResume()              MACROS{ UHCON |=  (1 << RESUME);         }MACROE
 			
 		/* Enums: */
-			enum USB_Host_States
+			enum USB_Host_States_t
 			{
 				HOST_STATE_Unattached           = 0,
 				HOST_STATE_Attached             = 1,
@@ -50,12 +50,12 @@
 				HOST_STATE_Suspended            = 7,
 			};
 			
-			enum USB_Host_ErrorCodes
+			enum USB_Host_ErrorCodes_t
 			{
 				HOST_ERROR_VBusVoltageDip       = 0,
 			};
 			
-			enum USB_Host_EnumerationErrorCodes
+			enum USB_Host_EnumerationErrorCodes_t
 			{
 				HOST_ENUMERROR_NoError          = 0,
 				HOST_ENUMERROR_WaitStage        = 1,
@@ -64,7 +64,7 @@
 				HOST_ENUMERROR_PipeConfigError  = 4,
 			};
 
-			enum USB_Host_WaitMSErrorCodes
+			enum USB_Host_WaitMSErrorCodes_t
 			{
 				HOST_WAITERROR_Sucessful        = 0,
 				HOST_WAITERROR_DeviceDisconnect = 1,

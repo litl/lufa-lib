@@ -57,7 +57,7 @@
 			#endif
 			
 		/* Enums: */
-			enum DescriptorTypes
+			enum DescriptorTypes_t
 			{
 				DTYPE_Device            = 1,
 				DTYPE_Configuration     = 2,

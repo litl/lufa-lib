@@ -27,7 +27,7 @@
 			#define USB_DEV_IsUSBSuspended()           ((UDINT &  (1 << SUSPI)) ? true : false)
 
 		/* Enums: */
-			enum USB_Device_ErrorCodes
+			enum USB_Device_ErrorCodes_t
 			{
 				DEVICE_ERROR_GetDescriptorNotHooked        = 0,
 				DEVICE_ERROR_ControlEndpointCreationFailed = 1,

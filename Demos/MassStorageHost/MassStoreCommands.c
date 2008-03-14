@@ -17,8 +17,6 @@ uint32_t               MassStore_Tag = 1;
 
 void MassStore_SendCommand(void)
 {
-	uint8_t* CommandByte = (uint8_t*)&SCSICommandBlock;
-
 	/* Each transmission should have a unique tag value */
 	if (MassStore_Tag++ == 0xFFFFFFFE)
 	  MassStore_Tag = 1;
@@ -31,8 +29,7 @@ void MassStore_SendCommand(void)
 	Pipe_Unfreeze();
 
 	/* Write the CBW command to the OUT pipe */
-	for (uint8_t Byte = 0; Byte < sizeof(CommandBlockWrapper_t); Byte++)
-	  Pipe_Write_Byte(*(CommandByte++));
+	Pipe_Write_Stream(&SCSICommandBlock, sizeof(CommandBlockWrapper_t));
 
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_FIFOCON_Clear();
@@ -131,39 +128,9 @@ uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
 		Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 		Pipe_Unfreeze();
 		
-		/* Loop until all bytes read */
-		while (BytesRem)
-		{
-			/* Load each byte into the buffer */
-			*(BufferPtr++) = Pipe_Read_Byte();
-			
-			/* Decrement the bytes remaining counter */
-			BytesRem--;
-			
-			/* Check to see if the device was disconnected, if so exit function */
-			if (!(USB_IsConnected))
-			{
-				Pipe_Freeze();
-
-				return DeviceDisconnected;
-			}
-
-			/* When pipe is empty, clear it and wait for the next packet */
-			if (!(Pipe_BytesInPipe()))
-			{
-				Pipe_FIFOCON_Clear();
-				
-				while (!(Pipe_ReadWriteAllowed()))
-				{
-					if (!(USB_IsConnected))
-					{
-						Pipe_Freeze();
-
-						return DeviceDisconnected;
-					}
-				}
-			}
-		}
+		/* Read in the block data from the pipe */
+		if (Pipe_Read_Stream_LE(BufferPtr, BytesRem) == PIPE_RWSTREAM_ERROR_DeviceDisconnected)
+		  return DeviceDisconnected;
 	}
 	else
 	{
@@ -172,33 +139,13 @@ uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
 		Pipe_Unfreeze();
 
 		/* Write the block data to the pipe */
-		while (BytesRem)
-		{
-			Pipe_Write_Byte(*(BufferPtr++));
-			
-			BytesRem--;
-			
-			/* Check if the pipe is full */
-			if (Pipe_BytesInPipe() == MassStoreEndpointSize_OUT)
-			{
-				Pipe_FIFOCON_Clear();
-				while (!(Pipe_ReadWriteAllowed()))
-				{
-					if (!(USB_IsConnected))
-					{
-						Pipe_Freeze();
-
-						return DeviceDisconnected;
-					}					
-				}
-			}
-		}
-
-		/* Check to see if any data is still in the pipe - if so, send it */
-		if (Pipe_BytesInPipe())
-		  Pipe_FIFOCON_Clear();
+		if (Pipe_Write_Stream_LE(BufferPtr, BytesRem) == PIPE_RWSTREAM_ERROR_DeviceDisconnected)
+		  return DeviceDisconnected;
 	}
 	
+	/* Acknowedge the packet */
+	Pipe_FIFOCON_Clear();
+
 	/* Freeze used pipe after use */
 	Pipe_Freeze();
 
@@ -207,8 +154,6 @@ uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
 
 void MassStore_GetReturnedStatus(void)
 {
-	uint8_t* StatusByte = (uint8_t*)&SCSICommandStatus;
-
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
@@ -225,8 +170,7 @@ void MassStore_GetReturnedStatus(void)
 	}
 	
 	/* Load in the CSW from the attached device */
-	for (uint8_t CSWLen = 0; CSWLen < sizeof(CommandStatusWrapper_t); CSWLen++)
-	  (*(StatusByte++)) = Pipe_Read_Byte();
+	Pipe_Read_Stream(&SCSICommandStatus, sizeof(CommandStatusWrapper_t));
 	
 	/* Clear the data ready for next reception */
 	Pipe_FIFOCON_Clear();

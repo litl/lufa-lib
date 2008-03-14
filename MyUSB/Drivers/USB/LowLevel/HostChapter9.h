@@ -30,7 +30,7 @@
 			} USB_Host_Request_Header_t;
 
 		/* Enums: */
-			enum USB_Host_SendControlErrorCodes
+			enum USB_Host_SendControlErrorCodes_t
 			{
 				HOST_SENDCONTROL_Sucessful        = 0,
 				HOST_SENDCONTROL_DeviceDisconnect = 1,
@@ -47,7 +47,7 @@
 			
 	/* Private Interface - For use in library only: */
 		/* Enums: */
-			enum WaitForTypes
+			enum WaitForTypes_t
 			{
 				Wait_For_Setup_Sent,
 				Wait_For_In_Received,

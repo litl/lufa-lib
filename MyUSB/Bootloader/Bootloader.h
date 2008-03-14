@@ -62,7 +62,7 @@
 		} DFU_Command_t;
 
 	/* Enums: */
-		enum
+		enum DFU_State_t
 		{
 			appIDLE                      = 0,
 			appDETACH                    = 1,
@@ -75,9 +75,9 @@
 			dfuMANIFEST_WAIT_RESET       = 8,
 			dfuUPLOAD_IDLE               = 9,
 			dfuERROR	                 = 10
-		} DFU_State_t;
+		};
 
-		enum
+		enum DFU_Status_t
 		{
 			OK                           = 0,
 			errTARGET                    = 1,
@@ -95,7 +95,7 @@
 			errPOR                       = 13,
 			errUNKNOWN                   = 14,
 			errSTALLEDPKT	             = 15
-		} DFU_Status_t;
+		};
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);

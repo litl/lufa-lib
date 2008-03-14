@@ -62,12 +62,12 @@
 		} CommandStatusWrapper_t;
 		
 	/* Enums: */
-		enum
+		enum CommandStatusCodes_t
 		{
 			Command_Pass = 0,
 			Command_Fail = 1,
 			Phase_Error  = 2
-		} CommandStatusCodes;
+		};
 		
 	/* Global Variables: */
 		extern CommandBlockWrapper_t  CommandBlock;

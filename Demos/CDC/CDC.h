@@ -44,21 +44,21 @@
 		} CDC_Line_Coding_t;
 		
 	/* Enums: */
-		enum
+		enum CDC_Line_Coding_Format_t
 		{
 			OneStopBit          = 0,
 			OneAndAHalfStopBits = 1,
 			TwoStopBits         = 2,
-		} CDC_Line_Coding_Format;
+		};
 		
-		enum
+		enum CDC_Line_Codeing_Parity_t
 		{
 			Parity_None         = 0,
 			Parity_Odd          = 1,
 			Parity_Even         = 2,
 			Parity_Mark         = 3,
 			Parity_Space        = 4,
-		} CDC_Line_Codeing_Parity;
+		};
 
 	/* Function Prototypes: */
 		void SendStringViaCDC(char* FlashString);

@@ -34,23 +34,23 @@
 		} PIMA_Container_t;
 	
 	/* Enums: */
-		enum
+		enum PIMA_Container_Types_t
 		{
 			CType_Undefined         = 0,
 			CType_CommandBlock      = 1,
 			CType_DataBlock         = 2,
 			CType_ResponseBlock     = 3,
 			CType_EventBlock        = 4,
-		} PIMA_Container_Types_t;
+		};
 
-		enum
+		enum ReadWriteErrorCodes_t
 		{
 			NoError            = 0,
 			InPipeStalled      = 1,
 			OutPipeStalled     = 2,
 			DeviceDisconnected = 3,
 			CommandTimeout     = 4
-		} ReadWriteErrorCodes_t;
+		};
 	
 	/* External Variables: */
 		PIMA_Container_t PIMA_Command;		
@@ -59,6 +59,7 @@
 		void    SImage_SendCommand(void);
 		uint8_t SImage_WaitForDataReceived(void);
 		void    SImage_GetResponse(void);
+		void    SImage_GetData(uint8_t* Buffer);
 		uint8_t SImage_ClearPipeStall(const uint8_t PipeEndpointNum);
 
 		uint8_t SImage_GetInfo(void);

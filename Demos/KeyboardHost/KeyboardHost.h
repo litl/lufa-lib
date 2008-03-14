@@ -38,7 +38,7 @@
 		} USB_KeyboardReport_Data_t;
 		
 	/* Enums: */
-		enum
+		enum GetConfigDescriptorDataCodes_t
 		{
 			ControlError         = 0,
 			DescriptorTooLarge   = 1,
@@ -46,7 +46,7 @@
 			IncorrectProtocol    = 3,
 			NoEndpointFound      = 4,
 			SuccessfulConfigRead = 5,
-		} GetConfigDescriptorDataCodes_t;
+		};
 
 	/* Task Definitions: */
 		TASK(USB_Keyboard_Host);

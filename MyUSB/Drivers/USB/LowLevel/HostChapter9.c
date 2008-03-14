@@ -20,7 +20,6 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 {
 	bool     SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
-	uint8_t* HeaderByte     = (uint8_t*)&USB_HostRequest;
 	uint16_t DataLen        = USB_HostRequest.DataLength;
 
 	USB_HOST_SOFGeneration_Enable();
@@ -36,8 +35,7 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 
 	Pipe_Unfreeze();
 
-	for (uint8_t i = 0; i < sizeof(USB_Host_Request_Header_t); i++)
-	  Pipe_Write_Byte(*(HeaderByte++));
+	Pipe_Write_Stream(&USB_HostRequest, sizeof(USB_Host_Request_Header_t));
 
 	Pipe_Setup_Out_Clear();
 	

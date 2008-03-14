@@ -16,6 +16,7 @@
 		#include <stdbool.h>
 
 		#include "../../../Common/Common.h"
+		#include "../HighLevel/USBTask.h"
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
@@ -95,11 +96,13 @@
 			#define Pipe_Setup_Out_Clear()         MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
 			#define Pipe_Setup_Out_IsReady()             ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 
-		/* Function Aliases: */
-			static inline uint16_t Pipe_Read_Word(void)            ATTR_ALIAS(Pipe_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
-			static inline void     Pipe_Write_Word(uint16_t Word)  ATTR_ALIAS(Pipe_Write_Word_LE);
-			static inline uint32_t Pipe_Read_DWord(void)           ATTR_ALIAS(Pipe_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;
-			static inline void     Pipe_Write_DWord(uint32_t Word) ATTR_ALIAS(Pipe_Write_DWord_LE);
+		/* Enums: */
+			enum Pipe_Stream_RW_ErrorCodes_t
+			{
+				PIPE_RWSTREAM_ERROR_NoError            = 0,
+				PIPE_RWSTREAM_ERROR_PipeStalled        = 1,				
+				PIPE_RWSTREAM_ERROR_DeviceDisconnected = 2,
+			};
 
 		/* Inline Functions: */
 			static inline uint8_t Pipe_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
@@ -218,11 +221,24 @@
 				Dummy = UPDATX;
 			}
 
+		/* Function Aliases: */
+			static inline uint16_t Pipe_Read_Word(void)             ATTR_ALIAS(Pipe_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
+			static inline void     Pipe_Write_Word(uint16_t Word)   ATTR_ALIAS(Pipe_Write_Word_LE);
+			static inline uint32_t Pipe_Read_DWord(void)            ATTR_ALIAS(Pipe_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;
+			static inline void     Pipe_Write_DWord(uint32_t Word)  ATTR_ALIAS(Pipe_Write_DWord_LE);
+
+			#define                Pipe_Write_Stream(Data, Length)  Pipe_Write_Stream_LE(Data, Length)
+			#define                Pipe_Read_Stream(Buffer, Length) Pipe_Read_Stream_LE(Buffer, Length)
+
 		/* External Variables: */
 			uint8_t USB_ControlPipeSize;
 
 		/* Function Prototypes: */
-			void Pipe_ClearPipes(void);
+			void    Pipe_ClearPipes(void);
+			uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length);
+			uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length);
+			uint8_t Pipe_Read_Stream_LE(void* Data, uint16_t Length);
+			uint8_t Pipe_Read_Stream_BE(void* Data, uint16_t Length);
 		
 	/* Private Interface - For use in library only: */
 		/* Inline Functions: */

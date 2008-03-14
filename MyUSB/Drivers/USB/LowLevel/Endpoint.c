@@ -41,4 +41,128 @@ void Endpoint_ClearEndpoints(void)
 	}
 }
 
+uint8_t Endpoint_Write_Stream_LE(void* Data, uint16_t Length)
+{
+	uint8_t* DataStream = (uint8_t*)Data;
+	
+	while (Length)
+	{
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			Endpoint_FIFOCON_Clear();
+
+			while (!(Endpoint_ReadWriteAllowed()))
+			{
+				if (Endpoint_IsStalled())
+				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
+				else if (!(USB_IsConnected))
+				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;			
+			}
+		}
+
+		Endpoint_Write_Byte(*(DataStream++));
+		Length--;
+		
+		if (Endpoint_IsStalled())
+		  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
+		else if (!(USB_IsConnected))
+		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
+	}
+	
+	return ENDPOINT_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Endpoint_Write_Stream_BE(void* Data, uint16_t Length)
+{
+	uint8_t* DataStream = (uint8_t*)(Data + Length - 1);
+	
+	while (Length)
+	{
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			Endpoint_FIFOCON_Clear();
+
+			while (!(Endpoint_ReadWriteAllowed()))
+			{
+				if (Endpoint_IsStalled())
+				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
+				else if (!(USB_IsConnected))
+				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;			
+			}
+		}
+		
+		Endpoint_Write_Byte(*(DataStream--));
+		Length--;
+		
+		if (Endpoint_IsStalled())
+		  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
+		else if (!(USB_IsConnected))
+		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
+	}
+	
+	return ENDPOINT_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length)
+{
+	uint8_t* DataStream = (uint8_t*)Buffer;
+	
+	while (Length)
+	{
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			Endpoint_FIFOCON_Clear();
+
+			while (!(Endpoint_ReadWriteAllowed()))
+			{
+				if (Endpoint_IsStalled())
+				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
+				else if (!(USB_IsConnected))
+				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;			
+			}
+		}
+		
+		*(DataStream++) = Endpoint_Read_Byte();
+		Length--;
+		
+		if (Endpoint_IsStalled())
+		  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
+		else if (!(USB_IsConnected))
+		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
+	}
+	
+	return ENDPOINT_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)
+{
+	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
+	
+	while (Length)
+	{
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			Endpoint_FIFOCON_Clear();
+
+			while (!(Endpoint_ReadWriteAllowed()))
+			{
+				if (Endpoint_IsStalled())
+				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
+				else if (!(USB_IsConnected))
+				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;			
+			}
+		}
+		
+		*(DataStream--) = Endpoint_Read_Byte();
+		Length--;
+		
+		if (Endpoint_IsStalled())
+		  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
+		else if (!(USB_IsConnected))
+		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
+	}
+	
+	return ENDPOINT_RWSTREAM_ERROR_NoError;
+}
+
 #endif

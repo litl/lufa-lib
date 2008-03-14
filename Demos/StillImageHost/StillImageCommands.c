@@ -17,15 +17,12 @@ uint32_t         PIMA_TransactionID = 1;
 
 void SImage_SendCommand(void)
 {
-	uint8_t* CommandByte = (uint8_t*)&PIMA_Command;
-
 	/* Unfreeze the data OUT pipe ready for data transmission */
 	Pipe_SelectPipe(SIMAGE_DATA_OUT_PIPE);
 	Pipe_Unfreeze();
 
 	/* Write the PIMA command block to the data OUT pipe */
-	for (uint8_t Byte = 0; Byte < sizeof(PIMA_Container_t); Byte++)
-	  Pipe_Write_Byte(*(CommandByte++));
+	Pipe_Write_Stream(&PIMA_Command, sizeof(PIMA_Container_t));
 			
 	/* Send the PIMA command block to the attached device */
 	Pipe_FIFOCON_Clear();
@@ -112,8 +109,6 @@ uint8_t SImage_WaitForDataReceived(void)
 
 void SImage_GetResponse(void)
 {
-	uint8_t* ResponseByte = (uint8_t*)&PIMA_Response;
-
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
@@ -130,14 +125,64 @@ void SImage_GetResponse(void)
 	}
 	
 	/* Load in the response from the attached device */
-	for (uint8_t ResponseLen = 0; ResponseLen < sizeof(PIMA_Container_t); ResponseLen++)
-	  (*(ResponseByte++)) = Pipe_Read_Byte();
+	Pipe_Read_Stream(&PIMA_Response, sizeof(PIMA_Container_t));
 	
 	/* Clear the data ready for next reception */
 	Pipe_FIFOCON_Clear();
 
 	/* Freeze the IN pipe after use */
 	Pipe_Freeze();	
+}
+
+void SImage_GetData(uint8_t* Buffer)
+{
+	/* Select the IN data pipe for data reception */
+	Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
+	Pipe_Unfreeze();
+
+	/* Wait until pipe is ready to be read from (contains data) */
+	while (!(Pipe_ReadWriteAllowed()))
+	{
+		/* If USB device is disconnected during transfer, exit function */
+		if (!(USB_IsConnected))
+		{
+			Pipe_Freeze();
+			return;
+		}
+	}
+
+	/* Loop while data is still to be read */
+	while (PIMA_Response.DataLength > sizeof(PIMA_Container_t))
+	{
+		/* Check if pipe empty */
+		if (!(Pipe_BytesInPipe()))
+		{
+			printf("Bytes Rem: %ld\r\n", PIMA_Response.DataLength);
+		
+			/* Acknowedge the pipe data */
+			Pipe_FIFOCON_Clear();
+			
+			/* Wait until pipe is ready to be read from (contains data) */
+			while (!(Pipe_ReadWriteAllowed()))
+			{
+				/* If USB device is disconnected during transfer, exit function */
+				if (!(USB_IsConnected))
+				{
+					Pipe_Freeze();
+					return;
+				}
+			}
+		}
+
+		*(Buffer++) = Pipe_Read_Byte();
+		PIMA_Response.DataLength--;
+	}
+
+	/* Clear the data ready for next reception */
+	Pipe_FIFOCON_Clear();
+
+	/* Freeze the IN pipe after use */
+	Pipe_Freeze();		
 }
 
 uint8_t SImage_ClearPipeStall(const uint8_t PipeEndpointNum)
@@ -171,14 +216,21 @@ uint8_t SImage_GetInfo(void)
 	SImage_SendCommand();
 	
 	/* Wait until data recieved from the device */
+	if ((ReturnCode = SImage_WaitForDataReceived()) != NoError)
+	  return ReturnCode;
+
+	/* Read in the returned response from the device */
 	do
 	{
-		if ((ReturnCode = SImage_WaitForDataReceived()) != NoError)
-		  return ReturnCode;
+		SImage_GetResponse();
 
-		/* Read in the returned response from the device */
-		SImage_GetResponse();		
+		if (PIMA_Response.Type == CType_DataBlock)
+		{
+			uint8_t* Temp = alloca(PIMA_Response.DataLength);
+			printf("Data block size: %ld\r\n", PIMA_Response.DataLength);
+			SImage_GetData(Temp);
+		}
 	} while (PIMA_Response.Type != CType_ResponseBlock);
-
+	
 	return ReturnCode;
 }

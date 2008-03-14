@@ -46,4 +46,176 @@ void Pipe_ClearPipes(void)
 	}
 }
 
+uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length)
+{
+	uint8_t* DataStream = (uint8_t*)Data;
+	
+	while (Length)
+	{
+		if (!(Pipe_ReadWriteAllowed()))
+		{
+			Pipe_FIFOCON_Clear();
+				
+			while (!(Pipe_ReadWriteAllowed()))
+			{
+				if (!(USB_IsConnected))
+				{
+					Pipe_Freeze();
+
+					return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+				}
+				else if (Pipe_IsStalled())
+				{
+					return PIPE_RWSTREAM_ERROR_PipeStalled;
+				}
+			}
+		}
+
+		Pipe_Write_Byte(*(DataStream++));
+		Length--;
+		
+		if (!(USB_IsConnected))
+		{
+			Pipe_Freeze();
+
+			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+		}
+		else if (Pipe_IsStalled())
+		{
+			return PIPE_RWSTREAM_ERROR_PipeStalled;
+		}
+	}
+	
+	return PIPE_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length)
+{
+	uint8_t* DataStream = (uint8_t*)(Data + Length - 1);
+	
+	while (Length)
+	{
+		if (!(Pipe_ReadWriteAllowed()))
+		{
+			Pipe_FIFOCON_Clear();
+				
+			while (!(Pipe_ReadWriteAllowed()))
+			{
+				if (!(USB_IsConnected))
+				{
+					Pipe_Freeze();
+
+					return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+				}
+				else if (Pipe_IsStalled())
+				{
+					return PIPE_RWSTREAM_ERROR_PipeStalled;
+				}
+			}
+		}
+
+		Pipe_Write_Byte(*(DataStream--));
+		Length--;
+		
+		if (!(USB_IsConnected))
+		{
+			Pipe_Freeze();
+
+			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+		}
+		else if (Pipe_IsStalled())
+		{
+			return PIPE_RWSTREAM_ERROR_PipeStalled;
+		}
+	}
+	
+	return PIPE_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)
+{
+	uint8_t* DataStream = (uint8_t*)Buffer;
+	
+	while (Length)
+	{
+		if (!(Pipe_ReadWriteAllowed()))
+		{
+			Pipe_FIFOCON_Clear();
+				
+			while (!(Pipe_ReadWriteAllowed()))
+			{
+				if (!(USB_IsConnected))
+				{
+					Pipe_Freeze();
+
+					return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+				}
+				else if (Pipe_IsStalled())
+				{
+					return PIPE_RWSTREAM_ERROR_PipeStalled;
+				}
+			}
+		}
+
+		*(DataStream++) = Pipe_Read_Byte();
+		Length--;
+		
+		if (!(USB_IsConnected))
+		{
+			Pipe_Freeze();
+
+			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+		}
+		else if (Pipe_IsStalled())
+		{
+			return PIPE_RWSTREAM_ERROR_PipeStalled;
+		}
+	}
+	
+	return PIPE_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length)
+{
+	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
+	
+	while (Length)
+	{
+		if (!(Pipe_ReadWriteAllowed()))
+		{
+			Pipe_FIFOCON_Clear();
+				
+			while (!(Pipe_ReadWriteAllowed()))
+			{
+				if (!(USB_IsConnected))
+				{
+					Pipe_Freeze();
+
+					return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+				}
+				else if (Pipe_IsStalled())
+				{
+					return PIPE_RWSTREAM_ERROR_PipeStalled;
+				}
+			}
+		}
+
+		*(DataStream--) = Pipe_Read_Byte();
+		Length--;
+		
+		if (!(USB_IsConnected))
+		{
+			Pipe_Freeze();
+
+			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+		}
+		else if (Pipe_IsStalled())
+		{
+			return PIPE_RWSTREAM_ERROR_PipeStalled;
+		}
+	}
+	
+	return PIPE_RWSTREAM_ERROR_NoError;
+}
+
 #endif

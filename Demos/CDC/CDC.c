@@ -119,8 +119,6 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
-
 	Endpoint_Ignore_Word();
 
 	/* Process CDC specific control requests */
@@ -131,8 +129,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 
-				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-				  Endpoint_Write_Byte(*(LineCodingData++));	
+				Endpoint_Write_Stream_LE(&LineCoding, sizeof(LineCoding));
 				
 				Endpoint_Setup_In_Clear();
 				while (!(Endpoint_Setup_In_IsReady()));
@@ -149,8 +146,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 				while (!(Endpoint_Setup_Out_IsReceived()));
 
-				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-				  *(LineCodingData++) = Endpoint_Read_Byte();
+				Endpoint_Read_Stream_LE(&LineCoding, sizeof(LineCoding));
 
 				Endpoint_Setup_Out_Clear();
 
@@ -183,13 +179,11 @@ TASK(CDC_Task)
 	  ReportString = JoystickUpString;
 	else if (JoyStatus_LCL & JOY_DOWN)
 	  ReportString = JoystickDownString;
-	
-	if (JoyStatus_LCL & JOY_LEFT)
+	else if (JoyStatus_LCL & JOY_LEFT)
 	  ReportString = JoystickLeftString;
 	else if (JoyStatus_LCL & JOY_RIGHT)
 	  ReportString = JoystickRightString;
-	
-	if (JoyStatus_LCL & JOY_PRESS)
+	else if (JoyStatus_LCL & JOY_PRESS)
 	  ReportString = JoystickPressedString;
 
 	/* Flag management - Only allow one string to be sent per action */

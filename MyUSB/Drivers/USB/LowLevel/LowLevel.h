@@ -96,7 +96,7 @@
 			void USB_ShutDown(void);
 
 		/* Enums: */
-			enum USB_PowerOnErrorCodes
+			enum USB_PowerOnErrorCodes_t
 			{
 				POWERON_ERROR_NoUSBModeSpecified       = 0,
 			};

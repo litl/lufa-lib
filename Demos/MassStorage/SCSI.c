@@ -11,7 +11,7 @@
 #define INCLUDE_FROM_SCSI_C
 #include "SCSI.h"
 
-SCSI_Inquiry_Response_t InquiryData PROGMEM = 
+SCSI_Inquiry_Response_t InquiryData = 
 	{
 		DeviceType:          0,
 		PeripheralQualifier: 0,
@@ -42,7 +42,7 @@ SCSI_Inquiry_Response_t InquiryData PROGMEM =
 		RevisionID:          {'0','.','0','0'},
 	};
 
-SCSI_Read_Write_Error_Recovery_Sense_Page_t RecoveryPage PROGMEM =
+SCSI_Read_Write_Error_Recovery_Sense_Page_t RecoveryPage =
 	{
 		AWRE:                true,
 
@@ -50,7 +50,7 @@ SCSI_Read_Write_Error_Recovery_Sense_Page_t RecoveryPage PROGMEM =
 		WriteRetryCount:     0x03,
 	};
 
-SCSI_Informational_Exceptions_Sense_Page_t InformationalExceptionsPage PROGMEM =
+SCSI_Informational_Exceptions_Sense_Page_t InformationalExceptionsPage =
 	{
 		MRIE:                true,
 		
@@ -137,8 +137,8 @@ static bool SCSI_Command_Inquiry(void)
 {
 	uint16_t  AllocationLength = (((uint16_t)CommandBlock.SCSICommandData[3] << 8) |
 	                                         CommandBlock.SCSICommandData[4]);
-	uint8_t* InquiryDataPtr    = (uint8_t*)&InquiryData;
-	uint8_t  BytesTransferred  = 0;
+	uint16_t BytesTransferred  = (AllocationLength < sizeof(InquiryData))? AllocationLength :
+	                                                                       sizeof(InquiryData);
 
 	/* Only the standard INQUIRY data is supported, check if any optional INQUIRY bits set */
 	if ((CommandBlock.SCSICommandData[1] & ((1 << 0) | (1 << 1))) ||
@@ -153,14 +153,7 @@ static bool SCSI_Command_Inquiry(void)
 	}
 
 	/* Write the INQUIRY data to the endpoint */
-	for (uint8_t i = 0; i < sizeof(InquiryData); i++)
-	{
-		if (i == AllocationLength)
-		  break;
-					  
-		Endpoint_Write_Byte(pgm_read_byte(InquiryDataPtr++));
-		BytesTransferred++;
-	}
+	Endpoint_Write_Stream_LE(&InquiryData, BytesTransferred);
 
 	/* Pad out remaining bytes with 0x00 */
 	while (BytesTransferred < AllocationLength)
@@ -188,18 +181,10 @@ static bool SCSI_Command_Inquiry(void)
 static bool SCSI_Command_Request_Sense(void)
 {
 	uint8_t  AllocationLength = CommandBlock.SCSICommandData[4];
-	uint8_t* SenseDataPtr     = (uint8_t*)&SenseData;
-	uint8_t  BytesTransferred = 0;
+	uint8_t  BytesTransferred = (AllocationLength < sizeof(SenseData))? AllocationLength : sizeof(SenseData);
 	
 	/* Send the SENSE data - this indicates to the host the status of the last command */
-	for (uint8_t i = 0; i < sizeof(SenseData); i++)
-	{
-		if (i == AllocationLength)
-		  break;
-					  
-		Endpoint_Write_Byte(*(SenseDataPtr++));
-		BytesTransferred++;
-	}
+	Endpoint_Write_Stream_LE(&SenseData, BytesTransferred);
 	
 	/* Pad out remaining bytes with 0x00 */
 	while (BytesTransferred < AllocationLength)
@@ -369,7 +354,7 @@ static bool SCSI_Command_Mode_Sense_6_10(const bool IsMode10)
 			/* Send requested SENSE page */
 			SCSI_WriteSensePage(SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY,
 			                    sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t),
-			                    (uint8_t*)&RecoveryPage,
+			                    &RecoveryPage,
 			                    (AllocationLength - 4),
 			                    IsMode10);
 			break;
@@ -381,7 +366,7 @@ static bool SCSI_Command_Mode_Sense_6_10(const bool IsMode10)
 			/* Send requested SENSE page */
 			SCSI_WriteSensePage(SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS,
 			                    sizeof(SCSI_Informational_Exceptions_Sense_Page_t),
-			                    (uint8_t*)&InformationalExceptionsPage,
+			                    &InformationalExceptionsPage,
 			                    (AllocationLength - 4),
 			                    IsMode10);
 			break;
@@ -394,14 +379,14 @@ static bool SCSI_Command_Mode_Sense_6_10(const bool IsMode10)
 			/* Send first page to the host (pages must be sent in ascending order) */
 			SCSI_WriteSensePage(SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY,
 			                    sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t),
-			                    (uint8_t*)&RecoveryPage,
+			                    &RecoveryPage,
 			                    (AllocationLength - 4),
 			                    IsMode10);
 			
 			/* Send second page to the host (pages must be sent in ascending order) */
 			SCSI_WriteSensePage(SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS,
 			                    sizeof(SCSI_Informational_Exceptions_Sense_Page_t),
-			                    (uint8_t*)&InformationalExceptionsPage,
+			                    &InformationalExceptionsPage,
 			                    (AllocationLength - sizeof(SCSI_Informational_Exceptions_Sense_Page_t)
                                                   - 6),
 			                    IsMode10);
@@ -435,10 +420,10 @@ static void SCSI_WriteSensePageHeader(const uint8_t DataLength, const bool IsMod
 }
 								
 static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
-                                const uint8_t* PageDataPtr, const int16_t AllocationLength,
+                                void* PageDataPtr, const int16_t AllocationLength,
                                 const bool IsMode10)
 {
-	uint8_t BytesTransferred;
+	int16_t BytesToTransfer = (AllocationLength < PageSize)? AllocationLength : PageSize;
 
 	/* Negative or zero allocation length prevents the page from being sent */
 	if (AllocationLength <= 0)
@@ -448,15 +433,7 @@ static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
 	Endpoint_Write_Byte(PageCode);
 	Endpoint_Write_Byte(PageSize);
 	
-	BytesTransferred = 2;
+	BytesToTransfer -= 2;
 	
-	/* Write page contents to the endpoint */
-	for (uint8_t i = 0; i < PageSize; i++)
-	{
-		if (BytesTransferred == AllocationLength)
-		  break;
-		
-		Endpoint_Write_Byte(pgm_read_byte(*(PageDataPtr++)));
-		BytesTransferred++;
-	}	
+	Endpoint_Write_Stream_LE(PageDataPtr, BytesToTransfer);
 }

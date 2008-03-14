@@ -35,20 +35,20 @@
 			#define REQREC_OTHER               (3 << 0)
 
 		/* Enums: */
-			enum Control_ReqType_Direction
+			enum Control_ReqType_Direction_t
 			{
 				REQDIR_HostToDevice     = 0,
 				REQDIR_DeviceToHost     = 1
 			};
 		
-			enum Control_ReqType_Type
+			enum Control_ReqType_Type_t
 			{
 				REQTYPE_Standard        = 0,
 				REQTYPE_Class           = 1,
 				REQTYPE_Vendor          = 2
 			};
 		
-			enum Control_ReqType_Recipient
+			enum Control_ReqType_Recipient_t
 			{
 				REQREC_Device           = 0,
 				REQREC_Interface        = 1,
@@ -56,7 +56,7 @@
 				REQREC_Other            = 3
 			};
 
-			enum Control_Request
+			enum Control_Request_t
 			{
 				REQ_GetStatus           = 0,
 				REQ_ClearFeature        = 1,

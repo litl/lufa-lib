@@ -111,8 +111,6 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	uint8_t* CommandDataPtr = (uint8_t*)&SentCommand.Data;
-
 	Endpoint_Ignore_Word();
 	Endpoint_Ignore_Word();
 
@@ -138,12 +136,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				SentCommand.DataSize--;
 					
 				/* Load in the rest of the data stage as command parameters */
-				for (uint16_t DataByte = 0; (DataByte < sizeof(SentCommand.Data)) &&
-				     Endpoint_BytesInEndpoint(); DataByte++)
-				{
-					*(CommandDataPtr++) = Endpoint_Read_Byte();
-					SentCommand.DataSize--;
-				}
+				Endpoint_Read_Stream_LE(&SentCommand.Data, sizeof(SentCommand.Data));
 
 				/* Process the command */
 				ProcessBootloaderCommand();

@@ -39,7 +39,7 @@
 
 		typedef struct
 		{
-			uint8_t                               ReportData[35];
+			uint8_t                               ReportData[63];
 		} USB_Descriptor_HID_Keyboard_Report_t;
 
 		typedef struct
@@ -48,10 +48,12 @@
 			USB_Descriptor_Interface_t            Interface;
 			USB_Descriptor_HID_t                  KeyboardHID;
 	        USB_Descriptor_Endpoint_t             KeyboardEndpoint;
+	        USB_Descriptor_Endpoint_t             KeyboardLEDsEndpoint;
 		} USB_Descriptor_Configuration_t;
 					
 	/* Macros: */
 		#define KEYBOARD_EPNUM               1
+		#define KEYBOARD_LEDS_EPNUM          2
 		#define KEYBOARD_EPSIZE              8
 
 		#define DTYPE_HID                    0x21
@@ -59,13 +61,10 @@
 
 		#define KEYBOARD_INTERFACE_NUMBER    0
 		#define KEYBOARD_INTERFACE_ALTERNATE 0
-		#define KEYBOARD_INTERFACE_ENDPOINTS 1
+		#define KEYBOARD_INTERFACE_ENDPOINTS 2
 		#define KEYBOARD_INTERFACE_CLASS     0x03
 		#define KEYBOARD_INTERFACE_SUBCLASS  0x00
 		#define KEYBOARD_INTERFACE_PROTOCOL  0x01
-		
-		#define KEYBOARD_EPNUM               1
-		#define KEYBOARD_EPSIZE              8
 
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,

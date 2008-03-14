@@ -89,9 +89,14 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
-	/* Setup Keyboard Report Endpoint */
+	/* Setup Keyboard Report Endpoints */
 	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
+	                           ENDPOINT_BANK_SINGLE);
+
+	/* Setup Keyboard Report Endpoints */
+	Endpoint_ConfigureEndpoint(KEYBOARD_LEDS_EPNUM, EP_TYPE_INTERRUPT,
+		                       ENDPOINT_DIR_OUT, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
 	/* Double green to indicate USB connected and ready */
@@ -130,9 +135,41 @@ TASK(USB_Keyboard_Report)
 		{
 			/* Write Keyboard Report Data */
 			Endpoint_Write_Byte(KeyboardReportData.Modifier);
-			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
-			
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(KeyboardReportData.KeyCode);			
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(0x00);
+
 			/* Handshake the IN Endpoint - send the data to the host */
+			Endpoint_FIFOCON_Clear();
+		}
+
+		/* Select the Keyboard LED Report Endpoint */
+		Endpoint_SelectEndpoint(KEYBOARD_LEDS_EPNUM);
+
+		/* Check if Keyboard LED Endpoint Ready for Read/Write */
+		if (Endpoint_ReadWriteAllowed())
+		{
+			/* Read in the LED report from the host */
+			uint8_t LEDStatus = Endpoint_Read_Byte();
+			uint8_t LEDMask   = BICOLOUR_LED1_GREEN;
+			
+			if (LEDStatus & 0x01) // NUM Lock
+			  LEDMask |= BICOLOUR_LED2_RED;
+			
+			if (LEDStatus & 0x02) // CAPS Lock
+			  LEDMask |= BICOLOUR_LED1_RED;
+
+			if (LEDStatus & 0x04) // SCROLL Lock
+			  LEDMask |= BICOLOUR_LED2_GREEN;
+
+			/* Set the status LEDs to the current Keyboard LED status */
+			Bicolour_SetLeds(LEDMask);
+
+			/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
 			Endpoint_FIFOCON_Clear();
 		}
 	}

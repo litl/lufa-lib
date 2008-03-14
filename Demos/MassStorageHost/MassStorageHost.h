@@ -33,14 +33,14 @@
 		#define MAX_CONFIG_DESCRIPTOR_SIZE       512
 
 	/* Enums: */
-		enum
+		enum GetConfigDescriptorDataCodes_t
 		{
 			ControlError         = 0,
 			DescriptorTooLarge   = 1,
 			InterfaceNotFound    = 2,
 			NoEndpointFound      = 5,
 			SuccessfulConfigRead = 6,
-		} GetConfigDescriptorDataCodes_t;
+		};
 
 	/* Task Definitions: */
 		TASK(USB_MassStore_Host);

@@ -169,14 +169,11 @@ TASK(USB_MassStorage)
 
 static void ProcessCommandBlock(void)
 {
-	uint8_t* CommandBlockPtr = (uint8_t*)&CommandBlock;
-
 	/* Select the Data Out endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 
 	/* Read in command block header */
-	for (uint8_t i = 0; i < sizeof(CommandBlock.Header); i++)
-	  *(CommandBlockPtr++) = Endpoint_Read_Byte();
+	Endpoint_Read_Stream_LE(&CommandBlock.Header, sizeof(CommandBlock.Header));
 
 	/* Verify the command block - abort if invalid */
 	if ((CommandBlock.Header.Signature != CBW_SIGNATURE) ||
@@ -195,8 +192,7 @@ static void ProcessCommandBlock(void)
 	}
 
 	/* Read in command block command data */
-	for (uint8_t b = 0; b < CommandBlock.Header.SCSICommandLength; b++)
-	  *(CommandBlockPtr++) = Endpoint_Read_Byte();
+	Endpoint_Read_Stream_LE(&CommandBlock.SCSICommandData, CommandBlock.Header.SCSICommandLength);
 	  
 	/* Clear the endpoint */
 	Endpoint_FIFOCON_Clear();
@@ -221,8 +217,6 @@ static void ProcessCommandBlock(void)
 
 static void ReturnCommandStatus(void)
 {
-	uint8_t* CommandStatusPtr = (uint8_t*)&CommandStatus;
-
 	/* Select the Data Out endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 
@@ -247,8 +241,7 @@ static void ReturnCommandStatus(void)
 	while (!(Endpoint_ReadWriteAllowed()));
 
 	/* Write the CSW to the endpoint */
-	for (uint8_t i = 0; i < sizeof(CommandStatus); i++)
-	  Endpoint_Write_Byte(*(CommandStatusPtr++));
+	Endpoint_Write_Stream_LE(&CommandStatus, sizeof(CommandStatus));
 	
 	/* Send the CSW */
 	Endpoint_FIFOCON_Clear();
