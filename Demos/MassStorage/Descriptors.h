@@ -17,8 +17,8 @@
 		#include <avr/pgmspace.h>
 
 	/* Macros: */
-		#define MASS_STORAGE_IN_EPNUM          1	
-		#define MASS_STORAGE_OUT_EPNUM         2	
+		#define MASS_STORAGE_IN_EPNUM          3	
+		#define MASS_STORAGE_OUT_EPNUM         4	
 		#define MASS_STORAGE_IO_EPSIZE         64	
 		
 	/* Type Defines: */

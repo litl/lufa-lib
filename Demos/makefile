@@ -55,9 +55,6 @@ all:
 	make -C MouseHostViaInt clean
 	make -C MouseHostViaInt all
 
-	make -C StillImageHost clean
-	make -C StillImageHost all
-
 	make -C TestApp clean
 	make -C TestApp all
 
@@ -78,7 +75,6 @@ clean:
 	make -C Mouse clean
 	make -C MouseHost clean
 	make -C MouseHostViaInt clean
-	make -C StillImageHost clean
 	make -C TestApp clean
 	make -C USBtoSerial clean
 	
@@ -96,6 +92,5 @@ clean_list:
 	make -C Mouse clean_list
 	make -C MouseHost clean_list
 	make -C MouseHostViaInt clean_list
-	make -C StillImageHost clean_list
 	make -C TestApp clean_list
 	make -C USBtoSerial clean_list
