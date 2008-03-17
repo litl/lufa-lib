@@ -65,7 +65,7 @@ int main(void)
 	wdt_disable();
 
 	/* Disable clock division */
-	clock_prescale_set(clock_div_1);
+	SetSystemClockPrescaler(0);
 	
 	/* Hardware initialization */
 	SerialStream_Init(9600);

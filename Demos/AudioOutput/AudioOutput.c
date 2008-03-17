@@ -16,9 +16,10 @@
 	
 	On startup the system will automatically enumerate and function
 	as a USB speaker. Incomming audio will output in 8-bit PWM onto
-	Timer 3 output compare channel A for AUDIO_OUT_MONO mode, on
-	channels A and B for AUDIO_OUT_STEREO and on the two bicolour LEDs
-	for AUDIO_OUT_LEDS mode. Decouple audio outputs with a capacitor
+	the timer output (timer 3 for the AT90USBXXX6/7 USB AVRs, timer 1 for
+	the AT90USBXXX2 controller AVRs) compare channel A for AUDIO_OUT_MONO
+	mode, on channels A and B for AUDIO_OUT_STEREO and on the two bicolour
+	LEDs for AUDIO_OUT_LEDS mode. Decouple audio outputs with a capacitor
 	and attach to a speaker to hear the audio.
 	
 	Under Windows, if a driver request dialogue pops up, select the option
@@ -30,8 +31,8 @@
 
 /* ---  Project Configuration  --- */
 //#define AUDIO_OUT_MONO
-//#define AUDIO_OUT_STEREO
-#define AUDIO_OUT_LEDS
+#define AUDIO_OUT_STEREO
+//#define AUDIO_OUT_LEDS
 /* --- --- --- --- --- --- --- --- */
 
 #include "AudioOutput.h"
@@ -55,7 +56,7 @@ int main(void)
 	wdt_disable();
 
 	/* Disable Clock Division */
-	clock_prescale_set(clock_div_1);
+	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
 	Bicolour_Init();
@@ -140,9 +141,9 @@ TASK(USB_Audio_Task)
 			
 #if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
 			/* PWM speaker timer initialization */
-			TCCR3A  = ((1 << WGM30) | (1 << COM3A1) | (1 << COM3A0)
-			                        | (1 << COM3B1) | (1 << COM3B0)); // Set on match, clear on TOP
-			TCCR3B  = ((1 << CS30));  // Phase Correct 8-Bit PWM, Fcpu speed
+			TCCRxA  = ((1 << WGMx0) | (1 << COMxA1) | (1 << COMxA0)
+			                        | (1 << COMxB1) | (1 << COMxB0)); // Set on match, clear on TOP
+			TCCRxB  = ((1 << CSx0));  // Phase Correct 8-Bit PWM, Fcpu speed
 #endif
 
 #if defined(AUDIO_OUT_MONO)
@@ -178,11 +179,11 @@ TASK(USB_Audio_Task)
 				int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
 
 				/* Load the sample into the PWM timer channel */
-				OCR3A = (MixedSample_8Bit ^ (1 << 7));
+				OCRxA = (MixedSample_8Bit ^ (1 << 7));
 #elif defined(AUDIO_OUT_STEREO)
 				/* Load the dual 8-bit samples into the PWM timer channels */
-				OCR3A = (LeftSample_8Bit  ^ (1 << 7));
-				OCR3B = (RightSample_8Bit ^ (1 << 7));
+				OCRxA = (LeftSample_8Bit  ^ (1 << 7));
+				OCRxB = (RightSample_8Bit ^ (1 << 7));
 #else
 				/* Make left channel positive (absolute) */
 				if (LeftSample_8Bit < 0)
@@ -227,7 +228,7 @@ TASK(USB_Audio_Task)
 		/* Stop the timers */
 		TCCR0B = 0;
 #if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
-		TCCR3B = 0;
+		TCCRxB = 0;
 #endif		
 		HasConfiguredTimers = false;
 	}

@@ -27,7 +27,7 @@
 	from the host and red when the host send an invalid USB command.
 	
 	You will need to format the mass storage device upon first run of this
-	demonstration. For speed reasons, this project is compiled with -O3.
+	demonstration.
 */
 
 #define INCLUDE_FROM_MASSSTORAGE_C
@@ -56,7 +56,7 @@ int main(void)
 	wdt_disable();
 
 	/* Disable Clock Division */
-	clock_prescale_set(clock_div_1);
+	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
 	Bicolour_Init();

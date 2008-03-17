@@ -14,7 +14,6 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
-		#include <avr/power.h>
 		#include <stdio.h>
 
 		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project

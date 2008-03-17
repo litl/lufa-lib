@@ -62,7 +62,7 @@ int main (void)
 	wdt_disable();
 
 	/* Disable Clock Division */
-	clock_prescale_set(clock_div_1);
+	SetSystemClockPrescaler(0);
 	
 	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);

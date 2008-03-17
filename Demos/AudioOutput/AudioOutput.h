@@ -14,7 +14,6 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
-		#include <avr/power.h>
 
 		#include "Descriptors.h"
 		
@@ -31,7 +30,33 @@
 		       (defined(AUDIO_OUT_LEDS)   && (defined(AUDIO_OUT_MONO)   || defined(AUDIO_OUT_STEREO))))
 			#error Only one of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
 		#endif
-
+	
+	/* Macros: */
+		#if (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || \
+			 defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB647__))
+			#define TCCRxA          TCCR3A
+			#define TCCRxB          TCCR3B
+			#define OCRxA           OCR3A
+			#define OCRxB           OCR3B
+			#define WGMx0           WGM30
+			#define COMxA1          COM3A1
+			#define COMxA0          COM3A0
+			#define COMxB1          COM3B1
+			#define COMxB0          COM3B0
+			#define CSx0            CS30
+		#else
+			#define TCCRxA          TCCR1A
+			#define TCCRxB          TCCR1B
+			#define OCRxA           OCR1A
+			#define OCRxB           OCR1B
+			#define WGMx0           WGM10
+			#define COMxA1          COM1A1
+			#define COMxA0          COM1A0
+			#define COMxB1          COM1B1
+			#define COMxB0          COM1B0
+			#define CSx0            CS10
+		#endif
+		
 	/* Task Definitions: */
 		TASK(USB_Audio_Task);
 

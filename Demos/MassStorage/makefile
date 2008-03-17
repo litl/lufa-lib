@@ -91,7 +91,6 @@ SRC = $(TARGET).c                                           \
 	  SCSI.c                                                \
 	  DataflashManager.c                                    \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
-	  ../../MyUSB/Drivers/Board/Dataflash.c                 \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
@@ -117,7 +116,7 @@ ASRC =
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
 #     (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
-OPT = 3
+OPT = s
 
 
 # Debugging format.

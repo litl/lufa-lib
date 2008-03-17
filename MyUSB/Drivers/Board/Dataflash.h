@@ -48,11 +48,6 @@
 			                                             & ~DATAFLASH_CHIPCS_MASK) | mask);              }MACROE
 			#define Dataflash_DeselectChip()             Dataflash_SelectChip(DATAFLASH_NO_CHIP)
 
-		/* Function Prototypes: */
-			void Dataflash_SelectChipFromPage(const uint16_t PageAddress);
-			void Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte);
-			void Dataflash_ToggleSelectedChipCS(void);
-
 		/* Inline Functions: */
 			static inline void Dataflash_Init(const uint8_t PrescalerMask)
 			{
@@ -76,11 +71,54 @@
 				return SPDR;
 			}
 
+			static inline void Dataflash_ToggleSelectedChipCS(void)
+			{
+				#if (DATAFLASH_TOTALCHIPS == 2)
+					uint8_t SelectedChipMask = Dataflash_GetSelectedChip();
+					
+					Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+					Dataflash_SelectChip(SelectedChipMask);
+				#else
+					Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+					Dataflash_SelectChip(DATAFLASH_CHIP1);	
+				#endif
+			}
+
 			static inline void Dataflash_WaitWhileBusy(void)
 			{
 				Dataflash_ToggleSelectedChipCS();			
 				Dataflash_SendByte(DF_CMD_GETSTATUS);
 				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
-			}	
+			}
+
+			static inline void Dataflash_SelectChipFromPage(const uint16_t PageAddress)
+			{
+				if (PageAddress > (DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS))
+				{
+					Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+					return;
+				}
+
+				#if (DATAFLASH_TOTALCHIPS == 2)
+					if (PageAddress & 0x01)
+					  Dataflash_SelectChip(DATAFLASH_CHIP2);
+					else
+					  Dataflash_SelectChip(DATAFLASH_CHIP1);
+				#else
+					Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+					Dataflash_SelectChip(DATAFLASH_CHIP1);
+				#endif
+			}
+
+			static inline void Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte)
+			{	
+				#if (DATAFLASH_TOTALCHIPS == 2)
+					PageAddress >>= 1;
+				#endif
+
+				Dataflash_SendByte(PageAddress >> 5);
+				Dataflash_SendByte((PageAddress << 3) | (BufferByte >> 8));
+				Dataflash_SendByte(BufferByte);
+			}
 
 #endif
