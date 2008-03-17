@@ -14,6 +14,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <avr/power.h>
 
 		#include "Descriptors.h"
 		

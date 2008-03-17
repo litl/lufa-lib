@@ -156,40 +156,37 @@ static void USB_Device_GetDescriptor(void)
 {
 	uint8_t  DescriptorIndex = Endpoint_Read_Byte();
 	uint8_t  DescriptorType  = Endpoint_Read_Byte();
-	uint16_t DescriptorLength;
+	uint16_t DescriptorBytesToSend;
 	
 	void*    DescriptorPointer;
 	uint16_t DescriptorBytesRem;
 	
 	bool     SendZeroPacket = false;
 	
-	if (USB_GetDescriptor(DescriptorType, DescriptorIndex,
-	                      &DescriptorPointer, &DescriptorBytesRem) == false)
-	{
-		return;
-	}
+	if (!(USB_GetDescriptor(DescriptorType, DescriptorIndex, &DescriptorPointer, &DescriptorBytesRem)))
+	  return;
 	
 	Endpoint_Ignore_Word(); // Ignore language identifier
 
-	DescriptorLength = Endpoint_Read_Word_LE();
+	DescriptorBytesToSend = Endpoint_Read_Word_LE();
 	
 	Endpoint_ClearSetupReceived();
 	
-	if (DescriptorLength > DescriptorBytesRem)
+	if (DescriptorBytesToSend > DescriptorBytesRem)
 	{
 		if ((DescriptorBytesRem % ENDPOINT_CONTROLEP_SIZE) == 0)
 		  SendZeroPacket = true;
 	}
 	else
 	{
-		DescriptorBytesRem = DescriptorLength;
+		DescriptorBytesRem = DescriptorBytesToSend;
 	}
 	
 	while (DescriptorBytesRem && (!(Endpoint_Setup_Out_IsReceived())))
 	{
-		while (!(Endpoint_Setup_In_IsReady()));
-		
 		uint8_t BytesInPacket = 0;
+		
+		while (!(Endpoint_Setup_In_IsReady()));
 		
 		while (DescriptorBytesRem && (BytesInPacket++ < ENDPOINT_CONTROLEP_SIZE))
 		{

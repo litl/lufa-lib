@@ -56,8 +56,7 @@ int main(void)
 	wdt_disable();
 
 	/* Disable Clock Division */
-	CLKPR = (1 << CLKPCE);
-	CLKPR = 0;
+	clock_prescale_set(clock_div_1);
 
 	/* Hardware Initialization */
 	Magstripe_Init();
@@ -74,10 +73,6 @@ int main(void)
 
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
-
-	/* Disable Clock Division */
-	CLKPR = (1 << CLKPCE);
-	CLKPR = 0;
 }
 
 EVENT_HANDLER(USB_Connect)

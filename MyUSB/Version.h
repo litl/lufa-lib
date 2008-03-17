@@ -13,10 +13,10 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define MYUSB_VERSION          1.3.0
+			#define MYUSB_VERSION          1.3.1
 			#define MYUSB_VERSION_MAJOR    1
 			#define MYUSB_VERSION_MINOR    3
-			#define MYUSB_VERSION_REVISION 0
+			#define MYUSB_VERSION_REVISION 1
 			#define MYUSB_VERSION_STRING   #MYUSB_VERSION
 
 #endif

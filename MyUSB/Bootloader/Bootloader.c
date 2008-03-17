@@ -62,8 +62,7 @@ int main (void)
 	wdt_disable();
 
 	/* Disable Clock Division */
-	CLKPR = (1 << CLKPCE);
-	CLKPR = 0;
+	SetClockDivision(0);
 	
 	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);

@@ -15,6 +15,7 @@
 		#include <avr/io.h>
 		#include <avr/interrupt.h>
 		#include <avr/wdt.h>
+		#include <avr/power.h>
 
 		#include <MyUSB/Drivers/USB/USB.h>                       // USB Functionality
 		#include <MyUSB/Scheduler/Scheduler.h>                   // Simple scheduler for task management

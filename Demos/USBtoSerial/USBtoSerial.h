@@ -14,6 +14,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <avr/power.h>
 		#include <avr/interrupt.h>
 
 		#include "Descriptors.h"
@@ -29,8 +30,6 @@
 		#define GET_LINE_CODING              0x21
 		#define SET_LINE_CODING              0x20
 		#define SET_CONTROL_LINE_STATE       0x22
-
-		#define SERIAL_2X_UBBRVAL(baud)      (((F_CPU / 8) / baud) - 1)
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);

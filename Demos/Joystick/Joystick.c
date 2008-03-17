@@ -44,8 +44,7 @@ int main(void)
 	wdt_disable();
 
 	/* Disable Clock Division */
-	CLKPR = (1 << CLKPCE);
-	CLKPR = 0;
+	clock_prescale_set(clock_div_1);
 
 	/* Hardware Initialization */
 	Joystick_Init();
@@ -101,7 +100,7 @@ EVENT_HANDLER(USB_CreateEndpoints)
 TASK(USB_Joystick_Report)
 {
 	USB_JoystickReport_Data_t JoystickReportData = {Button: 0, X: 0, Y: 0};
-	uint8_t                JoyStatus_LCL   = Joystick_GetStatus();
+	uint8_t                   JoyStatus_LCL      = Joystick_GetStatus();
 
 	if (JoyStatus_LCL & JOY_UP)
 	  JoystickReportData.Y =  100;

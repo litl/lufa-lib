@@ -17,7 +17,7 @@
 		#include "MassStorageHost.h"
 		#include "../MassStorage/SCSI_Codes.h"
 
-		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
+		#include <MyUSB/Drivers/USB/USB.h>                    // USB Functionality
 
 	/* Macros: */
 		#define MASS_STORAGE_RESET               0xFF

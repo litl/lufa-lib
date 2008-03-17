@@ -56,8 +56,7 @@ int main(void)
 	wdt_disable();
 
 	/* Disable Clock Division */
-	CLKPR = (1 << CLKPCE);
-	CLKPR = 0;
+	clock_prescale_set(clock_div_1);
 
 	/* Hardware Initialization */
 	Bicolour_Init();

@@ -24,11 +24,11 @@
 		          uint8_t                               Data[size];  \
 		     }
 
-		#define CDC_NOTIFICATION_EPNUM         2	
-		#define CDC_TX_EPNUM                   3	
-		#define CDC_RX_EPNUM                   4	
+		#define CDC_NOTIFICATION_EPNUM         2
+		#define CDC_TX_EPNUM                   3
+		#define CDC_RX_EPNUM                   4
 		#define CDC_NOTIFICATION_EPSIZE        8
-		#define CDC_TXRX_EPSIZE                16	
+		#define CDC_TXRX_EPSIZE                16
 
 	/* Type Defines: */
 		typedef struct

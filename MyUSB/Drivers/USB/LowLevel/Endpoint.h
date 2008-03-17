@@ -80,20 +80,15 @@
 
 			#define Endpoint_FIFOCON_Clear()           MACROS{ UEINTX  &= ~(1 << FIFOCON);               }MACROE
 			
-			#define Endpoint_Setup_In_Clear()          MACROS{ UEINTX  &= ~((1 << TXINI)  | (1 << FIFOCON)); }MACROE
-			#define Endpoint_Setup_Out_Clear()         MACROS{ UEINTX  &= ~((1 << RXOUTI) | (1 << FIFOCON)); }MACROE
+			#define Endpoint_Setup_In_Clear()          MACROS{ UEINTX  &= ~(1 << TXINI);                 }MACROE
+			#define Endpoint_Setup_Out_Clear()         MACROS{ UEINTX  &= ~(1 << RXOUTI);                }MACROE
 
-			#define Endpoint_Setup_In_IsReady()        ((UEINTX & (1 << TXINI))  ? true : false)
-			#define Endpoint_Setup_Out_IsReceived()    ((UEINTX & (1 << RXOUTI)) ? true : false)
+			#define Endpoint_Setup_In_IsReady()              ((UEINTX  & (1 << TXINI))  ? true : false)
+			#define Endpoint_Setup_Out_IsReceived()          ((UEINTX  & (1 << RXOUTI)) ? true : false)
 			
 			#define Endpoint_ClearSetupReceived()      MACROS{ UEINTX  &= ~(1 << RXSTPI);                }MACROE
 			#define Endpoint_StallTransaction()        MACROS{ UECONX  |=  (1 << STALLRQ);               }MACROE
-
-			#if defined(USB_FULL_CONTROLLER)
-				#define Endpoint_ClearStall()              MACROS{ UECONX &= ~(1 << STALLRQ);           }MACROE
-			#else
-				#define Endpoint_ClearStall()              MACROS{ UECONX |= (1 << STALLRQC);           }MACROE
-			#endif
+			#define Endpoint_ClearStall()              MACROS{ UECONX  |=  (1 << STALLRQC);              }MACROE
 
 			#define Endpoint_IsStalled()                     ((UECONX  &   (1 << STALLRQ)) ? true : false)
 
