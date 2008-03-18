@@ -23,7 +23,6 @@ MYUSB_USB_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
 				  
 MYUSB_DRIVER_FILES = ./Scheduler/Scheduler.c                     \
                      ./MemoryAllocator/DynAlloc.c                \
-                     ./Drivers/Board/Dataflash.c                 \
                      ./Drivers/Board/Temperature.c               \
                      ./Drivers/AT90USBXXX/Serial.c               \
                      ./Drivers/AT90USBXXX/Serial_Stream.c        \

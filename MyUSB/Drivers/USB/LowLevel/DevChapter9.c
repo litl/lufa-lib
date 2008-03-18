@@ -184,11 +184,9 @@ static void USB_Device_GetDescriptor(void)
 	
 	while (DescriptorBytesRem && (!(Endpoint_Setup_Out_IsReceived())))
 	{
-		uint8_t BytesInPacket = 0;
-		
 		while (!(Endpoint_Setup_In_IsReady()));
 		
-		while (DescriptorBytesRem && (BytesInPacket++ < ENDPOINT_CONTROLEP_SIZE))
+		while (DescriptorBytesRem && (Endpoint_BytesInEndpoint() < ENDPOINT_CONTROLEP_SIZE))
 		{
 			#if defined(USE_RAM_DESCRIPTORS)
 			Endpoint_Write_Byte(*((uint8_t*)DescriptorPointer++));

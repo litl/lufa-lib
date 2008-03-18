@@ -38,15 +38,16 @@
 		#if (F_CPU == 8000000)
 			#if (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
 				#define USB_PLL_PSC                0
-			#else
+			#elif (defined(__AVR_AT90USB646__)  || defined(__AVR_AT90USB647__) || \
+			       defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__))
 				#define USB_PLL_PSC                ((1 << PLLP1) | (1 << PLLP0))
 			#endif
 		#elif (F_CPU == 16000000)
 			#if (defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__))
 				#define USB_PLL_PSC                ((1 << PLLP2) | (1 << PLLP1))
-			#elseif (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__))
+			#elif (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__))
 				#define USB_PLL_PSC                ((1 << PLLP2) | (1 << PLLP0))
-			#else if (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
+			#elif (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
 				#define USB_PLL_PSC                (1 << PLLP0)
 			#endif
 		#endif

@@ -16,7 +16,7 @@ DriverVer=06/06/2006,1.0.0.0
 DefaultDestDir=12 
 
 [ManufName] 
-%Modem3% = Modem3, USB\VID_0000&PID_5553
+%Modem3% = Modem3, USB\VID_0000&PID_5355
 
 ;------------------------------------------------------------------------------
 ;  Windows 2000/XP Sections

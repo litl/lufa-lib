@@ -17,7 +17,7 @@
 	written by Denver Gingerich.
 */
 
-#include "Descriptors.h"
+#include "../Keyboard/Descriptors.h"
 
 USB_Descriptor_HID_Keyboard_Report_t KeyboardReport PROGMEM =
 {

@@ -31,8 +31,8 @@
 
 /* ---  Project Configuration  --- */
 //#define AUDIO_OUT_MONO
-#define AUDIO_OUT_STEREO
-//#define AUDIO_OUT_LEDS
+//#define AUDIO_OUT_STEREO
+#define AUDIO_OUT_LEDS
 /* --- --- --- --- --- --- --- --- */
 
 #include "AudioOutput.h"

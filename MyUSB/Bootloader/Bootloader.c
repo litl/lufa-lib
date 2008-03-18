@@ -135,8 +135,13 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				SentCommand.DataSize--;
 					
 				/* Load in the rest of the data stage as command parameters */
-				Endpoint_Read_Stream_LE(&SentCommand.Data, sizeof(SentCommand.Data));
-
+				for (uint16_t DataByte = 0; (DataByte < sizeof(SentCommand.Data)) &&
+				     Endpoint_BytesInEndpoint(); DataByte++)
+				{
+					SentCommand.Data[DataByte] = Endpoint_Read_Byte();
+					SentCommand.DataSize--;
+				}
+				
 				/* Process the command */
 				ProcessBootloaderCommand();
 			}
@@ -150,15 +155,24 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				}
 				else
 				{
-					/* Subtract number of filler bytes from the total bytes remaining */
-					SentCommand.DataSize -= Endpoint_BytesInEndpoint();
+					/* Subtract number of filler and suffix bytes from the total bytes remaining */
+					SentCommand.DataSize -= (DFU_FILLER_BYTES_SIZE + DFU_FILE_SUFFIX_SIZE);
+				
+					uint8_t FillerBytes = DFU_FILLER_BYTES_SIZE;
+				
+					while (FillerBytes--)
+					{
+						if (!(Endpoint_BytesInEndpoint()))
+						{
+							Endpoint_Setup_Out_Clear();
 
-					/* Clear packet containing the memory write command */
-					Endpoint_Setup_Out_Clear();
+							/* Wait until next data packet received */
+							while (!(Endpoint_Setup_Out_IsReceived()));
+						}
 
-					/* Wait until next data packet received */
-					while (!(Endpoint_Setup_Out_IsReceived()));
-
+						Endpoint_Ignore_Byte();						
+					}
+					
 					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
 
 					while (TransfersRemaining && SentCommand.DataSize)
@@ -173,7 +187,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 							
 							/* Program in the flash pages from the received data packets */
 							for (uint16_t BytesInFlashPage = 0; ((BytesInFlashPage < SPM_PAGESIZE) &&
-							     TransfersRemaining && SentCommand.DataSize); BytesInFlashPage++)
+							     TransfersRemaining && SentCommand.DataSize); BytesInFlashPage += 2)
 							{
 								/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
 								if (!(Endpoint_BytesInEndpoint()))
@@ -183,10 +197,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 								}
 								
 								/* Write the next word into the current flash page */
-								boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), 0xABCD);
-								Endpoint_Ignore_Word(); // TEMP
-
-//									boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());
+								boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());
 
 								/* Adjust counters */
 								SentCommand.DataSize -= 2;
@@ -218,7 +229,22 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 					/* Re-enable the RWW section of flash in case it was written to */
 					boot_rww_enable();
-				}
+
+					uint8_t DFUSuffixLength = DFU_FILE_SUFFIX_SIZE;
+										
+					while (DFUSuffixLength--)
+					{
+						if (!(Endpoint_BytesInEndpoint()))
+						{
+							Endpoint_Setup_Out_Clear();
+
+							/* Wait until next data packet received */
+							while (!(Endpoint_Setup_Out_IsReceived()));
+						}
+
+						Endpoint_Ignore_Byte();						
+					}	
+				}			
 			}
 
 			Endpoint_Setup_Out_Clear();

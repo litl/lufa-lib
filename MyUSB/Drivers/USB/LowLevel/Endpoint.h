@@ -37,7 +37,7 @@
 			#define ENDPOINT_BANK_DOUBLE                       (1 << EPBK0)
 			
 			#define ENDPOINT_CONTROLEP                         0
-			#define ENDPOINT_CONTROLEP_SIZE                    32
+			#define ENDPOINT_CONTROLEP_SIZE                    8
 			
 			#define ENDPOINT_EPNUM_MASK                        0b111
 			

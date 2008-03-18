@@ -36,6 +36,7 @@
 		#define IS_TWOBYTE_COMMAND(dataarr, cb1, cb2) ((dataarr[0] == cb1) && (dataarr[1] == cb2))
 	
 		#define DFU_FILE_SUFFIX_SIZE     16
+		#define DFU_FILLER_BYTES_SIZE    26
 	
 		#define DFU_DETATCH              0x00
 		#define DFU_DNLOAD               0x01
