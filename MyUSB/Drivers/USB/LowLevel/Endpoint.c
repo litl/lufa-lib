@@ -41,9 +41,9 @@ void Endpoint_ClearEndpoints(void)
 	}
 }
 
-uint8_t Endpoint_Write_Stream_LE(void* Data, uint16_t Length)
+uint8_t Endpoint_Write_Stream_LE(void* Buffer, uint16_t Length)
 {
-	uint8_t* DataStream = (uint8_t*)Data;
+	uint8_t* DataStream = (uint8_t*)Buffer;
 	
 	while (Length)
 	{
@@ -72,9 +72,9 @@ uint8_t Endpoint_Write_Stream_LE(void* Data, uint16_t Length)
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
 }
 
-uint8_t Endpoint_Write_Stream_BE(void* Data, uint16_t Length)
+uint8_t Endpoint_Write_Stream_BE(void* Buffer, uint16_t Length)
 {
-	uint8_t* DataStream = (uint8_t*)(Data + Length - 1);
+	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
 	
 	while (Length)
 	{

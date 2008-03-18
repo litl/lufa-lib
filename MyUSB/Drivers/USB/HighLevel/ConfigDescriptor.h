@@ -27,10 +27,10 @@
 	
 		/* Inline Functions: */
 			static inline uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr,
-																	 uint8_t* BufferPtr)
+																	 void* BufferPtr)
 																	 ATTR_NON_NULL_PTR_ARG(1);
 
-			static inline uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr, uint8_t* BufferPtr)
+			static inline uint8_t AVR_HOST_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr, void* BufferPtr)
 			{
 				uint8_t ErrorCode;
 

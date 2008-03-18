@@ -31,6 +31,9 @@ all:
 	make -C Keyboard clean
 	make -C Keyboard all
 
+	make -C KeyboardViaInt clean
+	make -C KeyboardViaInt all
+
 	make -C KeyboardHost clean
 	make -C KeyboardHost all
 	
@@ -49,6 +52,9 @@ all:
 	make -C Mouse clean
 	make -C Mouse all
 
+	make -C MouseViaInt clean
+	make -C MouseViaInt all
+	
 	make -C MouseHost clean
 	make -C MouseHost all
 
@@ -67,12 +73,14 @@ clean:
 	make -C CDC clean
 	make -C Joystick clean
 	make -C Keyboard clean
+	make -C KeyboardViaInt clean
 	make -C KeyboardHost clean
 	make -C KeyboardHostViaInt clean
 	make -C Magstripe clean
 	make -C MassStorage clean
 	make -C MassStorageHost clean
 	make -C Mouse clean
+	make -C MouseViaInt clean
 	make -C MouseHost clean
 	make -C MouseHostViaInt clean
 	make -C TestApp clean
@@ -84,12 +92,14 @@ clean_list:
 	make -C CDC clean_list
 	make -C Joystick clean_list
 	make -C Keyboard clean_list
+	make -C KeyboardInt clean_list
 	make -C KeyboardHost clean_list
 	make -C KeyboardHostViaInt clean_list
 	make -C Magstripe clean_list
 	make -C MassStorage clean_list
 	make -C MassStorageHost clean_list
 	make -C Mouse clean_list
+	make -C MouseViaInt clean_list
 	make -C MouseHost clean_list
 	make -C MouseHostViaInt clean_list
 	make -C TestApp clean_list

@@ -160,6 +160,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				
 					uint8_t FillerBytes = DFU_FILLER_BYTES_SIZE;
 				
+					/* Throw away the filler bytes, which pad out the write command */
 					while (FillerBytes--)
 					{
 						if (!(Endpoint_BytesInEndpoint()))
@@ -231,7 +232,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					boot_rww_enable();
 
 					uint8_t DFUSuffixLength = DFU_FILE_SUFFIX_SIZE;
-										
+					
+					/* Throw away the currently unused DFU file suffix */
 					while (DFUSuffixLength--)
 					{
 						if (!(Endpoint_BytesInEndpoint()))

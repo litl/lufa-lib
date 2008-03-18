@@ -16,8 +16,9 @@
 
 USB_Host_Request_Header_t USB_HostRequest;
 
-uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
+uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 {
+	uint8_t* DataStream     = (uint8_t*)BufferPtr;
 	bool     SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
 	uint16_t DataLen        = USB_HostRequest.DataLength;
@@ -53,21 +54,24 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		Pipe_SetInfiniteINRequests();
 		Pipe_SetToken(PIPE_TOKEN_IN);
 		
-		while ((DataBuffer != NULL) && DataLen)
+		if (DataStream != NULL)
 		{
-			Pipe_Unfreeze();
-		
-			if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_In_Received)))
-			  goto End_Of_Control_Send;
-						
-			if (!(Pipe_BytesInPipe()))
-			  DataLen = 0;
+			while (DataLen)
+			{
+				Pipe_Unfreeze();
 			
-			while (Pipe_BytesInPipe() && DataLen--)
-			  *(DataBuffer++) = Pipe_Read_Byte();
-		
-			Pipe_Freeze();
-			Pipe_Setup_In_Clear();
+				if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_In_Received)))
+				  goto End_Of_Control_Send;
+							
+				if (!(Pipe_BytesInPipe()))
+				  DataLen = 0;
+				
+				while (Pipe_BytesInPipe() && DataLen--)
+				  *(DataStream++) = Pipe_Read_Byte();
+			
+				Pipe_Freeze();
+				Pipe_Setup_In_Clear();
+			}
 		}
 
 		Pipe_SetToken(PIPE_TOKEN_OUT);
@@ -83,25 +87,28 @@ uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer)
 		Pipe_SetToken(PIPE_TOKEN_OUT);
 		Pipe_Unfreeze();	
 
-		while ((DataBuffer != NULL) && DataLen)
+		if (DataStream != NULL)
 		{
-			if (DataLen <= USB_ControlPipeSize)
+			while (DataLen)
 			{
-				while (DataLen--)
-				  Pipe_Write_Byte(*(DataBuffer++));
-			}
-			else
-			{
-				for (uint16_t PipeByte = 0; PipeByte < USB_ControlPipeSize; PipeByte++)
-				  Pipe_Write_Byte(*(DataBuffer++));
+				if (DataLen <= USB_ControlPipeSize)
+				{
+					while (DataLen--)
+					  Pipe_Write_Byte(*(DataStream++));
+				}
+				else
+				{
+					for (uint16_t PipeByte = 0; PipeByte < USB_ControlPipeSize; PipeByte++)
+					  Pipe_Write_Byte(*(DataStream++));
 
-				DataLen -= USB_ControlPipeSize;			
-			}
-			
-			if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Out_Ready)))
-			  goto End_Of_Control_Send;
+					DataLen -= USB_ControlPipeSize;			
+				}
+				
+				if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Out_Ready)))
+				  goto End_Of_Control_Send;
 
-			Pipe_Setup_Out_Clear();
+				Pipe_Setup_Out_Clear();
+			}
 		}
 		
 		Pipe_Freeze();

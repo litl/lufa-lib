@@ -43,7 +43,7 @@
 			extern USB_Host_Request_Header_t USB_HostRequest;
 			
 		/* Function Prototypes: */
-			uint8_t USB_Host_SendControlRequest(uint8_t* DataBuffer);
+			uint8_t USB_Host_SendControlRequest(void* BufferPtr);
 			
 	/* Private Interface - For use in library only: */
 		/* Enums: */

@@ -117,7 +117,7 @@ uint8_t MassStore_WaitForDataReceived(void)
 	return ErrorCode;
 }
 
-uint8_t MassStore_SendRecieveData(uint8_t* BufferPtr)
+uint8_t MassStore_SendRecieveData(void* BufferPtr)
 {
 	uint16_t BytesRem = SCSICommandBlock.Header.DataTransferLength;
 
@@ -239,7 +239,7 @@ uint8_t MassStore_RequestSense(const uint8_t LUNIndex, SCSI_Request_Sense_Respon
 }
 
 uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
-                                  const uint8_t Blocks, uint8_t* BufferPtr)
+                                  const uint8_t Blocks, void* BufferPtr)
 {
 	uint8_t ReturnCode = NoError;
 
@@ -289,7 +289,7 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 }
 
 uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
-                                   const uint8_t Blocks, uint8_t* BufferPtr)
+                                   const uint8_t Blocks, void* BufferPtr)
 {
 	uint8_t ReturnCode = NoError;
 

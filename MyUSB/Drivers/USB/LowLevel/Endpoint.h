@@ -47,8 +47,8 @@
 				#define ENDPOINT_MAXENDPOINTS                  5			
 			#endif
 
-			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UPINTX, (1 << TXINI)
-			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UPINTX, (1 << RXOUTI)
+			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UEINTX, (1 << TXINI)
+			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UEINTX, (1 << RXOUTI)
 			
 			#if defined(USB_FULL_CONTROLLER)
 				#define Endpoint_BytesInEndpoint()             UEBCX
@@ -221,8 +221,8 @@
 
 		/* Function Prototypes: */
 			void    Endpoint_ClearEndpoints(void);
-			uint8_t Endpoint_Write_Stream_LE(void* Data, uint16_t Length);
-			uint8_t Endpoint_Write_Stream_BE(void* Data, uint16_t Length);
+			uint8_t Endpoint_Write_Stream_LE(void* Buffer, uint16_t Length);
+			uint8_t Endpoint_Write_Stream_BE(void* Buffer, uint16_t Length);
 			uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length);
 			uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length);
 
