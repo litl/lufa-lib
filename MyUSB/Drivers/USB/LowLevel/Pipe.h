@@ -235,10 +235,10 @@
 
 		/* Function Prototypes: */
 			void    Pipe_ClearPipes(void);
-			uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length);
-			uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length);
-			uint8_t Pipe_Read_Stream_LE(void* Data, uint16_t Length);
-			uint8_t Pipe_Read_Stream_BE(void* Data, uint16_t Length);
+			uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Pipe_Read_Stream_LE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Pipe_Read_Stream_BE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 		
 	/* Private Interface - For use in library only: */
 		/* Inline Functions: */

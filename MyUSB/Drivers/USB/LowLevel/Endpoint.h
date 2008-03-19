@@ -221,10 +221,10 @@
 
 		/* Function Prototypes: */
 			void    Endpoint_ClearEndpoints(void);
-			uint8_t Endpoint_Write_Stream_LE(void* Buffer, uint16_t Length);
-			uint8_t Endpoint_Write_Stream_BE(void* Buffer, uint16_t Length);
-			uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length);
-			uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length);
+			uint8_t Endpoint_Write_Stream_LE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Endpoint_Write_Stream_BE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 
 		/* Function Aliases: */
 			static inline uint16_t Endpoint_Read_Word(void)               ATTR_ALIAS(Endpoint_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
