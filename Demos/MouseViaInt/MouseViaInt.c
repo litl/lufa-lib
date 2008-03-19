@@ -86,11 +86,11 @@ EVENT_HANDLER(USB_CreateEndpoints)
 		                       ENDPOINT_DIR_IN, MOUSE_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
-	/* Double green to indicate USB connected and ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
-	
-	/* Enable the endpoint IN interrupt ISR */
+	/* Enable the endpoint IN interrupt ISR for the report endpoint */
 	USB_INT_Enable(ENDPOINT_INT_IN);
+
+	/* Double green to indicate USB connected and ready */
+	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);	
 }
 
 ISR(ENDPOINT_PIPE_vect)

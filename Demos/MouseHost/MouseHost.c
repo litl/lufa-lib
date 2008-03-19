@@ -177,7 +177,6 @@ TASK(USB_Mouse_Host)
 			Pipe_ConfigurePipe(MOUSE_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
 			                   MouseDataEndpointNumber, MouseDataEndpointSize, PIPE_BANK_SINGLE);
 
-			Pipe_SelectPipe(MOUSE_DATAPIPE);
 			Pipe_SetInfiniteINRequests();
 		
 			puts_P(PSTR("Mouse Enumerated.\r\n"));

@@ -177,12 +177,13 @@ TASK(USB_Keyboard_Host)
 			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
 			                   KeyboardDataEndpointNumber, KeyboardDataEndpointSize, PIPE_BANK_SINGLE);
 
-			Pipe_SelectPipe(KEYBOARD_DATAPIPE);
 			Pipe_SetInfiniteINRequests();
-			
-			/* Activate the keyboard data pipe IN interrupt */
+
+			/* Unfreeze the pipe and set the pipe interrupt frequency */
 			Pipe_SetInterruptFreq(KeyboardDataEndpointPollMS);
 			Pipe_Unfreeze();
+
+			/* Enable the pipe IN interrupt for the data pipe */
 			USB_INT_Enable(PIPE_INT_IN);
 			
 			puts_P(PSTR("Keyboard Enumerated.\r\n"));

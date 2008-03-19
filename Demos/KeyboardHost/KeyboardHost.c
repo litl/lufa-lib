@@ -175,7 +175,6 @@ TASK(USB_Keyboard_Host)
 			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
 			                   KeyboardDataEndpointNumber, KeyboardDataEndpointSize, PIPE_BANK_SINGLE);
 
-			Pipe_SelectPipe(KEYBOARD_DATAPIPE);
 			Pipe_SetInfiniteINRequests();
 		
 			puts_P(PSTR("Keyboard Enumerated.\r\n"));

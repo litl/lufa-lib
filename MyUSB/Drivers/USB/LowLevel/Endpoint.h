@@ -29,8 +29,8 @@
 			#define ENDPOINT_SIZE_64_MASK                      (0b011 << EPSIZE0)
 
 			#if defined(USB_FULL_CONTROLLER)
-				#define ENDPOINT_SIZE_128_MASK                     (0b100 << EPSIZE0)
-				#define ENDPOINT_SIZE_256_MASK                     (0b101 << EPSIZE0)
+				#define ENDPOINT_SIZE_128_MASK                 (0b100 << EPSIZE0)
+				#define ENDPOINT_SIZE_256_MASK                 (0b101 << EPSIZE0)
 			#endif
 
 			#define ENDPOINT_BANK_SINGLE                       0
@@ -56,7 +56,7 @@
 				#define Endpoint_BytesInEndpoint()             UEBCLX
 			#endif
 			
-			#define Endpoint_GetCurrentEndpoint()             (UENUM   & ENDPOINT_EPNUM_MASK)
+			#define Endpoint_GetCurrentEndpoint()             (UENUM   &   ENDPOINT_EPNUM_MASK)
 			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM    =  (epnum & ENDPOINT_EPNUM_MASK); }MACROE
 			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST    =  (1 << (epnum & ENDPOINT_EPNUM_MASK)); UERST = 0; }MACROE
 			#define Endpoint_EnableEndpoint()          MACROS{ UECONX  |=  (1 << EPEN);                   }MACROE

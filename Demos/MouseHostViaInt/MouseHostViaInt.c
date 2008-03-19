@@ -179,12 +179,13 @@ TASK(USB_Mouse_Host)
 			Pipe_ConfigurePipe(MOUSE_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
 			                   MouseDataEndpointNumber, MouseDataEndpointSize, PIPE_BANK_SINGLE);
 
-			Pipe_SelectPipe(MOUSE_DATAPIPE);
 			Pipe_SetInfiniteINRequests();
 
-			/* Activate the mouse data pipe IN interrupt */
+			/* Unfreeze the pipe and set the pipe interrupt frequency */
 			Pipe_SetInterruptFreq(MouseDataEndpointPollMS);
 			Pipe_Unfreeze();
+			
+			/* Enable the pipe IN interrupt for the data pipe */
 			USB_INT_Enable(PIPE_INT_IN);
 
 			puts_P(PSTR("Mouse Enumerated.\r\n"));

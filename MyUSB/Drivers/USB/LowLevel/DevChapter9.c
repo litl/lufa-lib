@@ -38,23 +38,14 @@ void USB_Device_ProcessControlPacket(void)
 
 			break;
 		case REQ_ClearFeature:
-			if (((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
-			                          (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
-			     ((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
-			{
-				USB_Device_ClearFeature(RequestType);
-				RequestHandled = true;
-			}
-
-			break;
 		case REQ_SetFeature:
 			if (((RequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
 			                          (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
 			     ((RequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
 			{
-				USB_Device_SetFeature(RequestType);
+				USB_Device_ClearSetFeature(Request, RequestType);
 				RequestHandled = true;
-			}			
+			}
 
 			break;
 		case REQ_SetAddress:
@@ -278,40 +269,7 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 	Endpoint_Setup_Out_Clear();
 }
 
-static void USB_Device_SetFeature(const uint8_t RequestType)
-{
-	uint8_t EndpointIndex;
-	uint8_t Feature;
-
-	Feature       = Endpoint_Read_Byte();
-	Endpoint_Ignore_Byte();
-	EndpointIndex = (Endpoint_Read_Byte() & ENDPOINT_EPNUM_MASK);
-
-	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
-	{
-		case REQREC_ENDPOINT:
-			if (Feature == FEATURE_ENDPOINT)
-			{
-				Endpoint_SelectEndpoint(EndpointIndex);
-
-				if (Endpoint_IsEnabled())
-				{				
-					if (EndpointIndex != ENDPOINT_CONTROLEP)
-					  Endpoint_StallTransaction();
-					
-					Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
-					Endpoint_ClearSetupReceived();
-					Endpoint_Setup_In_Clear();
-				}
-				
-				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			
-			}
-			
-			break;
-	}
-}
-
-static void USB_Device_ClearFeature(const uint8_t RequestType)
+static void USB_Device_ClearSetFeature(const uint8_t Request, const uint8_t RequestType)
 {
 	uint8_t EndpointIndex;
 	uint8_t Feature;
@@ -331,11 +289,18 @@ static void USB_Device_ClearFeature(const uint8_t RequestType)
 				{				
 					if (EndpointIndex != ENDPOINT_CONTROLEP)
 					{
-						Endpoint_ClearStall();
-						Endpoint_ResetFIFO(EndpointIndex);
-						Endpoint_ResetDataToggle();
+						if (Request == REQ_ClearFeature)
+						{
+							Endpoint_ClearStall();
+							Endpoint_ResetFIFO(EndpointIndex);
+							Endpoint_ResetDataToggle();
+						}
+						else
+						{
+							Endpoint_StallTransaction();						
+						}
 					}
-					
+
 					Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 					Endpoint_ClearSetupReceived();
 					Endpoint_Setup_In_Clear();
@@ -343,7 +308,7 @@ static void USB_Device_ClearFeature(const uint8_t RequestType)
 				
 				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			
 			}
-
+			
 			break;
 	}
 }

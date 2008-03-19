@@ -92,7 +92,7 @@ EVENT_HANDLER(USB_CreateEndpoints)
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
-	/* Enable the endpoint IN interrupt ISR */
+	/* Enable the endpoint IN interrupt ISR for the report endpoint */
 	USB_INT_Enable(ENDPOINT_INT_IN);
 
 	/* Setup Keyboard Report Endpoints */
@@ -100,7 +100,7 @@ EVENT_HANDLER(USB_CreateEndpoints)
 		                       ENDPOINT_DIR_OUT, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
-	/* Enable the endpoint OUT interrupt ISR */
+	/* Enable the endpoint OUT interrupt ISR for the LED report endpoint */
 	USB_INT_Enable(ENDPOINT_INT_OUT);
 
 	/* Double green to indicate USB connected and ready */
