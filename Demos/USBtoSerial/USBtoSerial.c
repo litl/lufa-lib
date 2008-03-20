@@ -41,8 +41,10 @@ CDC_Line_Coding_t LineCoding = { BaudRateBPS: 9600,
                                  ParityType:  Parity_None,
                                  DataBits:    8            };
 
-RingBuff_t Rx_Buffer;
-RingBuff_t Tx_Buffer;
+RingBuff_t        Rx_Buffer;
+RingBuff_t        Tx_Buffer;
+
+volatile bool     Transmitting = false;
 
 int main(void)
 {
@@ -117,17 +119,20 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
+	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
+
 	Endpoint_Ignore_Word();
 
 	/* Process CDC specific control requests */
 	switch (Request)
 	{
 		case GET_LINE_CODING:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 
-				Endpoint_Write_Stream_LE(&LineCoding, sizeof(LineCoding));
+				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
+				  Endpoint_Write_Byte(*(LineCodingData++));	
 				
 				Endpoint_Setup_In_Clear();
 				while (!(Endpoint_Setup_In_IsReady()));
@@ -144,9 +149,12 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 				while (!(Endpoint_Setup_Out_IsReceived()));
 
-				Endpoint_Read_Stream_LE(&LineCoding, sizeof(LineCoding));
+				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
+				  *(LineCodingData++) = Endpoint_Read_Byte();
 
 				Endpoint_Setup_Out_Clear();
+
+				ReconfigureUSART();
 
 				Endpoint_Setup_In_Clear();
 				while (!(Endpoint_Setup_In_IsReady()));
@@ -181,11 +189,15 @@ TASK(CDC_Task)
 			
 			/* Clear the endpoint buffer */
 			Endpoint_FIFOCON_Clear();
-
+		}
+		
+		/* Check if Rx buffer contains data */
+		if (Rx_Buffer.Elements)
+		{
 			/* Initiate the transmission of the buffer contents if USART idle */
-			if (UCSR1A & (1 << UDRE1))
+			if (!(Transmitting))
 			{
-				UCSR1A &= ~(1 << UDRE1);
+				Transmitting = true;
 				Serial_TxByte(Buffer_GetElement(&Rx_Buffer));
 			}
 		}
@@ -213,6 +225,8 @@ ISR(USART1_TX_vect)
 	/* Send next character if avaliable */
 	if (Rx_Buffer.Elements)
 	  UDR1 = Buffer_GetElement(&Rx_Buffer);
+	else
+	  Transmitting = false;
 }
 
 ISR(USART1_RX_vect)

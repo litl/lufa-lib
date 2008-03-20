@@ -118,17 +118,20 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
+	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
+
 	Endpoint_Ignore_Word();
 
 	/* Process CDC specific control requests */
 	switch (Request)
 	{
 		case GET_LINE_CODING:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 
-				Endpoint_Write_Stream_LE(&LineCoding, sizeof(LineCoding));
+				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
+				  Endpoint_Write_Byte(*(LineCodingData++));	
 				
 				Endpoint_Setup_In_Clear();
 				while (!(Endpoint_Setup_In_IsReady()));
@@ -145,7 +148,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 				while (!(Endpoint_Setup_Out_IsReceived()));
 
-				Endpoint_Read_Stream_LE(&LineCoding, sizeof(LineCoding));
+				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
+				  *(LineCodingData++) = Endpoint_Read_Byte();
 
 				Endpoint_Setup_Out_Clear();
 
