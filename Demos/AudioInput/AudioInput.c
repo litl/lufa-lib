@@ -30,9 +30,10 @@
 #include "AudioInput.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,  "MyUSB AudioIn App");
-BUTTLOADTAG(BuildTime, __TIME__);
-BUTTLOADTAG(BuildDate, __DATE__);
+BUTTLOADTAG(ProjName,     "MyUSB AudioIn App");
+BUTTLOADTAG(BuildTime,    __TIME__);
+BUTTLOADTAG(BuildDate,    __DATE__);
+BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
 
 /* Scheduler Task List */
 TASK_LIST

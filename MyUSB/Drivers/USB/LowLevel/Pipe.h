@@ -30,15 +30,7 @@
 			#define PIPE_TOKEN_SETUP                       (0b00 << PTOKEN0)
 			#define PIPE_TOKEN_IN                          (0b01 << PTOKEN0)
 			#define PIPE_TOKEN_OUT                         (0b10 << PTOKEN0)
-			
-			#define PIPE_SIZE_8_MASK                       (0b000 << EPSIZE0)
-			#define PIPE_SIZE_16_MASK                      (0b001 << EPSIZE0)
-			#define PIPE_SIZE_32_MASK                      (0b010 << EPSIZE0)
-			#define PIPE_SIZE_64_MASK                      (0b011 << EPSIZE0)
-			#define PIPE_SIZE_128_MASK                     (0b100 << EPSIZE0)
-			#define PIPE_SIZE_256_MASK                     (0b101 << EPSIZE0)
-			#define PIPE_SIZE_512_MASK                     (0b110 << EPSIZE0)
-			
+						
 			#define PIPE_BANK_SINGLE                       0
 			#define PIPE_BANK_DOUBLE                       (1 << EPBK0)
 			
@@ -47,6 +39,7 @@
 			
 			#define PIPE_PIPENUM_MASK                      0b111
 			#define PIPE_MAXPIPES                          7
+			#define PIPE_MAX_SIZE                          256
 
 			#define PIPE_EPNUM_MASK                        0b111
 
@@ -232,7 +225,7 @@
 			#define                Pipe_Read_Stream(Buffer, Length) Pipe_Read_Stream_LE(Buffer, Length)
 
 		/* External Variables: */
-			uint8_t USB_ControlPipeSize;
+			extern uint8_t USB_ControlPipeSize;
 
 		/* Function Prototypes: */
 			void    Pipe_ClearPipes(void);
@@ -247,20 +240,19 @@
 			                                             ATTR_WARN_UNUSED_RESULT ATTR_CONST;
 			static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes)
 			{
-				if (Bytes <= 8)
-				  return PIPE_SIZE_8_MASK;
-				else if (Bytes <= 16)
-				  return PIPE_SIZE_16_MASK;
-				else if (Bytes <= 32)
-				  return PIPE_SIZE_32_MASK;
-				else if (Bytes <= 64)
-				  return PIPE_SIZE_64_MASK;
-				else if (Bytes <= 128)
-				  return PIPE_SIZE_128_MASK;
-				else if (Bytes <= 256)
-				  return PIPE_SIZE_256_MASK;
-				else
-				  return PIPE_SIZE_512_MASK;
+				uint8_t SizeCheck = 8;
+				uint8_t SizeMask  = 0;
+
+				do
+				{
+					if (Bytes <= SizeCheck)
+					  return (SizeMask << EPSIZE0);
+					
+					SizeCheck <<= 1;
+					SizeMask++;
+				} while (SizeCheck != (PIPE_MAX_SIZE >> 1));
+				
+				return (SizeMask + 1);
 			};
 		
 		/* Function Prototypes: */

@@ -34,6 +34,7 @@
 		#include <avr/io.h>
 		#include <avr/wdt.h>
 
+		#include <MyUSB/Version.h>                    // Library Version Information
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/Misc/Magstripe.h>     // Magstripe driver

@@ -19,7 +19,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	SubClass:               0x00,
 	Protocol:               0x00,
 			
-	Endpoint0Size:          ENDPOINT_CONTROLEP_SIZE,
+	Endpoint0Size:          8,
 		
 	VendorID:               0x0000,
 	ProductID:              USB_PRODUCT_ID('T', 'A'),

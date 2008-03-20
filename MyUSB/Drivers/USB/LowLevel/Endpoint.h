@@ -22,29 +22,21 @@
 		/* Macros: */
 			#define ENDPOINT_DIR_OUT                           0
 			#define ENDPOINT_DIR_IN                            (1 << EPDIR)
-			
-			#define ENDPOINT_SIZE_8_MASK                       (0b000 << EPSIZE0)
-			#define ENDPOINT_SIZE_16_MASK                      (0b001 << EPSIZE0)
-			#define ENDPOINT_SIZE_32_MASK                      (0b010 << EPSIZE0)
-			#define ENDPOINT_SIZE_64_MASK                      (0b011 << EPSIZE0)
-
-			#if defined(USB_FULL_CONTROLLER)
-				#define ENDPOINT_SIZE_128_MASK                 (0b100 << EPSIZE0)
-				#define ENDPOINT_SIZE_256_MASK                 (0b101 << EPSIZE0)
-			#endif
 
 			#define ENDPOINT_BANK_SINGLE                       0
 			#define ENDPOINT_BANK_DOUBLE                       (1 << EPBK0)
 			
 			#define ENDPOINT_CONTROLEP                         0
-			#define ENDPOINT_CONTROLEP_SIZE                    8
+			#define ENDPOINT_CONTROLEP_DEFAULT_SIZE            8
 			
 			#define ENDPOINT_EPNUM_MASK                        0b111
 			
 			#if defined(USB_FULL_CONTROLLER)
 				#define ENDPOINT_MAXENDPOINTS                  7
+				#define ENDPOINT_MAX_SIZE                      256
 			#else
 				#define ENDPOINT_MAXENDPOINTS                  5			
+				#define ENDPOINT_MAX_SIZE                      64			
 			#endif
 
 			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UEINTX, (1 << TXINI)
@@ -219,6 +211,9 @@
 				Dummy = UEDATX;
 			}
 
+		/* External Variables: */
+			extern uint8_t USB_ControlEndpointSize;
+
 		/* Function Prototypes: */
 			void    Endpoint_ClearEndpoints(void);
 			uint8_t Endpoint_Write_Stream_LE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
@@ -243,23 +238,19 @@
 			                                                 ATTR_WARN_UNUSED_RESULT ATTR_CONST;
 			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)
 			{
-				if (Bytes <= 8)
-				  return ENDPOINT_SIZE_8_MASK;
-				else if (Bytes <= 16)
-				  return ENDPOINT_SIZE_16_MASK;
-				else if (Bytes <= 32)
-				  return ENDPOINT_SIZE_32_MASK;
-				#if defined(USB_LIMITED_CONTROLLER)
-				else
-				  return ENDPOINT_SIZE_64_MASK;
-				#else
-				else if (Bytes <= 64)
-				  return ENDPOINT_SIZE_64_MASK;
-				else if (Bytes <= 128)
-				  return ENDPOINT_SIZE_128_MASK;
-				else
-				  return ENDPOINT_SIZE_256_MASK;
-				#endif
+				uint8_t SizeCheck = 8;
+				uint8_t SizeMask  = 0;
+
+				do
+				{
+					if (Bytes <= SizeCheck)
+					  return (SizeMask << EPSIZE0);
+					
+					SizeCheck <<= 1;
+					SizeMask++;
+				} while (SizeCheck != (ENDPOINT_MAX_SIZE >> 1));
+				
+				return (SizeMask + 1);
 			};
 
 		/* Function Prototypes: */

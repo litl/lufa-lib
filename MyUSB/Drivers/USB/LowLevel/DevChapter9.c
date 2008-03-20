@@ -165,7 +165,7 @@ static void USB_Device_GetDescriptor(void)
 	
 	if (DescriptorBytesToSend > DescriptorBytesRem)
 	{
-		if ((DescriptorBytesRem % ENDPOINT_CONTROLEP_SIZE) == 0)
+		if ((DescriptorBytesRem % USB_ControlEndpointSize) == 0)
 		  SendZeroPacket = true;
 	}
 	else
@@ -177,7 +177,7 @@ static void USB_Device_GetDescriptor(void)
 	{
 		while (!(Endpoint_Setup_In_IsReady()));
 		
-		while (DescriptorBytesRem && (Endpoint_BytesInEndpoint() < ENDPOINT_CONTROLEP_SIZE))
+		while (DescriptorBytesRem && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
 		{
 			#if defined(USE_RAM_DESCRIPTORS)
 			Endpoint_Write_Byte(*((uint8_t*)DescriptorPointer++));

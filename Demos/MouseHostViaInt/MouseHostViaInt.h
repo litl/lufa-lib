@@ -17,6 +17,7 @@
 		#include <avr/wdt.h>
 		#include <stdio.h>
 
+		#include <MyUSB/Version.h>                                // Library Version Information
 		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
 		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality

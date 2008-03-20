@@ -158,26 +158,22 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					/* Subtract number of filler and suffix bytes from the total bytes remaining */
 					SentCommand.DataSize -= (DFU_FILLER_BYTES_SIZE + DFU_FILE_SUFFIX_SIZE);
 				
-					uint8_t FillerBytes = DFU_FILLER_BYTES_SIZE;
-				
-					/* Throw away the filler bytes, which pad out the write command */
-					while (FillerBytes--)
-					{
-						if (!(Endpoint_BytesInEndpoint()))
-						{
-							Endpoint_Setup_Out_Clear();
-
-							/* Wait until next data packet received */
-							while (!(Endpoint_Setup_Out_IsReceived()));
-						}
-
-						Endpoint_Ignore_Byte();						
-					}
+					/* Throw away the filler bytes before the start of the firmware */
+					DiscardFillerBytes(DFU_FILLER_BYTES_SIZE);
 					
 					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
 
+					uint16_t BytesInFlashPage = 0;
+
 					while (TransfersRemaining && SentCommand.DataSize)
 					{
+						/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
+						if (!(Endpoint_BytesInEndpoint()))
+						{
+							Endpoint_Setup_Out_Clear();
+							while (!(Endpoint_Setup_Out_IsReceived()));
+						}
+
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Write flash
 						{
 							union
@@ -185,67 +181,44 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 								uint16_t Words[2];
 								uint32_t Long;
 							} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
-							
-							/* Program in the flash pages from the received data packets */
-							for (uint16_t BytesInFlashPage = 0; ((BytesInFlashPage < SPM_PAGESIZE) &&
-							     TransfersRemaining && SentCommand.DataSize); BytesInFlashPage += 2)
-							{
-								/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
-								if (!(Endpoint_BytesInEndpoint()))
-								{
-									Endpoint_Setup_Out_Clear();
-									while (!(Endpoint_Setup_Out_IsReceived()));
-								}
 								
-								/* Write the next word into the current flash page */
-								boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());
+							/* Write the next word into the current flash page */
+							boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());
 
-								/* Adjust counters */
-								SentCommand.DataSize -= 2;
-								TransfersRemaining   -= 2;
-								StartAddr            += 2;
+							/* Increment the counter for the number of bytes in the current page */
+							BytesInFlashPage += 2;
+
+							/* See if an entire page has been written to the flash page buffer */
+							if (BytesInFlashPage < SPM_PAGESIZE)
+							{
+								/* Commit the flash page to memory */
+								boot_page_write(CurrFlashAddress.Long);
+								boot_spm_busy_wait();
+								
+								BytesInFlashPage = 0;
 							}
-
-							/* Commit the flash page to memory */
-							boot_page_write(CurrFlashAddress.Long);
-							boot_spm_busy_wait();
+							
+							/* Adjust counters */
+							SentCommand.DataSize -= 2;
+							TransfersRemaining   -= 2;
+							StartAddr            += 2;
 						}
 						else                                                   // Write EEPROM
 						{	
-							/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
-							if (!(Endpoint_BytesInEndpoint()))
-							{
-								Endpoint_Setup_Out_Clear();
-								while (!(Endpoint_Setup_Out_IsReceived()));
-							}
-
 							eeprom_write_byte((uint8_t*)StartAddr, Endpoint_Read_Byte());	
 
 							/* Adjust counters */
-							SentCommand.DataSize    -= 1;
-							TransfersRemaining      -= 1;
-							StartAddr               += 1;
+							SentCommand.DataSize -= 1;
+							TransfersRemaining   -= 1;
+							StartAddr            += 1;
 						}
 					}
 
 					/* Re-enable the RWW section of flash in case it was written to */
 					boot_rww_enable();
 
-					uint8_t DFUSuffixLength = DFU_FILE_SUFFIX_SIZE;
-					
 					/* Throw away the currently unused DFU file suffix */
-					while (DFUSuffixLength--)
-					{
-						if (!(Endpoint_BytesInEndpoint()))
-						{
-							Endpoint_Setup_Out_Clear();
-
-							/* Wait until next data packet received */
-							while (!(Endpoint_Setup_Out_IsReceived()));
-						}
-
-						Endpoint_Ignore_Byte();						
-					}	
+					DiscardFillerBytes(DFU_FILE_SUFFIX_SIZE);
 				}			
 			}
 
@@ -277,7 +250,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					while (TransfersRemaining && SentCommand.DataSize)
 					{
 						/* Check if endpoint is full - if so clear it and wait until ready for next packet */
-						if (Endpoint_BytesInEndpoint() == ENDPOINT_CONTROLEP_SIZE)
+						if (Endpoint_BytesInEndpoint() == CONTROL_ENDPOINT_SIZE)
 						{
 							Endpoint_Setup_In_Clear();
 							while (!(Endpoint_Setup_In_IsReady()));
@@ -394,6 +367,22 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
 }
 
+static void DiscardFillerBytes(uint8_t FillerBytes)
+{
+	while (FillerBytes--)
+	{
+		if (!(Endpoint_BytesInEndpoint()))
+		{
+			Endpoint_Setup_Out_Clear();
+
+			/* Wait until next data packet received */
+			while (!(Endpoint_Setup_Out_IsReceived()));
+		}
+
+		Endpoint_Ignore_Byte();						
+	}
+}
+
 static void ProcessBootloaderCommand(void)
 {
 	/* Check if device is in secure mode */
@@ -419,17 +408,17 @@ static void ProcessBootloaderCommand(void)
 	/* Dispatch the required command processing routine based on the command type */
 	switch (SentCommand.Command)
 	{
-		case COMMAND_WRITE:
-			ProcessWriteCommand();
-			break;
-		case COMMAND_READ:
-			ProcessReadCommand();
-			break;
 		case COMMAND_PROG_START:
 			ProcessMemProgCommand();
 			break;
 		case COMMAND_DISP_DATA:
 			ProcessMemReadCommand();
+			break;
+		case COMMAND_WRITE:
+			ProcessWriteCommand();
+			break;
+		case COMMAND_READ:
+			ProcessReadCommand();
 			break;
 		case COMMAND_CHANGE_BASE_ADDR:
 			if (IS_TWOBYTE_COMMAND(SentCommand.Data, 0x03, 0x00))              // Set 64KB flash page command

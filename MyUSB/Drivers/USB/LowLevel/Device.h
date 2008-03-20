@@ -12,7 +12,12 @@
 #define __USBDEVICE_H__
 
 	/* Includes: */
-		#include "../../../Common/Common.h"
+		#include <avr/pgmspace.h>
+		#include <avr/eeprom.h>
+
+		#include "../../../Common/Common.h"	
+		#include "../HighLevel/StdDescriptors.h"
+		#include "Endpoint.h"
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
@@ -37,5 +42,5 @@
 		/* Macros: */		
 			#define USB_DEV_SetLowSpeed()        MACROS{ UDCON |=  (1 << LSM);   }MACROE
 			#define USB_DEV_SetHighSpeed()       MACROS{ UDCON &= ~(1 << LSM);   }MACROE
-		
+
 #endif

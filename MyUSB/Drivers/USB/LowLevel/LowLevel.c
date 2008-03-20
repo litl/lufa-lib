@@ -233,6 +233,22 @@ void USB_SetupInterface(void)
 	  USB_Host_PrepareForDeviceConnect();
 	#endif
 	
+	#if defined(USB_CAN_BE_DEVICE)
+	USB_Descriptor_Device_t* DeviceDescriptorPtr;
+	uint16_t                 DeviceDescriptorSize;
+
+	if (USB_GetDescriptor(DTYPE_Device, 0, (void*)&DeviceDescriptorPtr, &DeviceDescriptorSize) == true)
+	{		  
+		#if defined(USE_RAM_DESCRIPTORS)
+			USB_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;
+		#elif defined (USE_EEPROM_DESCRIPTORS)
+			USB_ControlEndpointSize = eeprom_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
+		#else
+			USB_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
+		#endif
+	}
+	#endif
+	
 	USB_Attach();
 
 	#if defined(USB_DEVICE_ONLY)	

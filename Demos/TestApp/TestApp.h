@@ -16,6 +16,7 @@
 		#include <avr/interrupt.h>
 		#include <avr/wdt.h>
 
+		#include <MyUSB/Version.h>                               // Library Version Information
 		#include <MyUSB/Drivers/USB/USB.h>                       // USB Functionality
 		#include <MyUSB/Scheduler/Scheduler.h>                   // Simple scheduler for task management
 		#include <MyUSB/MemoryAllocator/DynAlloc.h>              // Auto-defragmenting Dynamic Memory allocation

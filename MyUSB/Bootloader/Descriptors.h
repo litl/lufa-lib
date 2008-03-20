@@ -23,6 +23,8 @@
 		#define ATTR_MANEFESTATION_TOLLERANT      (1 << 2)
 		#define ATTR_CAN_UPLOAD                   (1 << 1)
 		#define ATTR_CAN_DOWNLOAD                 (1 << 0)
+		
+		#define CONTROL_ENDPOINT_SIZE             32
 
 	/* Type Defines: */
 		typedef struct
