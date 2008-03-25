@@ -61,7 +61,7 @@ int main(void)
 
 	/* Hardware Initialization */
 	Bicolour_Init();
-	Dataflash_Init(DATAFLASH_SPEED_FCPU_DIV_2);
+	Dataflash_Init(SPI_SPEED_FCPU_DIV_2);
 
 	/* Clear Dataflash Section Protectioms, if enabled */
 	VirtualMemory_ResetDataflashProtections();

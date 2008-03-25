@@ -23,8 +23,8 @@
 		#define MASS_STORAGE_RESET               0xFF
 		#define GET_MAX_LUN                      0xFE
 
-		#define CBW_SIGNATURE                    0x43425355UL // USBC
-		#define CSW_SIGNATURE                    0x53425355UL // USBS
+		#define CBW_SIGNATURE                    0x43425355UL
+		#define CSW_SIGNATURE                    0x53425355UL
 		
 		#define COMMAND_DIRECTION_DATA_OUT       (0 << 7)
 		#define COMMAND_DIRECTION_DATA_IN        (1 << 7)

@@ -28,11 +28,9 @@
 	erase.
 	
 	NOTE: This device spoofs Atmel's DFU Bootloader USB VID and PID.
-	      If you do not wish to use Atmel's codes, please manually
+	      If you do not wish to use Atmel's ID codes, please manually
 		  change them in Descriptors.c and alter your driver's INF
 		  file accordingly.
-    
-	*** WORK IN PROGRESS - NOT CURRENTLY FUNCTIONING ***
 */
 
 #define SECURE_MODE           false

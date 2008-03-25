@@ -186,7 +186,13 @@ TASK(CDC_Task)
 		{
 			/* Read the recieved data endpoint into the transmission buffer */
 			while (Endpoint_BytesInEndpoint())
-			  Buffer_StoreElement(&Rx_Buffer, Endpoint_Read_Byte());
+			{
+				/* Wait until the buffer has space for a new character */
+				while (!((BUFF_STATICSIZE - Rx_Buffer.Elements)));
+			
+				/* Store each character from the endpoint */
+				Buffer_StoreElement(&Rx_Buffer, Endpoint_Read_Byte());
+			}
 			
 			/* Clear the endpoint buffer */
 			Endpoint_FIFOCON_Clear();
@@ -206,15 +212,16 @@ TASK(CDC_Task)
 		/* Select the Serial Tx Endpoint */
 		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 
+		/* Check if the Tx buffer contains anything to be sent to the host */
 		if (Tx_Buffer.Elements)
 		{
 			/* Wait until Serial Tx Endpoint Ready for Read/Write */
 			while (!(Endpoint_ReadWriteAllowed()));
 			
 			/* Write the transmission buffer contents to the recieved data endpoint */
-			while (Tx_Buffer.Elements)
+			while (Tx_Buffer.Elements && (Endpoint_BytesInEndpoint() < CDC_TXRX_EPSIZE))
 			  Endpoint_Write_Byte(Buffer_GetElement(&Tx_Buffer));
-		  
+			
 			/* Send the data */
 			Endpoint_FIFOCON_Clear();	
 		}

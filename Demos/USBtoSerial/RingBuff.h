@@ -39,6 +39,8 @@
 	#include <avr/interrupt.h>
 	#include <limits.h>
 
+	#include <MyUSB/Common/Common.h>
+
 	/* Defines and checks: */
 	#if defined(BUFF_STATICSIZE)
 		#define BUFF_LENGTH BUFF_STATICSIZE
@@ -54,9 +56,9 @@
 		#error Ringbuffer storage data type not specified.
 	#endif
 
-	#if (defined(BUFF_VOLATILE) && (BUFF_STATICSIZE > CHAR_MAX))
+	#if defined(BUFF_VOLATILE)
 		#define BUFF_MODE            volatile
-		#define BUFF_ATOMIC_BLOCK    ATOMIC_BLOCK
+		#define BUFF_ATOMIC_BLOCK    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	#else
 		#define BUFF_MODE
 		#define BUFF_ATOMIC_BLOCK

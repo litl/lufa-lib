@@ -26,6 +26,20 @@
 		
 		#define CONTROL_ENDPOINT_SIZE             32
 
+		#if (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__))
+			#define PRODUCT_ID_CODE               0x2FFB
+		#elif (defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__))
+			#define PRODUCT_ID_CODE               0x2FF9
+		#elif defined(__AVR_AT90USB162__)
+			#define PRODUCT_ID_CODE               0x2FFA
+		#elif defined(__AVR_AT90USB82__)
+			#define PRODUCT_ID_CODE               0x2FF7
+		#endif
+		
+		#if !defined(PRODUCT_ID_CODE)
+			#error Current AVR model is not supported by this bootloader.
+		#endif
+	
 	/* Type Defines: */
 		typedef struct
 		{

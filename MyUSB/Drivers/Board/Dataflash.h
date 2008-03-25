@@ -16,6 +16,7 @@
 	#define INCLUDE_FROM_BOARD_DRIVER
 
 	/* Includes: */
+	#include "../AT90USBXXX/SPI.h"
 	#include "../../Common/Common.h"
 	#include "../../Common/BoardTypes.h"
 	
@@ -33,16 +34,6 @@
 	
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define DATAFLASH_USE_DOUBLESPEED            (1 << 7)
-
-			#define DATAFLASH_SPEED_FCPU_DIV_2           DATAFLASH_USE_DOUBLESPEED
-			#define DATAFLASH_SPEED_FCPU_DIV_4           0
-			#define DATAFLASH_SPEED_FCPU_DIV_8           (DATAFLASH_USE_DOUBLESPEED | (1 << SPR0))
-			#define DATAFLASH_SPEED_FCPU_DIV_16          (1 << SPR0)
-			#define DATAFLASH_SPEED_FCPU_DIV_32          (DATAFLASH_USE_DOUBLESPEED | (1 << SPR1))
-			#define DATAFLASH_SPEED_FCPU_DIV_64          (DATAFLASH_USE_DOUBLESPEED | (1 << SPR1) | (1 < SPR0))
-			#define DATAFLASH_SPEED_FCPU_DIV_128         ((1 << SPR1) | (1 < SPR0))
-
 			#define Dataflash_GetSelectedChip()          (DATAFLASH_CHIPCS_PORT & DATAFLASH_CHIPCS_MASK)
 			#define Dataflash_SelectChip(mask)   MACROS{ DATAFLASH_CHIPCS_PORT = ((DATAFLASH_CHIPCS_PORT \
 			                                             & ~DATAFLASH_CHIPCS_MASK) | mask);              }MACROE
@@ -51,24 +42,15 @@
 		/* Inline Functions: */
 			static inline void Dataflash_Init(const uint8_t PrescalerMask)
 			{
-				DDRB  |= ((1 << 1) | (1 << 2));
-				PORTB |= ((1 << 0) | (1 << 3));
-				
 				DATAFLASH_CHIPCS_DDR  |= DATAFLASH_CHIPCS_MASK;
 				DATAFLASH_CHIPCS_PORT |= DATAFLASH_CHIPCS_MASK;
 
-				SPCR   = ((1 << SPE) | (1 << MSTR) | (1 << CPOL) | (1 << CPHA) |
-				          (PrescalerMask & ~DATAFLASH_USE_DOUBLESPEED));
-				
-				if (PrescalerMask & DATAFLASH_USE_DOUBLESPEED)
-				  SPSR = (1 << SPI2X);
+				SPI_Init(PrescalerMask, true);
 			}
 
 			static inline uint8_t Dataflash_SendByte(const uint8_t Byte)
 			{
-				SPDR = Byte;
-				while (!(SPSR & (1 << SPIF)));
-				return SPDR;
+				return SPI_SendByte(Byte);
 			}
 
 			static inline void Dataflash_ToggleSelectedChipCS(void)
