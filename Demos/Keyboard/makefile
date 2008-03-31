@@ -44,9 +44,9 @@
 MCU = at90usb1287
 
 
-# Target board (USBKEY, STK525, STK526, USER or blank for projects not requiring
-# MyUSB board drivers). If USER is selected, put custom board drivers in a directory
-# called "Board" inside the application directory.
+# Target board (USBKEY, STK525, STK526, RZUSBSTICK, USER or blank for projects not requiring
+# MyUSB board drivers). If USER is selected, put custom board drivers in a directory called 
+# "Board" inside the application directory.
 BOARD  = USBKEY
 
 

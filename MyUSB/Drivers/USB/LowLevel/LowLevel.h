@@ -41,6 +41,8 @@
 			#elif (defined(__AVR_AT90USB646__)  || defined(__AVR_AT90USB647__) || \
 			       defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__))
 				#define USB_PLL_PSC                ((1 << PLLP1) | (1 << PLLP0))
+			#elif (defined(__AVR_ATmega32U4__))
+				#define USB_PLL_PSC                0
 			#endif
 		#elif (F_CPU == 16000000)
 			#if (defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__))
@@ -49,6 +51,8 @@
 				#define USB_PLL_PSC                ((1 << PLLP2) | (1 << PLLP0))
 			#elif (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
 				#define USB_PLL_PSC                (1 << PLLP0)
+			#elif (defined(__AVR_ATmega32U4__))
+				#define USB_PLL_PSC                (1 << PINDIV)
 			#endif
 		#endif
 		
@@ -120,7 +124,7 @@
 			
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define USB_PLL_On()               MACROS{ PLLCSR   =  (USB_PLL_PSC | (1 << PLLE)); }MACROE
+			#define USB_PLL_On()               MACROS{ PLLCSR   =  USB_PLL_PSC; PLLCSR |= (1 << PLLE); }MACROE
 			#define USB_PLL_Off()              MACROS{ PLLCSR   =  0;                           }MACROE
 			#define USB_PLL_IsReady()                ((PLLCSR  &   (1 << PLOCK)) ? true : false)
 
@@ -141,13 +145,13 @@
 			#define USB_Interface_Enable()     MACROS{ USBCON  |=  (1 << USBE);                 }MACROE
 			#define USB_Interface_Disable()    MACROS{ USBCON  &= ~(1 << USBE);                 }MACROE
 			#define USB_Interface_Reset()      MACROS{ uint8_t Temp = USBCON; USBCON = (Temp & ~(1 << USBE)); \
-			                                                     USBCON = (Temp | (1 << USBE)); }MACROE
+			                                           USBCON = (Temp | (1 << USBE));           }MACROE
 	
 		/* Inline Functions: */		
 			static inline uint8_t USB_GetUSBModeFromUID(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t USB_GetUSBModeFromUID(void)
 			{
-				#if defined(USB_FULL_CONTROLLER)
+				#if (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB647__))
 				if (USBSTA & (1 << ID))
 				  return USB_MODE_DEVICE;
 				else

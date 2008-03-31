@@ -30,16 +30,6 @@
 	When the USB subsystem is activated, the USBKEY's status LEDs
 	will show the current USB status, as described in the following
 	table:
-	
-	  COLOUR:          | DESCRIPTION:
-	 ------------------+-------------------------------------------
-	  Off/Off          | Joystick monitoring task on, USB off.
-	  Red/Red          | USB error.
-	  Red/Off          | USB not activated.
-	  Green/Red        | USB activated, but not connected.
-	  Green/Orange     | USB connected, but not initialized.
-	  Green/Green      | USB initialized.
-	  Orange/Orange    | USB suspended.
 */
 
 #include "TestApp.h"
@@ -73,7 +63,7 @@ int main(void)
 	ADC_Init(ADC_SINGLE_CONVERSION | ADC_PRESCALE_64);
 	Temperature_Init();
 	Joystick_Init();
-	Bicolour_Init();
+	LEDs_Init();
 	HWB_Init();
 	
 	/* Millisecond timer initialization, with output compare interrupt enabled */
@@ -108,22 +98,22 @@ TASK(TestApp_CheckJoystick)
 		
 	/* Test of the Joystick - change a mask in response to joystick */
 	if (JoyStatus_LCL & JOY_UP)
-	  LEDMask |= BICOLOUR_LED1_RED;
+	  LEDMask |= LEDS_LED1;
 		
 	if (JoyStatus_LCL & JOY_DOWN)
-	  LEDMask |= BICOLOUR_LED1_GREEN;
+	  LEDMask |= LEDS_LED1;
 
 	if (JoyStatus_LCL & JOY_LEFT)
-	  LEDMask |= BICOLOUR_LED2_RED;
+	  LEDMask |= LEDS_LED1;
 
 	if (JoyStatus_LCL & JOY_RIGHT)
-	  LEDMask |= BICOLOUR_LED2_GREEN;
+	  LEDMask |= LEDS_LED1;
 			
 	if (JoyStatus_LCL & JOY_PRESS)
-	  LEDMask  = BICOLOUR_ALL_LEDS;
+	  LEDMask  = LEDS_ALL_LEDS;
 
-	/* Test of bi-colour LED - light up in response to joystick */
-	Bicolour_SetLeds(LEDMask);
+	/* Test of LEDs - light up in response to joystick */
+	LEDs_SetAllLEDs(LEDMask);
 }
 
 TASK(TestApp_CheckTemp)
@@ -168,7 +158,7 @@ TASK(TestApp_CheckHWB)
 			{
 				USB_ShutDown();
 
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				LEDs_SetAllLEDs(LEDS_LED1);
 				puts_P(PSTR(ESC_BG_WHITE "USB Power Off.\r\n"));
 				
 				Scheduler_SetTaskMode(TestApp_CheckTemp, TASK_RUN);
@@ -177,7 +167,7 @@ TASK(TestApp_CheckHWB)
 			{
 				Scheduler_SetTaskMode(TestApp_CheckTemp, TASK_STOP);
 
-				Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+				LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3);
 				puts_P(PSTR(ESC_BG_YELLOW "USB Power On.\r\n"));
 				
 				USB_Init(USB_MODE_UID, USB_DEV_OPT_FULLSPEED | USB_OPT_REG_ENABLED);

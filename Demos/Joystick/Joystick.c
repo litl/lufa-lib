@@ -49,11 +49,11 @@ int main(void)
 
 	/* Hardware Initialization */
 	Joystick_Init();
-	Bicolour_Init();
+	LEDs_Init();
 	HWB_Init();
 	
-	/* Initial LED colour - Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -70,8 +70,8 @@ EVENT_HANDLER(USB_Connect)
 	/* Start USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 
-	/* Red/green to indicate USB enumerating */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_GREEN);
+	/* Indicate USB enumerating */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -80,8 +80,8 @@ EVENT_HANDLER(USB_Disconnect)
 	Scheduler_SetTaskMode(USB_Joystick_Report, TASK_STOP);
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
-	/* Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
@@ -91,8 +91,8 @@ EVENT_HANDLER(USB_CreateEndpoints)
 		                       ENDPOINT_DIR_IN, JOYSTICK_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
-	/* Double green to indicate USB connected and ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+	/* Indicate USB connected and ready */
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 
 	/* Start joystick reporting task */
 	Scheduler_SetTaskMode(USB_Joystick_Report, TASK_RUN);

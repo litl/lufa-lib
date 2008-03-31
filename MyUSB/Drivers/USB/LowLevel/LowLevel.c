@@ -45,7 +45,7 @@ void USB_Init(
 	#endif
 	
 	#if defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER)
+		#if defined(USB_FULL_CONTROLLER) && !defined(__AVR_ATmega32U4__)
 		UHWCON |= (1 << UIMOD);
 		#endif
 	#elif defined(USB_HOST_ONLY)
@@ -206,9 +206,15 @@ void USB_SetupInterface(void)
 		
 	if (!(USB_Options & USB_OPT_REG_DISABLED))
 	  USB_REG_On();
+
+	#if defined(__AVR_ATmega32U4__) && !defined(MANUAL_PLL_CONTROL)
+	PLLFRQ = ((1 << PLLUSB) | (1 << PDIV3) | (1 << PDIV1));
+	#endif
 	
+	#if !defined(MANUAL_PLL_CONTROL)
 	USB_PLL_On();
-			
+	#endif
+
 	while (!(USB_PLL_IsReady()));
 		
 	USB_Interface_Reset();

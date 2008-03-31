@@ -20,12 +20,6 @@
 	Only one Logical Unit (LUN) is currently supported by this example,
 	allowing for one external storage device to be enumerated by the host.
 	
-	The two USB status LEDs indicate the status of the device. The first
-	LED is lit in green when the device may be removed from the host, and
-	red when the host is busy writing to or reading from the device. The
-	second LED is lit in green when idling, orange when executing a command
-	from the host and red when the host send an invalid USB command.
-	
 	You will need to format the mass storage device upon first run of this
 	demonstration.
 */
@@ -60,14 +54,14 @@ int main(void)
 	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
-	Bicolour_Init();
+	LEDs_Init();
 	Dataflash_Init(SPI_SPEED_FCPU_DIV_2);
 
 	/* Clear Dataflash Section Protectioms, if enabled */
 	VirtualMemory_ResetDataflashProtections();
 	
-	/* Initial LED colour - Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -84,8 +78,8 @@ EVENT_HANDLER(USB_Connect)
 	/* Start USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 
-	/* Red/green to indicate USB enumerating */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_GREEN);
+	/* Indicate USB enumerating */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -94,8 +88,8 @@ EVENT_HANDLER(USB_Disconnect)
 	Scheduler_SetTaskMode(USB_MassStorage, TASK_STOP);
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
-	/* Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
@@ -109,8 +103,8 @@ EVENT_HANDLER(USB_CreateEndpoints)
 		                       ENDPOINT_DIR_OUT, MASS_STORAGE_IO_EPSIZE,
 	                           ENDPOINT_BANK_DOUBLE);
 
-	/* Double green to indicate USB connected and ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+	/* Indicate USB connected and ready */
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 	
 	/* Start mass storage reporting task */
 	Scheduler_SetTaskMode(USB_MassStorage, TASK_RUN);
@@ -152,8 +146,8 @@ TASK(USB_MassStorage)
 		/* Check to see if a command from the host has been issued */
 		if (Endpoint_ReadWriteAllowed())
 		{	
-			/* Set LED2 orange - busy */
-			Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_ORANGE);
+			/* Indicate busy */
+			LEDs_TurnOnLEDs(LEDS_LED3 | LEDS_LED4);
 
 			/* Process sent command block from the host */
 			ProcessCommandBlock();
@@ -180,8 +174,8 @@ static void ProcessCommandBlock(void)
 	    (CommandBlock.Header.LUN != 0x00) ||
 		(CommandBlock.Header.SCSICommandLength > MAX_SCSI_COMMAND_LENGTH))
 	{
-		/* Bicolour LED2 to red - error */
-		Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);
+		/* Indicate error */
+		LEDs_SetAllLEDs(LEDS_LED1);
 
 		/* Stall both data pipes until reset by host */
 		Endpoint_StallTransaction();
@@ -246,6 +240,6 @@ static void ReturnCommandStatus(void)
 	/* Send the CSW */
 	Endpoint_FIFOCON_Clear();
 
-	/* Bicolour LED2 to green - ready */
-	Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
+	/* Indicate ready */
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }

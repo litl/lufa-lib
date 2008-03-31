@@ -25,7 +25,7 @@
 		#include <MyUSB/Drivers/AT90USBXXX/ADC.h>                // ADC driver
 		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>      // USART Stream driver
 		#include <MyUSB/Drivers/Board/Joystick.h>                // Joystick driver
-		#include <MyUSB/Drivers/Board/Bicolour.h>                // Bicolour LEDs driver
+		#include <MyUSB/Drivers/Board/LEDs.h>                    // LED driver
 		#include <MyUSB/Drivers/Board/HWB.h>                     // Hardware Button driver
 		#include <MyUSB/Drivers/Board/Temperature.h>             // Temperature sensor driver
 		

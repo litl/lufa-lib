@@ -50,10 +50,10 @@ int main(void)
 	
 	/* Hardware Initialization */
 	SerialStream_Init(9600);
-	Bicolour_Init();
+	LEDs_Init();
 	
-	/* Initial LED colour - Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -72,7 +72,7 @@ int main(void)
 EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR("Device Attached.\r\n"));
-	Bicolour_SetLeds(BICOLOUR_NO_LEDS);	
+	LEDs_SetAllLEDs(LEDS_NO_LEDS);
 
 	/* Start mouse and USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
@@ -86,7 +86,7 @@ EVENT_HANDLER(USB_DeviceUnattached)
 	Scheduler_SetTaskMode(USB_Mouse_Host, TASK_STOP);
 
 	puts_P(PSTR("Device Unattached.\r\n"));
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
 EVENT_HANDLER(USB_HostError)
@@ -96,7 +96,7 @@ EVENT_HANDLER(USB_HostError)
 	puts_P(PSTR(ESC_BG_RED "Host Mode Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	for(;;);
 }
 
@@ -135,7 +135,7 @@ TASK(USB_Mouse_Host)
 				puts_P(PSTR("Control error.\r\n"));
 
 				/* Indicate error via status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				LEDs_SetAllLEDs(LEDS_LED1);
 
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
@@ -167,7 +167,7 @@ TASK(USB_Mouse_Host)
 				}
 				
 				/* Indicate error via status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				LEDs_SetAllLEDs(LEDS_LED1);
 
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
@@ -193,30 +193,31 @@ TASK(USB_Mouse_Host)
 			if (Pipe_ReadWriteAllowed())
 			{
 				USB_MouseReport_Data_t MouseReport;
-					
+				uint8_t                LEDMask = LEDS_NO_LEDS;
+
 				/* Read in mouse report data */
 				MouseReport.Button = Pipe_Read_Byte();
 				MouseReport.X      = Pipe_Read_Byte();
 				MouseReport.Y      = Pipe_Read_Byte();
-					
-				Bicolour_SetLeds(BICOLOUR_NO_LEDS);
 				
 				/* Alter status LEDs according to mouse X movement */
 				if (MouseReport.X > 0)
-				  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
+				  LEDMask |= LEDS_LED1;
 				else if (MouseReport.X < 0)
-				  Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);						
+				  LEDMask |= LEDS_LED2;
 				
 				/* Alter status LEDs according to mouse Y movement */
 				if (MouseReport.Y > 0)
-				  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_GREEN);
+				  LEDMask |= LEDS_LED3;
 				else if (MouseReport.Y < 0)
-				  Bicolour_SetLed(BICOLOUR_LED2, BICOLOUR_LED2_RED);						
+				  LEDMask |= LEDS_LED4;
 
 				/* Alter status LEDs according to mouse button position */
 				if (MouseReport.Button)
-				  Bicolour_SetLeds(BICOLOUR_ALL_LEDS);
+				  LEDMask = LEDS_ALL_LEDS;
 				  
+				LEDs_SetAllLEDs(LEDMask);
+				
 				/* Print mouse report data through the serial port */
 				printf_P(PSTR("dX:%2d dY:%2d Button:%d\r\n"), MouseReport.X,
 				                                              MouseReport.Y,

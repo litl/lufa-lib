@@ -14,8 +14,10 @@
 .func boot_read_sig_byte
 .endfunc
 boot_read_sig_byte:
+#if defined(RAMPZ)
 	clr r18                      ; Clear temp register
 	out IO_ADDR(RAMPZ), r18      ; Clear Z Ramp via temp register
+#endif
 	clr ZH                       ; Clear ZH
 	mov ZL, r24                  ; Set ZL to the passed in sig address
 	ldi r18, ((1 << SIGRD) | (1 << SPMEN))

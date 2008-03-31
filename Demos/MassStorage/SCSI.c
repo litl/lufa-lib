@@ -322,7 +322,7 @@ static bool SCSI_Command_ReadWrite_6_10(const bool IsDataRead, const bool IsMode
 	}
 
 	/* Indicate dataflash in use */
-	Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_RED);
+	LEDs_TurnOnLEDs(LEDS_LED1);
 
 	/* Determine if the packet is a READ (10) or WRITE (10) command, call appropriate function */
 	if (IsDataRead == DATA_READ)
@@ -331,7 +331,7 @@ static bool SCSI_Command_ReadWrite_6_10(const bool IsDataRead, const bool IsMode
 	  VirtualMemory_WriteBlocks(BlockAddress, TotalBlocks);
 
 	/* Indicate dataflash no longer in use */
-	Bicolour_SetLed(BICOLOUR_LED1, BICOLOUR_LED1_GREEN);
+	LEDs_TurnOffLEDs(LEDS_LED1);
 
 	/* Update the bytes transferred counter and succeed the command */
 	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);

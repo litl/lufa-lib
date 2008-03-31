@@ -57,7 +57,9 @@ ISR(USB_GEN_vect)
 		USB_INT_Clear(USB_INT_SUSPEND);
 
 		USB_CLK_Freeze();
+		#if !defined(MANUAL_PLL_CONTROL)
 		USB_PLL_Off();
+		#endif
 
 		USB_INT_Disable(USB_INT_SUSPEND);
 		USB_INT_Enable(USB_INT_WAKEUP);
@@ -75,7 +77,9 @@ ISR(USB_GEN_vect)
 		USB_INT_Clear(USB_INT_WAKEUP);
 
 		USB_CLK_Unfreeze();
+		#if !defined(MANUAL_PLL_CONTROL)
 		USB_PLL_On();
+		#endif
 		while (!(USB_PLL_IsReady()));
 
 		USB_INT_Disable(USB_INT_WAKEUP);

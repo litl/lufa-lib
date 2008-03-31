@@ -53,10 +53,10 @@ int main(void)
 
 	/* Hardware Initialization */
 	Joystick_Init();
-	Bicolour_Init();
+	LEDs_Init();
 	
-	/* Initial LED colour - Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -73,8 +73,8 @@ EVENT_HANDLER(USB_Connect)
 	/* Start USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 
-	/* Red/green to indicate USB enumerating */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_GREEN);
+	/* Indicate USB enumerating */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -82,8 +82,8 @@ EVENT_HANDLER(USB_Disconnect)
 	/* Stop running keyboard reporting and USB management tasks */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
-	/* Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
@@ -104,8 +104,8 @@ EVENT_HANDLER(USB_CreateEndpoints)
 	/* Enable the endpoint OUT interrupt ISR for the LED report endpoint */
 	USB_INT_Enable(ENDPOINT_INT_OUT);
 
-	/* Double green to indicate USB connected and ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);	
+	/* Indicate USB connected and ready */
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }
 
 ISR(ENDPOINT_PIPE_vect)
@@ -159,19 +159,19 @@ ISR(ENDPOINT_PIPE_vect)
 
 		/* Read in the LED report from the host */
 		uint8_t LEDStatus = Endpoint_Read_Byte();
-		uint8_t LEDMask   = BICOLOUR_LED1_GREEN;
+		uint8_t LEDMask   = LEDS_LED2;
 		
 		if (LEDStatus & 0x01) // NUM Lock
-		  LEDMask |= BICOLOUR_LED2_RED;
+		  LEDMask |= LEDS_LED1;
 		
 		if (LEDStatus & 0x02) // CAPS Lock
-		  LEDMask |= BICOLOUR_LED1_RED;
+		  LEDMask |= LEDS_LED3;
 
 		if (LEDStatus & 0x04) // SCROLL Lock
-		  LEDMask |= BICOLOUR_LED2_GREEN;
+		  LEDMask |= LEDS_LED4;
 
 		/* Set the status LEDs to the current Keyboard LED status */
-		Bicolour_SetLeds(LEDMask);
+		LEDs_SetAllLEDs(LEDMask);
 
 		/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
 		Endpoint_FIFOCON_Clear();

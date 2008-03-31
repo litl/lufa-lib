@@ -59,7 +59,11 @@
 			static inline void USB_INT_DisableAllInterrupts(void)
 			{
 				#if defined(USB_FULL_CONTROLLER)
-				USBCON &= ~((1 << VBUSTE) | (1 << IDTE));
+					#if !defined(__AVR_ATmega32U4__)
+						USBCON &= ~((1 << VBUSTE) | (1 << IDTE));					
+					#else					
+						USBCON &= ~(1 << VBUSTE);					
+					#endif
 				#endif
 				
 				#if defined(USB_CAN_BE_HOST)

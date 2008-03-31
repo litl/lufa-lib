@@ -22,7 +22,7 @@
 		#include <MyUSB/Version.h>                    // Library Version Information
 		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
-		#include <MyUSB/Drivers/Board/Bicolour.h>     // Bicolour LEDs driver
+		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
 		#include <MyUSB/Drivers/Board/Dataflash.h>    // Dataflash chip driver
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 

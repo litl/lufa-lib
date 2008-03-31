@@ -129,5 +129,5 @@
 					ALIAS_STUB(USB_DeviceError);
 				#endif
 			#endif
-			
+
 #endif

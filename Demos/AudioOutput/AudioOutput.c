@@ -60,10 +60,10 @@ int main(void)
 	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
-	Bicolour_Init();
+	LEDs_Init();
 	
-	/* Initial LED colour - Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -80,8 +80,8 @@ EVENT_HANDLER(USB_Connect)
 	/* Start USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 
-	/* Red/green to indicate USB enumerating */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_GREEN);
+	/* Indicate USB enumerating */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -90,8 +90,8 @@ EVENT_HANDLER(USB_Disconnect)
 	Scheduler_SetTaskMode(USB_Audio_Task, TASK_STOP);
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
-	/* Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
@@ -101,8 +101,8 @@ EVENT_HANDLER(USB_CreateEndpoints)
 		                       ENDPOINT_DIR_OUT, AUDIO_STREAM_EPSIZE,
 	                           ENDPOINT_BANK_DOUBLE);
 
-	/* Double green to indicate USB connected and ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+	/* Indicate USB connected and ready */
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 
 	/* Start audio task */
 	Scheduler_SetTaskMode(USB_Audio_Task, TASK_RUN);
@@ -186,6 +186,8 @@ TASK(USB_Audio_Task)
 				OCRxA = (LeftSample_8Bit  ^ (1 << 7));
 				OCRxB = (RightSample_8Bit ^ (1 << 7));
 #else
+				uint8_t LEDMask = LEDS_NO_LEDS;
+
 				/* Make left channel positive (absolute) */
 				if (LeftSample_8Bit < 0)
 				  LeftSample_8Bit = -LeftSample_8Bit;
@@ -195,24 +197,22 @@ TASK(USB_Audio_Task)
 				  RightSample_8Bit = -RightSample_8Bit;
 
 				/* Set first LED based on sample value */
-				if (LeftSample_8Bit == 0)
-				  Bicolour_SetLed(1, BICOLOUR_LED1_OFF);
-				else if (LeftSample_8Bit < ((128 / 8) * 1))
-				  Bicolour_SetLed(1, BICOLOUR_LED1_GREEN);
+				if (LeftSample_8Bit < ((128 / 8) * 1))
+				  LEDMask |= LEDS_LED2;
 				else if (LeftSample_8Bit < ((128 / 8) * 3))
-				  Bicolour_SetLed(1, BICOLOUR_LED1_ORANGE);
+				  LEDMask |= (LEDS_LED1 | LEDS_LED2);
 				else
-				  Bicolour_SetLed(1, BICOLOUR_LED1_RED);
+				  LEDMask |= LEDS_LED1;
 
 				/* Set second LED based on sample value */
-				if (RightSample_8Bit == 0)
-				  Bicolour_SetLed(2, BICOLOUR_LED2_OFF);
-				else if (RightSample_8Bit < ((128 / 8) * 1))
-				  Bicolour_SetLed(2, BICOLOUR_LED2_GREEN);
+				if (RightSample_8Bit < ((128 / 8) * 1))
+				  LEDMask |= LEDS_LED4;
 				else if (RightSample_8Bit < ((128 / 8) * 3))
-				  Bicolour_SetLed(2, BICOLOUR_LED2_ORANGE);
+				  LEDMask |= (LEDS_LED3 | LEDS_LED4);
 				else
-				  Bicolour_SetLed(2, BICOLOUR_LED2_RED);
+				  LEDMask |= LEDS_LED3;
+				  
+				LEDs_SetAllLEDs(LEDMask);
 #endif
 
 				/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */

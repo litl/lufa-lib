@@ -52,10 +52,10 @@ int main(void)
 
 	/* Hardware Initialization */
 	SerialStream_Init(9600);
-	Bicolour_Init();
+	LEDs_Init();
 	
-	/* Initial LED colour - Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 
 	/* Startup message */
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
@@ -74,7 +74,7 @@ int main(void)
 EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR("Device Attached.\r\n"));
-	Bicolour_SetLeds(BICOLOUR_NO_LEDS);
+	LEDs_SetAllLEDs(LEDS_NO_LEDS);
 	
 	/* Start USB management and Mass Storage tasks */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
@@ -88,7 +88,7 @@ EVENT_HANDLER(USB_DeviceUnattached)
 	Scheduler_SetTaskMode(USB_MassStore_Host, TASK_STOP);
 
 	puts_P(PSTR("\r\nDevice Unattached.\r\n"));
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
 EVENT_HANDLER(USB_HostError)
@@ -98,7 +98,7 @@ EVENT_HANDLER(USB_HostError)
 	puts_P(PSTR(ESC_BG_RED "Host Mode Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	for(;;);
 }
 
@@ -136,7 +136,7 @@ TASK(USB_MassStore_Host)
 				puts_P(PSTR("Control error."));
 
 				/* Indicate error via status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				LEDs_SetAllLEDs(LEDS_LED1);
 
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
@@ -165,7 +165,7 @@ TASK(USB_MassStore_Host)
 				}
 
 				/* Indicate error via status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				LEDs_SetAllLEDs(LEDS_LED1);
 				
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
@@ -190,7 +190,7 @@ TASK(USB_MassStore_Host)
 			break;
 		case HOST_STATE_Ready:
 			/* Indicate device busy via the status LEDs */
-			Bicolour_SetLeds(BICOLOUR_LED2_ORANGE);
+			LEDs_SetAllLEDs(LEDS_LED3 | LEDS_LED4);
 			
 			/* Request to prepare the disk for use */
 			USB_HostRequest = (USB_Host_Request_Header_t)
@@ -208,7 +208,7 @@ TASK(USB_MassStore_Host)
 				puts_P(PSTR("Control error."));
 
 				/* Indicate error via status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				LEDs_SetAllLEDs(LEDS_LED1);
 
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
@@ -231,7 +231,7 @@ TASK(USB_MassStore_Host)
 				puts_P(PSTR("Control error."));
 
 				/* Indicate error via status LEDs */
-				Bicolour_SetLeds(BICOLOUR_LED1_RED);
+				LEDs_SetAllLEDs(LEDS_LED1);
 
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
@@ -294,7 +294,7 @@ TASK(USB_MassStore_Host)
 			  printf_P(PSTR("0x%.2X "), BlockBuffer[Byte]);
 			
 			/* Indicate device no longer busy */
-			Bicolour_SetLeds(BICOLOUR_LED2_GREEN);			
+			LEDs_SetAllLEDs(LEDS_LED4);
 			
 			/* Wait until USB device disconnected */
 			while (USB_IsConnected);
@@ -310,7 +310,7 @@ void ShowDiskReadError(uint8_t ErrorCode)
 	printf_P(PSTR("  -- Error Code: %d"), ErrorCode);
 
 	/* Indicate device error via the status LEDs */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED);				
+	LEDs_SetAllLEDs(LEDS_LED1);			
 
 	/* Wait until USB device disconnected */
 	while (USB_IsConnected);

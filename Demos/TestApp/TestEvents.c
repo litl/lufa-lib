@@ -15,6 +15,8 @@ static void Abort_Program(void)
 {
 	USB_ShutDown();
 
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+
 	puts_P(PSTR(ESC_INVERSE_ON "\r\n**PROGRAM ABORT**"));
 	for (;;);
 }
@@ -37,7 +39,7 @@ EVENT_HANDLER(USB_VBUSDisconnect)
 EVENT_HANDLER(USB_Connect)
 {
 	puts_P(PSTR(EVENT_PREFIX "USB  +\r\n"));
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3 | LEDS_LED4);
 	
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 }
@@ -47,19 +49,19 @@ EVENT_HANDLER(USB_Disconnect)
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
 	puts_P(PSTR(EVENT_PREFIX "USB  -\r\n"));
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3 | LEDS_LED3);
 }
 
 EVENT_HANDLER(USB_Suspend)
 {
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_YELLOW "USB Sleep\r\n"));
-	Bicolour_SetLeds(BICOLOUR_LED1_ORANGE | BICOLOUR_LED2_ORANGE);
+	LEDs_SetAllLEDs(LEDS_ALL_LEDS);
 }
 
 EVENT_HANDLER(USB_WakeUp)
 {
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_GREEN "USB Wakeup\r\n"));
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }
 
 EVENT_HANDLER(USB_Reset)
@@ -80,7 +82,7 @@ EVENT_HANDLER(USB_UIDChange)
 	else
 	  ModeStrPtr = PSTR("N/A");
 	
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_RED);
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3);
 
 	printf_P(PSTR(" -- New Mode %S\r\n"), ModeStrPtr);
 }
@@ -101,7 +103,6 @@ EVENT_HANDLER(USB_PowerOnFail)
 	printf_P(PSTR(" -- Mode %S\r\n"), ModeStrPtr);
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	Abort_Program();
 }
 
@@ -110,7 +111,6 @@ EVENT_HANDLER(USB_HostError)
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Host Mode Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	Abort_Program();
 }
 
@@ -125,7 +125,6 @@ EVENT_HANDLER(USB_DeviceError)
 	puts_P(PSTR(EVENT_PREFIX ESC_BG_RED "Device Mode Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
 	Abort_Program();
 }
 
@@ -140,7 +139,7 @@ EVENT_HANDLER(USB_CreateEndpoints)
 {
 	puts_P(PSTR(EVENT_PREFIX "Make Endpoints\r\n"));
 
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }
 
 EVENT_HANDLER(USB_DeviceAttached)

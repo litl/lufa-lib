@@ -15,10 +15,12 @@
 #if !defined(__BOARDTYPES_H__) && defined(INCLUDE_FROM_BOARD_DRIVER)
 #define __BOARDTYPES_H__
 
-	/* Macros: */
-		#define BOARD_USBKEY                 0
-		#define BOARD_STK525                 1
-		#define BOARD_STK526                 2
-		#define BOARD_USER                   3
+	/* Public Interface - May be used in end-application: */
+		/* Macros: */
+			#define BOARD_USBKEY                 0
+			#define BOARD_STK525                 1
+			#define BOARD_STK526                 2
+			#define BOARD_RZUSBSTICK             3
+			#define BOARD_USER                   4
 
 #endif

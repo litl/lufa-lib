@@ -57,15 +57,15 @@ int main(void)
 	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
-	Bicolour_Init();
+	LEDs_Init();
 	ReconfigureUSART();
 	
 	/* Ringbuffer Initialization */
 	Buffer_Initialize(&Rx_Buffer);
 	Buffer_Initialize(&Tx_Buffer);
 	
-	/* Initial LED colour - Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -82,8 +82,8 @@ EVENT_HANDLER(USB_Connect)
 	/* Start USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 
-	/* Red/green to indicate USB enumerating */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_GREEN);
+	/* Indicate USB enumerating */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -92,8 +92,8 @@ EVENT_HANDLER(USB_Disconnect)
 	Scheduler_SetTaskMode(CDC_Task, TASK_STOP);
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
-	/* Double red to indicate USB not ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED | BICOLOUR_LED2_RED);
+	/* Indicate USB not ready */
+	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
 EVENT_HANDLER(USB_CreateEndpoints)
@@ -111,8 +111,8 @@ EVENT_HANDLER(USB_CreateEndpoints)
 		                       ENDPOINT_DIR_OUT, CDC_TXRX_EPSIZE,
 	                           ENDPOINT_BANK_DOUBLE);
 
-	/* Double green to indicate USB connected and ready */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_GREEN);
+	/* Indicate USB connected and ready */
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 
 	/* Start CDC task */
 	Scheduler_SetTaskMode(CDC_Task, TASK_RUN);

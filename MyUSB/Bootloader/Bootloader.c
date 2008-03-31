@@ -18,7 +18,7 @@
 	need to install Atmel's DFU drivers prior to using this bootloader.
 	
 	As an open-source option, this bootloader is also compatible
-	with the Linux Atmel USB DFU Programmer software, avaliable
+	with the Linux Atmel USB DFU Programmer software, available
 	for download at http://sourceforge.net/projects/dfu-programmer/.
 	
     If SECURE_MODE is defined as true, upon startup the bootloader will
@@ -67,10 +67,10 @@ int main (void)
 	MCUCR = (1 << IVSEL);
 
 	/* Hardware initialization */
-	Bicolour_Init();
+	LEDs_Init();
 	
-	/* Staus LED set to red by default */
-	Bicolour_SetLeds(BICOLOUR_LED1_RED);
+	/* Indicate USB not connected */
+	LEDs_SetAllLEDs(LEDS_LED1);
 
 	/* Initialize the USB subsystem */
 	USB_Init();
@@ -90,14 +90,19 @@ int main (void)
 	PORTD = 0;
 	DDRD  = 0;
 	
+	#if defined(PORTE)
+	PORTE = 0;
+	DDRE  = 0;
+	#endif
+	
 	/* Start the user application */
 	AppStartPtr();
 }
 
 EVENT_HANDLER(USB_Connect)
 {	
-	/* Status LED green when USB connected */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
+	/* Indicate USB connected */
+	LEDs_SetAllLEDs(LEDS_LED2);
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -113,8 +118,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 	SentCommand.DataSize = Endpoint_Read_Word_LE();
 
-	/* Processing request - status LEDs green/orange */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN | BICOLOUR_LED2_ORANGE);
+	/* Indicate processing request */
+	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3);
 
 	switch (Request)
 	{
@@ -172,6 +177,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 							while (!(Endpoint_Setup_Out_IsReceived()));
 						}
 
+						/* Default to one byte processed per write command */
+						uint8_t BytesProcessed = 1;
+
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Write flash
 						{
 							union
@@ -185,6 +193,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 							/* Increment the counter for the number of bytes in the current page */
 							BytesInFlashPage += 2;
+							
+							/* Two bytes have been processed for flash writes, not one */
+							BytesProcessed    = 2;
 
 							/* See if an entire page has been written to the flash page buffer */
 							if (BytesInFlashPage < SPM_PAGESIZE)
@@ -195,21 +206,17 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 								
 								BytesInFlashPage = 0;
 							}
-							
-							/* Adjust counters */
-							SentCommand.DataSize -= 2;
-							TransfersRemaining   -= 2;
-							StartAddr            += 2;
 						}
 						else                                                   // Write EEPROM
-						{	
-							eeprom_write_byte((uint8_t*)StartAddr, Endpoint_Read_Byte());	
-
-							/* Adjust counters */
-							SentCommand.DataSize -= 1;
-							TransfersRemaining   -= 1;
-							StartAddr            += 1;
+						{
+							/* Read the byte from the USB interface and write to to the EEPROM */
+							eeprom_write_byte((uint8_t*)StartAddr, Endpoint_Read_Byte());
 						}
+					
+						/* Adjust counters */
+						SentCommand.DataSize -= BytesProcessed;
+						TransfersRemaining   -= BytesProcessed;
+						StartAddr            += BytesProcessed;
 					}
 
 					/* Re-enable the RWW section of flash in case it was written to */
@@ -254,33 +261,38 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 							while (!(Endpoint_Setup_In_IsReady()));
 						}
 
+						/* Default to one byte processed per read command */
+						uint8_t BytesProcessed = 1;
+
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Read FLASH
 						{
-							/* Create far flash psudo-pointer from address and 64KB flash page values */
-							union
-							{
-								uint16_t Words[2];
-								uint32_t Long;
-							} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
-
 							/* Read the flash word and send it via USB to the host */
-							Endpoint_Write_Word_LE(pgm_read_word_far(CurrFlashAddress.Long));
+							#if defined(RAMPZ)
+								/* Create far flash psudo-pointer from address and 64KB flash page values */
+								union
+								{
+									uint16_t Words[2];
+									uint32_t Long;
+								} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
 
-							/* Adjust counters */
-							SentCommand.DataSize -= 2;
-							TransfersRemaining   -= 2;
-							StartAddr            += 2;					
+								Endpoint_Write_Word_LE(pgm_read_word_far(CurrFlashAddress.Long));
+							#else
+								Endpoint_Write_Word_LE(pgm_read_word(StartAddr));							
+							#endif
+							
+							/* Two bytes have been processed for flash writes, not one */
+							BytesProcessed    = 2;				
 						}
 						else                                                   // Read EEPROM
 						{
 							/* Read the EEPROM byte and send it via USB to the host */
-							Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)StartAddr));
-
-							/* Adjust counters */
-							SentCommand.DataSize -= 1;
-							TransfersRemaining   -= 1;
-							StartAddr            += 1;					
+							Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)StartAddr));				
 						}
+					
+						/* Adjust counters */
+						SentCommand.DataSize -= BytesProcessed;
+						TransfersRemaining   -= BytesProcessed;
+						StartAddr            += BytesProcessed;							
 					}
 				}
 				else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))           // Blank Check
@@ -361,8 +373,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			break;
 	}
 
-	/* Command processing finished, status LED green */
-	Bicolour_SetLeds(BICOLOUR_LED1_GREEN);
+	/* Indicate command processing finished */
+	LEDs_SetAllLEDs(LEDS_LED2);
 }
 
 static void DiscardFillerBytes(uint8_t FillerBytes)
@@ -471,7 +483,11 @@ static void ProcessMemReadCommand(void)
 		while (CurrFlashAddress < BOOT_START_ADDR)
 		{
 			/* Check if the current byte is not blank */
+			#if defined(RAMPZ)
 			if (pgm_read_byte_far(CurrFlashAddress) != 0xFF)
+			#else
+			if (pgm_read_byte(CurrFlashAddress) != 0xFF)
+			#endif
 			{
 				/* Set state and status variables to the appropriate error values */
 				DFU_State  = dfuERROR;
