@@ -567,11 +567,11 @@ static void ProcessReadCommand(void)
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Read signature byte
 	{
 		if (SentCommand.Data[1] == 0x30)                                       // Read byte 1
-		  CommandResponse = boot_read_sig_byte(0);
+		  CommandResponse = boot_signature_byte_get(0);
 		else if (SentCommand.Data[1] == 0x31)                                  // Read byte 2
-		  CommandResponse = boot_read_sig_byte(2);
+		  CommandResponse = boot_signature_byte_get(2);
 		else if (SentCommand.Data[1] == 0x60)                                  // Read byte 3
-		  CommandResponse = boot_read_sig_byte(4);
+		  CommandResponse = boot_signature_byte_get(4);
 	}
 	
 	ResponseByte = CommandResponse;

@@ -12,15 +12,14 @@
 #define _BOOTLOADER_H_
 
 	/* Includes: */
-		#include "Descriptors.h"
-		#include "BootFuncs.h"
-		
 		#include <avr/io.h>
 		#include <avr/wdt.h>
 		#include <avr/boot.h>
 		#include <avr/eeprom.h>
 		#include <stdbool.h>
 	
+		#include "Descriptors.h"
+		
 		#include <MyUSB/Drivers/USB/USB.h>
 		#include <MyUSB/Drivers/Board/LEDs.h>
 		
