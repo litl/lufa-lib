@@ -11,10 +11,15 @@
 #ifndef __SPI_H__
 #define __SPI_H__
 
-	/* Public Interface - May be used in end-application: */
+	/* Includes: */
+		#include <stdbool.h>
+
+	/* Private Interface - For use in library only: */
 		/* Macros: */
 			#define SPI_USE_DOUBLESPEED            (1 << 7)
-
+		
+	/* Public Interface - May be used in end-application: */
+		/* Macros: */
 			#define SPI_SPEED_FCPU_DIV_2           SPI_USE_DOUBLESPEED
 			#define SPI_SPEED_FCPU_DIV_4           0
 			#define SPI_SPEED_FCPU_DIV_8           (SPI_USE_DOUBLESPEED | (1 << SPR0))
