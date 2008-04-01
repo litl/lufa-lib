@@ -43,7 +43,11 @@
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UEINTX, (1 << RXOUTI)
 			
 			#if defined(USB_FULL_CONTROLLER)
-				#define Endpoint_BytesInEndpoint()             UEBCX
+				#if defined(__AVR_ATmega32U4__)
+					#define Endpoint_BytesInEndpoint()         (((uint16_t)UEBCHX << 8) | UEBCLX)
+				#else
+					#define Endpoint_BytesInEndpoint()         UEBCX
+				#endif
 			#else
 				#define Endpoint_BytesInEndpoint()             UEBCLX
 			#endif
@@ -222,13 +226,13 @@
 			uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 
 		/* Function Aliases: */
-			static inline uint16_t Endpoint_Read_Word(void)               ATTR_ALIAS(Endpoint_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
-			static inline void     Endpoint_Write_Word(uint16_t Word)     ATTR_ALIAS(Endpoint_Write_Word_LE);
-			static inline uint32_t Endpoint_Read_DWord(void)              ATTR_ALIAS(Endpoint_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;
-			static inline void     Endpoint_Write_DWord(uint32_t Word)    ATTR_ALIAS(Endpoint_Write_DWord_LE);
+			#define Endpoint_Read_Word()                   Endpoint_Read_Word_LE()   
+			#define Endpoint_Write_Word(Word)              Endpoint_Write_Word_LE(Word)
+			#define Endpoint_Read_DWord()                  Endpoint_Read_DWord_LE()
+			#define Endpoint_Write_DWord(DWord)            Endpoint_Write_DWord_LE(DWord)
+			#define Endpoint_Write_Stream(Data, Length)    Endpoint_Write_Stream_LE(Data, Length)
+			#define Endpoint_Read_Stream(Buffer, Length)   Endpoint_Read_Stream_LE(Buffer, Length)
 
-			#define                Endpoint_Write_Stream(Data, Length)    Endpoint_Write_Stream_LE(Data, Length)
-			#define                Endpoint_Read_Stream(Buffer, Length)   Endpoint_Read_Stream_LE(Buffer, Length)
 	/* Private Interface - For use in library only: */
 		/* Macros: */
 			#define Endpoint_IsSetupRecieved()             ((UEINTX & (1 << RXSTPI)) ? true : false)

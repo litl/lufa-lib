@@ -11,6 +11,9 @@
 #ifndef __TEMPERATURE_H__
 #define __TEMPERATURE_H__
 
+	/* Macros: */
+		#define INCLUDE_FROM_BOARD_DRIVER
+
 	/* Includes: */
 		#include <avr/pgmspace.h>
 

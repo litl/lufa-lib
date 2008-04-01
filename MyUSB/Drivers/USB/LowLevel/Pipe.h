@@ -216,13 +216,12 @@
 			}
 
 		/* Function Aliases: */
-			static inline uint16_t Pipe_Read_Word(void)             ATTR_ALIAS(Pipe_Read_Word_LE) ATTR_WARN_UNUSED_RESULT;
-			static inline void     Pipe_Write_Word(uint16_t Word)   ATTR_ALIAS(Pipe_Write_Word_LE);
-			static inline uint32_t Pipe_Read_DWord(void)            ATTR_ALIAS(Pipe_Read_DWord_LE) ATTR_WARN_UNUSED_RESULT;
-			static inline void     Pipe_Write_DWord(uint32_t Word)  ATTR_ALIAS(Pipe_Write_DWord_LE);
-
-			#define                Pipe_Write_Stream(Data, Length)  Pipe_Write_Stream_LE(Data, Length)
-			#define                Pipe_Read_Stream(Buffer, Length) Pipe_Read_Stream_LE(Buffer, Length)
+			#define Pipe_Read_Word()                   Pipe_Read_Word_LE()
+			#define Pipe_Write_Word(Word)              Pipe_Write_Word_LE(Word)
+			#define Pipe_Read_DWord()                  Pipe_Read_DWord_LE()
+			#define Pipe_Write_DWord(DWord)            Pipe_Write_DWord_LE(DWord)
+			#define Pipe_Write_Stream(Data, Length)    Pipe_Write_Stream_LE(Data, Length)
+			#define Pipe_Read_Stream(Buffer, Length)   Pipe_Read_Stream_LE(Buffer, Length)
 
 		/* External Variables: */
 			extern uint8_t USB_ControlPipeSize;
