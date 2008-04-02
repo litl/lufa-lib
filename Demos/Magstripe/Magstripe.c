@@ -117,7 +117,12 @@ TASK(USB_Keyboard_Report)
 
 	/* Abort task if no card inserted */
 	if (!(MagStatus_LCL & MAG_CLS))
-	  return;
+	{
+		/* Indicate no key press to the host */
+		Keyboard_SendKeyReport(0);
+
+		return;
+	}
 
 	/* While card is inserted, read the data */
 	while (MagStatus_LCL & MAG_CLS)
@@ -170,9 +175,14 @@ void Keyboard_SendKeyReport(uint8_t KeyCode)
 		/* Check if Keyboard Endpoint Ready for Read/Write */
 		if (Endpoint_ReadWriteAllowed())
 		{
-			/* Write Keyboard Report Data */
 			Endpoint_Write_Byte(KeyboardReportData.Modifier);
-			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(KeyboardReportData.KeyCode);			
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(0x00);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_FIFOCON_Clear();
