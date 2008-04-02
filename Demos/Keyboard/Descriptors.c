@@ -34,19 +34,19 @@ USB_Descriptor_HID_Keyboard_Report_t KeyboardReport PROGMEM =
 		0x81, 0x02,          /*   Input (Data, Variable, Absolute)              */
 		0x95, 0x01,          /*   Report Count (1)                              */
 		0x75, 0x08,          /*   Report Size (8)                               */
-		0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
-		0x95, 0x05,                    //   REPORT_COUNT (5)
-		0x75, 0x01,                    //   REPORT_SIZE (1)
-		0x05, 0x08,                    //   USAGE_PAGE (LEDs)
-		0x19, 0x01,                    //   USAGE_MINIMUM (Num Lock)
-		0x29, 0x05,                    //   USAGE_MAXIMUM (Kana)
-		0x91, 0x02,                    //   OUTPUT (Data,Var,Abs)
-		0x95, 0x01,                    //   REPORT_COUNT (1)
-		0x75, 0x03,                    //   REPORT_SIZE (3)
-		0x91, 0x03,                    //   OUTPUT (Cnst,Var,Abs)
-		0x95, 0x06,                    //   REPORT_COUNT (6)
-		0x75, 0x08,                    //   REPORT_SIZE (8)
-		0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+		0x81, 0x03,          /*   Input (Const, Variable, Absolute)             */
+		0x95, 0x05,          /*   Report Count (5)                              */
+		0x75, 0x01,          /*   Report Size (1)                               */
+		0x05, 0x08,          /*   Usage Page (LEDs)                             */
+		0x19, 0x01,          /*   Usage Minimum (Num Lock)                      */
+		0x29, 0x05,          /*   Usage Maximum (Kana)                          */
+		0x91, 0x02,          /*   Output (Data, Variable, Absolute)             */
+		0x95, 0x01,          /*   Report Count (1)                              */
+		0x75, 0x03,          /*   Report Size (3)                               */
+		0x91, 0x03,          /*   Output (Const, Variable Absolute)             */
+		0x95, 0x06,          /*   Report Count (6)                              */
+		0x75, 0x08,          /*   Report Size (8)                               */
+		0x15, 0x00,          /*   Logical Minimum (0)                           */
 		0x25, 0x65,          /*   Logical Maximum (101)                         */
 		0x05, 0x07,          /*   Usage Page (Keyboard)                         */
 		0x19, 0x00,          /*   Usage Minimum (Reserved (no event indicated)) */

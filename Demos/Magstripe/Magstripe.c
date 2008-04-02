@@ -97,9 +97,13 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
-	/* Setup Keyboard Report Endpoint */
+	/* Setup Keyboard Report Endpoints */
 	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
+	                           ENDPOINT_BANK_SINGLE);
+
+	Endpoint_ConfigureEndpoint(KEYBOARD_LEDS_EPNUM, EP_TYPE_INTERRUPT,
+		                       ENDPOINT_DIR_OUT, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
 	/* Indicate USB connected and ready */
