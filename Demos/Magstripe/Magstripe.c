@@ -119,6 +119,13 @@ TASK(USB_Keyboard_Report)
 	uint16_t       StripeDataLen       = 0;
 	static uint8_t StripeData[DATA_LENGTH];
 
+	/* Select the LED Report Endpoint */
+	Endpoint_SelectEndpoint(KEYBOARD_LEDS_EPNUM);
+	
+	/* Throw away any LED reports from the host */
+	if (Endpoint_ReadWriteAllowed())
+	  Endpoint_FIFOCON_Clear();
+
 	/* Abort task if no card inserted */
 	if (!(MagStatus_LCL & MAG_CLS))
 	{
