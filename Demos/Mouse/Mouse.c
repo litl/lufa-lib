@@ -16,8 +16,8 @@
 	On startup the system will automatically enumerate and function
 	as a mouse when the USB connection to a host is present. To use
 	the mouse, move the joystick to move the pointer, and push the
-	joystick inwards to simulate a left-button click. The HWB on the
-	USBKEY board serves as the right mouse button.
+	joystick inwards to simulate a left-button click. The HWB serves as
+	the right mouse button.
 */
 
 #include "Mouse.h"

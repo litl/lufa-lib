@@ -52,6 +52,9 @@ all:
 	make -C Mouse clean
 	make -C Mouse all
 
+	make -C MouseFullInt clean
+	make -C MouseFullInt all
+
 	make -C MouseViaInt clean
 	make -C MouseViaInt all
 	
@@ -80,6 +83,7 @@ clean:
 	make -C MassStorage clean
 	make -C MassStorageHost clean
 	make -C Mouse clean
+	make -C MouseFullInt clean
 	make -C MouseViaInt clean
 	make -C MouseHost clean
 	make -C MouseHostViaInt clean
@@ -99,6 +103,7 @@ clean_list:
 	make -C MassStorage clean_list
 	make -C MassStorageHost clean_list
 	make -C Mouse clean_list
+	make -C MouseFullInt clean_list
 	make -C MouseViaInt clean_list
 	make -C MouseHost clean_list
 	make -C MouseHostViaInt clean_list

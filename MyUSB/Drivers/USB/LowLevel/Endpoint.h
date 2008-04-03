@@ -39,6 +39,7 @@
 				#define ENDPOINT_MAX_SIZE                      64			
 			#endif
 
+			#define ENDPOINT_INT_SETUP                         UEIENX, (1 << RXSTPE), UEINTX, (1 << RXSTPI)
 			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UEINTX, (1 << TXINI)
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UEINTX, (1 << RXOUTI)
 			

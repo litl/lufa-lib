@@ -12,9 +12,8 @@
 	Communications Device Class demonstration application.
 	This gives a simple reference application for implementing
 	a CDC device acting as a virtual serial port. Joystick
-	actions on the USBKEY board are transmitted to the host
-	as strings. The device does not respond to serial data
-	sent from the host.
+	actions are transmitted to the host as strings. The device
+	does not respond to serial data sent from the host.
 	
 	Before running, you will need to install the INF file that
 	is located in the CDC project directory. This will enable

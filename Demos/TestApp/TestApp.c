@@ -12,13 +12,12 @@
 	Test application. Demonstrates several aspects of the MyUSB
 	Library. On startup the current temperature will be printed
 	through the USART every 10 seconds, and the current joystick
-	position will be indicated via the two Bicolour LEDs on the
-	USBKEY board. Pressing the HWB on the USBKEY will initiate
-	the USB subsystem, enumerating the device (which has no
-	actual functionality beyond enumeration as a device or as a
-	host in this demo, and serves only to demonstrate the USB portion
-	of the library). It will also suspend the joystick and
-	temperature monitoring tasks.
+	position will be indicated via the LEDs on the selected board.
+	Pressing the HWB will initiate the USB subsystem, enumerating
+	the device (which has no actual functionality beyond
+	enumeration as a device or as a host in this demo, and serves
+	only to demonstrate the USB portion of the library). It will
+	also suspend the joystick and temperature monitoring tasks.
 	
 	Pressing the HWB a second time will turn off the USB system
 	and resume the temperature printing task (but not the joystick
@@ -27,9 +26,8 @@
 	When activated, the USB events will be printed through the
 	serial USART.
 	
-	When the USB subsystem is activated, the USBKEY's status LEDs
-	will show the current USB status, as described in the following
-	table:
+	When the USB subsystem is activated, the board LEDs will show
+	the current USB status.
 */
 
 #include "TestApp.h"

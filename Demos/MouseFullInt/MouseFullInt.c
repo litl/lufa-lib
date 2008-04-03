@@ -12,7 +12,7 @@
 	Mouse demonstration application, using endpoint interrupts. This
 	gives a simple reference application for implementing a USB Mouse
 	using the basic USB HID drivers in all modern OSes (i.e. no special
-	drivers required).
+	drivers required). Control requests are also fully interrupt driven.
 	
 	On startup the system will automatically enumerate and function
 	as a mouse when the USB connection to a host is present. To use
@@ -21,19 +21,13 @@
 	the right mouse button.
 */
 
-#include "MouseViaInt.h"
+#include "MouseFullInt.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB MouseI App");
+BUTTLOADTAG(ProjName,     "MyUSB MouseFI App");
 BUTTLOADTAG(BuildTime,    __TIME__);
 BUTTLOADTAG(BuildDate,    __DATE__);
 BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
-
-/* Scheduler Task List */
-TASK_LIST
-{
-	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
-};
 
 int main(void)
 {
@@ -52,30 +46,31 @@ int main(void)
 	/* Indicate USB not ready */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
-	/* Initialize Scheduler so that it can be used */
-	Scheduler_Init();
-
 	/* Initialize USB Subsystem */
 	USB_Init();
 
-	/* Scheduling - routine never returns, so put this last in the main function */
-	Scheduler_Start();
+	for (;;)
+	{
+	}
 }
 
 EVENT_HANDLER(USB_Connect)
 {
-	/* Start USB management task */
-	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
-
 	/* Indicate USB enumerating */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
+EVENT_HANDLER(USB_Reset)
+{
+	/* Select the control endpoint */
+	Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+
+	/* Enable the endpoint SETUP interrupt ISR for the control endpoint */
+	USB_INT_Enable(ENDPOINT_INT_SETUP);
+}
+
 EVENT_HANDLER(USB_Disconnect)
 {
-	/* Stop running mouse reporting and USB management tasks */
-	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
-
 	/* Indicate USB not ready */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
@@ -96,6 +91,16 @@ EVENT_HANDLER(USB_CreateEndpoints)
 
 ISR(ENDPOINT_PIPE_vect)
 {
+	/* Check if the control endpoint has recieved a request */
+	if (Endpoint_HasEndpointInterrupted(ENDPOINT_CONTROLEP))
+	{
+		/* Process the control request */
+		USB_USBTask();
+
+		/* Handshake the endpoint setup interrupt */
+		USB_INT_Clear(ENDPOINT_INT_SETUP);
+	}
+
 	/* Check if mouse endpoint has interrupted */
 	if (Endpoint_HasEndpointInterrupted(MOUSE_EPNUM))
 	{

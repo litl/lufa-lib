@@ -15,10 +15,10 @@
 	
 	This device will show up as a generic joystick device, with two buttons.
 	Pressing the joystick inwards is the first button, and the HWB button
-	on the USBKEY board is the second.
+	is the second.
 	
-	Moving the joystick on the USBKEY moves the joystick location on the
-	host computer.
+	Moving the joystick on the selected board moves the joystick location on
+	the host computer.
 	
 	Currently only single interface joysticks are supported.
 */
