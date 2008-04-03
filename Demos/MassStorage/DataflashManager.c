@@ -64,6 +64,9 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 			Dataflash_SendAddressBytes(0, 0);
 		}
 	
+		/* Wait until endpoint ready to be read from again */
+		while (!(Endpoint_ReadWriteAllowed()));
+
 		/* Write data to the dataflash buffer in groups of 64 bytes (endpoint size) */
 		for (uint8_t WriteLoop = 0; WriteLoop < (VIRTUAL_MEMORY_SUB_BLOCK_SIZE / 8); WriteLoop++)
 		{
@@ -91,10 +94,6 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 			TotalBlocks--;
 			SubBlockTransfers = 0;
 		}
-
-		/* Check if any blocks remaining, if so wait until endpoint ready to be read from again */
-		if (TotalBlocks)
-		  while (!(Endpoint_ReadWriteAllowed()));
 	}
 
 	/* Write the dataflash buffer contents back to the dataflash page */
@@ -152,6 +151,9 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 			Dataflash_SendByte(0);
 		}
 
+		/* Wait until endpoint ready to be written to again */
+		while (!(Endpoint_ReadWriteAllowed()));
+
 		/* Read data from the dataflash in groups of 64 bytes (endpoint size) */
 		for (uint8_t ReadLoop = 0; ReadLoop < (VIRTUAL_MEMORY_SUB_BLOCK_SIZE / 8); ReadLoop++)
 		{
@@ -179,10 +181,6 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 			TotalBlocks--;
 			SubBlockTransfers = 0;
 		}
-
-		/* Check if any blocks remaining, if so wait until endpoint ready to be written to again */
-		if (TotalBlocks)
-		  while (!(Endpoint_ReadWriteAllowed()));
 	}
 
 	/* Deselect all dataflash chips */

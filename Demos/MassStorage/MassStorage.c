@@ -42,7 +42,7 @@ TASK_LIST
 
 /* Global Variables */
 CommandBlockWrapper_t  CommandBlock;
-CommandStatusWrapper_t CommandStatus = { Signature: CSW_SIGNATURE };
+CommandStatusWrapper_t CommandStatus = { Header: {Signature: CSW_SIGNATURE } };
 
 int main(void)
 {
@@ -150,18 +150,47 @@ TASK(USB_MassStorage)
 			LEDs_TurnOnLEDs(LEDS_LED3 | LEDS_LED4);
 
 			/* Process sent command block from the host */
-			ProcessCommandBlock();
+			ReadInCommandBlock();
 
-			/* Load in the CBW tag into the CSW to link them together */
-			CommandStatus.Tag = CommandBlock.Header.Tag;
+			/* If selected data pipe is not stalled, then the command block is valid, so process it */
+			if (!(Endpoint_IsStalled()))
+			{
+				/* Check direction of command, select Data IN endpoint if data is from the device */
+				if (CommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
+				  Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 
-			/* Return command status block to the host */
-			ReturnCommandStatus();
+				/* Decode the recieved SCSI command */
+				SCSI_DecodeSCSICommand();
+
+				/* Load in the CBW tag into the CSW to link them together */
+				CommandStatus.Header.Tag = CommandBlock.Header.Tag;
+
+				/* Load in the Command Data residue into the CSW */
+				CommandStatus.Header.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
+
+				/* Stall data pipe if command failed */
+				if ((CommandStatus.Header.Status == Command_Fail) &&
+					(CommandStatus.Header.SCSICommandResidue))
+				{
+					Endpoint_StallTransaction();
+				}
+
+				/* Return command status block to the host */
+				ReturnCommandStatus();
+
+				/* Indicate ready */
+				LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
+			}
+			else
+			{
+				/* Indicate error */
+				LEDs_SetAllLEDs(LEDS_LED1);
+			}
 		}
 	}
 }
 
-static void ProcessCommandBlock(void)
+static void ReadInCommandBlock(void)
 {
 	/* Select the Data Out endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
@@ -174,9 +203,6 @@ static void ProcessCommandBlock(void)
 	    (CommandBlock.Header.LUN != 0x00) ||
 		(CommandBlock.Header.SCSICommandLength > MAX_SCSI_COMMAND_LENGTH))
 	{
-		/* Indicate error */
-		LEDs_SetAllLEDs(LEDS_LED1);
-
 		/* Stall both data pipes until reset by host */
 		Endpoint_StallTransaction();
 		Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
@@ -190,23 +216,6 @@ static void ProcessCommandBlock(void)
 	  
 	/* Clear the endpoint */
 	Endpoint_FIFOCON_Clear();
-
-	/* Check direction of command, select Data IN endpoint if data is from the device */
-	if (CommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
-	  Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
-
-	/* Decode the recieved SCSI command */
-	SCSI_DecodeSCSICommand();
-
-	/* Load in the Command Data residue into the CSW */
-	CommandStatus.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
-
-	/* Stall data pipe if command failed */
-	if ((CommandStatus.Status == Command_Fail) &&
-	    (CommandStatus.SCSICommandResidue))
-	{
-		Endpoint_StallTransaction();
-	}
 }
 
 static void ReturnCommandStatus(void)
@@ -217,7 +226,10 @@ static void ReturnCommandStatus(void)
 	/* While data pipe is stalled, process control requests */
 	while (Endpoint_IsStalled())
 	{
+		/* Run the USB task manually to process any received control requests */
 		USB_USBTask();
+
+		/* Re-select the Data Out endpoint as the USB task selects the control endpoint */
 		Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 	}
 
@@ -227,7 +239,10 @@ static void ReturnCommandStatus(void)
 	/* While data pipe is stalled, process control requests */
 	while (Endpoint_IsStalled())
 	{
+		/* Run the USB task manually to process any received control requests */
 		USB_USBTask();
+
+		/* Re-select the Data In endpoint as the USB task selects the control endpoint */
 		Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 	}
 	
@@ -239,7 +254,4 @@ static void ReturnCommandStatus(void)
 	
 	/* Send the CSW */
 	Endpoint_FIFOCON_Clear();
-
-	/* Indicate ready */
-	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }

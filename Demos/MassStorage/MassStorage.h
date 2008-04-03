@@ -56,10 +56,13 @@
 		
 		typedef struct
 		{
-			const uint32_t Signature;
-			      uint32_t Tag;
-			      uint32_t SCSICommandResidue;
-			      uint8_t  Status;			
+			struct
+			{
+				const uint32_t Signature;
+					  uint32_t Tag;
+					  uint32_t SCSICommandResidue;
+					  uint8_t  Status;
+			} Header;
 		} CommandStatusWrapper_t;
 		
 	/* Enums: */
@@ -85,7 +88,7 @@
 
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_MASSSTORAGE_C)
-			static void ProcessCommandBlock(void);
+			static void ReadInCommandBlock(void);
 			static void ReturnCommandStatus(void);
 		#endif
 

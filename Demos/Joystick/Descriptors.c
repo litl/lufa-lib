@@ -86,14 +86,14 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
-			InterfaceNumber:        JOYSTICK_INTERFACE_NUMBER,
-			AlternateSetting:       JOYSTICK_INTERFACE_ALTERNATE,
+			InterfaceNumber:        0x00,
+			AlternateSetting:       0x00,
 			
-			TotalEndpoints:         JOYSTICK_INTERFACE_ENDPOINTS,
+			TotalEndpoints:         1,
 				
-			Class:                  JOYSTICK_INTERFACE_CLASS,
-			SubClass:               JOYSTICK_INTERFACE_SUBCLASS,
-			Protocol:               JOYSTICK_INTERFACE_PROTOCOL,
+			Class:                  0x03,
+			SubClass:               0x00,
+			Protocol:               0x00,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},

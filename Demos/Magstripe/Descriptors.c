@@ -17,7 +17,7 @@
 	written by Denver Gingerich.
 */
 
-#include "../Keyboard/Descriptors.h"
+#include "Descriptors.h"
 
 USB_Descriptor_HID_Keyboard_Report_t KeyboardReport PROGMEM =
 {
@@ -101,14 +101,14 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
-			InterfaceNumber:        KEYBOARD_INTERFACE_NUMBER,
-			AlternateSetting:       KEYBOARD_INTERFACE_ALTERNATE,
+			InterfaceNumber:        0x00,
+			AlternateSetting:       0x00,
 			
-			TotalEndpoints:         KEYBOARD_INTERFACE_ENDPOINTS,
+			TotalEndpoints:         2,
 				
-			Class:                  KEYBOARD_INTERFACE_CLASS,
-			SubClass:               KEYBOARD_INTERFACE_SUBCLASS,
-			Protocol:               KEYBOARD_INTERFACE_PROTOCOL,
+			Class:                  0x03,
+			SubClass:               0x00,
+			Protocol:               0x01,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},

@@ -120,7 +120,7 @@ void SCSI_DecodeSCSICommand(void)
 	if (CommandSuccess)
 	{
 		/* Command succeeded - set the CSW status and update the SENSE key */
-		CommandStatus.Status = Command_Pass;
+		CommandStatus.Header.Status = Command_Pass;
 		
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_GOOD,
 		               SCSI_ASENSE_NO_ADDITIONAL_INFORMATION,
@@ -129,7 +129,7 @@ void SCSI_DecodeSCSICommand(void)
 	else
 	{
 		/* Command failed - set the CSW status - failed command function updates the SENSE key */
-		CommandStatus.Status = Command_Fail;
+		CommandStatus.Header.Status = Command_Fail;
 	}
 }
 

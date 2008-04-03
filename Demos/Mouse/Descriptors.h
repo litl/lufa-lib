@@ -50,13 +50,6 @@
 		#define DTYPE_HID                 0x21
 		#define DTYPE_Report              0x22
 
-		#define MOUSE_INTERFACE_NUMBER    0
-		#define MOUSE_INTERFACE_ALTERNATE 0
-		#define MOUSE_INTERFACE_ENDPOINTS 1
-		#define MOUSE_INTERFACE_CLASS     0x03
-		#define MOUSE_INTERFACE_SUBCLASS  0x00
-		#define MOUSE_INTERFACE_PROTOCOL  0x02
-
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 							   void** const DescriptorAddr, uint16_t* const Size)

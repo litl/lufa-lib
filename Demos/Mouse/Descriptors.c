@@ -87,14 +87,14 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
-			InterfaceNumber:        MOUSE_INTERFACE_NUMBER,
-			AlternateSetting:       MOUSE_INTERFACE_ALTERNATE,
+			InterfaceNumber:        0x00,
+			AlternateSetting:       0x00,
 			
-			TotalEndpoints:         MOUSE_INTERFACE_ENDPOINTS,
+			TotalEndpoints:         1,
 				
-			Class:                  MOUSE_INTERFACE_CLASS,
-			SubClass:               MOUSE_INTERFACE_SUBCLASS,
-			Protocol:               MOUSE_INTERFACE_PROTOCOL,
+			Class:                  0x03,
+			SubClass:               0x00,
+			Protocol:               0x02,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},

@@ -30,9 +30,6 @@
 	a TTL magnetic stripe reader to the connected computer. The raw bitstream
 	obtained from the magnetic stripe reader is "typed" through the keyboard
 	driver as 0's and 1's. After every card swipe, the demo will send a Return key.
-
-	This demo relies on the keyboard demo to compile. The keyboard demo application
-	files must be located at ../Keyboard.
 */
 
 #include "Magstripe.h"
