@@ -141,7 +141,7 @@ static void USB_HostTask(void)
 
 			uint8_t* DataBuffer = alloca(offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1);
 			
-			if (USB_Host_SendControlRequest(DataBuffer) != HOST_SENDCONTROL_Sucessful)
+			if (USB_Host_SendControlRequest(DataBuffer) != HOST_SENDCONTROL_Successful)
 			{
 				ErrorCode = HOST_ENUMERROR_ControlError;
 				break;
@@ -182,7 +182,7 @@ static void USB_HostTask(void)
 					DataLength:  0,
 				};
 
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
+			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
 			{
 				ErrorCode = HOST_ENUMERROR_ControlError;
 				break;

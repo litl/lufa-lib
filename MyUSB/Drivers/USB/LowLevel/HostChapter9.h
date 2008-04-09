@@ -32,7 +32,7 @@
 		/* Enums: */
 			enum USB_Host_SendControlErrorCodes_t
 			{
-				HOST_SENDCONTROL_Sucessful        = 0,
+				HOST_SENDCONTROL_Successful       = 0,
 				HOST_SENDCONTROL_DeviceDisconnect = 1,
 				HOST_SENDCONTROL_PipeError        = 2,
 				HOST_SENDCONTROL_SetupStalled     = 3,

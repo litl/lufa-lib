@@ -130,7 +130,7 @@ TASK(USB_Mouse_Host)
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
+			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
 			{
 				puts_P(PSTR("Control error.\r\n"));
 
@@ -240,7 +240,7 @@ uint8_t GetConfigDescriptorData(void)
 	bool     FoundHIDInterfaceDescriptor = false;
 	
 	/* Get Configuration Descriptor size from the device */
-	if (AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Sucessful)
+	if (AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
 	  return ControlError;
 	
 	/* Ensure that the Configuration Descriptor isn't too large */

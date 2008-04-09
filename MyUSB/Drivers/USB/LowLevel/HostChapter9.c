@@ -21,7 +21,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 	uint8_t* HeaderStream   = (uint8_t*)&USB_HostRequest;
 	uint8_t* DataStream     = (uint8_t*)BufferPtr;
 	bool     SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
-	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
+	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Successful;
 	uint16_t DataLen        = USB_HostRequest.DataLength;
 
 	USB_HOST_SOFGeneration_Enable();
@@ -54,12 +54,13 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 	if ((USB_HostRequest.RequestType & CONTROL_REQTYPE_DIRECTION) == REQDIR_DEVICETOHOST)
 	{
 		Pipe_SetToken(PIPE_TOKEN_IN);
-		Pipe_Unfreeze();
 		
 		if (DataStream != NULL)
 		{			
 			while (DataLen)
 			{
+				Pipe_Unfreeze();
+
 				if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_In_Received)))
 				  goto End_Of_Control_Send;
 							
@@ -69,11 +70,11 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 				while (Pipe_BytesInPipe() && DataLen--)
 				  *(DataStream++) = Pipe_Read_Byte();			
 
+				Pipe_Freeze();
 				Pipe_Setup_In_Clear();
 			}
 		}
 
-		Pipe_Freeze();
 		Pipe_SetToken(PIPE_TOKEN_OUT);
 		Pipe_Unfreeze();
 		
@@ -134,7 +135,7 @@ End_Of_Control_Send:
 
 static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType)
 {
-	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Sucessful;
+	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Successful;
 	uint16_t TimeoutCounter = USB_HOST_TIMEOUT_MS;
 
 	while (!(((WaitType == Wait_For_Setup_Sent)  && Pipe_IsSetupSent())         ||
