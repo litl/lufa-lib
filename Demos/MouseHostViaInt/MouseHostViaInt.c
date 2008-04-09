@@ -212,6 +212,9 @@ ISR(ENDPOINT_PIPE_vect)
 		{
 			uint8_t LEDMask = LEDS_NO_LEDS;
 		
+			/* Clear interrupt flag */
+			USB_INT_Clear(PIPE_INT_IN);		
+
 			/* Read in mouse report data */
 			MouseReport.Button = Pipe_Read_Byte();
 			MouseReport.X      = Pipe_Read_Byte();
@@ -240,9 +243,8 @@ ISR(ENDPOINT_PIPE_vect)
 			                                              MouseReport.Y,
 			                                              MouseReport.Button);
 					
-			/* Clear the IN endpoint and interrupt flag, ready for next data packet */
-			Pipe_FIFOCON_Clear();			
-			USB_INT_Clear(PIPE_INT_IN);			
+			/* Clear the IN endpoint, ready for next data packet */
+			Pipe_FIFOCON_Clear();	
 		}
 	}
 }

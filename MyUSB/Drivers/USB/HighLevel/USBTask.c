@@ -171,6 +171,8 @@ static void USB_HostTask(void)
 				break;
 			}
 
+			Pipe_SetInfiniteINRequests();
+
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
 					RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),

@@ -209,6 +209,9 @@ ISR(ENDPOINT_PIPE_vect)
 		/* Check to see if the pipe IN interrupt has fired */
 		if (USB_INT_HasOccurred(PIPE_INT_IN) && USB_INT_IsEnabled(PIPE_INT_IN))
 		{
+			/* Clear interrupt flag */
+			USB_INT_Clear(PIPE_INT_IN);		
+
 			/* Read in keyboard report data */
 			KeyboardReport.Modifier = Pipe_Read_Byte();
 			Pipe_Ignore_Byte();
@@ -240,9 +243,8 @@ ISR(ENDPOINT_PIPE_vect)
 				  printf_P(PSTR("%c"), PressedKey);
 			}
 
-			/* Clear the IN endpoint and interrupt flag, ready for next data packet */
+			/* Clear the IN endpoint, ready for next data packet */
 			Pipe_FIFOCON_Clear();
-			USB_INT_Clear(PIPE_INT_IN);		
 		}
 	}
 }

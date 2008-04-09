@@ -136,12 +136,7 @@ TASK(USB_Keyboard_Report)
 			/* Write Keyboard Report Data */
 			Endpoint_Write_Byte(KeyboardReportData.Modifier);
 			Endpoint_Write_Byte(0x00);
-			Endpoint_Write_Byte(KeyboardReportData.KeyCode);			
-			Endpoint_Write_Byte(0x00);
-			Endpoint_Write_Byte(0x00);
-			Endpoint_Write_Byte(0x00);
-			Endpoint_Write_Byte(0x00);
-			Endpoint_Write_Byte(0x00);
+			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
 
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_FIFOCON_Clear();

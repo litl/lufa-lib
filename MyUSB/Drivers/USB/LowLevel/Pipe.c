@@ -59,15 +59,9 @@ uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length)
 			while (!(Pipe_ReadWriteAllowed()))
 			{
 				if (!(USB_IsConnected))
-				{
-					Pipe_Freeze();
-
-					return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
-				}
+				  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 				else if (Pipe_IsStalled())
-				{
-					return PIPE_RWSTREAM_ERROR_PipeStalled;
-				}
+				  return PIPE_RWSTREAM_ERROR_PipeStalled;
 			}
 		}
 
@@ -75,15 +69,9 @@ uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length)
 		Length--;
 		
 		if (!(USB_IsConnected))
-		{
-			Pipe_Freeze();
-
-			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
-		}
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 		else if (Pipe_IsStalled())
-		{
-			return PIPE_RWSTREAM_ERROR_PipeStalled;
-		}
+		  return PIPE_RWSTREAM_ERROR_PipeStalled;
 	}
 	
 	return PIPE_RWSTREAM_ERROR_NoError;
@@ -102,15 +90,9 @@ uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length)
 			while (!(Pipe_ReadWriteAllowed()))
 			{
 				if (!(USB_IsConnected))
-				{
-					Pipe_Freeze();
-
-					return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
-				}
+				  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 				else if (Pipe_IsStalled())
-				{
-					return PIPE_RWSTREAM_ERROR_PipeStalled;
-				}
+				  return PIPE_RWSTREAM_ERROR_PipeStalled;
 			}
 		}
 
@@ -118,15 +100,9 @@ uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length)
 		Length--;
 		
 		if (!(USB_IsConnected))
-		{
-			Pipe_Freeze();
-
-			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
-		}
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 		else if (Pipe_IsStalled())
-		{
-			return PIPE_RWSTREAM_ERROR_PipeStalled;
-		}
+		  return PIPE_RWSTREAM_ERROR_PipeStalled;
 	}
 	
 	return PIPE_RWSTREAM_ERROR_NoError;
@@ -145,15 +121,9 @@ uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)
 			while (!(Pipe_ReadWriteAllowed()))
 			{
 				if (!(USB_IsConnected))
-				{
-					Pipe_Freeze();
-
-					return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
-				}
+				  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 				else if (Pipe_IsStalled())
-				{
-					return PIPE_RWSTREAM_ERROR_PipeStalled;
-				}
+				  return PIPE_RWSTREAM_ERROR_PipeStalled;
 			}
 		}
 
@@ -161,15 +131,9 @@ uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)
 		Length--;
 		
 		if (!(USB_IsConnected))
-		{
-			Pipe_Freeze();
-
-			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
-		}
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 		else if (Pipe_IsStalled())
-		{
-			return PIPE_RWSTREAM_ERROR_PipeStalled;
-		}
+		  return PIPE_RWSTREAM_ERROR_PipeStalled;
 	}
 	
 	return PIPE_RWSTREAM_ERROR_NoError;
@@ -188,15 +152,9 @@ uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length)
 			while (!(Pipe_ReadWriteAllowed()))
 			{
 				if (!(USB_IsConnected))
-				{
-					Pipe_Freeze();
-
-					return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
-				}
+				  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 				else if (Pipe_IsStalled())
-				{
-					return PIPE_RWSTREAM_ERROR_PipeStalled;
-				}
+				  return PIPE_RWSTREAM_ERROR_PipeStalled;
 			}
 		}
 
@@ -204,15 +162,9 @@ uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length)
 		Length--;
 		
 		if (!(USB_IsConnected))
-		{
-			Pipe_Freeze();
-
-			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
-		}
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 		else if (Pipe_IsStalled())
-		{
-			return PIPE_RWSTREAM_ERROR_PipeStalled;
-		}
+		  return PIPE_RWSTREAM_ERROR_PipeStalled;
 	}
 	
 	return PIPE_RWSTREAM_ERROR_NoError;

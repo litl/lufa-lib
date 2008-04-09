@@ -137,11 +137,6 @@ ISR(ENDPOINT_PIPE_vect)
 		Endpoint_Write_Byte(KeyboardReportData.Modifier);
 		Endpoint_Write_Byte(0x00);
 		Endpoint_Write_Byte(KeyboardReportData.KeyCode);			
-		Endpoint_Write_Byte(0x00);
-		Endpoint_Write_Byte(0x00);
-		Endpoint_Write_Byte(0x00);
-		Endpoint_Write_Byte(0x00);
-		Endpoint_Write_Byte(0x00);
 
 		/* Handshake the IN Endpoint - send the data to the host */
 		Endpoint_FIFOCON_Clear();
@@ -153,6 +148,9 @@ ISR(ENDPOINT_PIPE_vect)
 	/* Check if Keyboard LED status Endpoint has interrupted */
 	if (Endpoint_HasEndpointInterrupted(KEYBOARD_LEDS_EPNUM))
 	{
+		/* Clear the endpoint OUT interrupt flag */
+		USB_INT_Clear(ENDPOINT_INT_OUT);
+
 		/* Clear the Keyboard LED Report endpoint interrupt and select the endpoint */
 		Endpoint_ClearEndpointInterrupt(KEYBOARD_LEDS_EPNUM);
 		Endpoint_SelectEndpoint(KEYBOARD_LEDS_EPNUM);
@@ -175,9 +173,6 @@ ISR(ENDPOINT_PIPE_vect)
 
 		/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
 		Endpoint_FIFOCON_Clear();
-
-		/* Clear the endpoint OUT interrupt flag */
-		USB_INT_Clear(ENDPOINT_INT_OUT);
 	}
 }
 

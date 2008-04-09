@@ -197,6 +197,7 @@ TASK(USB_Keyboard_Host)
 				Pipe_Ignore_Byte();
 				KeyboardReport.KeyCode  = Pipe_Read_Byte();
 				
+				/* Indicate if the modifier byte is non-zero */
 				LEDs_ChangeLEDs(LEDS_LED1, (KeyboardReport.Modifier) ? LEDS_LED1 : 0);
 				
 				/* Check if a key has been pressed */

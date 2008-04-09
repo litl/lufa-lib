@@ -44,11 +44,7 @@
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UEINTX, (1 << RXOUTI)
 			
 			#if defined(USB_FULL_CONTROLLER)
-				#if defined(__AVR_ATmega32U4__)
-					#define Endpoint_BytesInEndpoint()         (((uint16_t)UEBCHX << 8) | UEBCLX)
-				#else
-					#define Endpoint_BytesInEndpoint()         UEBCX
-				#endif
+				#define Endpoint_BytesInEndpoint()             UEBCX
 			#else
 				#define Endpoint_BytesInEndpoint()             UEBCLX
 			#endif

@@ -95,12 +95,12 @@ void USB_Init(
 	#endif
 
 	#if defined(USB_DEVICE_ONLY)
-	#if defined(USB_FULL_CONTROLLER)
-	USB_INT_Enable(USB_INT_VBUS);
-	#else
-	USB_SetupInterface();
-	USB_IsConnected = true;
-	#endif
+		#if defined(USB_FULL_CONTROLLER)
+		USB_INT_Enable(USB_INT_VBUS);
+		#else
+		USB_SetupInterface();
+		USB_IsConnected = true;
+		#endif
 	#elif defined(USB_HOST_ONLY)
 	USB_SetupInterface();
 	#else

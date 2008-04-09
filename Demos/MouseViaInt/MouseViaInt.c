@@ -118,9 +118,12 @@ ISR(ENDPOINT_PIPE_vect)
 		if (HWB_GetStatus())
 		  MouseReportData.Button |= (1 << 1);
 
-		/* Select the Mouse Report Endpoint */
-		Endpoint_SelectEndpoint(MOUSE_EPNUM);
+		/* Clear the endpoint IN interrupt flag */
+		USB_INT_Clear(ENDPOINT_INT_IN);
+
+		/* Clear the Mouse Report endpoint interrupt and select the endpoint */
 		Endpoint_ClearEndpointInterrupt(MOUSE_EPNUM);
+		Endpoint_SelectEndpoint(MOUSE_EPNUM);
 
 		/* Write Mouse Report Data */
 		Endpoint_Write_Byte(MouseReportData.Button);
@@ -129,8 +132,5 @@ ISR(ENDPOINT_PIPE_vect)
 			
 		/* Handshake the IN Endpoint - send the data to the host */
 		Endpoint_FIFOCON_Clear();
-
-		/* Clear the endpoint IN interrupt flag */
-		USB_INT_Clear(ENDPOINT_INT_IN);
 	}
 }
