@@ -16,7 +16,7 @@
 uint8_t USB_Host_WaitMS(uint8_t MS)
 {
 	bool    SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
-	uint8_t ErrorCode      = HOST_WAITERROR_Sucessful;
+	uint8_t ErrorCode      = HOST_WAITERROR_Successful;
 	
 	USB_INT_Clear(USB_INT_HSOFI);
 	USB_HOST_SOFGeneration_Enable();

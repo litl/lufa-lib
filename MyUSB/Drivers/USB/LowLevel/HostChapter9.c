@@ -26,7 +26,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 
 	USB_HOST_SOFGeneration_Enable();
 	
-	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
+	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
 	  return ReturnStatus;
 
 	Pipe_ClearErrorFlags();
@@ -48,7 +48,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 	Pipe_ClearSetupSent();
 	Pipe_Freeze();
 
-	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
+	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
 	  goto End_Of_Control_Send;
 
 	if ((USB_HostRequest.RequestType & CONTROL_REQTYPE_DIRECTION) == REQDIR_DEVICETOHOST)
@@ -142,7 +142,7 @@ static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType)
 	         ((WaitType == Wait_For_In_Received) && Pipe_Setup_In_IsReceived()) ||
 	         ((WaitType == Wait_For_Out_Ready)   && Pipe_Setup_Out_IsReady())))
 	{
-		if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Sucessful)
+		if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
 		  return ReturnStatus;
 			
 		if (!(TimeoutCounter--))

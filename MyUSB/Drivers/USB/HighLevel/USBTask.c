@@ -89,7 +89,7 @@ static void USB_HostTask(void)
 				USB_HOST_SOFGeneration_Enable();
 				Pipe_ClearPipes();
 				
-				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
+				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
 				{
 					ErrorCode = HOST_ENUMERROR_WaitStage;
 					break;
@@ -97,7 +97,7 @@ static void USB_HostTask(void)
 					
 				USB_Host_ResetDevice();
 					
-				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
+				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
 				{
 					ErrorCode = HOST_ENUMERROR_WaitStage;
 					break;
@@ -116,7 +116,7 @@ static void USB_HostTask(void)
 				
 			break;
 		case HOST_STATE_Powered:
-			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Sucessful)
+			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
 			{
 				ErrorCode = HOST_ENUMERROR_WaitStage;
 				break;
@@ -151,7 +151,7 @@ static void USB_HostTask(void)
 			
 			USB_Host_ResetDevice();
 			
-			if (USB_Host_WaitMS(200) != HOST_WAITERROR_Sucessful)
+			if (USB_Host_WaitMS(200) != HOST_WAITERROR_Successful)
 			{
 				ErrorCode = HOST_ENUMERROR_WaitStage;
 				break;
@@ -192,6 +192,12 @@ static void USB_HostTask(void)
 			
 			RAISE_EVENT(USB_DeviceEnumerationComplete);
 			USB_HostState = HOST_STATE_Addressed;
+
+			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
+			{
+				ErrorCode = HOST_ENUMERROR_WaitStage;
+				break;
+			}
 
 			break;
 	}

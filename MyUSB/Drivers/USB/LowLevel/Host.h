@@ -66,7 +66,7 @@
 
 			enum USB_Host_WaitMSErrorCodes_t
 			{
-				HOST_WAITERROR_Sucessful        = 0,
+				HOST_WAITERROR_Successful       = 0,
 				HOST_WAITERROR_DeviceDisconnect = 1,
 				HOST_WAITERROR_PipeError        = 2,
 				HOST_WAITERROR_SetupStalled     = 3,
