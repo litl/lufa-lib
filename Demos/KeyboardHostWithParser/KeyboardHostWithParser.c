@@ -190,6 +190,14 @@ TASK(USB_Keyboard_Host)
 			/* Get and process the device's first HID report descriptor */
 			GetHIDReportData();
 		
+		// TEMP
+	HIDReportInfo.TotalReportItems           = 1;
+	HIDReportInfo.ReportItems[0].BitOffset   = 16;
+	HIDReportInfo.ReportItems[0].BitSize     = 8;
+	HIDReportInfo.ReportItems[0].Usage.Page  = USAGEPAGE_KEYBOARD;
+	HIDReportInfo.ReportItems[0].Usage.Usage = USAGE_LEFTCONTROL;		
+		// TEMP
+		
 			puts_P(PSTR("Keyboard Enumerated.\r\n"));
 
 			USB_HostState = HOST_STATE_Ready;
@@ -213,7 +221,7 @@ TASK(USB_Keyboard_Host)
 				
 				/* Clear the IN endpoint, ready for next data packet */
 				Pipe_FIFOCON_Clear();
-				
+
 				/* Check each HID report item in turn, looking for keyboard scan code reports */
 				for (uint8_t ReportNumber = 0; ReportNumber < HIDReportInfo.TotalReportItems; ReportNumber++)
 				{

@@ -53,19 +53,20 @@
 			uint8_t           ItemType;
 			uint8_t           Attribute;
 			
-			uint16_t          GlobalUsagePage;
 			HID_Usage_t       Usage;
 
 			HID_Unit_t        Unit;
 			HID_MinMax_t      Logical;
 			HID_MinMax_t      Physical;
 			
-			unsigned long     Value;
+			uint32_t          Value;
 		} HID_ReportItem_t;
 
 		typedef struct
 		{
 			uint8_t           TotalReports;
+
+			uint16_t          GlobalUsagePage;
 
 			uint8_t           TotalReportItems;
 			HID_ReportItem_t  ReportItems[10];

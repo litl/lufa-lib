@@ -41,6 +41,8 @@ void GetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem)
 	uint16_t CurrentBit   = ReportItem->BitOffset;
 	uint32_t BitNumber    = 0;
 
+	ReportItem->Value = 0;
+
 	while (DataBitsRem--)
 	{
 		if (ReportData[CurrentBit / 8] & (1 << (CurrentBit % 8)))

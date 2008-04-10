@@ -131,7 +131,7 @@ TASK(USB_MassStore_Host)
 				};
 				
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
+			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
 			{
 				puts_P(PSTR("Control error."));
 
@@ -203,7 +203,7 @@ TASK(USB_MassStore_Host)
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Sucessful)
+			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
 			{
 				puts_P(PSTR("Control error."));
 
@@ -226,7 +226,7 @@ TASK(USB_MassStore_Host)
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(&MassStore_NumberOfLUNs) != HOST_SENDCONTROL_Sucessful)
+			if (USB_Host_SendControlRequest(&MassStore_NumberOfLUNs) != HOST_SENDCONTROL_Successful)
 			{
 				puts_P(PSTR("Control error."));
 
@@ -322,7 +322,7 @@ uint8_t GetConfigDescriptorData(void)
 	uint16_t ConfigDescriptorSize;
 	
 	/* Get Configuration Descriptor size from the device */
-	if (AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Sucessful)
+	if (AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
 	  return ControlError;
 	
 	/* Ensure that the Configuration Descriptor isn't too large */
