@@ -45,7 +45,7 @@
 				
 				if (BufferPtr == NULL)
 				{
-					BufferPtr = alloca(sizeof(USB_Descriptor_Configuration_Header_t));
+					BufferPtr      = alloca(sizeof(USB_Descriptor_Configuration_Header_t));
 
 					USB_HostRequest.DataLength = sizeof(USB_Descriptor_Configuration_Header_t);					
 					ErrorCode      = USB_Host_SendControlRequest(BufferPtr);

@@ -201,7 +201,7 @@ void GetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem)
 {
 	uint16_t DataBitsRem  = ReportItem->Attributes.BitSize;
 	uint16_t CurrentBit   = ReportItem->BitOffset;
-	uint32_t BitNumber    = 0;
+	uint32_t BitMask      = (1 << 0);
 
 	/* Preset the report item value to 0 so that the bits can be set according to the report data */
 	ReportItem->Value = 0;
@@ -210,11 +210,11 @@ void GetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem)
 	{
 		/* If the next data bit is set in the input report, set the corresponding bit in the report item value */
 		if (ReportData[CurrentBit / 8] & (1 << (CurrentBit % 8)))
-		  ReportItem->Value |= (1 << BitNumber);
-
-		/* Increment both the bit number in the current byte and the current overall value bit counters */
-		BitNumber++;
+		  ReportItem->Value |= BitMask;
+		
+		/* Increment the current overall value bit counter and shift the bit mask */
 		CurrentBit++;
+		BitMask <<= 1;
 	}
 }
 
@@ -222,16 +222,16 @@ void SetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem)
 {
 	uint16_t DataBitsRem  = ReportItem->Attributes.BitSize;
 	uint16_t CurrentBit   = ReportItem->BitOffset;
-	uint32_t BitNumber    = 0;
+	uint32_t BitMask      = (1 << 0);
 
 	while (DataBitsRem--)
 	{
 		/* If the next data bit is set in the report item value, set the corresponding bit in the output report */
 		if (ReportItem->Value & (1 << (CurrentBit % 8)))
-		  ReportData[CurrentBit / 8] |= (1 << BitNumber);
+		  ReportData[CurrentBit / 8] |= BitMask;
 
-		/* Increment both the bit number in the current byte and the current overall value bit counters */
-		BitNumber++;
+		/* Increment the current overall value bit counter and shift the bit mask */
 		CurrentBit++;
+		BitMask <<= 1;
 	}
 }

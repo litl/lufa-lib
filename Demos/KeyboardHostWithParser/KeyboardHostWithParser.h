@@ -35,7 +35,6 @@
 		#define DTYPE_Report                   0x22
 		
 		#define USAGEPAGE_KEYBOARD             0x07
-		#define USAGE_LEFTCONTROL              0xE0
 
 		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
 		
