@@ -37,6 +37,9 @@ all:
 	make -C KeyboardHost clean
 	make -C KeyboardHost all
 	
+	make -C KeyboardHostWithParser clean
+	make -C KeyboardHostWithParser all
+
 	make -C KeyboardHostViaInt clean
 	make -C KeyboardHostViaInt all
 
@@ -78,6 +81,7 @@ clean:
 	make -C Keyboard clean
 	make -C KeyboardViaInt clean
 	make -C KeyboardHost clean
+	make -C KeyboardHostWithParser clean
 	make -C KeyboardHostViaInt clean
 	make -C Magstripe clean
 	make -C MassStorage clean
@@ -98,6 +102,7 @@ clean_list:
 	make -C Keyboard clean_list
 	make -C KeyboardInt clean_list
 	make -C KeyboardHost clean_list
+	make -C KeyboardHostWithParser clean_list
 	make -C KeyboardHostViaInt clean_list
 	make -C Magstripe clean_list
 	make -C MassStorage clean_list

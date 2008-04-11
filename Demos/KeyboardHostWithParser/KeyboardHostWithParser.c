@@ -182,22 +182,48 @@ TASK(USB_Keyboard_Host)
 
 			Pipe_SetInfiniteINRequests();
 		
-			puts_P(PSTR("Processing HID Descriptor...\r\n"));
+			puts_P(PSTR("Processing HID Report.\r\n"));
 
 			/* Reset the HID report parser, ready to parse the first report */
 			ResetParser();
 
 			/* Get and process the device's first HID report descriptor */
-			GetHIDReportData();
-		
-		// TEMP
-	HIDReportInfo.TotalReportItems           = 1;
-	HIDReportInfo.ReportItems[0].BitOffset   = 16;
-	HIDReportInfo.ReportItems[0].BitSize     = 8;
-	HIDReportInfo.ReportItems[0].Usage.Page  = USAGEPAGE_KEYBOARD;
-	HIDReportInfo.ReportItems[0].Usage.Usage = USAGE_LEFTCONTROL;		
-		// TEMP
-		
+			if ((ErrorCode = GetHIDReportData()) != ParseSucessful)
+			{
+				puts_P(PSTR("Report Parse Error.\r\n"));
+			
+				/* Indicate error via status LEDs */
+				LEDs_SetAllLEDs(LEDS_LED1);
+				
+				/* Wait until USB device disconnected */
+				while (USB_IsConnected);
+				break;			
+			}
+
+			puts_P(PSTR("Dumping HID Report Items.\r\n"));
+			
+			/* Loop through each of the loaded HID report items in the processed item structure */
+			for (uint8_t ItemIndex = 0; ItemIndex < HIDReportInfo.TotalReportItems; ItemIndex++)
+			{
+				HID_ReportItem_t* RItem = &HIDReportInfo.ReportItems[ItemIndex];
+				
+				/* Print out each report item's details */
+				printf_P(PSTR("  Item %d:\r\n"), ItemIndex);
+				printf_P(PSTR("    Type:       %s\r\n"), ((RItem->ItemType == REPORT_ITEM_TYPE_In) ? "IN" : "OUT"));
+				printf_P(PSTR("    BitOffset:  %d\r\n"), RItem->BitOffset);
+				printf_P(PSTR("    BitSize:    %d\r\n"), RItem->Attributes.BitSize);
+				printf_P(PSTR("    Usage Page: %d\r\n"), RItem->Attributes.Usage.Page);
+				printf_P(PSTR("    Usage:      %d\r\n"), RItem->Attributes.Usage.Usage);
+				printf_P(PSTR("    Usage Min:  %d\r\n"), RItem->Attributes.Usage.Minimum);
+				printf_P(PSTR("    Usage Max:  %d\r\n"), RItem->Attributes.Usage.Maximum);
+				printf_P(PSTR("    Unit Type:  %d\r\n"), RItem->Attributes.Unit.Type);
+				printf_P(PSTR("    Unit Exp:   %d\r\n"), RItem->Attributes.Unit.Exponent);
+				printf_P(PSTR("    Log Min:    %d\r\n"), RItem->Attributes.Logical.Minimum);
+				printf_P(PSTR("    Log Max:    %d\r\n"), RItem->Attributes.Logical.Maximum);
+				printf_P(PSTR("    Phy Min:    %d\r\n"), RItem->Attributes.Physical.Minimum);
+				printf_P(PSTR("    Phy Max:    %d\r\n"), RItem->Attributes.Physical.Maximum);
+			}
+			
 			puts_P(PSTR("Keyboard Enumerated.\r\n"));
 
 			USB_HostState = HOST_STATE_Ready;
@@ -229,8 +255,9 @@ TASK(USB_Keyboard_Host)
 					ReportItem = &HIDReportInfo.ReportItems[ReportNumber];
 
 					/* Check if the current report item is a keyboard scancode */
-					if ((ReportItem->Usage.Page  == USAGEPAGE_KEYBOARD) &&
-					    (ReportItem->Usage.Usage == USAGE_LEFTCONTROL))
+					if ((ReportItem->Attributes.Usage.Page    == USAGEPAGE_KEYBOARD) &&
+					    (ReportItem->Attributes.Usage.Minimum == USAGE_LEFTCONTROL)  &&
+					    (ReportItem->ItemType                 == REPORT_ITEM_TYPE_In))
 					{
 						/* Retrieve the keyboard scancode from the report data retrieved from the device */
 						GetReportItemInfo((void*)&KeyboardReport, ReportItem);
@@ -257,13 +284,14 @@ TASK(USB_Keyboard_Host)
 	}
 }
 
-void GetHIDReportData(void)
+uint8_t GetHIDReportData(void)
 {
+#if 0
 	uint8_t* HIDReportData;
-
+	
 	USB_HostRequest = (USB_Host_Request_Header_t)
 		{
-			RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),
+			RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
 			RequestData: REQ_GetDescriptor,
 			Value:       (DTYPE_Report << 8),
 			Index:       0,
@@ -275,10 +303,51 @@ void GetHIDReportData(void)
 
 	/* Send control request to retrieve the HID report from the attached device */
 	if (USB_Host_SendControlRequest(HIDReportData) != HOST_SENDCONTROL_Successful)
-	  return;
+	  return ParseControlError;
+#endif
+
+/* TEMP */
+	uint8_t HIDReportData[] = 
+	{
+		0x05, 0x01,          /* Usage Page (Generic Desktop)                    */
+		0x09, 0x06,          /* Usage (Keyboard)                                */
+		0xa1, 0x01,          /* Collection (Application)                        */
+		0x05, 0x07,          /*   Usage Page (Keyboard)                         */
+		0x19, 0xe0,          /*   Usage Minimum (Keyboard LeftControl)          */
+		0x29, 0xe7,          /*   Usage Maximum (Keyboard Right GUI)            */
+		0x15, 0x00,          /*   Logical Minimum (0)                           */
+		0x25, 0x01,          /*   Logical Maximum (1)                           */
+		0x75, 0x01,          /*   Report Size (1)                               */
+		0x95, 0x08,          /*   Report Count (8)                              */
+		0x81, 0x02,          /*   Input (Data, Variable, Absolute)              */
+		0x95, 0x05,          /*   Report Count (5)                              */
+		0x75, 0x01,          /*   Report Size (1)                               */
+		0x05, 0x08,          /*   Usage Page (LEDs)                             */
+		0x19, 0x01,          /*   Usage Minimum (Num Lock)                      */
+		0x29, 0x05,          /*   Usage Maximum (Kana)                          */
+		0x91, 0x02,          /*   Output (Data, Variable, Absolute)             */
+		0x95, 0x01,          /*   Report Count (1)                              */
+		0x75, 0x03,          /*   Report Size (3)                               */
+		0x91, 0x03,          /*   Output (Const, Variable Absolute)             */
+		0x95, 0x01,          /*   Report Count (1)                              */
+		0x75, 0x08,          /*   Report Size (8)                               */
+		0x15, 0x00,          /*   Logical Minimum (0)                           */
+		0x25, 0x65,          /*   Logical Maximum (101)                         */
+		0x05, 0x07,          /*   Usage Page (Keyboard)                         */
+		0x19, 0x00,          /*   Usage Minimum (Reserved (no event indicated)) */
+		0x29, 0x65,          /*   Usage Maximum (Keyboard Application)          */
+		0x81, 0x00,          /*   Input (Data, Array, Absolute)                 */
+		0xc0                 /* End Collection                                  */
+	};
+	
+	HIDDescriptorSize = sizeof(HIDReportData);
+/* /TEMP */
 
 	/* Send the HID report to the parser for processing */
-	ProcessHIDReport((void*)&HIDReportData, HIDDescriptorSize);
+	if (ProcessHIDReport((void*)&HIDReportData, HIDDescriptorSize) != HID_PARSE_Sucessful)
+	  return ParseError;
+	
+	return ParseSucessful;
 }
 
 uint8_t GetConfigDescriptorData(void)
@@ -347,7 +416,7 @@ uint8_t GetConfigDescriptorData(void)
 	  return NoHIDDescriptorFound;
 	  
 	/* Save the size of the HID report */
-	HIDDescriptorSize = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_HID_t).TotalHIDDescriptors;
+	HIDDescriptorSize = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_HID_t).HIDReportLength;
 
 	/* Find the next IN endpoint descriptor after the keyboard HID descriptor */
 	while (ConfigDescriptorSize)

@@ -50,6 +50,13 @@
 			NoEndpointFound      = 5,
 			SuccessfulConfigRead = 6,
 		};
+		
+		enum GetHIDReportDataCodes_t
+		{
+			ParseSucessful          = 0,
+			ParseError              = 1,
+			ParseControlError       = 2,
+		};
 
 	/* Type Defines: */
 		typedef struct
@@ -75,7 +82,7 @@
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 		
 	/* Function Prototypes: */
-		void    GetHIDReportData(void);
+		uint8_t GetHIDReportData(void);
 		uint8_t GetConfigDescriptorData(void);
 		
 #endif
