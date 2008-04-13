@@ -14,9 +14,9 @@
 	host utilizing the MyUSB pipe interrupt system, for USB mice using
 	the standard mouse HID profile.
 	
-	Mouse movement is displayed both on the bicolour LEDs, as well as
-	printed out the serial terminal as formatted dY, dY and button
-	status information.
+	Mouse movement and button presses are displayed on the board LEDs,
+	as well as printed out the serial terminal as formatted dY, dY and
+	button status information.
 
 	Currently only single interface mice are supported.	
 */

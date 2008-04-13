@@ -17,11 +17,10 @@
 		#include <avr/pgmspace.h>
 		#include <stdio.h>
 
-		#include "HIDParse.h"
-
 		#include <MyUSB/Version.h>                                // Library Version Information
 		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
+		#include <MyUSB/Drivers/USB/Class/HIDParser.h>            // HID Class Report Parser
 		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
 		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>       // Serial stream driver
 		#include <MyUSB/Drivers/Board/LEDs.h>                     // LEDs driver

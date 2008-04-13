@@ -193,12 +193,6 @@ static void USB_HostTask(void)
 			RAISE_EVENT(USB_DeviceEnumerationComplete);
 			USB_HostState = HOST_STATE_Addressed;
 
-			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
-			{
-				ErrorCode = HOST_ENUMERROR_WaitStage;
-				break;
-			}
-
 			break;
 	}
 

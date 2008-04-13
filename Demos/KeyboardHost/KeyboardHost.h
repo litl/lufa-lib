@@ -14,6 +14,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <avr/pgmspace.h>
 		#include <stdio.h>
 
 		#include <MyUSB/Version.h>                                // Library Version Information

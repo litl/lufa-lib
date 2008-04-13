@@ -8,20 +8,18 @@
  Released under the LGPL Licence, Version 3
 */
 
-/* ---  Parser Configuration  --- */
-  /* Uncomment to include FEATURE items in the processed parser output */
-  //#define ENABLE_FEATURE_PROCESSING
-
-  /* Uncomment to exclude constant (padding) items from the processed parser output */
-  #define IGNORE_CONTANT_DATA_ITEMS
-/* --- --- --- --- --- --- --- --- */
-
-#include "HIDParse.h"
+#include "HIDParser.h"
 
 uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_ReportInfo_t* const ParserData)
 {
 	HID_StateTable_t  StateTable[HID_STACK_DEPTH];
-	HID_StateTable_t* CurrStateTable = &StateTable[0];
+	HID_StateTable_t* CurrStateTable               = &StateTable[0];
+	uint16_t          BitOffsetIn                  = 0x00;
+	uint16_t          BitOffsetOut                 = 0x00;
+#if defined(HID_ENABLE_FEATURE_PROCESSING)
+	uint16_t          BitOffsetFeature             = 0x00;
+#endif
+	CollectionPath_t* CurrCollectionPath           = NULL;
 
 	/* Reset the entire HID info structure */
 	memset((void*)ParserData, 0x00, sizeof(HID_ReportInfo_t)); 
@@ -55,7 +53,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 			
 				/* Check to ensure space on the State Table stack */
 				if (CurrStateTable == &StateTable[HID_STACK_DEPTH])
-				  return HID_PARSE_StackOverflow;
+				  return HID_PARSE_HIDStackOverflow;
 	
 			  	/* Copy current stack item to next item in stack */
 				memcpy((CurrStateTable - 1),
@@ -70,7 +68,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 
 				/* Check to ensure stack is not at the first entry */
 				if (CurrStateTable == &StateTable[0])
-				  return HID_PARSE_StackUnderflow;
+				  return HID_PARSE_HIDStackUnderflow;
 				  
 				/* Set the current state table pointer to the previous state table in the stack */
 				CurrStateTable--;
@@ -113,19 +111,58 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				break;
 			case (TYPE_LOCAL | LOCAL_TAG_USAGE):
 				puts_P(PSTR("  USAGE\r\n"));
-				CurrStateTable->Attributes.Usage.Usage = ReportItemData;			
+				CurrStateTable->Attributes.Usage.Usage = ReportItemData;
 				break;
 			case (TYPE_LOCAL | LOCAL_TAG_USAGEMIN):
 				puts_P(PSTR("  UMIN\r\n"));
-				CurrStateTable->Attributes.Usage.Minimum = ReportItemData;			
+				CurrStateTable->Attributes.Usage.Minimum = ReportItemData;
 				break;
 			case (TYPE_LOCAL | LOCAL_TAG_USAGEMAX):
 				puts_P(PSTR("  UMAX\r\n"));
-				CurrStateTable->Attributes.Usage.Maximum = ReportItemData;			
+				CurrStateTable->Attributes.Usage.Maximum = ReportItemData;
+				break;
+			case (TYPE_MAIN | MAIN_TAG_COLLECTION):
+				puts_P(PSTR("  COLS\r\n"));
+				
+				/* Save the parent path pointer of the current collection */
+				CollectionPath_t* ParentCollectionPath = CurrCollectionPath;
+				
+				/* Check if the collection is the first collection item */
+				if (CurrCollectionPath == NULL)
+				{
+					/* Set collection path pointer to first collection path item */
+					CurrCollectionPath = &ParserData->CollectionPaths[0];
+				}
+				else
+				{
+					/* Find next unused collection path */
+					do
+					{
+						/* Check if the collection paths array is full */
+						if (CurrCollectionPath == &ParserData->CollectionPaths[HID_MAX_COLLECTIONS])
+						  return HID_PARSE_InsufficientCollectionPaths;
+					
+						/* Select next collections path item */
+						CurrCollectionPath++;
+					}
+					while (CurrCollectionPath->Parent != NULL);
+				}
+				
+				/* Set the new collection path details */
+				CurrCollectionPath->Parent = ParentCollectionPath;
+				CurrCollectionPath->Usage  = ReportItemData;
+
+				break;
+			case (TYPE_MAIN | MAIN_TAG_ENDCOLLECTION):
+				puts_P(PSTR("  COLE\r\n"));
+				
+				/* Update current collection path to parent of the closed collection */
+				CurrCollectionPath = CurrCollectionPath->Parent;
+
 				break;
 			case (TYPE_MAIN | MAIN_TAG_INPUT):
 			case (TYPE_MAIN | MAIN_TAG_OUTPUT):
-#if defined(ENABLE_FEATURE_PROCESSING)
+#if defined(HID_ENABLE_FEATURE_PROCESSING)
 			case (TYPE_MAIN | MAIN_TAG_FEATURE):
 #endif
 				printf_P(PSTR("  IO(%d)\r\n"), CurrStateTable->ReportCount);
@@ -133,7 +170,10 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				/* Loop through, creating report item structures based on the report count */
 				for (uint8_t ReportItemNum = 0; ReportItemNum < CurrStateTable->ReportCount; ReportItemNum++)
 				{
-#if defined(IGNORE_CONTANT_DATA_ITEMS)
+					/* Create pointer to the current report item entry for convenience */
+					HID_ReportItem_t* CurrReportItem = &ParserData->ReportItems[ParserData->TotalReportItems];
+				
+#if defined(HID_INCLUDE_CONTANT_DATA_ITEMS)
 					/* Don't create report items for constant entries, only variable data */
 					if (ReportItemData & IOF_CONSTANT)
 					  break;
@@ -144,47 +184,50 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 					  return HID_PARSE_InsufficientReportItems;
 				  
 				  	/* Copy state table data into a new report item structure */ 
-					memcpy((void*)&ParserData->ReportItems[ParserData->TotalReportItems].Attributes,
+					memcpy((void*)&CurrReportItem->Attributes,
 					       &CurrStateTable->Attributes,
 					       sizeof(HID_ReportItem_Attributes_t));
 						   
 					/* Save the report item flags */
-					ParserData->ReportItems[ParserData->TotalReportItems].ItemFlags = ReportItemData;
-	
+					CurrReportItem->ItemFlags = ReportItemData;
+					
+					/* Save the report item collection path */
+					CurrReportItem->CollectionPath = CurrCollectionPath;
+						
 					switch (*ReportData & TAG_MASK)
 					{
 						case MAIN_TAG_INPUT:
 							/* Set the report type in the data structure to the appropriate type */
-							ParserData->ReportItems[ParserData->TotalReportItems].ItemType = REPORT_ITEM_TYPE_In;
+							CurrReportItem->ItemType = REPORT_ITEM_TYPE_In;
 						
 							/* Set the bit offset of the report type to the current overall offset */
-							ParserData->ReportItems[ParserData->TotalReportItems].BitOffset = ParserData->BitOffsetIn;
+							CurrReportItem->BitOffset = BitOffsetIn;
 								
 							/* Increment the IN bit offset value in the state table */
-							ParserData->BitOffsetIn += CurrStateTable->Attributes.BitSize;
+							BitOffsetIn += CurrStateTable->Attributes.BitSize;
 							
 							break;
 						case MAIN_TAG_OUTPUT:
 							/* Set the report type in the data structure to the appropriate type */
-							ParserData->ReportItems[ParserData->TotalReportItems].ItemType = REPORT_ITEM_TYPE_Out;
+							CurrReportItem->ItemType = REPORT_ITEM_TYPE_Out;
 						
 							/* Set the bit offset of the report type to the current overall offset */
-							ParserData->ReportItems[ParserData->TotalReportItems].BitOffset = ParserData->BitOffsetOut;
+							CurrReportItem->BitOffset = BitOffsetOut;
 								
 							/* Increment the OUT bit offset value in the state table */
-							ParserData->BitOffsetOut += CurrStateTable->Attributes.BitSize;
+							BitOffsetOut += CurrStateTable->Attributes.BitSize;
 							
 							break;
-#if defined(ENABLE_FEATURE_PROCESSING)
+#if defined(HID_ENABLE_FEATURE_PROCESSING)
 						case MAIN_TAG_FEATURE:
 							/* Set the report type in the data structure to the appropriate type */
-							ParserData->ReportItems[ParserData->TotalReportItems].ItemType = REPORT_ITEM_TYPE_Feature;
+							CurrReportItem->ItemType = REPORT_ITEM_TYPE_Feature;
 						
 							/* Set the bit offset of the report type to the current overall offset */
-							ParserData->ReportItems[ParserData->TotalReportItems].BitOffset = ParserData->BitOffsetFeature;
+							CurrReportItem->BitOffset = BitOffsetFeature;
 								
 							/* Increment the FEATURE bit offset value in the state table */
-							ParserData->BitOffsetFeature += CurrStateTable->Attributes.BitSize;		
+							BitOffsetFeature += CurrStateTable->Attributes.BitSize;		
 
 							break;
 #endif
@@ -194,12 +237,6 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 					ParserData->TotalReportItems++;
 				}
 				
-				break;
-			case (TYPE_MAIN | MAIN_TAG_COLLECTION):
-				puts_P(PSTR("  COLS\r\n"));
-				break;
-			case (TYPE_MAIN | MAIN_TAG_ENDCOLLECTION):
-				puts_P(PSTR("  COLE\r\n"));
 				break;
 			default:
 				puts_P(PSTR("  UNK?\r\n"));			

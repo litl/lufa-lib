@@ -17,13 +17,22 @@
 		#include <stdio.h>
 		#include <avr/pgmspace.h>
 
-		#include <MyUSB/Common/Common.h>
-
 		#include "HIDReportData.h"
 
+		#include "../../../Common/Common.h"
+
 	/* Macros: */
-		#define HID_STACK_DEPTH      5
-		#define HID_MAX_REPORTITEMS  30
+		#if !defined(HID_STACK_DEPTH)
+			#define HID_STACK_DEPTH        5
+		#endif
+		
+		#if !defined(HID_MAX_COLLECTIONS)
+			#define HID_MAX_COLLECTIONS    5
+		#endif
+
+		#if !defined(HID_MAX_REPORTITEMS)
+			#define HID_MAX_REPORTITEMS    30
+		#endif
 		
 	/* Enums: */
 		enum HID_Types_t
@@ -35,13 +44,20 @@
 		
 		enum HID_Parse_ErrorCodes_t
 		{
-			HID_PARSE_Sucessful               = 0,
-			HID_PARSE_StackOverflow           = 1,
-			HID_PARSE_StackUnderflow          = 2,
-			HID_PARSE_InsufficientReportItems = 3,
+			HID_PARSE_Sucessful                   = 0,
+			HID_PARSE_HIDStackOverflow            = 1,
+			HID_PARSE_HIDStackUnderflow           = 2,
+			HID_PARSE_InsufficientReportItems     = 3,
+			HID_PARSE_InsufficientCollectionPaths = 4,
 		};
 	
-	/* Type Defines: */
+	/* Type Defines: */		
+		typedef struct CollectionPath
+		{
+			uint16_t                     Usage;
+			struct CollectionPath*       Parent;
+		} CollectionPath_t;
+	
 		typedef struct
 		{
 			uint32_t                     Minimum;
@@ -77,9 +93,10 @@
 			uint16_t                     BitOffset;
 			uint8_t                      ItemType;
 			uint16_t                     ItemFlags;
+			CollectionPath_t*            CollectionPath;
 
 			HID_ReportItem_Attributes_t  Attributes;
-			
+						
 			uint32_t                     Value;
 		} HID_ReportItem_t;
 		
@@ -92,12 +109,9 @@
 		typedef struct
 		{
 			uint8_t                      TotalReportItems;
-			uint16_t                     BitOffsetIn;
-			uint16_t                     BitOffsetOut;
-#if defined(ENABLE_FEATURE_PROCESSING)
-			uint16_t                     BitOffsetFeature;
-#endif
 			HID_ReportItem_t             ReportItems[HID_MAX_REPORTITEMS];
+
+			CollectionPath_t             CollectionPaths[HID_MAX_COLLECTIONS];
 		} HID_ReportInfo_t;
 		
 	/* Function Prototypes: */

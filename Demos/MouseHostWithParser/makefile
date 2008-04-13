@@ -76,7 +76,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = KeyboardHostWithParser
+TARGET = MouseHostWithParser
 
 
 # Object files directory
@@ -617,7 +617,7 @@ $(OBJDIR)/%.o : %.S
 	$(CC) -E -mmcu=$(MCU) -I. $(CFLAGS) $< -o $@ 
 	
 
-## Target: clean project.
+# Target: clean project.
 clean: begin clean_list clean_binary end
 
 clean_binary:

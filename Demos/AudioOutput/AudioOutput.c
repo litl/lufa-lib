@@ -18,9 +18,9 @@
 	as a USB speaker. Incomming audio will output in 8-bit PWM onto
 	the timer output (timer 3 for the AT90USBXXX6/7 USB AVRs, timer 1 for
 	the AT90USBXXX2 controller AVRs) compare channel A for AUDIO_OUT_MONO
-	mode, on channels A and B for AUDIO_OUT_STEREO and on the two bicolour
-	LEDs for AUDIO_OUT_LEDS mode. Decouple audio outputs with a capacitor
-	and attach to a speaker to hear the audio.
+	mode, on channels A and B for AUDIO_OUT_STEREO and on the board LEDs
+	for AUDIO_OUT_LEDS mode. Decouple audio outputs with a capacitor and
+	attach to a speaker to hear the audio.
 	
 	Under Windows, if a driver request dialogue pops up, select the option
 	to automatically install the appropriate drivers.

@@ -115,13 +115,13 @@
 		void    MassStore_GetReturnedStatus(void);
 		uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum);
 
-		uint8_t MassStore_RequestSense(const uint8_t LUNIndex, SCSI_Request_Sense_Response_t* SensePtr)
+		uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_Response_t* const SensePtr)
 		                               ATTR_NON_NULL_PTR_ARG(2);
 		uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
 		                                  const uint8_t Blocks, void* BufferPtr) ATTR_NON_NULL_PTR_ARG(4);
 		uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
                                            const uint8_t Blocks, void* BufferPtr);
-		uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* CapacityPtr)
+		uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* const CapacityPtr)
 		                               ATTR_NON_NULL_PTR_ARG(2);
 		void    MassStore_TestUnitReady(const uint8_t LUNIndex);
 		void    MassStore_PreventAllowMediumRemoval(const uint8_t LUNIndex, const bool PreventRemoval);

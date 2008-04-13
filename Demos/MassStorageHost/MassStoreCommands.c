@@ -193,7 +193,7 @@ uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum)
 	return USB_Host_SendControlRequest(NULL);
 }
 
-uint8_t MassStore_RequestSense(const uint8_t LUNIndex, SCSI_Request_Sense_Response_t* SensePtr)
+uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_Response_t* const SensePtr)
 {
 	uint8_t ReturnCode = NoError;
 
@@ -367,7 +367,7 @@ void MassStore_TestUnitReady(const uint8_t LUNIndex)
 	MassStore_GetReturnedStatus();
 }
 
-uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* CapacityPtr)
+uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* const CapacityPtr)
 {
 	uint8_t ReturnCode = NoError;
 

@@ -214,10 +214,13 @@ TASK(USB_Keyboard_Host)
 				
 				/* Print out each report item's details */
 				printf_P(PSTR("  Item %d:\r\n"
-				              "    Flags:      %d\r\n"
 				              "    Type:       %s\r\n"
+				              "    Flags:      %d\r\n"
 				              "    BitOffset:  %d\r\n"
 							  "    BitSize:    %d\r\n"
+							  "    Coll Ptr:   %d\r\n"
+							  "    Coll Usage: %d\r\n"
+							  "    Coll Prnt:  %d\r\n"
 							  "    Usage Page: %d\r\n"
 							  "    Usage:      %d\r\n"
 							  "    Usage Min:  %d\r\n"
@@ -232,6 +235,9 @@ TASK(USB_Keyboard_Host)
 							                             RItem->ItemFlags,
 				                                         RItem->BitOffset,
 				                                         RItem->Attributes.BitSize,
+														 RItem->CollectionPath,
+														 RItem->CollectionPath->Usage,
+														 RItem->CollectionPath->Parent,
 				                                         RItem->Attributes.Usage.Page,
 				                                         RItem->Attributes.Usage.Usage,
 				                                         RItem->Attributes.Usage.Minimum,

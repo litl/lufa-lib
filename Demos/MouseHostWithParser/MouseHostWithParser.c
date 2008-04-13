@@ -11,16 +11,16 @@
 /*
 	Mouse host demonstration application. This gives a simple reference
 	application for implementing a USB Mouse host, for USB mice using
-	the standard mouse HID profile.
+	the standard mouse HID profile. It uses a HID parser for the HID
+	reports, allowing for correct operation across all USB mice. This
+	demo supports mice with a single HID report.
 	
-	Mouse movement and button presses are displayed on the board LEDs,
-	as well as printed out the serial terminal as formatted dY, dY and
-	button status information.
+	Mouse movement and button presses are displayed on the board LEDs.
 
 	Currently only single interface mice are supported.	
 */
 
-#include "MouseHost.h"
+#include "MouseHostWithParser.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
 BUTTLOADTAG(ProjName,     "MyUSB Mouse Host App");
@@ -36,8 +36,11 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t  MouseDataEndpointNumber;
-uint16_t MouseDataEndpointSize;
+uint8_t          MouseDataEndpointNumber;
+uint16_t         MouseDataEndpointSize;
+
+uint16_t         HIDReportSize;
+HID_ReportInfo_t HIDReportInfo;
 
 int main(void)
 {
@@ -180,6 +183,82 @@ TASK(USB_Mouse_Host)
 
 			Pipe_SetInfiniteINRequests();
 		
+			puts_P(PSTR("Processing HID Report.\r\n"));
+
+			/* LEDs one and two on to indicate busy processing */
+			LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED2);
+
+			/* Get and process the device's first HID report descriptor */
+			if ((ErrorCode = GetHIDReportData()) != ParseSucessful)
+			{
+				puts_P(PSTR("Report Parse Error.\r\n"));
+			
+				/* Indicate error via status LEDs */
+				LEDs_SetAllLEDs(LEDS_LED1);
+				
+				/* Wait until USB device disconnected */
+				while (USB_IsConnected);
+				break;			
+			}
+
+			puts_P(PSTR("Dumping HID Report Items.\r\n"));
+			
+			/* LEDs one, two and four on to indicate busy dumping descriptor data */
+			LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED2 | LEDS_LED4);
+
+			/* Loop through each of the loaded HID report items in the processed item structure */
+			for (uint8_t ItemIndex = 0; ItemIndex < HIDReportInfo.TotalReportItems; ItemIndex++)
+			{
+				/* Create pointer to the current report info structure */
+				HID_ReportItem_t* RItem = &HIDReportInfo.ReportItems[ItemIndex];
+				
+				/* Print out each report item's details */
+				printf_P(PSTR("  Item %d:\r\n"
+				              "    Type:       %s\r\n"
+				              "    Flags:      %d\r\n"
+				              "    BitOffset:  %d\r\n"
+							  "    BitSize:    %d\r\n"
+							  "    Coll Ptr:   %d\r\n"
+							  "    Coll Usage: %d\r\n"
+							  "    Coll Prnt:  %d\r\n"
+							  "    Usage Page: %d\r\n"
+							  "    Usage:      %d\r\n"
+							  "    Usage Min:  %d\r\n"
+							  "    Usage Max:  %d\r\n"
+							  "    Unit Type:  %d\r\n"
+							  "    Unit Exp:   %d\r\n"
+							  "    Log Min:    %d\r\n"
+							  "    Log Max:    %d\r\n"
+							  "    Phy Min:    %d\r\n"
+							  "    Phy Max:    %d\r\n"), ItemIndex,
+				                                         ((RItem->ItemType == REPORT_ITEM_TYPE_In) ? "IN" : "OUT"),
+							                             RItem->ItemFlags,
+				                                         RItem->BitOffset,
+				                                         RItem->Attributes.BitSize,
+														 RItem->CollectionPath,
+														 RItem->CollectionPath->Usage,
+														 RItem->CollectionPath->Parent,
+				                                         RItem->Attributes.Usage.Page,
+				                                         RItem->Attributes.Usage.Usage,
+				                                         RItem->Attributes.Usage.Minimum,
+				                                         RItem->Attributes.Usage.Maximum,
+				                                         RItem->Attributes.Unit.Type,
+				                                         RItem->Attributes.Unit.Exponent,
+				                                         RItem->Attributes.Logical.Minimum,
+				                                         RItem->Attributes.Logical.Maximum,
+				                                         RItem->Attributes.Physical.Minimum,
+				                                         RItem->Attributes.Physical.Maximum);
+
+				/* Toggle status LED to indicate busy */
+				if (LEDs_GetLEDs() & LEDS_LED4)
+				  LEDs_TurnOffLEDs(LEDS_LED4);
+				else
+				LEDs_TurnOnLEDs(LEDS_LED4);
+			}
+			
+			/* All LEDs off - ready to indicate keypresses */
+			LEDs_SetAllLEDs(LEDS_NO_LEDS);
+
 			puts_P(PSTR("Mouse Enumerated.\r\n"));
 				
 			USB_HostState = HOST_STATE_Ready;
@@ -192,36 +271,69 @@ TASK(USB_Mouse_Host)
 			/* Check if data has been recieved from the attached mouse */
 			if (Pipe_ReadWriteAllowed())
 			{
-				USB_MouseReport_Data_t MouseReport;
-				uint8_t                LEDMask = LEDS_NO_LEDS;
+				uint8_t LEDMask = LEDS_NO_LEDS;
+				bool    DoneX   = false;
+				bool    DoneY   = false;
 
-				/* Read in mouse report data */
-				MouseReport.Button = Pipe_Read_Byte();
-				MouseReport.X      = Pipe_Read_Byte();
-				MouseReport.Y      = Pipe_Read_Byte();
-				
-				/* Alter status LEDs according to mouse X movement */
-				if (MouseReport.X > 0)
-				  LEDMask |= LEDS_LED1;
-				else if (MouseReport.X < 0)
-				  LEDMask |= LEDS_LED2;
-				
-				/* Alter status LEDs according to mouse Y movement */
-				if (MouseReport.Y > 0)
-				  LEDMask |= LEDS_LED3;
-				else if (MouseReport.Y < 0)
-				  LEDMask |= LEDS_LED4;
+				/* Create a pointer to walk through each of the HID report items */
+				HID_ReportItem_t* ReportItem = NULL;
 
-				/* Alter status LEDs according to mouse button position */
-				if (MouseReport.Button)
-				  LEDMask = LEDS_ALL_LEDS;
-				  
+				/* Create buffer big enough for the report */
+				uint8_t MouseReport[Pipe_BytesInPipe()];
+
+				/* Load in the mouse report */
+				Pipe_Read_Stream_LE(MouseReport, Pipe_BytesInPipe());
+				
+				/* Check each HID report item in turn, looking for keyboard scan code reports */
+				for (uint8_t ReportNumber = 0; ReportNumber < HIDReportInfo.TotalReportItems; ReportNumber++)
+				{
+					/* Set temp report item pointer to the next report item */
+					ReportItem = &HIDReportInfo.ReportItems[ReportNumber];
+
+					if ((ReportItem->Attributes.Usage.Page      == USAGE_PAGE_BUTTON) &&
+					    (ReportItem->Attributes.Logical.Minimum == 0)                 &&
+					    (ReportItem->Attributes.Logical.Maximum == 1)                 &&
+					    (ReportItem->ItemType                   == REPORT_ITEM_TYPE_In))
+					{
+						/* Get the mouse button value */
+						GetReportItemInfo((void*)&MouseReport, ReportItem);
+						
+						/* If button is pressed, all LEDs are turned on */
+						if (ReportItem->Value)
+						  LEDMask = LEDS_ALL_LEDS;
+					}
+					else if ((ReportItem->Attributes.Usage.Page == USAGE_PAGE_GENERIC_DCTRL) &&
+					         (ReportItem->ItemFlags             &  IOF_RELATIVE)             &&
+					         (ReportItem->ItemType              == REPORT_ITEM_TYPE_In))
+					{
+						/* Get the mouse relative position value */
+						GetReportItemInfo((void*)&MouseReport, ReportItem);
+						
+						if (!DoneX)
+						{
+							/* Value is a signed 8-bit value, cast and set LED mask as appropriate */
+							if ((int8_t)ReportItem->Value > 0)
+							  LEDMask |= LEDS_LED3;
+							else if ((int8_t)ReportItem->Value < 0)
+							  LEDMask |= LEDS_LED4;						
+
+							DoneX = true;
+						}
+						else if (!DoneY)
+						{
+							/* Value is a signed 8-bit value, cast and set LED mask as appropriate */
+							if ((int8_t)ReportItem->Value > 0)
+							  LEDMask |= LEDS_LED1;
+							else if ((int8_t)ReportItem->Value < 0)
+							  LEDMask |= LEDS_LED2;
+
+							DoneY = true;
+						}
+					}
+				}
+				
+				/* Display the button information on the board LEDs */
 				LEDs_SetAllLEDs(LEDMask);
-				
-				/* Print mouse report data through the serial port */
-				printf_P(PSTR("dX:%2d dY:%2d Button:%d\r\n"), MouseReport.X,
-				                                              MouseReport.Y,
-				                                              MouseReport.Button);
 					
 				/* Clear the IN endpoint, ready for next data packet */
 				Pipe_FIFOCON_Clear();
@@ -231,6 +343,31 @@ TASK(USB_Mouse_Host)
 			Pipe_Freeze();
 			break;
 	}
+}
+
+uint8_t GetHIDReportData(void)
+{
+	/* Create a buffer big enough to hold the entire returned HID report */
+	uint8_t HIDReportData[HIDReportSize];
+	
+	USB_HostRequest = (USB_Host_Request_Header_t)
+		{
+			RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_INTERFACE),
+			RequestData: REQ_GetDescriptor,
+			Value:       (DTYPE_Report << 8),
+			Index:       0,
+			DataLength:  HIDReportSize,
+		};
+
+	/* Send control request to retrieve the HID report from the attached device */
+	if (USB_Host_SendControlRequest(HIDReportData) != HOST_SENDCONTROL_Successful)
+	  return ParseControlError;
+
+	/* Send the HID report to the parser for processing */
+	if (ProcessHIDReport((void*)&HIDReportData, HIDReportSize, &HIDReportInfo) != HID_PARSE_Sucessful)
+	  return ParseError;
+	
+	return ParseSucessful;
 }
 
 uint8_t GetConfigDescriptorData(void)
@@ -283,6 +420,24 @@ uint8_t GetConfigDescriptorData(void)
 	if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Protocol != MOUSE_PROTOCOL)
 	  return IncorrectProtocol;
 	
+	/* Find the HID descriptor after the keyboard interface descriptor */
+	while (ConfigDescriptorSize)
+	{
+		/* Get the next descriptor from the configuration descriptor data */
+		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);
+		
+		/* Check if current descriptor is a HID descriptor */
+		if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_HID)		
+		  break;
+	}
+	
+	/* If reached end of configuration descriptor, error out */
+	if (ConfigDescriptorSize == 0)
+	  return NoHIDDescriptorFound;
+	  
+	/* Save the size of the HID report */
+	HIDReportSize = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_HID_t).HIDReportLength;
+
 	/* Find the next IN endpoint descriptor after the keyboard interface descriptor */
 	while (ConfigDescriptorSize)
 	{
