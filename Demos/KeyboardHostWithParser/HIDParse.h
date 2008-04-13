@@ -14,9 +14,10 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <string.h>
-		
 		#include <stdio.h>
 		#include <avr/pgmspace.h>
+
+		#include <MyUSB/Common/Common.h>
 
 		#include "HIDReportData.h"
 
@@ -75,6 +76,7 @@
 		{
 			uint16_t                     BitOffset;
 			uint8_t                      ItemType;
+			uint16_t                     ItemFlags;
 
 			HID_ReportItem_Attributes_t  Attributes;
 			
@@ -92,24 +94,18 @@
 			uint8_t                      TotalReportItems;
 			uint16_t                     BitOffsetIn;
 			uint16_t                     BitOffsetOut;
+#if defined(ENABLE_FEATURE_PROCESSING)
+			uint16_t                     BitOffsetFeature;
+#endif
 			HID_ReportItem_t             ReportItems[HID_MAX_REPORTITEMS];
 		} HID_ReportInfo_t;
-
-	/* External Variables: */
-		extern HID_ReportInfo_t   HIDReportInfo;
-
-	/* Inline Functions: */
-		static inline void ResetParser(void)
-		{
-			/* Reset the entire HID info structure */
-			memset((void*)&HIDReportInfo, 0x00, sizeof(HID_ReportInfo_t)); 
-		}
 		
 	/* Function Prototypes: */
-		void    ResetParser(void);
-		uint8_t ProcessHIDReport(uint8_t* ReportData, uint16_t ReportSize);
-
-		void    GetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem);
-		void    SetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem);
+		uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_ReportInfo_t* const ParserData)
+		                          ATTR_NON_NULL_PTR_ARG(1, 3);
+		void    GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
+		                          ATTR_NON_NULL_PTR_ARG(1, 2);
+		void    SetReportItemInfo(uint8_t* const ReportData, const HID_ReportItem_t* ReportItem)
+		                          ATTR_NON_NULL_PTR_ARG(1, 2);
 
 #endif

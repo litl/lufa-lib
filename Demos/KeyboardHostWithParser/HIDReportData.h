@@ -45,5 +45,22 @@
 		#define LOCAL_TAG_USAGE          0b00000000
 		#define LOCAL_TAG_USAGEMIN       0b00010000
 		#define LOCAL_TAG_USAGEMAX       0b00100000
-
+		
+		#define IOF_CONSTANT             (1 << 0)
+		#define IOF_DATA                 (0 << 0)
+		#define IOF_VARIABLE             (1 << 1)
+		#define IOF_ARRAY                (0 << 1)
+		#define IOF_RELATIVE             (1 << 2)
+		#define IOF_ABSOLUTE             (0 << 2)
+		#define IOF_WRAP                 (1 << 3)
+		#define IOF_NOWRAP               (0 << 3)
+		#define IOF_NONLINEAR            (1 << 4)
+		#define IOF_LINEAR               (0 << 4)
+		#define IOF_NOPREFERRED          (1 << 5)
+		#define IOF_PREFERREDSTATE       (0 << 5)
+		#define IOF_NULLSTATE            (1 << 6)
+		#define IOF_NONULLPOSITION       (0 << 6)
+		#define IOF_BUFFEREDBYTES        (1 << 8)
+		#define IOF_BITFIELD             (0 << 8)
+		
 #endif

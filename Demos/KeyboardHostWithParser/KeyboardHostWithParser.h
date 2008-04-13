@@ -14,6 +14,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <avr/pgmspace.h>
 		#include <stdio.h>
 
 		#include "HIDParse.h"
@@ -70,6 +71,9 @@
 			uint8_t                  HIDReportType;
 			uint16_t                 HIDReportLength;
 		} USB_Descriptor_HID_t;
+
+	/* External Variables: */
+		extern HID_ReportInfo_t HIDReportInfo;
 
 	/* Task Definitions: */
 		TASK(USB_Keyboard_Host);

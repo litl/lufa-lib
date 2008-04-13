@@ -37,10 +37,11 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t  KeyboardDataEndpointNumber;
-uint16_t KeyboardDataEndpointSize;
+uint8_t          KeyboardDataEndpointNumber;
+uint16_t         KeyboardDataEndpointSize;
 
-uint16_t HIDReportSize;
+uint16_t         HIDReportSize;
+HID_ReportInfo_t HIDReportInfo;
 
 int main(void)
 {
@@ -187,9 +188,6 @@ TASK(USB_Keyboard_Host)
 			/* LEDs one and two on to indicate busy processing */
 			LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED2);
 
-			/* Reset the HID report parser, ready to parse the first report */
-			ResetParser();
-
 			/* Get and process the device's first HID report descriptor */
 			if ((ErrorCode = GetHIDReportData()) != ParseSucessful)
 			{
@@ -215,20 +213,35 @@ TASK(USB_Keyboard_Host)
 				HID_ReportItem_t* RItem = &HIDReportInfo.ReportItems[ItemIndex];
 				
 				/* Print out each report item's details */
-				printf_P(PSTR("  Item %d:\r\n"), ItemIndex);
-				printf_P(PSTR("    Type:       %s\r\n"), ((RItem->ItemType == REPORT_ITEM_TYPE_In) ? "IN" : "OUT"));
-				printf_P(PSTR("    BitOffset:  %d\r\n"), RItem->BitOffset);
-				printf_P(PSTR("    BitSize:    %d\r\n"), RItem->Attributes.BitSize);
-				printf_P(PSTR("    Usage Page: %d\r\n"), RItem->Attributes.Usage.Page);
-				printf_P(PSTR("    Usage:      %d\r\n"), RItem->Attributes.Usage.Usage);
-				printf_P(PSTR("    Usage Min:  %d\r\n"), RItem->Attributes.Usage.Minimum);
-				printf_P(PSTR("    Usage Max:  %d\r\n"), RItem->Attributes.Usage.Maximum);
-				printf_P(PSTR("    Unit Type:  %d\r\n"), RItem->Attributes.Unit.Type);
-				printf_P(PSTR("    Unit Exp:   %d\r\n"), RItem->Attributes.Unit.Exponent);
-				printf_P(PSTR("    Log Min:    %d\r\n"), RItem->Attributes.Logical.Minimum);
-				printf_P(PSTR("    Log Max:    %d\r\n"), RItem->Attributes.Logical.Maximum);
-				printf_P(PSTR("    Phy Min:    %d\r\n"), RItem->Attributes.Physical.Minimum);
-				printf_P(PSTR("    Phy Max:    %d\r\n"), RItem->Attributes.Physical.Maximum);
+				printf_P(PSTR("  Item %d:\r\n"
+				              "    Flags:      %d\r\n"
+				              "    Type:       %s\r\n"
+				              "    BitOffset:  %d\r\n"
+							  "    BitSize:    %d\r\n"
+							  "    Usage Page: %d\r\n"
+							  "    Usage:      %d\r\n"
+							  "    Usage Min:  %d\r\n"
+							  "    Usage Max:  %d\r\n"
+							  "    Unit Type:  %d\r\n"
+							  "    Unit Exp:   %d\r\n"
+							  "    Log Min:    %d\r\n"
+							  "    Log Max:    %d\r\n"
+							  "    Phy Min:    %d\r\n"
+							  "    Phy Max:    %d\r\n"), ItemIndex,
+				                                         ((RItem->ItemType == REPORT_ITEM_TYPE_In) ? "IN" : "OUT"),
+							                             RItem->ItemFlags,
+				                                         RItem->BitOffset,
+				                                         RItem->Attributes.BitSize,
+				                                         RItem->Attributes.Usage.Page,
+				                                         RItem->Attributes.Usage.Usage,
+				                                         RItem->Attributes.Usage.Minimum,
+				                                         RItem->Attributes.Usage.Maximum,
+				                                         RItem->Attributes.Unit.Type,
+				                                         RItem->Attributes.Unit.Exponent,
+				                                         RItem->Attributes.Logical.Minimum,
+				                                         RItem->Attributes.Logical.Maximum,
+				                                         RItem->Attributes.Physical.Minimum,
+				                                         RItem->Attributes.Physical.Maximum);
 
 				/* Toggle status LED to indicate busy */
 				if (LEDs_GetLEDs() & LEDS_LED4)
@@ -320,7 +333,7 @@ uint8_t GetHIDReportData(void)
 	  return ParseControlError;
 
 	/* Send the HID report to the parser for processing */
-	if (ProcessHIDReport((void*)&HIDReportData, HIDReportSize) != HID_PARSE_Sucessful)
+	if (ProcessHIDReport((void*)&HIDReportData, HIDReportSize, &HIDReportInfo) != HID_PARSE_Sucessful)
 	  return ParseError;
 	
 	return ParseSucessful;

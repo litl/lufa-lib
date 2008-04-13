@@ -8,14 +8,23 @@
  Released under the LGPL Licence, Version 3
 */
 
+/* ---  Parser Configuration  --- */
+  /* Uncomment to include FEATURE items in the processed parser output */
+  //#define ENABLE_FEATURE_PROCESSING
+
+  /* Uncomment to exclude constant (padding) items from the processed parser output */
+  #define IGNORE_CONTANT_DATA_ITEMS
+/* --- --- --- --- --- --- --- --- */
+
 #include "HIDParse.h"
 
-HID_ReportInfo_t HIDReportInfo;
-
-uint8_t ProcessHIDReport(uint8_t* ReportData, uint16_t ReportSize)
+uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_ReportInfo_t* const ParserData)
 {
 	HID_StateTable_t  StateTable[HID_STACK_DEPTH];
 	HID_StateTable_t* CurrStateTable = &StateTable[0];
+
+	/* Reset the entire HID info structure */
+	memset((void*)ParserData, 0x00, sizeof(HID_ReportInfo_t)); 
 
 	/* One report count by default unless told otherwise */
 	StateTable[0].ReportCount = 1;
@@ -68,93 +77,121 @@ uint8_t ProcessHIDReport(uint8_t* ReportData, uint16_t ReportSize)
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_USAGEPAGE):
 				puts_P(PSTR("  UPAGE\r\n"));
-				StateTable->Attributes.Usage.Page = ReportItemData;
+				CurrStateTable->Attributes.Usage.Page = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_LOGICALMIN):
 				puts_P(PSTR("  LMIN\r\n"));
-				StateTable->Attributes.Logical.Minimum = ReportItemData;
+				CurrStateTable->Attributes.Logical.Minimum = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_LOGICALMAX):
 				puts_P(PSTR("  LMAX\r\n"));
-				StateTable->Attributes.Logical.Maximum = ReportItemData;
+				CurrStateTable->Attributes.Logical.Maximum = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_PHYSMIN):
 				puts_P(PSTR("  PMIN\r\n"));
-				StateTable->Attributes.Physical.Minimum = ReportItemData;
+				CurrStateTable->Attributes.Physical.Minimum = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_PHYSMAX):
 				puts_P(PSTR("  PMIN\r\n"));
-				StateTable->Attributes.Physical.Maximum = ReportItemData;
+				CurrStateTable->Attributes.Physical.Maximum = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_UNITEXP):
 				puts_P(PSTR("  UEXP\r\n"));
-				StateTable->Attributes.Unit.Exponent = ReportItemData;
+				CurrStateTable->Attributes.Unit.Exponent = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_UNIT):
 				puts_P(PSTR("  UNIT\r\n"));
-				StateTable->Attributes.Unit.Type = ReportItemData;
+				CurrStateTable->Attributes.Unit.Type = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_REPORTSIZE):
 				puts_P(PSTR("  RSIZE\r\n"));
-				StateTable->Attributes.BitSize = ReportItemData;
+				CurrStateTable->Attributes.BitSize = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | GLOBAL_TAG_REPORTCOUNT):
 				puts_P(PSTR("  RCNT\r\n"));
-				StateTable->ReportCount = ReportItemData;
+				CurrStateTable->ReportCount = ReportItemData;
 				break;
 			case (TYPE_LOCAL | LOCAL_TAG_USAGE):
 				puts_P(PSTR("  USAGE\r\n"));
-				StateTable->Attributes.Usage.Usage = ReportItemData;			
+				CurrStateTable->Attributes.Usage.Usage = ReportItemData;			
 				break;
 			case (TYPE_LOCAL | LOCAL_TAG_USAGEMIN):
 				puts_P(PSTR("  UMIN\r\n"));
-				StateTable->Attributes.Usage.Minimum = ReportItemData;			
+				CurrStateTable->Attributes.Usage.Minimum = ReportItemData;			
 				break;
 			case (TYPE_LOCAL | LOCAL_TAG_USAGEMAX):
 				puts_P(PSTR("  UMAX\r\n"));
-				StateTable->Attributes.Usage.Maximum = ReportItemData;			
+				CurrStateTable->Attributes.Usage.Maximum = ReportItemData;			
 				break;
 			case (TYPE_MAIN | MAIN_TAG_INPUT):
 			case (TYPE_MAIN | MAIN_TAG_OUTPUT):
-				printf_P(PSTR("  IO(%d)\r\n"), StateTable->ReportCount);
+#if defined(ENABLE_FEATURE_PROCESSING)
+			case (TYPE_MAIN | MAIN_TAG_FEATURE):
+#endif
+				printf_P(PSTR("  IO(%d)\r\n"), CurrStateTable->ReportCount);
 				
 				/* Loop through, creating report item structures based on the report count */
-				for (uint8_t ReportItemNum = 0; ReportItemNum < StateTable->ReportCount; ReportItemNum++)
+				for (uint8_t ReportItemNum = 0; ReportItemNum < CurrStateTable->ReportCount; ReportItemNum++)
 				{
+#if defined(IGNORE_CONTANT_DATA_ITEMS)
+					/* Don't create report items for constant entries, only variable data */
+					if (ReportItemData & IOF_CONSTANT)
+					  break;
+#endif
+
 					/* Check to see if table of report items is full */
-					if (HIDReportInfo.TotalReportItems == HID_MAX_REPORTITEMS)
+					if (ParserData->TotalReportItems == HID_MAX_REPORTITEMS)
 					  return HID_PARSE_InsufficientReportItems;
 				  
 				  	/* Copy state table data into a new report item structure */ 
-					memcpy(&HIDReportInfo.ReportItems[HIDReportInfo.TotalReportItems].Attributes,
+					memcpy((void*)&ParserData->ReportItems[ParserData->TotalReportItems].Attributes,
 					       &CurrStateTable->Attributes,
 					       sizeof(HID_ReportItem_Attributes_t));
+						   
+					/* Save the report item flags */
+					ParserData->ReportItems[ParserData->TotalReportItems].ItemFlags = ReportItemData;
 	
-					if ((*ReportData & TAG_MASK) == MAIN_TAG_INPUT)
+					switch (*ReportData & TAG_MASK)
 					{
-						/* Set the report type in the data structure to the appropriate type */
-						HIDReportInfo.ReportItems[HIDReportInfo.TotalReportItems].ItemType = REPORT_ITEM_TYPE_In;
-					
-						/* Set the bit offset of the report type to the current overall offset */
-						HIDReportInfo.ReportItems[HIDReportInfo.TotalReportItems].BitOffset = HIDReportInfo.BitOffsetIn;
+						case MAIN_TAG_INPUT:
+							/* Set the report type in the data structure to the appropriate type */
+							ParserData->ReportItems[ParserData->TotalReportItems].ItemType = REPORT_ITEM_TYPE_In;
+						
+							/* Set the bit offset of the report type to the current overall offset */
+							ParserData->ReportItems[ParserData->TotalReportItems].BitOffset = ParserData->BitOffsetIn;
+								
+							/* Increment the IN bit offset value in the state table */
+							ParserData->BitOffsetIn += CurrStateTable->Attributes.BitSize;
 							
-						/* Increment the IN bit offset value in the state table */
-						HIDReportInfo.BitOffsetIn += CurrStateTable->Attributes.BitSize;
-					}
-					else
-					{
-						/* Set the report type in the data structure to the appropriate type */
-						HIDReportInfo.ReportItems[HIDReportInfo.TotalReportItems].ItemType = REPORT_ITEM_TYPE_Out;
-					
-						/* Set the bit offset of the report type to the current overall offset */
-						HIDReportInfo.ReportItems[HIDReportInfo.TotalReportItems].BitOffset = HIDReportInfo.BitOffsetOut;
+							break;
+						case MAIN_TAG_OUTPUT:
+							/* Set the report type in the data structure to the appropriate type */
+							ParserData->ReportItems[ParserData->TotalReportItems].ItemType = REPORT_ITEM_TYPE_Out;
+						
+							/* Set the bit offset of the report type to the current overall offset */
+							ParserData->ReportItems[ParserData->TotalReportItems].BitOffset = ParserData->BitOffsetOut;
+								
+							/* Increment the OUT bit offset value in the state table */
+							ParserData->BitOffsetOut += CurrStateTable->Attributes.BitSize;
 							
-						/* Increment the OUT bit offset value in the state table */
-						HIDReportInfo.BitOffsetOut += CurrStateTable->Attributes.BitSize;
+							break;
+#if defined(ENABLE_FEATURE_PROCESSING)
+						case MAIN_TAG_FEATURE:
+							/* Set the report type in the data structure to the appropriate type */
+							ParserData->ReportItems[ParserData->TotalReportItems].ItemType = REPORT_ITEM_TYPE_Feature;
+						
+							/* Set the bit offset of the report type to the current overall offset */
+							ParserData->ReportItems[ParserData->TotalReportItems].BitOffset = ParserData->BitOffsetFeature;
+								
+							/* Increment the FEATURE bit offset value in the state table */
+							ParserData->BitOffsetFeature += CurrStateTable->Attributes.BitSize;		
+
+							break;
+#endif
 					}
 					
 					/* Increment the total report items counter */
-					HIDReportInfo.TotalReportItems++;
+					ParserData->TotalReportItems++;
 				}
 				
 				break;
@@ -168,11 +205,16 @@ uint8_t ProcessHIDReport(uint8_t* ReportData, uint16_t ReportSize)
 				puts_P(PSTR("  UNK?\r\n"));			
 		}
 	  
-		/* Store the report item size bitmask for later use */
-		uint8_t DataSizeMask = (*ReportData & DATA_SIZE_MASK);
+		if ((*ReportData & TYPE_MASK) == TYPE_MAIN)
+		{
+			/* Clear local parameters, which are not persistant between main items */
+			CurrStateTable->Attributes.Usage.Usage   = 0;
+			CurrStateTable->Attributes.Usage.Minimum = 0;
+			CurrStateTable->Attributes.Usage.Maximum = 0;
+		}
 		
 		/* Now skip over the data, ready to process the next report item */
-		switch (DataSizeMask)
+		switch (*ReportData & DATA_SIZE_MASK)
 		{
 			case DATA_SIZE_4:
 				ReportSize -= 5;
@@ -197,7 +239,7 @@ uint8_t ProcessHIDReport(uint8_t* ReportData, uint16_t ReportSize)
 	return HID_PARSE_Sucessful;
 }
 
-void GetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem)
+void GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
 {
 	uint16_t DataBitsRem  = ReportItem->Attributes.BitSize;
 	uint16_t CurrentBit   = ReportItem->BitOffset;
@@ -218,7 +260,7 @@ void GetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem)
 	}
 }
 
-void SetReportItemInfo(uint8_t* ReportData, HID_ReportItem_t* ReportItem)
+void SetReportItemInfo(uint8_t* const ReportData, const HID_ReportItem_t* ReportItem)
 {
 	uint16_t DataBitsRem  = ReportItem->Attributes.BitSize;
 	uint16_t CurrentBit   = ReportItem->BitOffset;
