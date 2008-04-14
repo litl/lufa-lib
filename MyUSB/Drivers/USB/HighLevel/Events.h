@@ -11,7 +11,7 @@
 #ifndef __USB_EVENTS_H__
 #define __USB_EVENTS_H__
 
-	// Includes:
+	/* Includes: */
 		#include <avr/io.h>
 		
 		#include "../../../Common/Common.h"
