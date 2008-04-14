@@ -20,16 +20,20 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#if !defined(HID_STACK_DEPTH)
-				#define HID_STACK_DEPTH        5
+			#if !defined(HID_STATETABLE_STACK_DEPTH)
+				#define HID_STATETABLE_STACK_DEPTH   5
 			#endif
 			
-			#if !defined(HID_MAX_COLLECTIONS)
-				#define HID_MAX_COLLECTIONS    5
+			#if !defined(HID_USAGE_STACK_DEPTH)
+				#define HID_USAGE_STACK_DEPTH        8
 			#endif
 
+			#if !defined(HID_MAX_COLLECTIONS)
+				#define HID_MAX_COLLECTIONS          5
+			#endif
+			
 			#if !defined(HID_MAX_REPORTITEMS)
-				#define HID_MAX_REPORTITEMS    30
+				#define HID_MAX_REPORTITEMS          30
 			#endif
 
 	/* Public Interface - May be used in end-application: */
@@ -47,7 +51,9 @@
 				HID_PARSE_HIDStackOverflow            = 1,
 				HID_PARSE_HIDStackUnderflow           = 2,
 				HID_PARSE_InsufficientReportItems     = 3,
-				HID_PARSE_InsufficientCollectionPaths = 4,
+				HID_PARSE_UnexpectedEndCollection     = 4,
+				HID_PARSE_InsufficientCollectionPaths = 5,
+				HID_PARSE_UsageStackOverflow          = 6
 			};
 		
 		/* Type Defines: */		
@@ -84,7 +90,7 @@
 				HID_Usage_t                  Usage;
 				HID_Unit_t                   Unit;
 				HID_MinMax_t                 Logical;
-				HID_MinMax_t                 Physical;	
+				HID_MinMax_t                 Physical;
 			} HID_ReportItem_Attributes_t;
 			
 			typedef struct

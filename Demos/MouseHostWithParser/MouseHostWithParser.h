@@ -36,6 +36,8 @@
 		
 		#define USAGE_PAGE_BUTTON           0x09
 		#define USAGE_PAGE_GENERIC_DCTRL    0x01
+		#define USAGE_X                     0x30
+		#define USAGE_Y                     0x31
 
 		#define MAX_CONFIG_DESCRIPTOR_SIZE  512
 		

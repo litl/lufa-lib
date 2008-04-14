@@ -121,7 +121,7 @@ TASK(USB_Mouse_Host)
 	/* Switch to determine what user-application handled host state the host state machine is in */
 	switch (USB_HostState)
 	{
-		case HOST_STATE_Addressed:
+		case HOST_STATE_Addressed:		
 			/* Standard request to set the device configuration to configuration 1 */
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
@@ -272,8 +272,6 @@ TASK(USB_Mouse_Host)
 			if (Pipe_ReadWriteAllowed())
 			{
 				uint8_t LEDMask = LEDS_NO_LEDS;
-				bool    DoneX   = false;
-				bool    DoneY   = false;
 
 				/* Create a pointer to walk through each of the HID report items */
 				HID_ReportItem_t* ReportItem = NULL;
@@ -290,10 +288,8 @@ TASK(USB_Mouse_Host)
 					/* Set temp report item pointer to the next report item */
 					ReportItem = &HIDReportInfo.ReportItems[ReportNumber];
 
-					if ((ReportItem->Attributes.Usage.Page      == USAGE_PAGE_BUTTON) &&
-					    (ReportItem->Attributes.Logical.Minimum == 0)                 &&
-					    (ReportItem->Attributes.Logical.Maximum == 1)                 &&
-					    (ReportItem->ItemType                   == REPORT_ITEM_TYPE_In))
+					if ((ReportItem->Attributes.Usage.Page       == USAGE_PAGE_BUTTON) &&
+					    (ReportItem->ItemType                    == REPORT_ITEM_TYPE_In))
 					{
 						/* Get the mouse button value */
 						GetReportItemInfo((void*)&MouseReport, ReportItem);
@@ -302,33 +298,31 @@ TASK(USB_Mouse_Host)
 						if (ReportItem->Value)
 						  LEDMask = LEDS_ALL_LEDS;
 					}
-					else if ((ReportItem->Attributes.Usage.Page == USAGE_PAGE_GENERIC_DCTRL) &&
-					         (ReportItem->ItemFlags             &  IOF_RELATIVE)             &&
-					         (ReportItem->ItemType              == REPORT_ITEM_TYPE_In))
+					else if ((ReportItem->Attributes.Usage.Page  == USAGE_PAGE_GENERIC_DCTRL) &&
+							 (ReportItem->Attributes.Usage.Usage == USAGE_X)                  &&
+					         (ReportItem->ItemType               == REPORT_ITEM_TYPE_In))
 					{
 						/* Get the mouse relative position value */
 						GetReportItemInfo((void*)&MouseReport, ReportItem);
 						
-						if (!DoneX)
-						{
-							/* Value is a signed 8-bit value, cast and set LED mask as appropriate */
-							if ((int8_t)ReportItem->Value > 0)
-							  LEDMask |= LEDS_LED3;
-							else if ((int8_t)ReportItem->Value < 0)
-							  LEDMask |= LEDS_LED4;						
-
-							DoneX = true;
-						}
-						else if (!DoneY)
-						{
-							/* Value is a signed 8-bit value, cast and set LED mask as appropriate */
-							if ((int8_t)ReportItem->Value > 0)
-							  LEDMask |= LEDS_LED1;
-							else if ((int8_t)ReportItem->Value < 0)
-							  LEDMask |= LEDS_LED2;
-
-							DoneY = true;
-						}
+						/* Value is a signed 8-bit value, cast and set LED mask as appropriate */
+						if ((int8_t)ReportItem->Value > 0)
+						  LEDMask |= LEDS_LED1;
+						else if ((int8_t)ReportItem->Value < 0)
+						  LEDMask |= LEDS_LED2;
+					}
+					else if ((ReportItem->Attributes.Usage.Page  == USAGE_PAGE_GENERIC_DCTRL) &&
+							 (ReportItem->Attributes.Usage.Usage == USAGE_Y)                  &&
+					         (ReportItem->ItemType               == REPORT_ITEM_TYPE_In))
+					{
+						/* Get the mouse relative position value */
+						GetReportItemInfo((void*)&MouseReport, ReportItem);
+						
+						/* Value is a signed 8-bit value, cast and set LED mask as appropriate */
+						if ((int8_t)ReportItem->Value > 0)
+						  LEDMask |= LEDS_LED3;
+						else if ((int8_t)ReportItem->Value < 0)
+						  LEDMask |= LEDS_LED4;
 					}
 				}
 				
