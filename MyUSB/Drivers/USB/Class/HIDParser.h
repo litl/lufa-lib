@@ -8,8 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-#ifndef _HIDPARSE_H_
-#define _HIDPARSE_H_
+#ifndef __HIDPARSER_H__
+#define __HIDPARSER_H__
 
 	/* Includes: */
 		#include <string.h>
@@ -21,7 +21,7 @@
 	/* Private Interface - For use in library only: */
 		/* Macros: */
 			#if !defined(HID_STATETABLE_STACK_DEPTH)
-				#define HID_STATETABLE_STACK_DEPTH   5
+				#define HID_STATETABLE_STACK_DEPTH   3
 			#endif
 			
 			#if !defined(HID_USAGE_STACK_DEPTH)
@@ -59,6 +59,7 @@
 		/* Type Defines: */		
 			typedef struct CollectionPath
 			{
+				uint8_t                      Type;
 				uint16_t                     Usage;
 				struct CollectionPath*       Parent;
 			} CollectionPath_t;

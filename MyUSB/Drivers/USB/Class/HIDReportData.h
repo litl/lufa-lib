@@ -8,8 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-#ifndef _HIDREPORTDATA_H_
-#define _HIDREPORTDATA_H_
+#ifndef __HIDREPORTDATA_H__
+#define __HIDREPORTDATA_H__
 
 	/* Macros: */
 		#define DATA_SIZE_MASK           0b00000011

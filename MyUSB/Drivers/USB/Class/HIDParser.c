@@ -22,11 +22,8 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 	uint16_t          BitOffsetFeature             = 0x00;
 #endif
 	CollectionPath_t* CurrCollectionPath           = NULL;
-	CollectionPath_t* ParentCollectionPath;
 
 	memset((void*)ParserData, 0x00, sizeof(HID_ReportInfo_t)); 
-
-	StateTable[0].ReportCount = 1;
 
 	while (ReportSize)
 	{
@@ -103,26 +100,29 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				CurrStateTable->Attributes.Usage.Maximum = ReportItemData;
 				break;
 			case (TYPE_MAIN | MAIN_TAG_COLLECTION):
-				ParentCollectionPath = CurrCollectionPath;
-			
 				if (CurrCollectionPath == NULL)
 				{
 					CurrCollectionPath = &ParserData->CollectionPaths[0];
 				}
 				else
 				{
-					do
+					CollectionPath_t* ParentCollectionPath = CurrCollectionPath;
+			
+					CurrCollectionPath = &ParserData->CollectionPaths[1];
+
+					while (CurrCollectionPath->Parent != NULL);
 					{
 						if (CurrCollectionPath == &ParserData->CollectionPaths[HID_MAX_COLLECTIONS])
 						  return HID_PARSE_InsufficientCollectionPaths;
 					
 						CurrCollectionPath++;
 					}
-					while (CurrCollectionPath->Parent != NULL);
+
+					CurrCollectionPath->Parent = ParentCollectionPath;
 				}
 				
-				CurrCollectionPath->Parent = ParentCollectionPath;
-
+				CurrCollectionPath->Type = ReportItemData;
+				
 				if (UsageStackSize)
 				{
 					CurrCollectionPath->Usage = UsageStack[0];
@@ -220,6 +220,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 		{
 			CurrStateTable->Attributes.Usage.Minimum = 0;
 			CurrStateTable->Attributes.Usage.Maximum = 0;
+			UsageStackSize = 0;
 		}
 		
 		switch (*ReportData & DATA_SIZE_MASK)
