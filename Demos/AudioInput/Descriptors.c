@@ -73,7 +73,6 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			ACSpecification:          0x0100,
 			TotalLength:              (sizeof(USB_AudioInterface_AC_t) +
 			                           sizeof(USB_AudioInputTerminal_t) +
-									   sizeof(USB_AudioFeatureUnit_t) +
 									   sizeof(USB_AudioOutputTerminal_t)),
 			
 			InCollection:             1,

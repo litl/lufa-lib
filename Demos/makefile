@@ -52,6 +52,9 @@ all:
 	make -C MassStorageHost clean
 	make -C MassStorageHost all
 
+	make -C MIDI clean
+	make -C MIDI all
+
 	make -C Mouse clean
 	make -C Mouse all
 
@@ -89,7 +92,7 @@ clean:
 	make -C Magstripe clean
 	make -C MassStorage clean
 	make -C MassStorageHost clean
-	make -C Mouse clean
+	make -C MIDI clean
 	make -C MouseFullInt clean
 	make -C MouseViaInt clean
 	make -C MouseHost clean
@@ -111,6 +114,7 @@ clean_list:
 	make -C Magstripe clean_list
 	make -C MassStorage clean_list
 	make -C MassStorageHost clean_list
+	make -C MIDI clean_list
 	make -C Mouse clean_list
 	make -C MouseFullInt clean_list
 	make -C MouseViaInt clean_list

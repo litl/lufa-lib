@@ -22,7 +22,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Endpoint0Size:          8,
 		
 	VendorID:               0x0000,
-	ProductID:              USB_PRODUCT_ID('A', 'O'),
+	ProductID:              USB_PRODUCT_ID('Z', '5'),
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
@@ -71,71 +71,23 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Subtype:                  DSUBTYPE_Header,
 			
 			ACSpecification:          0x0100,
-			TotalLength:              (sizeof(USB_AudioInterface_AC_t) +
-			                           sizeof(USB_AudioInputTerminal_t) +
-									   sizeof(USB_AudioOutputTerminal_t)),
+			TotalLength:              sizeof(USB_AudioInterface_AC_t),
 			
 			InCollection:             1,
 			InterfaceNumbers:         {1},			
 		},
 
-	InputTerminal:
-		{
-			Header:                   {Size: sizeof(USB_AudioInputTerminal_t), Type: DTYPE_AudioInterface},
-			Subtype:                  DSUBTYPE_InputTerminal,
-		
-			TerminalID:               0x01,
-			TerminalType:             TERMINAL_STREAMING,
-			AssociatedOutputTerminal: 0x00,
-			
-			TotalChannels:            2,
-			ChannelConfig:            (CHANNEL_LEFT_FRONT | CHANNEL_RIGHT_FRONT),
-			
-			ChannelStrIndex:          NO_DESCRIPTOR_STRING,
-			TerminalStrIndex:         NO_DESCRIPTOR_STRING
-		},
-
-	OutputTerminal:
-		{
-			Header:                   {Size: sizeof(USB_AudioOutputTerminal_t), Type: DTYPE_AudioInterface},
-			Subtype:                  DSUBTYPE_OutputTerminal,
-		
-			TerminalID:               0x02,
-			TerminalType:             TERMINAL_OUT_SPEAKER,
-			AssociatedInputTerminal:  0x00,
-			
-			SourceID:                 0x01,
-			
-			TerminalStrIndex:         NO_DESCRIPTOR_STRING			
-		},
-
-	AudioStreamInterface_Alt0:
+	AudioStreamInterface:
 		{
 			Header:                   {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
 			InterfaceNumber:          1,
 			AlternateSetting:         0,
 			
-			TotalEndpoints:           0,
+			TotalEndpoints:           2,
 				
 			Class:                    0x01,
-			SubClass:                 0x02,
-			Protocol:                 0x00,
-				
-			InterfaceStrIndex:        NO_DESCRIPTOR_STRING
-		},
-
-	AudioStreamInterface_Alt1:
-		{
-			Header:                   {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
-
-			InterfaceNumber:          1,
-			AlternateSetting:         1,
-			
-			TotalEndpoints:           1,
-				
-			Class:                    0x01,
-			SubClass:                 0x02,
+			SubClass:                 0x03,
 			Protocol:                 0x00,
 				
 			InterfaceStrIndex:        NO_DESCRIPTOR_STRING
@@ -146,52 +98,112 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                   {Size: sizeof(USB_AudioInterface_AS_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_General,
 			
-			TerminalLink:             0x01,
+			TerminalLink:             0x00,
 			
 			FrameDelay:               1,
-			AudioFormat:              0x0001
+			AudioFormat:              0x0041
 		},
-		
-	AudioFormat:
-		{
-			Header:                   {Size: sizeof(USB_AudioFormat_t), Type: DTYPE_AudioInterface},
-			Subtype:                  DSUBTYPE_Format,
 
-			FormatType:               0x01,
-			Channels:                 0x02,
+	MIDI_In_Jack_Emb:
+		{
+			Header:                   {Size: sizeof(USB_MIDI_In_Jack_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_InputJack,
 			
-			SubFrameSize:             0x02,
-			BitResolution:            16,
-			SampleFrequencyType:      (sizeof(ConfigurationDescriptor.AudioFormat.SampleFrequencies) / sizeof(AudioSampleFreq_t)),
-		
-			SampleFrequencies:        {SAMPLE_FREQ(AUDIO_SAMPLE_FREQUENCY)}
+			JackType:                 JACKTYPE_EMBEDDED,
+			JackID:                   0x01,
+			
+			JackStrIndex:             NO_DESCRIPTOR_STRING
 		},
-	
-	AudioEndpoint:
+
+	MIDI_In_Jack_Ext:
+		{
+			Header:                   {Size: sizeof(USB_MIDI_In_Jack_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_InputJack,
+			
+			JackType:                 JACKTYPE_EXTERNAL,
+			JackID:                   0x02,
+			
+			JackStrIndex:             NO_DESCRIPTOR_STRING
+		},
+		
+	MIDI_Out_Jack_Emb:
+		{
+			Header:                   {Size: sizeof(USB_MIDI_Out_Jack_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_OutputJack,
+			
+			JackType:                 JACKTYPE_EMBEDDED,
+			JackID:                   0x03,
+
+			NumberOfPins:             1,
+			SourceJackID:             {0x02},
+			SourcePinID:              {0x01},
+			
+			JackStrIndex:             NO_DESCRIPTOR_STRING
+		},
+
+	MIDI_Out_Jack_Ext:
+		{
+			Header:                   {Size: sizeof(USB_MIDI_Out_Jack_t), Type: DTYPE_AudioInterface},
+			Subtype:                  DSUBTYPE_OutputJack,
+			
+			JackType:                 JACKTYPE_EXTERNAL,
+			JackID:                   0x04,
+
+			NumberOfPins:             1,
+			SourceJackID:             {0x01},
+			SourcePinID:              {0x01},
+			
+			JackStrIndex:             NO_DESCRIPTOR_STRING
+		},
+
+	MIDI_In_Jack_Endpoint:
 		{
 			Endpoint:
 				{
 					Header:              {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
 
-					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_OUT | AUDIO_STREAM_EPNUM),
-					Attributes:          (EP_TYPE_ISOCHRONOUS | ENDPOINT_ATTR_ASYNC | ENDPOINT_USAGE_DATA),
-					EndpointSize:        AUDIO_STREAM_EPSIZE,
-					PollingIntervalMS:   1
+					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_OUT | MIDI_STREAM_OUT_EPNUM),
+					Attributes:          (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+					EndpointSize:        MIDI_STREAM_EPSIZE,
+					PollingIntervalMS:   0
 				},
 			
 			Refresh:                  0,
 			SyncEndpointNumber:       0
 		},
 		
-	AudioEndpoint_SPC:
+	MIDI_In_Jack_Endpoint_SPC:
 		{
-			Header:                   {Size: sizeof(USB_AudioStreamEndpoint_Spc_t), Type: DTYPE_AudioEndpoint},
+			Header:                   {Size: sizeof(USB_MIDI_Jack_Endpoint_t), Type: DTYPE_AudioEndpoint},
 			Subtype:                  DSUBTYPE_General,
+
+			TotalEmbeddedJacks:       0x01,
+			AssociatedJackID:         {0x01}
+		},
+
+	MIDI_Out_Jack_Endpoint:
+		{
+			Endpoint:
+				{
+					Header:              {Size: sizeof(USB_AudioStreamEndpoint_Std_t), Type: DTYPE_Endpoint},
+
+					EndpointAddress:     (ENDPOINT_DESCRIPTOR_DIR_IN | MIDI_STREAM_IN_EPNUM),
+					Attributes:          (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+					EndpointSize:        MIDI_STREAM_EPSIZE,
+					PollingIntervalMS:   0
+				},
 			
-			Attributes:               0x00,
-			
-			LockDelayUnits:           0x00,
-			LockDelay:                0x0000
+			Refresh:                  0,
+			SyncEndpointNumber:       0
+		},
+		
+	MIDI_Out_Jack_Endpoint_SPC:
+		{
+			Header:                   {Size: sizeof(USB_MIDI_Jack_Endpoint_t), Type: DTYPE_AudioEndpoint},
+			Subtype:                  DSUBTYPE_General,
+
+			TotalEmbeddedJacks:       0x01,
+			AssociatedJackID:         {0x03}
 		}
 };
 
@@ -211,9 +223,9 @@ USB_Descriptor_String_t ManafacturerString PROGMEM =
 
 USB_Descriptor_String_t ProductString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(20), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(15), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','A','u','d','i','o',' ','O','u','t',' ','D','e','m','o'}
+	UnicodeString:          {'M','y','U','S','B',' ','M','I','D','I',' ','D','e','m','o'}
 };
 
 USB_Descriptor_String_t SerialNumberString PROGMEM =
