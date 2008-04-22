@@ -14,7 +14,11 @@
 	It is built upon the USB Audio class.
 	
 	Joystick movements are translated into note on/off messages and
-	are sent to the host PC as MIDI streams.
+	are sent to the host PC as MIDI streams which can be read by any
+	MIDI program supporting MIDI IN devices.
+	
+	If the HWB is not pressed, channel 0 (default piano) is used. If
+	the HWB is set, then channel 9 (default percussion) is selected.
 */
 
 #include "MIDI.h"
@@ -44,6 +48,7 @@ int main(void)
 	/* Hardware Initialization */
 	Joystick_Init();
 	LEDs_Init();
+	HWB_Init();
 
 	/* Indicate USB not ready */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
@@ -108,21 +113,24 @@ TASK(USB_MIDI_Task)
 		/* Get current joystick mask, XOR with previous to detect joystick changes */
 		uint8_t JoystickStatus  = Joystick_GetStatus();
 		uint8_t JoystickChanges = (JoystickStatus ^ PrevJoystickStatus);
+		
+		/* Get HWB status - if set use channel 9 (percussion), otherwise use channel 0 */
+		uint8_t Channel = ((HWB_GetStatus()) ? 9 : 0);
 
 		if (JoystickChanges & JOY_LEFT)
-		  SendMIDINoteChange(0x3C, (JoystickStatus & JOY_LEFT), 0);
+		  SendMIDINoteChange(0x3C, (JoystickStatus & JOY_LEFT), 0, Channel);
 
 		if (JoystickChanges & JOY_UP)
-		  SendMIDINoteChange(0x3D, (JoystickStatus & JOY_UP), 0);
+		  SendMIDINoteChange(0x3D, (JoystickStatus & JOY_UP), 0, Channel);
 
 		if (JoystickChanges & JOY_RIGHT)
-		  SendMIDINoteChange(0x3E, (JoystickStatus & JOY_RIGHT), 0);
+		  SendMIDINoteChange(0x3E, (JoystickStatus & JOY_RIGHT), 0, Channel);
 
 		if (JoystickChanges & JOY_DOWN)
-		  SendMIDINoteChange(0x3F, (JoystickStatus & JOY_DOWN), 0);
+		  SendMIDINoteChange(0x3F, (JoystickStatus & JOY_DOWN), 0, Channel);
 
 		if (JoystickChanges & JOY_PRESS)
-		  SendMIDINoteChange(0x3B, (JoystickStatus & JOY_PRESS), 0);
+		  SendMIDINoteChange(0x3B, (JoystickStatus & JOY_PRESS), 0, Channel);
 
 		/* Save previous joystick value for next joystick change detection */
 		PrevJoystickStatus = JoystickStatus;
@@ -136,7 +144,7 @@ TASK(USB_MIDI_Task)
 	  Endpoint_FIFOCON_Clear();
 }
 
-void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t Channel)
+void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t CableID, const uint8_t Channel)
 {
 	uint8_t Command;
 
@@ -144,7 +152,7 @@ void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t Cha
 	Command = ((OnOff)? MIDI_COMMAND_NOTE_ON : MIDI_COMMAND_NOTE_OFF);
 
 	/* Write the Packet Header to the endpoint */
-	Endpoint_Write_Byte((Command >> 4));
+	Endpoint_Write_Byte((CableID << 4) | (Command >> 4));
 
 	/* Write the Note On/Off command with the specified channel, pitch and velocity */
 	Endpoint_Write_Byte(Command | Channel);

@@ -10,7 +10,7 @@
 
 # Makefile for the MyUSB library itself.
 
-MYUSB_USB_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
+MYUSB_SRC_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
                      ./Drivers/USB/LowLevel/Endpoint.c           \
                      ./Drivers/USB/LowLevel/Pipe.c               \
                      ./Drivers/USB/LowLevel/DevChapter9.c        \
@@ -19,23 +19,22 @@ MYUSB_USB_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
                      ./Drivers/USB/HighLevel/USBTask.c           \
                      ./Drivers/USB/HighLevel/USBInterrupt.c      \
                      ./Drivers/USB/HighLevel/Events.c            \
-                     ./Drivers/USB/HighLevel/StdDescriptors.c    \					 
-				  
-MYUSB_DRIVER_FILES = ./Scheduler/Scheduler.c                     \
+                     ./Drivers/USB/HighLevel/StdDescriptors.c    \
+                     ./Drivers/USB/Class/HIDParser.c             \
+                     ./Scheduler/Scheduler.c                     \
                      ./MemoryAllocator/DynAlloc.c                \
                      ./Drivers/Board/Temperature.c               \
                      ./Drivers/AT90USBXXX/Serial.c               \
                      ./Drivers/AT90USBXXX/Serial_Stream.c        \
 
 all:
-	make -C Bootloader/ clean
-	make -C Bootloader/ all
+	make -C Bootloaders/ clean
+	make -C Bootloaders/ all
 	
 clean:
-	make -C Bootloader/ clean
+	make -C Bootloaders/ clean
 
-	rm -f $(MYUSB_USB_FILES:%.c=%.o)
-	rm -f $(MYUSB_DRIVER_FILES:%.c=%.o)
+	rm -f $(MYUSB_SRC_FILES:%.c=%.o)
 	
 clean_list:
-	make -C Bootloader/ clean_list
+	make -C Bootloaders/ clean_list

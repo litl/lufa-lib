@@ -23,6 +23,7 @@
 		#include <MyUSB/Drivers/USB/USB.h>              // USB Functionality
 		#include <MyUSB/Drivers/Board/Joystick.h>       // Joystick driver
 		#include <MyUSB/Drivers/Board/LEDs.h>           // LEDs driver
+		#include <MyUSB/Drivers/Board/HWB.h>          // Hardware Button driver
 		#include <MyUSB/Scheduler/Scheduler.h>          // Simple scheduler for task management
 
    /* Macros: */
@@ -40,6 +41,6 @@
 		HANDLES_EVENT(USB_CreateEndpoints);
 
    /* Function Prototypes: */
-   	void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t Channel);
+   	void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t CableID, const uint8_t Channel);
 
 #endif
