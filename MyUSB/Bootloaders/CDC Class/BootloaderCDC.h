@@ -29,8 +29,10 @@
 		#define SET_LINE_CODING              0x20
 		#define SET_CONTROL_LINE_STATE       0x22
 		
-		#define COMMAND_RESPONSE_OK          '\r'
-		#define COMMAND_RESPONSE_UNKNOWN     '?'
+		#define BOOTLOADER_VERSION_MAJOR     0x01
+		#define BOOTLOADER_VERSION_MINOR     0x00
+		
+		#define SOFTWARE_IDENTIFIER          "USB BDR"
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);

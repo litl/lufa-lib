@@ -93,6 +93,7 @@ clean:
 	make -C MassStorage clean
 	make -C MassStorageHost clean
 	make -C MIDI clean
+	make -C Mouse clean
 	make -C MouseFullInt clean
 	make -C MouseViaInt clean
 	make -C MouseHost clean

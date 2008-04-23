@@ -24,6 +24,8 @@ CDC_Line_Coding_t LineCoding = { BaudRateBPS: 9600,
                                  CharFormat:  OneStopBit,
                                  ParityType:  Parity_None,
                                  DataBits:    8            };
+								 
+uint16_t          CurrAddress;
 
 bool RunBootloader = true;
 
@@ -171,26 +173,77 @@ TASK(CDC_Task)
 	/* Check if endpoint has a command in it sent from the host */
 	if (Endpoint_ReadWriteAllowed())
 	{
-		uint8_t Response[2] = {COMMAND_RESPONSE_OK};
-		uint8_t ResponseLen = 1;
-	
 		/* Read in the bootloader command (first byte sent from host) */
 		uint8_t Command = Endpoint_Read_Byte();
+
+		/* Select the IN endpoint */
+		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+
+		/* Wait until host ready for more data */
+		while (!(Endpoint_ReadWriteAllowed()));
 
 		switch (Command)
 		{
 			case 'E': // Exit Bootloader
 				RunBootloader = false;
-				break;
 			case 'L': // Leave Programming Mode
 			case 'P': // Enter Programming Mode
-				/* No processing required - just return the standard OK response */
+			case 'T': // Set Device Type
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
 				break;
 			case 'x': // Set LED
+				/* Turn on the secondary LED */
 				LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3);
+
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
 				break;
 			case 'y': // Clear LED
+				/* Turn off the secondary LED */
 				LEDs_SetAllLEDs(LEDS_LED2);
+
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
+				break;
+			case 't': // Get Supported Part Codes
+				/* Return ATMEGA128 part code - this is only to allow AVRProg to use the bootloader */
+				Endpoint_Write_Byte(0x44);
+				Endpoint_Write_Byte(0x00);
+				break;
+			case 'a': // Check Auto-Increment
+				/* Indicate auto-address increment is supported */
+				Endpoint_Write_Byte('Y');
+				break;
+			case 'A': // Set Address
+				Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+
+				/* Set the current address to that given by the host */
+				CurrAddress = Endpoint_Read_Word_LE();
+
+				Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
+				break;
+			case 'p': // Get Programmer Type
+				/* Indicate serial programmer back to the host */
+				Endpoint_Write_Byte('S');
+				break;
+			case 'S': // Get Software Identifier
+				/* Write the 7-byte software identifier to the endpoint */
+				for (uint8_t CurrByte = 0; CurrByte < sizeof(SOFTWARE_IDENTIFIER); CurrByte++)
+				  Endpoint_Write_Byte(SOFTWARE_IDENTIFIER[CurrByte]);
+
+				break;
+			case 'V': // Get Software Version
+				Endpoint_Write_Word_LE((BOOTLOADER_VERSION_MAJOR << 8) | BOOTLOADER_VERSION_MINOR);
+				break;
+			case 's': // Get Signature Bytes
+				Endpoint_Write_Byte(boot_signature_byte_get(0));
+				Endpoint_Write_Byte(boot_signature_byte_get(2));
+				Endpoint_Write_Byte(boot_signature_byte_get(4));
+				
 				break;
 			case 'e': // Chip Erase
 				/* Clear the application section of flash */
@@ -207,20 +260,208 @@ TASK(CDC_Task)
 				/* Re-enable the RWW section of flash as writing to the flash locks it out */
 				boot_rww_enable();
 
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
 				break;
+			case 'l': // Write Lock Bits
+				Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+
+				/* Set the lock bits to those given by the host */
+				boot_lock_bits_set(Endpoint_Read_Byte());
+
+				Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
+				break;
+			case 'r': // Read Lock Bits
+				Endpoint_Write_Byte(boot_lock_fuse_bits_get(GET_LOCK_BITS));
+				break;
+			case 'F': // Read Fuse Bits
+				Endpoint_Write_Byte(boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS));
+				break;
+			case 'N': // Read High Fuse Bits
+				Endpoint_Write_Byte(boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS));
+				break;
+			case 'Q': // Read Extended Fuse Bits
+				Endpoint_Write_Byte(boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS));
+				break;
+			case 'b': // Check Block Support
+				/* Indicate to the host that block mode is supported */
+				Endpoint_Write_Byte('Y');
+				
+				/* Send block size to the host */
+				Endpoint_Write_Byte(SPM_PAGESIZE >> 8);
+				Endpoint_Write_Byte(SPM_PAGESIZE & 0xFF);
+				break;
+			case 'C': // Write Program Memory, Low Byte
+				Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+				
+				/* Write the low byte to the current flash page */
+				boot_page_fill(((uint32_t)CurrAddress << 1), Endpoint_Read_Byte());
+				
+				Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+				
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
+				break;
+			case 'c': // Write Program Memory, High Byte
+				Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+				
+				/* Write the high byte to the current flash page */
+				boot_page_fill(((uint32_t)CurrAddress << 1) + 1, Endpoint_Read_Byte());
+				
+				/* Increment the address after use */			
+				CurrAddress++;
+				
+				Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+				
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
+				break;
+			case 'm': // Issue Page Write
+				/* Commit the flash page to memory */
+				boot_page_write((uint32_t)CurrAddress << 1);
+				
+				/* Wait until write operation has completed */
+				boot_spm_busy_wait();
+				
+				/* Re-enable RWW section after write command */
+				boot_rww_enable();
+
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
+				break;
+			case 'B': // Start Block FLASH/EEPROM Load
+			case 'g': // Start Block FLASH/EEPROM Read
+				Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+				
+				uint16_t BlockSize  = Endpoint_Read_Word_LE();
+				char     MemoryType = Endpoint_Read_Byte();
+				
+				if ((MemoryType == 'E') || (MemoryType == 'F'))
+				{
+					/* Check if command is to read memory */
+					if (Command == 'g')
+					{
+						Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+
+						while (BlockSize--)
+						{
+							if (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE)
+							{
+								/* Clear the endpoint bank */
+								Endpoint_FIFOCON_Clear();
+									
+								/* Wait until ready to write next packet */
+								while (!(Endpoint_ReadWriteAllowed()));
+							}
+
+							if (MemoryType == 'E')
+							{
+								/* Read the next EEPROM byte into the endpoint */
+								Endpoint_Write_Byte(eeprom_read_byte(CurrAddress));
+									
+								/* Increment the address counter after use */
+								CurrAddress++;
+							}
+							else
+							{
+								/* Read the next FLASH word from the current FLASH page */
+								Endpoint_Write_Word_LE(pgm_read_word_far(((uint32_t)CurrAddress << 1)));
+								
+								/* Increment the address counter by one word size after use */
+								CurrAddress += 2;							
+							}
+						}
+					}
+					else
+					{
+						while (BlockSize--)
+						{
+							if (!(Endpoint_BytesInEndpoint()))
+							{
+								/* Clear the endpoint bank */
+								Endpoint_FIFOCON_Clear();
+								
+								/* Wait until next packet of data has been received */
+								while (!(Endpoint_ReadWriteAllowed()));
+							}
+							
+							if (MemoryType == 'E')
+							{
+								/* Write the next EEPROM byte from the endpoint */
+								eeprom_write_byte(CurrAddress, Endpoint_Read_Byte());
+								
+								/* Increment the address counter after use */
+								CurrAddress++;
+							}
+							else
+							{
+								/* Write the next FLASH word to the current FLASH page */
+								boot_page_fill(((uint32_t)CurrAddress << 1), Endpoint_Read_Word_LE());
+								
+								/* Increment the address counter by one word size after use */
+								CurrAddress += 2;
+							}
+						}
+
+						/* In in FLASH programming mode, commit the page after writing */
+						if (MemoryType == 'F')
+						{
+							/* Commit the flash page to memory */
+							boot_page_write((uint32_t)CurrAddress << 1);
+							
+							/* Wait until write operation has completed */
+							boot_spm_busy_wait();
+							
+							/* Re-enable RWW section after write command */
+							boot_rww_enable();
+						}
+					
+						Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+							
+						/* Send response byte back to the host */
+						Endpoint_Write_Byte('\r');					
+					}
+				}
+				else
+				{
+					Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+						
+					/* Send error byte back to the host */
+					Endpoint_Write_Byte('?');
+				}
+
+				break;
+			case 'R': // Read Program Memory
+				Endpoint_Write_Word_LE(pgm_read_word_far(((uint32_t)CurrAddress << 1)));
+				break;
+			case 'D': // Write EEPROM Memory
+				Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+
+				/* Read the byte from the endpoint and write it to the EEPROM */
+				eeprom_write_byte((uint8_t*)CurrAddress, Endpoint_Read_Byte());
+			
+				/* Increment the address after use */			
+				CurrAddress++;
+	
+				Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+				
+				/* Send confirmation byte back to the host */
+				Endpoint_Write_Byte('\r');
+				break;
+			case 'd': // Read EEPROM Memory
+				/* Read the EEPROM byte and write it to the endpoint */
+				Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)CurrAddress));
+
+				/* Increment the address after use */
+				CurrAddress++;
+				break;				
 			default:
-				Response[0] = COMMAND_RESPONSE_UNKNOWN;
+				/* Send unknown command byte back to the host */
+				Endpoint_Write_Byte('?');
 		}
-
-		/* Select the IN endpoint */
-		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
-
-		/* Wait until host ready for more data */
-		while (!(Endpoint_ReadWriteAllowed()));
-
-		/* Write the response to the endpoint */
-		for (uint8_t ResponseByte = 0; ResponseByte < ResponseLen; ResponseByte++)
-		  Endpoint_Write_Byte(ResponseByte);
 
 		/* Send the endpoint data to the host */
 		Endpoint_FIFOCON_Clear();
