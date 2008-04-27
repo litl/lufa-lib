@@ -29,6 +29,14 @@
 	      (  USB Endpoint  )       (     Speaker     )
 */
 
+/*
+	USB Mode:           Device
+	USB Class:          Audio Class
+	USB Subclass:       Standard Audio Device
+	Relevant Standards: USBIF Audio Class Specification
+	Usable Speeds:      Full Speed Mode
+*/
+
 /* ---  Project Configuration  --- */
 //#define AUDIO_OUT_MONO
 //#define AUDIO_OUT_STEREO

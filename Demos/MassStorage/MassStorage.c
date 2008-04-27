@@ -24,6 +24,17 @@
 	demonstration.
 */
 
+/*
+	USB Mode:           Device
+	USB Class:          Mass Storage Device
+	USB Subclass:       Bulk Only
+	Relevant Standards: USBIF Mass Storage Standard
+	                    USB Bulk-Only Transport Standard
+	                    SCSI Primary Commands Specification
+	                    SCSI Block Commands Specification
+	Usable Speeds:      Full Speed Mode
+*/
+
 #define INCLUDE_FROM_MASSSTORAGE_C
 #include "MassStorage.h"
 

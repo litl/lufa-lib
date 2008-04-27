@@ -28,6 +28,15 @@
 	on sending keyboard event and keypresses.
 */
 
+/*
+	USB Mode:           Device
+	USB Class:          Human Interface Device (HID)
+	USB Subclass:       Keyboard
+	Relevant Standards: USBIF HID Standard
+	                    USBIF HID Usage Tables 
+	Usable Speeds:      Low Speed Mode, Full Speed Mode
+*/
+
 #include "KeyboardViaInt.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

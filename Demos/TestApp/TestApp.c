@@ -30,6 +30,14 @@
 	the current USB status.
 */
 
+/*
+	USB Mode:           Host/Device (Dual Role)
+	USB Class:          N/A
+	USB Subclass:       N/A
+	Relevant Standards: N/A
+	Usable Speeds:      Low Speed Mode, Full Speed Mode
+*/
+
 #include "TestApp.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

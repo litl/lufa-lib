@@ -32,6 +32,15 @@
 	driver as 0's and 1's. After every card swipe, the demo will send a Return key.
 */
 
+/*
+	USB Mode:           Device
+	USB Class:          Human Interface Device (HID)
+	USB Subclass:       Keyboard
+	Relevant Standards: USBIF HID Standard
+	                    USBIF HID Usage Tables 
+	Usable Speeds:      Low Speed Mode, Full Speed Mode
+*/
+
 #include "Magstripe.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

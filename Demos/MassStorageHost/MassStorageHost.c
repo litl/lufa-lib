@@ -19,6 +19,17 @@
 	Requires header files from the Mass Storage Device demonstation application.
 */
 
+/*
+	USB Mode:           Host
+	USB Class:          Mass Storage Device
+	USB Subclass:       Bulk Only
+	Relevant Standards: USBIF Mass Storage Standard
+	                    USB Bulk-Only Transport Standard
+	                    SCSI Primary Commands Specification
+	                    SCSI Block Commands Specification
+	Usable Speeds:      Full Speed Mode
+*/
+
 #include "MassStorageHost.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

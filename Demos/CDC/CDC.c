@@ -22,6 +22,14 @@
 	right-click the .INF file and choose the Install option.
 */
 
+/*
+	USB Mode:           Device
+	USB Class:          Communications Device Class (CDC)
+	USB Subclass:       Abstract Control Model (ACM)
+	Relevant Standards: USBIF CDC Class Standard
+	Usable Speeds:      Full Speed Mode
+*/
+
 #include "CDC.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

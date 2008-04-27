@@ -52,7 +52,7 @@ int main(void)
 	/* Initialize USB Subsystem */
 	USB_Init();
 
-	while (RunBootloader);
+	while (RunBootloader)
 	{
 		USB_USBTask();
 		CDC_Task();
@@ -240,9 +240,9 @@ TASK(CDC_Task)
 				Endpoint_Write_Word_LE((BOOTLOADER_VERSION_MAJOR << 8) | BOOTLOADER_VERSION_MINOR);
 				break;
 			case 's': // Get Signature Bytes
-				Endpoint_Write_Byte(boot_signature_byte_get(0));
-				Endpoint_Write_Byte(boot_signature_byte_get(2));
-				Endpoint_Write_Byte(boot_signature_byte_get(4));
+//				Endpoint_Write_Byte(boot_signature_byte_get(0));
+//				Endpoint_Write_Byte(boot_signature_byte_get(2));
+//				Endpoint_Write_Byte(boot_signature_byte_get(4));
 				
 				break;
 			case 'e': // Chip Erase
@@ -360,7 +360,7 @@ TASK(CDC_Task)
 							if (MemoryType == 'E')
 							{
 								/* Read the next EEPROM byte into the endpoint */
-								Endpoint_Write_Byte(eeprom_read_byte(CurrAddress));
+								Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)CurrAddress));
 									
 								/* Increment the address counter after use */
 								CurrAddress++;
@@ -391,7 +391,7 @@ TASK(CDC_Task)
 							if (MemoryType == 'E')
 							{
 								/* Write the next EEPROM byte from the endpoint */
-								eeprom_write_byte(CurrAddress, Endpoint_Read_Byte());
+								eeprom_write_byte((uint8_t*)CurrAddress, Endpoint_Read_Byte());
 								
 								/* Increment the address counter after use */
 								CurrAddress++;
@@ -464,6 +464,12 @@ TASK(CDC_Task)
 		}
 
 		/* Send the endpoint data to the host */
+		Endpoint_FIFOCON_Clear();
+		
+		/* Select the OUT endpoint */
+		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+
+		/* Acknowledge the command from the host */
 		Endpoint_FIFOCON_Clear();
 	}
 }

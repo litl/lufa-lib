@@ -21,6 +21,15 @@
 	Currently only single interface keyboards are supported.
 */
 
+/*
+	USB Mode:           Host
+	USB Class:          Human Interface Device (HID)
+	USB Subclass:       Keyboard
+	Relevant Standards: USBIF HID Standard
+	                    USBIF HID Usage Tables 
+	Usable Speeds:      Low Speed Mode, Full Speed Mode
+*/
+
 #include "KeyboardHostWithParser.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

@@ -21,6 +21,16 @@
 	the HWB is set, then channel 9 (default percussion) is selected.
 */
 
+/*
+	USB Mode:           Device
+	USB Class:          Audio Class
+	USB Subclass:       MIDI Audio Device
+	Relevant Standards: USBIF Audio Class Specification
+	                    USB-MIDI Audio Class Extention Specification
+	                    General MIDI Specification
+	Usable Speeds:      Full Speed Mode
+*/
+
 #include "MIDI.h"
 
 /* Project Tags, for reading out using the ButtLoad project */

@@ -20,6 +20,15 @@
 	the right mouse button.
 */
 
+/*
+	USB Mode:           Device
+	USB Class:          Human Interface Device (HID)
+	USB Subclass:       Mouse
+	Relevant Standards: USBIF HID Standard
+	                    USBIF HID Usage Tables 
+	Usable Speeds:      Low Speed Mode, Full Speed Mode
+*/
+
 #include "Mouse.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
