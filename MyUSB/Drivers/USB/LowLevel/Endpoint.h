@@ -50,12 +50,12 @@
 			#endif
 			
 			#define Endpoint_GetCurrentEndpoint()             (UENUM   &   ENDPOINT_EPNUM_MASK)
-			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM    =  (epnum & ENDPOINT_EPNUM_MASK); }MACROE
-			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST    =  (1 << (epnum & ENDPOINT_EPNUM_MASK)); UERST = 0; }MACROE
+			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM    =  epnum;                         }MACROE
+			#define Endpoint_ResetFIFO(epnum)          MACROS{ UERST    =  (1 << epnum); UERST = 0;       }MACROE
 			#define Endpoint_EnableEndpoint()          MACROS{ UECONX  |=  (1 << EPEN);                   }MACROE
 			#define Endpoint_DisableEndpoint()         MACROS{ UECONX  &= ~(1 << EPEN);                   }MACROE
 			#define Endpoint_IsEnabled()                     ((UECONX  &   (1 << EPEN)) ? true : false)
-			#define Endpoint_ResetEndpoint(epnum)      MACROS{ UENUM    =  (epnum & ENDPOINT_EPNUM_MASK); uint8_t temp = UECONX; UECONX = (temp | (1 << EPEN)); UECONX = (temp & ~(1 << EPEN)); }MACROE
+			#define Endpoint_ResetEndpoint(epnum)      MACROS{ UENUM    =  epnum; uint8_t temp = UECONX; UECONX = (temp | (1 << EPEN)); UECONX = (temp & ~(1 << EPEN)); }MACROE
 			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);                  }MACROE
 			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);                  }MACROE
 			

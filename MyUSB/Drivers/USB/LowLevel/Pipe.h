@@ -48,7 +48,7 @@
 
 			#define Pipe_BytesInPipe()                     UPBCX
 			#define Pipe_ResetPipe(pipenum)        MACROS{ UPRST    =  (1 << pipenum); UPRST = 0;                  }MACROE
-			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM    =  (pipenum & PIPE_PIPENUM_MASK);              }MACROE
+			#define Pipe_SelectPipe(pipenum)       MACROS{ UPNUM    =  pipenum;                                    }MACROE
 			#define Pipe_GetCurrentPipe()                 (UPNUM   &   PIPE_PIPENUM_MASK)
 			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X |=  (1 << ALLOC);                               }MACROE
 			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X &= ~(1 << ALLOC);                               }MACROE

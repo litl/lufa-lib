@@ -28,7 +28,7 @@
 		#define CDC_TX_EPNUM                   1	
 		#define CDC_RX_EPNUM                   2	
 		#define CDC_NOTIFICATION_EPSIZE        8
-		#define CDC_TXRX_EPSIZE                64	
+		#define CDC_TXRX_EPSIZE                16
 
 	/* Type Defines: */
 		typedef struct

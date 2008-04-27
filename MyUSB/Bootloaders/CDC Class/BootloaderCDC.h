@@ -31,8 +31,11 @@
 		
 		#define BOOTLOADER_VERSION_MAJOR     0x01
 		#define BOOTLOADER_VERSION_MINOR     0x00
-		
-		#define SOFTWARE_IDENTIFIER          "USB BDR"
+				
+		#define BOOTLOADER_HWVERSION_MAJOR   0x01
+		#define BOOTLOADER_HWVERSION_MINOR   0x00
+
+		#define SOFTWARE_IDENTIFIER          "USBBOOT"
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
@@ -69,7 +72,10 @@
 		};
 
 	/* Function Prototypes: */
-		void SendStringViaCDC(char* FlashString);
+		#if defined(INCLUDE_FROM_BOOTLOADERCDC_C)
+			static void    ProgramReadMemoryBlock(const uint8_t Command);
+			static uint8_t FetchNextCommandByte(void);
+		#endif
 
 	/* Tasks: */
 		TASK(CDC_Task);
