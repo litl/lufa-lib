@@ -164,7 +164,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					/* Throw away the filler bytes before the start of the firmware */
 					DiscardFillerBytes(DFU_FILLER_BYTES_SIZE);
 					
-					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 2);
+					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
 
 					while (TransfersRemaining && SentCommand.DataSize)
 					{
@@ -192,8 +192,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 							StartAddr             += 2;
 
 							/* See if an entire page has been written to the flash page buffer */
-							if (!(StartAddr % SPM_PAGESIZE) || !(TransfersRemaining))
-							{
+							if (!(StartAddr % SPM_PAGESIZE) || !(TransfersRemaining && SentCommand.DataSize))
+							{							
 								/* Determine the number of bytes written to the flash page */
 								uint16_t BytesInFlashPage = (StartAddr % SPM_PAGESIZE) ? : SPM_PAGESIZE;
 							
@@ -582,14 +582,12 @@ static void ProcessReadCommand(void)
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Read signature byte
 	{
-/*
 		if (SentCommand.Data[1] == 0x30)                                       // Read byte 1
 		  CommandResponse = boot_signature_byte_get(0);
 		else if (SentCommand.Data[1] == 0x31)                                  // Read byte 2
 		  CommandResponse = boot_signature_byte_get(2);
 		else if (SentCommand.Data[1] == 0x60)                                  // Read byte 3
 		  CommandResponse = boot_signature_byte_get(4);
-*/
 	}
 	
 	ResponseByte = CommandResponse;
