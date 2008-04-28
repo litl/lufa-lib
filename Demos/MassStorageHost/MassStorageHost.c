@@ -160,20 +160,12 @@ TASK(USB_MassStore_Host)
 			puts_P(PSTR("Getting Config Data.\r\n"));
 		
 			/* Get and process the configuration descriptor data */
-			ErrorCode = GetConfigDescriptorData();
-			
-			/* Check if the configuration descriptor processing was sucessful */
-			if (ErrorCode != SuccessfulConfigRead)
+			if ((ErrorCode = GetConfigDescriptorData()) != SuccessfulConfigRead)
 			{
-				switch (ErrorCode)
-				{
-					case InterfaceNotFound:
-						puts_P(PSTR("Invalid Device Type.\r\n"));
-						break;
-					default:
-						puts_P(PSTR("Control Error.\r\n"));
-						break;
-				}
+				if (ErrorCode == ControlError)
+				  puts_P(PSTR("Control Error.\r\n"));
+				else
+				  printf_P(PSTR("Invalid Device, Error Code %d.\r\n"), ErrorCode);
 
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
@@ -352,20 +344,12 @@ uint8_t GetConfigDescriptorData(void)
 	
 	while (ConfigDescriptorSize)
 	{
-		/* Find next interface descriptor */
-		while (ConfigDescriptorSize)
-		{
-			/* Get the next descriptor from the configuration descriptor data */
-			AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  
-
-			/* Check to see if the next descriptor is an interface descriptor, if so break out */
-			if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Interface)
-			  break;
-		}
-
+		/* Get the next interface descriptor from the configuration descriptor */
+		AVR_HOST_GetNextDescriptorOfType(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_Interface);
+	
 		/* If reached end of configuration descriptor, error out */
 		if (ConfigDescriptorSize == 0)
-		  return InterfaceNotFound;	
+		  return NoInterfaceFound;	
 		
 		/* Check the descriptor's class/subclass/protocol, break out if class matches expected values */
 		if ((DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class    == MASS_STORE_CLASS)    &&
@@ -378,50 +362,45 @@ uint8_t GetConfigDescriptorData(void)
 	
 	/* If reached end of configuration descriptor, error out */
 	if (ConfigDescriptorSize == 0)
-	  return InterfaceNotFound;
+	  return NoInterfaceFound;
 	
 	/* Find the IN and OUT endpoint descriptors after the mass storage interface descriptor */
 	while (ConfigDescriptorSize)
 	{
-		/* Get the next descriptor from the configuration descriptor data */
-		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
+		/* Get the next endpoint descriptor from the configuration descriptor data before the next interface descriptor*/
+		AVR_HOST_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData,
+		                                       DTYPE_Endpoint, DTYPE_Interface);
 
-		/* Check if current descritor is an endpoint descriptor */
-		if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Endpoint)
-		{
-			if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_BULK)
-			{
-				uint8_t  EPAddress = DESCRIPTOR_CAST(ConfigDescriptorData,
-				                                     USB_Descriptor_Endpoint_t).EndpointAddress;
-				uint16_t EPSize    = DESCRIPTOR_CAST(ConfigDescriptorData,
-				                                     USB_Descriptor_Endpoint_t).EndpointSize;
-			
-				/* Set the appropriate endpoint data address based on the endpoint direction */
-				if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-				{
-					MassStoreEndpointNumber_IN  = EPAddress;
-					MassStoreEndpointSize_IN    = EPSize;
-				}
-				else
-				{
-					MassStoreEndpointNumber_OUT = EPAddress;
-					MassStoreEndpointSize_OUT   = EPSize;
-				}
-
-				/* If both data endpoints found, exit the loop */
-				if (MassStoreEndpointNumber_IN && MassStoreEndpointNumber_OUT)
-				  break;
-			}
-		}
-		/* If new interface descriptor found (indicating the end of the current interface), error out */
-		else if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Interface)
+		/* If reached end of configuration descriptor, error out */
+		if (ConfigDescriptorSize == 0)
 		  return NoEndpointFound;
+	  
+		/* Check if the endpoint is a bulk IN or OUT endpoint */
+		if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_BULK)
+		{
+			uint8_t  EPAddress = DESCRIPTOR_CAST(ConfigDescriptorData,
+												 USB_Descriptor_Endpoint_t).EndpointAddress;
+			uint16_t EPSize    = DESCRIPTOR_CAST(ConfigDescriptorData,
+												 USB_Descriptor_Endpoint_t).EndpointSize;
+		
+			/* Set the appropriate endpoint data address based on the endpoint direction */
+			if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+			{
+				MassStoreEndpointNumber_IN  = EPAddress;
+				MassStoreEndpointSize_IN    = EPSize;
+			}
+			else
+			{
+				MassStoreEndpointNumber_OUT = EPAddress;
+				MassStoreEndpointSize_OUT   = EPSize;
+			}
+
+			/* If both data endpoints found, return success */
+			if (MassStoreEndpointNumber_IN && MassStoreEndpointNumber_OUT)
+			  return SuccessfulConfigRead;
+		}
 	}	
 
-	/* If reached end of configuration descriptor, error out */
-	if (ConfigDescriptorSize == 0)
-	  return NoEndpointFound;
-	
-	/* Valid data found, return success */
-	return SuccessfulConfigRead;
+	/* If this point reached, no valid data endpoints found, return error */
+	return NoEndpointFound;
 }

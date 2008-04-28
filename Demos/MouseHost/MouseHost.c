@@ -157,23 +157,12 @@ TASK(USB_Mouse_Host)
 			puts_P(PSTR("Getting Config Data.\r\n"));
 		
 			/* Get and process the configuration descriptor data */
-			ErrorCode = GetConfigDescriptorData();
-			
-			/* Check if the configuration descriptor processing was sucessful */
-			if (ErrorCode != SuccessfulConfigRead)
+			if ((ErrorCode = GetConfigDescriptorData()) != SuccessfulConfigRead)
 			{
-				switch (ErrorCode)
-				{
-					case HIDInterfaceNotFound:
-						puts_P(PSTR("Invalid Device Type.\r\n"));
-						break;
-					case IncorrectProtocol:
-						puts_P(PSTR("Invalid Protocol.\r\n"));
-						break;
-					default:
-						puts_P(PSTR("Control Error.\r\n"));
-						break;
-				}
+				if (ErrorCode == ControlError)
+				  puts_P(PSTR("Control Error.\r\n"));
+				else
+				  printf_P(PSTR("Invalid Device, Error Code %d.\r\n"), ErrorCode);
 				
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
@@ -183,7 +172,7 @@ TASK(USB_Mouse_Host)
 				break;
 			}
 
-			/* Configure the keyboard data pipe */
+			/* Configure the mouse data pipe */
 			Pipe_ConfigurePipe(MOUSE_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
 			                   MouseDataEndpointNumber, MouseDataEndpointSize, PIPE_BANK_SINGLE);
 
@@ -246,7 +235,6 @@ uint8_t GetConfigDescriptorData(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
-	bool     FoundHIDInterfaceDescriptor = false;
 	
 	/* Get Configuration Descriptor size from the device */
 	if (AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
@@ -266,61 +254,51 @@ uint8_t GetConfigDescriptorData(void)
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
 	  return ControlError;
 	
-	while (!(FoundHIDInterfaceDescriptor))
-	{
-		/* Find next interface descriptor */
-		while (ConfigDescriptorSize)
-		{
-			/* Get the next descriptor from the configuration descriptor data */
-			AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  
-
-			/* Check to see if the next descriptor is an interface descriptor, if so break out */
-			if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Interface)
-			  break;
-		}
-
-		/* If reached end of configuration descriptor, error out */
-		if (ConfigDescriptorSize == 0)
-		  return HIDInterfaceNotFound;
-
-		/* Check the HID descriptor class, set the flag if class matches expected class */
-		if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class == MOUSE_CLASS)
-		  FoundHIDInterfaceDescriptor = true;
-	}
-
-	/* Check protocol - error out if it is incorrect */
-	if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Protocol != MOUSE_PROTOCOL)
-	  return IncorrectProtocol;
-	
-	/* Find the next IN endpoint descriptor after the keyboard interface descriptor */
 	while (ConfigDescriptorSize)
 	{
-		/* Get the next descriptor from the configuration descriptor data */
-		AVR_HOST_GetNextDescriptor(&ConfigDescriptorSize, &ConfigDescriptorData);	  		
+		/* Get the next interface descriptor from the configuration descriptor */
+		AVR_HOST_GetNextDescriptorOfType(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_Interface);
+	
+		/* If reached end of configuration descriptor, error out */
+		if (ConfigDescriptorSize == 0)
+		  return NoHIDInterfaceFound;
 
-		/* Check if current descriptor is an endpoint descriptor */
-		if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Endpoint)
+		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
+		if ((DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class == MOUSE_CLASS) &&
+		    (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Protocol == MOUSE_PROTOCOL))
 		{
-			/* Break out of the loop and process the endpoint descriptor if it is of the IN type */
-			if (DESCRIPTOR_CAST(ConfigDescriptorData,
-			                    USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-			{
-				break;
-			}
+			break;
 		}
-		/* If new interface descriptor found (indicating the end of the current interface), error out */
-		else if (DESCRIPTOR_TYPE(ConfigDescriptorData) == DTYPE_Interface)
-		  return NoEndpointFound;
-	}	
+	}
 
 	/* If reached end of configuration descriptor, error out */
 	if (ConfigDescriptorSize == 0)
-	  return NoEndpointFound;
-
-	/* Retrieve the endpoint address from the endpoint descriptor */
-	MouseDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
-	MouseDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
+	  return NoHIDInterfaceFound;
 	
-	/* Valid data found, return success */
-	return SuccessfulConfigRead;
+	/* Find the next IN endpoint descriptor after the mouse interface descriptor */
+	while (ConfigDescriptorSize)
+	{
+		/* Get the next endpoint descriptor from the configuration descriptor data before the next interface descriptor*/
+		AVR_HOST_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData,
+		                                       DTYPE_Endpoint, DTYPE_Interface);
+	
+		/* If reached end of configuration descriptor, error out */
+		if (ConfigDescriptorSize == 0)
+		  return NoEndpointFound;
+
+		/* Break out of the loop and process the endpoint descriptor if it is of the IN type */
+		if (DESCRIPTOR_CAST(ConfigDescriptorData,
+		                    USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+		{
+			/* Retrieve the endpoint address from the endpoint descriptor */
+			MouseDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
+			MouseDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
+			
+			/* Valid data found, return success */
+			return SuccessfulConfigRead;
+		}
+	}
+	
+	/* If this point reached, no valid data endpoint found, return error */
+	return NoEndpointFound;
 }

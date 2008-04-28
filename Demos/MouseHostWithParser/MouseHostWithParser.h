@@ -46,11 +46,10 @@
 		{
 			ControlError         = 0,
 			DescriptorTooLarge   = 1,
-			HIDInterfaceNotFound = 2,
-			IncorrectProtocol    = 3,
-			NoHIDDescriptorFound = 4,
-			NoEndpointFound      = 5,
-			SuccessfulConfigRead = 6,
+			NoHIDInterfaceFound  = 2,
+			NoHIDDescriptorFound = 3,
+			NoEndpointFound      = 4,
+			SuccessfulConfigRead = 5,
 		};
 
 		enum GetHIDReportDataCodes_t

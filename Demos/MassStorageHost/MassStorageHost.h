@@ -39,9 +39,9 @@
 		{
 			ControlError         = 0,
 			DescriptorTooLarge   = 1,
-			InterfaceNotFound    = 2,
-			NoEndpointFound      = 5,
-			SuccessfulConfigRead = 6,
+			NoInterfaceFound     = 2,
+			NoEndpointFound      = 3,
+			SuccessfulConfigRead = 4,
 		};
 
 	/* Task Definitions: */

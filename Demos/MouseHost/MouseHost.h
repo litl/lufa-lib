@@ -45,10 +45,9 @@
 		{
 			ControlError         = 0,
 			DescriptorTooLarge   = 1,
-			HIDInterfaceNotFound = 2,
-			IncorrectProtocol    = 3,
-			NoEndpointFound      = 4,
-			SuccessfulConfigRead = 5,
+			NoHIDInterfaceFound  = 2,
+			NoEndpointFound      = 3,
+			SuccessfulConfigRead = 4,
 		};
 
 	/* Task Definitions: */
