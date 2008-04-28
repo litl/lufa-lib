@@ -192,6 +192,9 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 		/* Check if command is to read memory */
 		if (Command == 'g')
 		{
+			/* Re-enable RWW section */
+			boot_rww_enable();
+
 			while (BlockSize--)
 			{
 				if (MemoryType == 'E')
@@ -226,8 +229,6 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 		{
 			uint32_t PageStartAddress = ((uint32_t)CurrAddress << 1);
 	
-			Endpoint_SelectEndpoint(CDC_RX_EPNUM);
-			
 			if (MemoryType == 'F')
 			{
 				boot_page_erase(PageStartAddress);
@@ -276,8 +277,6 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 				boot_spm_busy_wait();
 			}
 		
-			Endpoint_SelectEndpoint(CDC_TX_EPNUM);
-				
 			/* Send response byte back to the host */
 			WriteNextResponseByte('\r');		
 		}
@@ -331,12 +330,6 @@ TASK(CDC_Task)
 	{
 		/* Read in the bootloader command (first byte sent from host) */
 		uint8_t Command = FetchNextCommandByte();
-
-		/* Select the IN endpoint */
-		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
-
-		/* Wait until host ready for more data */
-		while (!(Endpoint_ReadWriteAllowed()));
 
 		if ((Command == 'L') || (Command == 'P') || (Command == 'T') || (Command == 'E'))
 		{
@@ -403,13 +396,9 @@ TASK(CDC_Task)
 		}
 		else if (Command == 's')
 		{
-			WriteNextResponseByte(0x82);
-			WriteNextResponseByte(0x97);
-			WriteNextResponseByte(0x1e);
-			
-//			WriteNextResponseByte(boot_signature_byte_get(0));
-//			WriteNextResponseByte(boot_signature_byte_get(2));
-//			WriteNextResponseByte(boot_signature_byte_get(4));		
+			WriteNextResponseByte(boot_signature_byte_get(0));
+			WriteNextResponseByte(boot_signature_byte_get(2));
+			WriteNextResponseByte(boot_signature_byte_get(4));		
 		}
 		else if (Command == 'b')
 		{
