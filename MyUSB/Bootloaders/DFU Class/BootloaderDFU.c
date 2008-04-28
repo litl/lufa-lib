@@ -164,9 +164,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					/* Throw away the filler bytes before the start of the firmware */
 					DiscardFillerBytes(DFU_FILLER_BYTES_SIZE);
 					
-					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 1);
-
-					uint16_t BytesInFlashPage = 0;
+					uint16_t TransfersRemaining = ((EndAddr - StartAddr) + 2);
 
 					while (TransfersRemaining && SentCommand.DataSize)
 					{
@@ -177,9 +175,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 							while (!(Endpoint_Setup_Out_IsReceived()));
 						}
 
-						/* Default to one byte processed per write command */
-						uint8_t BytesProcessed = 1;
-
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Write flash
 						{
 							union
@@ -187,36 +182,47 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 								uint16_t Words[2];
 								uint32_t Long;
 							} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
-								
+						
 							/* Write the next word into the current flash page */
-							boot_page_fill((CurrFlashAddress.Long + BytesInFlashPage), Endpoint_Read_Word_LE());
+							boot_page_fill(CurrFlashAddress.Long, Endpoint_Read_Word_LE());
 
-							/* Increment the counter for the number of bytes in the current page */
-							BytesInFlashPage += 2;
-							
-							/* Two bytes have been processed for flash writes, not one */
-							BytesProcessed    = 2;
+							/* Adjust counters */
+							SentCommand.DataSize  -= 2;
+							TransfersRemaining    -= 2;
+							StartAddr             += 2;
 
 							/* See if an entire page has been written to the flash page buffer */
-							if (BytesInFlashPage < SPM_PAGESIZE) // TODO: FIXME
+							if (!(StartAddr % SPM_PAGESIZE) || !(TransfersRemaining))
 							{
+								/* Determine the number of bytes written to the flash page */
+								uint16_t BytesInFlashPage = (StartAddr % SPM_PAGESIZE) ? : SPM_PAGESIZE;
+							
+								/* Update the CurrFlashAddress counter to reflect updated StartAddress value */
+								CurrFlashAddress.Long += 2;
+
 								/* Commit the flash page to memory */
-								boot_page_write(CurrFlashAddress.Long);
+								boot_page_write(CurrFlashAddress.Long - BytesInFlashPage);
 								boot_spm_busy_wait();
 								
-								BytesInFlashPage = 0;
+								/* Check if programming incomplete */
+								if (TransfersRemaining)
+								{
+									/* Erase next page's temp buffer */
+									boot_page_erase(CurrFlashAddress.Long);
+									boot_spm_busy_wait();
+								}
 							}
 						}
 						else                                                   // Write EEPROM
 						{
 							/* Read the byte from the USB interface and write to to the EEPROM */
 							eeprom_write_byte((uint8_t*)StartAddr, Endpoint_Read_Byte());
+
+							/* Adjust counters */
+							SentCommand.DataSize -= 1;
+							TransfersRemaining   -= 1;
+							StartAddr            += 1;
 						}
-					
-						/* Adjust counters */
-						SentCommand.DataSize -= BytesProcessed;
-						TransfersRemaining   -= BytesProcessed;
-						StartAddr            += BytesProcessed;
 					}
 
 					/* Re-enable the RWW section of flash in case it was written to */
@@ -460,6 +466,16 @@ static void ProcessMemProgCommand(void)
 		/* Load in the start and ending read addresses */
 		LoadStartEndAddresses();
 		
+		union
+		{
+			uint16_t Words[2];
+			uint32_t Long;
+		} CurrFlashAddress = {Words: {StartAddr, Flash64KBPage}};
+		
+		/* Erase the current page's temp buffer */
+		boot_page_erase(CurrFlashAddress.Long);
+		boot_spm_busy_wait();		
+		
 		/* Set the state so that the next DNLOAD requests reads in the firmware */
 		DFU_State = dfuDNLOAD_IDLE;
 	}
@@ -566,12 +582,14 @@ static void ProcessReadCommand(void)
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Read signature byte
 	{
+/*
 		if (SentCommand.Data[1] == 0x30)                                       // Read byte 1
 		  CommandResponse = boot_signature_byte_get(0);
 		else if (SentCommand.Data[1] == 0x31)                                  // Read byte 2
 		  CommandResponse = boot_signature_byte_get(2);
 		else if (SentCommand.Data[1] == 0x60)                                  // Read byte 3
 		  CommandResponse = boot_signature_byte_get(4);
+*/
 	}
 	
 	ResponseByte = CommandResponse;

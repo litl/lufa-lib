@@ -22,6 +22,7 @@
 			#define ATTR_WARN_UNUSED_RESULT     __attribute__ ((warn_unused_result))
 			#define ATTR_NON_NULL_PTR_ARG(...)  __attribute__ ((nonnull (__VA_ARGS__)))
 			#define ATTR_NAKED                  __attribute__ ((naked))
+			#define ATTR_NOINLINE               __attribute__ ((noinline))
 			#define ATTR_PURE                   __attribute__ ((pure))
 			#define ATTR_CONST                  __attribute__ ((const))
 			#define ATTR_DEPRECATED             __attribute__ ((deprecated))

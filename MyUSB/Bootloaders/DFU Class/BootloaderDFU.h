@@ -24,9 +24,6 @@
 		#include <MyUSB/Drivers/Board/LEDs.h>
 		
 	/* Macros: */
-		// TEMP!!
-		#define boot_signature_byte_get(x) 1
-	
 		#define BOOTLOADER_VERSION_MINOR 0
 		#define BOOTLOADER_VERSION_REV   0
 		#define BOOTLOADER_ID_BYTE1      0xDC
@@ -109,7 +106,7 @@
 		#if defined(INCLUDE_FROM_BOOTLOADER_C)
 			static void DiscardFillerBytes(uint8_t FillerBytes);
 			static void ProcessBootloaderCommand(void);
-			static void LoadStartEndAddresses(void);
+			static void LoadStartEndAddresses(void) ATTR_NOINLINE;
 			static void ProcessMemProgCommand(void);
 			static void ProcessMemReadCommand(void);
 			static void ProcessWriteCommand(void);
