@@ -198,7 +198,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 							BytesProcessed    = 2;
 
 							/* See if an entire page has been written to the flash page buffer */
-							if (BytesInFlashPage < SPM_PAGESIZE)
+							if (BytesInFlashPage < SPM_PAGESIZE) // TODO: FIXME
 							{
 								/* Commit the flash page to memory */
 								boot_page_write(CurrFlashAddress.Long);

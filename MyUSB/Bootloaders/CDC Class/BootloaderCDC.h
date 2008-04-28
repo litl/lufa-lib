@@ -73,8 +73,9 @@
 
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_BOOTLOADERCDC_C)
-			static void    ProgramReadMemoryBlock(const uint8_t Command);
-			static uint8_t FetchNextCommandByte(void);
+			static void    ProgramReadMemoryBlock(const uint8_t Command) __attribute__((noinline));
+			static uint8_t FetchNextCommandByte(void) __attribute__((noinline));
+			static void    WriteNextResponseByte(const uint8_t Response) __attribute__((noinline));
 		#endif
 
 	/* Tasks: */

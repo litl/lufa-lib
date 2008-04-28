@@ -13,8 +13,8 @@
 	as a CDC Class device, allowing for AVR109 compatible programming
 	software to load firmware onto the AVR.
 	
-	This bootloader is compatible with the open source applications
-	AVRDUDE and AVR-OSP.
+	This bootloader is compatible with the open source application
+	AVRDUDE.
 */
 
 #define  INCLUDE_FROM_BOOTLOADERCDC_C
@@ -58,6 +58,11 @@ int main(void)
 		USB_USBTask();
 		CDC_Task();
 	}
+	
+	Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+
+	/* Wait until any pending transmissions have completed before shutting down */
+	while (!(Endpoint_ReadWriteAllowed()));
 	
 	/* Shut down the USB subsystem */
 	USB_ShutDown();
@@ -174,11 +179,14 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 	uint16_t BlockSize;
 	char     MemoryType;
 	
-	BlockSize  =  FetchNextCommandByte();
-	BlockSize |= (FetchNextCommandByte() << 8);
+	bool     HighByte = false;
+	uint8_t  LowByte  = 0;
 	
-	MemoryType = FetchNextCommandByte();
+	BlockSize  = (FetchNextCommandByte() << 8);
+	BlockSize |=  FetchNextCommandByte();
 	
+	MemoryType =  FetchNextCommandByte();
+
 	if ((MemoryType == 'E') || (MemoryType == 'F'))
 	{
 		/* Check if command is to read memory */
@@ -186,75 +194,83 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 		{
 			while (BlockSize--)
 			{
-				if (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE)
-				{
-					/* Clear the endpoint bank */
-					Endpoint_FIFOCON_Clear();
-						
-					/* Wait until ready to write next packet */
-					while (!(Endpoint_ReadWriteAllowed()));
-				}
-
 				if (MemoryType == 'E')
 				{
 					/* Read the next EEPROM byte into the endpoint */
-					Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)CurrAddress));
-						
+					WriteNextResponseByte(eeprom_read_byte((uint8_t*)CurrAddress));
+
 					/* Increment the address counter after use */
 					CurrAddress++;
 				}
 				else
 				{
-					/* Read the next FLASH word from the current FLASH page */
-					Endpoint_Write_Word_LE(pgm_read_word_far(((uint32_t)CurrAddress << 1)));
+					/* Read the next FLASH byte from the current FLASH page */
+					WriteNextResponseByte(pgm_read_byte_far(((uint32_t)CurrAddress << 1) + HighByte));
 					
-					/* Increment the address counter by one word size after use */
-					CurrAddress += 2;							
+					/* If both bytes in current word have been read, increment the address counter */
+					if (HighByte)
+					{
+						HighByte = 0;
+						
+						/* Increment the address counter after use */
+						CurrAddress++;
+					}
+					else
+					{
+						HighByte = 1;
+					}
 				}
 			}
-			
-			/* If bytes remaining in endpoint, send them to the host */
-			if (Endpoint_BytesInEndpoint())
-			  Endpoint_FIFOCON_Clear();
 		}
 		else
 		{
-			Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+			uint32_t PageStartAddress = ((uint32_t)CurrAddress << 1);
 	
+			Endpoint_SelectEndpoint(CDC_RX_EPNUM);
+			
+			if (MemoryType == 'F')
+			{
+				boot_page_erase(PageStartAddress);
+				boot_spm_busy_wait();
+			}
+			
 			while (BlockSize--)
 			{
-				if (!(Endpoint_BytesInEndpoint()))
-				{
-					/* Clear the endpoint bank */
-					Endpoint_FIFOCON_Clear();
-					
-					/* Wait until next packet of data has been received */
-					while (!(Endpoint_ReadWriteAllowed()));
-				}
-				
 				if (MemoryType == 'E')
 				{
 					/* Write the next EEPROM byte from the endpoint */
-					eeprom_write_byte((uint8_t*)CurrAddress, Endpoint_Read_Byte());
-					
+					eeprom_write_byte((uint8_t*)CurrAddress, FetchNextCommandByte());					
+
 					/* Increment the address counter after use */
 					CurrAddress++;
 				}
 				else
-				{
-					/* Write the next FLASH word to the current FLASH page */
-					boot_page_fill(((uint32_t)CurrAddress << 1), Endpoint_Read_Word_LE());
+				{	
+					/* If both bytes in current word have been written, increment the address counter */
+					if (HighByte)
+					{
+						/* Write the next FLASH word to the current FLASH page */
+						boot_page_fill(((uint32_t)CurrAddress << 1), ((FetchNextCommandByte() << 8) | LowByte));
+
+						HighByte = false;
+						
+						/* Increment the address counter after use */
+						CurrAddress++;
+					}
+					else
+					{
+						LowByte = FetchNextCommandByte();
 					
-					/* Increment the address counter by one word size after use */
-					CurrAddress += 2;
+						HighByte = true;
+					}
 				}
 			}
 
-			/* In in FLASH programming mode, commit the page after writing */
+			/* If in FLASH programming mode, commit the page after writing */
 			if (MemoryType == 'F')
 			{
 				/* Commit the flash page to memory */
-				boot_page_write((uint32_t)CurrAddress << 1);
+				boot_page_write(PageStartAddress);
 				
 				/* Wait until write operation has completed */
 				boot_spm_busy_wait();
@@ -263,34 +279,46 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 			Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 				
 			/* Send response byte back to the host */
-			Endpoint_Write_Byte('\r');		
+			WriteNextResponseByte('\r');		
 		}
 	}
 	else
 	{
 		/* Send error byte back to the host */
-		Endpoint_Write_Byte('?');
+		WriteNextResponseByte('?');
 	}
 }
 
 static uint8_t FetchNextCommandByte(void)
 {
-	uint8_t PrevEndpoint = Endpoint_GetCurrentEndpoint();
-	uint8_t RetByte;
-	
+	/* Select the OUT endpoint so that the next data byte can be read */
 	Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 	
+	/* If OUT endpoint empty, clear it and wait for the next packet from the host */
 	if (!(Endpoint_BytesInEndpoint()))
 	{
 		Endpoint_FIFOCON_Clear();
 		while (!(Endpoint_ReadWriteAllowed()));
 	}
 	
-	RetByte = Endpoint_Read_Byte();
+	/* Fetch the next byte from the OUT endpoint */
+	return Endpoint_Read_Byte();
+}
+
+static void WriteNextResponseByte(const uint8_t Response)
+{
+	/* Select the IN endpoint so that the next data byte can be written */
+	Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 	
-	Endpoint_SelectEndpoint(PrevEndpoint);
+	/* If OUT endpoint empty, clear it and wait for the next packet from the host */
+	if (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE)
+	{
+		Endpoint_FIFOCON_Clear();
+		while (!(Endpoint_ReadWriteAllowed()));
+	}
 	
-	return RetByte;
+	/* Write the next byte to the OUT endpoint */
+	Endpoint_Write_Byte(Response);
 }
 
 TASK(CDC_Task)
@@ -318,7 +346,7 @@ TASK(CDC_Task)
 			  FetchNextCommandByte();
 
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');			
+			WriteNextResponseByte('\r');			
 		}
 		else if (Command == 'x')
 		{
@@ -326,7 +354,7 @@ TASK(CDC_Task)
 			LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3);
 
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');
+			WriteNextResponseByte('\r');
 		}
 		else if (Command == 'y')
 		{
@@ -334,62 +362,62 @@ TASK(CDC_Task)
 			LEDs_SetAllLEDs(LEDS_LED2);
 
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');		
+			WriteNextResponseByte('\r');		
 		}
 		else if (Command == 't')
 		{
 			/* Return ATMEGA128 part code - this is only to allow AVRProg to use the bootloader */
-			Endpoint_Write_Byte(0x44);
+			WriteNextResponseByte(0x44);
 
-			Endpoint_Write_Byte(0x00);
+			WriteNextResponseByte(0x00);
 		}
 		else if (Command == 'a')
 		{
 			/* Indicate auto-address increment is supported */
-			Endpoint_Write_Byte('Y');
+			WriteNextResponseByte('Y');
 		}
 		else if (Command == 'A')
 		{
 			/* Set the current address to that given by the host */
-			CurrAddress  =  FetchNextCommandByte();
-			CurrAddress |= (FetchNextCommandByte() << 8);
+			CurrAddress  = (FetchNextCommandByte() << 8);
+			CurrAddress |=  FetchNextCommandByte();
 
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');
+			WriteNextResponseByte('\r');
 		}
 		else if (Command == 'p')
 		{
 			/* Indicate serial programmer back to the host */
-			Endpoint_Write_Byte('S');		 
+			WriteNextResponseByte('S');		 
 		}
 		else if (Command == 'S')
 		{
 			/* Write the 7-byte software identifier to the endpoint */
 			for (uint8_t CurrByte = 0; CurrByte < 7; CurrByte++)
-			  Endpoint_Write_Byte(SOFTWARE_IDENTIFIER[CurrByte]);		
+			  WriteNextResponseByte(SOFTWARE_IDENTIFIER[CurrByte]);		
 		}
 		else if (Command == 'V')
 		{
-			Endpoint_Write_Byte('0' + BOOTLOADER_VERSION_MAJOR);
-			Endpoint_Write_Byte('0' + BOOTLOADER_VERSION_MINOR);
+			WriteNextResponseByte('0' + BOOTLOADER_VERSION_MAJOR);
+			WriteNextResponseByte('0' + BOOTLOADER_VERSION_MINOR);
 		}
 		else if (Command == 's')
 		{
-			Endpoint_Write_Byte(0x82);
-			Endpoint_Write_Byte(0x97);
-			Endpoint_Write_Byte(0x1e);
+			WriteNextResponseByte(0x82);
+			WriteNextResponseByte(0x97);
+			WriteNextResponseByte(0x1e);
 			
-//			Endpoint_Write_Byte(boot_signature_byte_get(0));
-//			Endpoint_Write_Byte(boot_signature_byte_get(2));
-//			Endpoint_Write_Byte(boot_signature_byte_get(4));		
+//			WriteNextResponseByte(boot_signature_byte_get(0));
+//			WriteNextResponseByte(boot_signature_byte_get(2));
+//			WriteNextResponseByte(boot_signature_byte_get(4));		
 		}
 		else if (Command == 'b')
 		{
-			Endpoint_Write_Byte('Y');
+			WriteNextResponseByte('Y');
 				
 			/* Send block size to the host */
-			Endpoint_Write_Byte(SPM_PAGESIZE >> 8);
-			Endpoint_Write_Byte(SPM_PAGESIZE & 0xFF);		
+			WriteNextResponseByte(SPM_PAGESIZE >> 8);
+			WriteNextResponseByte(SPM_PAGESIZE & 0xFF);		
 		}
 		else if (Command == 'e')
 		{
@@ -405,7 +433,7 @@ TASK(CDC_Task)
 			}
 			
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');		
+			WriteNextResponseByte('\r');		
 		}
 		else if (Command == 'l')
 		{
@@ -413,23 +441,23 @@ TASK(CDC_Task)
 			boot_lock_bits_set(FetchNextCommandByte());
 
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');
+			WriteNextResponseByte('\r');
 		}
 		else if (Command == 'r')
 		{
-			Endpoint_Write_Byte(boot_lock_fuse_bits_get(GET_LOCK_BITS));		
+			WriteNextResponseByte(boot_lock_fuse_bits_get(GET_LOCK_BITS));		
 		}
 		else if (Command == 'F')
 		{
-			Endpoint_Write_Byte(boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS));
+			WriteNextResponseByte(boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS));
 		}
 		else if (Command == 'N')
 		{
-			Endpoint_Write_Byte(boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS));		
+			WriteNextResponseByte(boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS));		
 		}
 		else if (Command == 'Q')
 		{
-			Endpoint_Write_Byte(boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS));		
+			WriteNextResponseByte(boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS));		
 		}
 		else if ((Command == 'C') || (Command == 'c'))
 		{
@@ -448,7 +476,7 @@ TASK(CDC_Task)
 			boot_page_fill(FillAddress, FetchNextCommandByte());
 			
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');		
+			WriteNextResponseByte('\r');		
 		}
 		else if (Command == 'm')
 		{
@@ -459,7 +487,7 @@ TASK(CDC_Task)
 			boot_spm_busy_wait();
 
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');		
+			WriteNextResponseByte('\r');		
 		}
 		else if ((Command == 'B') || (Command == 'g'))
 		{
@@ -468,7 +496,10 @@ TASK(CDC_Task)
 		}
 		else if (Command == 'R')
 		{
-			Endpoint_Write_Word_LE(pgm_read_word_far(((uint32_t)CurrAddress << 1)));		
+			uint16_t ProgramWord = pgm_read_word_far(((uint32_t)CurrAddress << 1));
+		
+			WriteNextResponseByte(ProgramWord >> 8);
+			WriteNextResponseByte(ProgramWord & 0xFF);
 		}
 		else if (Command == 'D')
 		{
@@ -479,12 +510,12 @@ TASK(CDC_Task)
 			CurrAddress++;
 	
 			/* Send confirmation byte back to the host */
-			Endpoint_Write_Byte('\r');		
+			WriteNextResponseByte('\r');		
 		}
 		else if (Command == 'd')
 		{
 			/* Read the EEPROM byte and write it to the endpoint */
-			Endpoint_Write_Byte(eeprom_read_byte((uint8_t*)CurrAddress));
+			WriteNextResponseByte(eeprom_read_byte((uint8_t*)CurrAddress));
 
 			/* Increment the address after use */
 			CurrAddress++;
@@ -496,19 +527,30 @@ TASK(CDC_Task)
 		else
 		{
 			/* Unknown command, return fail code */
-			Endpoint_Write_Byte('?');
+			WriteNextResponseByte('?');
 		}
 
+		/* Select the IN endpoint */
+		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
+
+		/* Remeber if the endpoint is completely full before clearing it */
+		bool IsEndpointFull = !(Endpoint_ReadWriteAllowed());
+
 		/* Send the endpoint data to the host */
-		if (Endpoint_BytesInEndpoint())
-		  Endpoint_FIFOCON_Clear();
+		Endpoint_FIFOCON_Clear();
+		
+		/* If a full endpoint's worth of data was sent, we need to send an empty packet afterwards to signal end of transfer */
+		if (IsEndpointFull)
+		{
+			while (!(Endpoint_ReadWriteAllowed()));
+			Endpoint_FIFOCON_Clear();
+		}
 		
 		/* Select the OUT endpoint */
 		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 
 		/* Acknowledge the command from the host */
-		if (!(Endpoint_BytesInEndpoint()))
-		  Endpoint_FIFOCON_Clear();
+		Endpoint_FIFOCON_Clear();
 	}
 }
 
