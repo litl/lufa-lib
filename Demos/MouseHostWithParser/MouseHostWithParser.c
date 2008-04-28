@@ -296,31 +296,34 @@ TASK(USB_Mouse_Host)
 						if (ReportItem->Value)
 						  LEDMask = LEDS_ALL_LEDS;
 					}
-					else if ((ReportItem->Attributes.Usage.Page  == USAGE_PAGE_GENERIC_DCTRL) &&
-							 (ReportItem->Attributes.Usage.Usage == USAGE_X)                  &&
-					         (ReportItem->ItemType               == REPORT_ITEM_TYPE_In))
+					else if ((ReportItem->Attributes.Usage.Page   == USAGE_PAGE_GENERIC_DCTRL) &&
+					         ((ReportItem->Attributes.Usage.Usage == USAGE_X)                  ||
+					          (ReportItem->Attributes.Usage.Usage == USAGE_Y))                 &&
+					         (ReportItem->ItemType                == REPORT_ITEM_TYPE_In))
 					{
 						/* Get the mouse relative position value */
 						GetReportItemInfo((void*)&MouseReport, ReportItem);
 						
-						/* Value is a signed 8-bit value, cast and set LED mask as appropriate */
-						if ((int8_t)ReportItem->Value > 0)
-						  LEDMask |= LEDS_LED1;
-						else if ((int8_t)ReportItem->Value < 0)
-						  LEDMask |= LEDS_LED2;
-					}
-					else if ((ReportItem->Attributes.Usage.Page  == USAGE_PAGE_GENERIC_DCTRL) &&
-							 (ReportItem->Attributes.Usage.Usage == USAGE_Y)                  &&
-					         (ReportItem->ItemType               == REPORT_ITEM_TYPE_In))
-					{
-						/* Get the mouse relative position value */
-						GetReportItemInfo((void*)&MouseReport, ReportItem);
+						/* Value is a signed 8-bit value, cast as appropriate */
+						int8_t DeltaMovement = (int8_t)ReportItem->Value;
 						
-						/* Value is a signed 8-bit value, cast and set LED mask as appropriate */
-						if ((int8_t)ReportItem->Value > 0)
-						  LEDMask |= LEDS_LED3;
-						else if ((int8_t)ReportItem->Value < 0)
-						  LEDMask |= LEDS_LED4;
+						/* Determine if the report is for the X or Y delta movement */
+						if (ReportItem->Attributes.Usage.Usage == USAGE_X)
+						{
+							/* Set LEDs according to the movement direction */
+							if (DeltaMovement > 0)
+							  LEDMask |= LEDS_LED1;
+							else if ((int8_t)ReportItem->Value < 0)
+							  LEDMask |= LEDS_LED2;
+						}
+						else
+						{
+							/* Set LEDs according to the movement direction */
+							if (DeltaMovement > 0)
+							  LEDMask |= LEDS_LED3;
+							else if ((int8_t)ReportItem->Value < 0)
+							  LEDMask |= LEDS_LED4;						
+						}
 					}
 				}
 				
@@ -395,7 +398,7 @@ uint8_t GetConfigDescriptorData(void)
 		  return NoHIDInterfaceFound;
 
 		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
-		if ((DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class == MOUSE_CLASS) &&
+		if ((DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class    == MOUSE_CLASS) &&
 		    (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Protocol == MOUSE_PROTOCOL))
 		{
 			break;
@@ -427,7 +430,7 @@ uint8_t GetConfigDescriptorData(void)
 		if (ConfigDescriptorSize == 0)
 		  return NoEndpointFound;
 
-		/* Break out of the loop and process the endpoint descriptor if it is of the IN type */
+		/* Process the endpoint descriptor if it is of the IN type */
 		if (DESCRIPTOR_CAST(ConfigDescriptorData,
 		                    USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 		{

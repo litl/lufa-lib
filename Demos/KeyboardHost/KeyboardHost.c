@@ -267,7 +267,7 @@ uint8_t GetConfigDescriptorData(void)
 		  return NoHIDInterfaceFound;
 
 		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
-		if ((DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class == KEYBOARD_CLASS) &&
+		if ((DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class    == KEYBOARD_CLASS) &&
 		    (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Protocol == KEYBOARD_PROTOCOL))
 		{
 			break;
@@ -289,7 +289,7 @@ uint8_t GetConfigDescriptorData(void)
 		if (ConfigDescriptorSize == 0)
 		  return NoEndpointFound;
 
-		/* Break out of the loop and process the endpoint descriptor if it is of the IN type */
+		/* Process the endpoint descriptor if it is of the IN type */
 		if (DESCRIPTOR_CAST(ConfigDescriptorData,
 		                    USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 		{
