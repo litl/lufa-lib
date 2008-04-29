@@ -16,6 +16,9 @@
 	demo supports mice with a single HID report.
 	
 	Mouse movement and button presses are displayed on the board LEDs.
+	On connection to a USB mouse, the report items will be processed and
+	printed as a formatted list through the USART before the mouse is
+	fully enumerated.
 
 	Currently only single interface mice are supported.	
 */
@@ -251,7 +254,7 @@ TASK(USB_Mouse_Host)
 				if (LEDs_GetLEDs() & LEDS_LED4)
 				  LEDs_TurnOffLEDs(LEDS_LED4);
 				else
-				LEDs_TurnOnLEDs(LEDS_LED4);
+				  LEDs_TurnOnLEDs(LEDS_LED4);
 			}
 			
 			/* All LEDs off - ready to indicate keypresses */

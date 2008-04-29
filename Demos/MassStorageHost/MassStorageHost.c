@@ -255,7 +255,7 @@ TASK(USB_MassStore_Host)
 			/* Set the prevent removal flag for the device, allowing it to be accessed */
 			MassStore_PreventAllowMediumRemoval(0, true);
 			
-			puts_P(PSTR("Waiting until ready.\r\n"));
+			puts_P(PSTR("Waiting until ready"));
 			
 			/* Wait until disk ready */
 			do
@@ -278,7 +278,7 @@ TASK(USB_MassStore_Host)
 			}
 			
 			/* Display the disk capacity in blocks * block size bytes */
-			printf_P(PSTR("Capacity: %u*%u bytes.\r\n"), DiskCapacity.Blocks, DiskCapacity.BlockSize);
+			printf_P(PSTR("Capacity: %lu*%lu bytes.\r\n"), DiskCapacity.Blocks, DiskCapacity.BlockSize);
 			
 			/* Create a new buffer capabable of holding a single block from the device */
 			uint8_t BlockBuffer[DEVICE_BLOCK_SIZE];
@@ -378,10 +378,8 @@ uint8_t GetConfigDescriptorData(void)
 		/* Check if the endpoint is a bulk IN or OUT endpoint */
 		if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_BULK)
 		{
-			uint8_t  EPAddress = DESCRIPTOR_CAST(ConfigDescriptorData,
-												 USB_Descriptor_Endpoint_t).EndpointAddress;
-			uint16_t EPSize    = DESCRIPTOR_CAST(ConfigDescriptorData,
-												 USB_Descriptor_Endpoint_t).EndpointSize;
+			uint8_t  EPAddress = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
+			uint16_t EPSize    = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
 		
 			/* Set the appropriate endpoint data address based on the endpoint direction */
 			if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)

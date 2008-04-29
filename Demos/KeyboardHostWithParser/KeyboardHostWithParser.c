@@ -16,7 +16,9 @@
 	keyboards with a single HID report.
 	
 	Pressed alpha-numeric, enter or space key is transmitted through the serial
-	USART at serial settings 9600, 8, N, 1.
+	USART at serial settings 9600, 8, N, 1. On connection to a USB keyboard, the
+	report items will be processed and printed as a formatted list through the
+	USART before the keyboard is fully enumerated.
 
 	Currently only single interface keyboards are supported.
 */
@@ -251,7 +253,7 @@ TASK(USB_Keyboard_Host)
 				if (LEDs_GetLEDs() & LEDS_LED4)
 				  LEDs_TurnOffLEDs(LEDS_LED4);
 				else
-				LEDs_TurnOnLEDs(LEDS_LED4);
+				  LEDs_TurnOnLEDs(LEDS_LED4);
 			}
 			
 			/* All LEDs off - ready to indicate keypresses */

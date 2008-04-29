@@ -13,7 +13,7 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#ifndef DISABLE_TERMINAL_CODES
+			#if !defined(DISABLE_TERMINAL_CODES)
 				#define ANSI_ESCAPE_SEQUENCE(c)  "\33[" c
 			#else
 				#define ANSI_ESCAPE_SEQUENCE(c)

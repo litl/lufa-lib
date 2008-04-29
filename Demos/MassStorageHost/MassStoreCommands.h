@@ -84,8 +84,8 @@
 
 		typedef struct
 		{
-			uint32_t Blocks;
 			uint32_t BlockSize;
+			uint32_t Blocks;
 		} SCSI_Capacity_t;
 
 	/* Enums: */
