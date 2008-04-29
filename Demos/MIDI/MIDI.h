@@ -18,13 +18,13 @@
 
 		#include "Descriptors.h"
 				
-		#include <MyUSB/Version.h>                      // Library Version Information
-		#include <MyUSB/Common/ButtLoadTag.h>           // PROGMEM tags readable by the ButtLoad project
-		#include <MyUSB/Drivers/USB/USB.h>              // USB Functionality
-		#include <MyUSB/Drivers/Board/Joystick.h>       // Joystick driver
-		#include <MyUSB/Drivers/Board/LEDs.h>           // LEDs driver
-		#include <MyUSB/Drivers/Board/HWB.h>          // Hardware Button driver
-		#include <MyUSB/Scheduler/Scheduler.h>          // Simple scheduler for task management
+		#include <MyUSB/Version.h>                            // Library Version Information
+		#include <MyUSB/Common/ButtLoadTag.h>                 // PROGMEM tags readable by the ButtLoad project
+		#include <MyUSB/Drivers/USB/USB.h>                    // USB Functionality
+		#include <MyUSB/Drivers/Board/Joystick.h>             // Joystick driver
+		#include <MyUSB/Drivers/Board/LEDs.h>                 // LEDs driver
+		#include <MyUSB/Drivers/Board/HWB.h>                  // Hardware Button driver
+		#include <MyUSB/Scheduler/Scheduler.h>                // Simple scheduler for task management
 
    /* Macros: */
 		#define MIDI_COMMAND_NOTE_ON         0x90

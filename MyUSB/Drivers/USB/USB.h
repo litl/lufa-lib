@@ -27,7 +27,6 @@
 		#include "LowLevel/USBMode.h"
 	
 		#if defined(USB_CAN_BE_HOST)
-			#include "HighLevel/ConfigDescriptor.h"
 			#include "LowLevel/Host.h"
 			#include "LowLevel/HostChapter9.h"
 			#include "LowLevel/Pipe.h"

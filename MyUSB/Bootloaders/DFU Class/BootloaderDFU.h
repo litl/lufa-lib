@@ -24,7 +24,7 @@
 		#include <MyUSB/Drivers/Board/LEDs.h>
 		
 	/* Macros: */
-		#define BOOTLOADER_VERSION_MINOR 0
+		#define BOOTLOADER_VERSION_MINOR 1
 		#define BOOTLOADER_VERSION_REV   0
 		#define BOOTLOADER_ID_BYTE1      0xDC
 		#define BOOTLOADER_ID_BYTE2      0xFB

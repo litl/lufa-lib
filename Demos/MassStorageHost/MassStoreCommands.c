@@ -29,7 +29,7 @@ void MassStore_SendCommand(void)
 	Pipe_Unfreeze();
 
 	/* Write the CBW command to the OUT pipe */
-	Pipe_Write_Stream(&SCSICommandBlock, sizeof(CommandBlockWrapper_t));
+	Pipe_Write_Stream_LE(&SCSICommandBlock, sizeof(CommandBlockWrapper_t));
 
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_FIFOCON_Clear();
@@ -170,7 +170,7 @@ void MassStore_GetReturnedStatus(void)
 	}
 	
 	/* Load in the CSW from the attached device */
-	Pipe_Read_Stream(&SCSICommandStatus, sizeof(CommandStatusWrapper_t));
+	Pipe_Read_Stream_LE(&SCSICommandStatus, sizeof(CommandStatusWrapper_t));
 	
 	/* Clear the data ready for next reception */
 	Pipe_FIFOCON_Clear();

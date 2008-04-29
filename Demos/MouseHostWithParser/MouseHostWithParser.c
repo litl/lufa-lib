@@ -374,7 +374,7 @@ uint8_t GetConfigDescriptorData(void)
 	uint16_t ConfigDescriptorSize;
 	
 	/* Get Configuration Descriptor size from the device */
-	if (AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
+	if (USB_Host_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
 	  return ControlError;
 	
 	/* Ensure that the Configuration Descriptor isn't too large */
@@ -385,7 +385,7 @@ uint8_t GetConfigDescriptorData(void)
 	ConfigDescriptorData = alloca(ConfigDescriptorSize);
 
 	/* Retrieve the entire configuration descriptor into the allocated buffer */
-	AVR_HOST_GetDeviceConfigDescriptor(&ConfigDescriptorSize, ConfigDescriptorData);
+	USB_Host_GetDeviceConfigDescriptor(&ConfigDescriptorSize, ConfigDescriptorData);
 	
 	/* Validate returned data - ensure first entry is a configuration header descriptor */
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
@@ -394,7 +394,7 @@ uint8_t GetConfigDescriptorData(void)
 	while (ConfigDescriptorSize)
 	{
 		/* Get the next interface descriptor from the configuration descriptor */
-		AVR_HOST_GetNextDescriptorOfType(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_Interface);
+		USB_Host_GetNextDescriptorOfType(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_Interface);
 	
 		/* If reached end of configuration descriptor, error out */
 		if (ConfigDescriptorSize == 0)
@@ -413,7 +413,7 @@ uint8_t GetConfigDescriptorData(void)
 	  return NoHIDInterfaceFound;
 	
 	/* Get the next HID descriptor from the configuration descriptor data before the next interface descriptor*/
-	AVR_HOST_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_HID, DTYPE_Interface);
+	USB_Host_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_HID, DTYPE_Interface);
 	
 	/* If reached end of configuration descriptor, error out */
 	if (ConfigDescriptorSize == 0)
@@ -426,7 +426,7 @@ uint8_t GetConfigDescriptorData(void)
 	while (ConfigDescriptorSize)
 	{
 		/* Get the next endpoint descriptor from the configuration descriptor data before the next interface descriptor*/
-		AVR_HOST_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData,
+		USB_Host_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData,
 		                                       DTYPE_Endpoint, DTYPE_Interface);
 	
 		/* If reached end of configuration descriptor, error out */

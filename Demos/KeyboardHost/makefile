@@ -97,6 +97,7 @@ SRC = $(TARGET).c                                           \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
 	  ../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
 	  ../../MyUSB/Drivers/USB/HighLevel/Events.c            \
+	  ../../MyUSB/Drivers/USB/Class/ConfigDescriptor.c      \
 	  
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 

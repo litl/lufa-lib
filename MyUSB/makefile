@@ -21,6 +21,7 @@ MYUSB_SRC_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
                      ./Drivers/USB/HighLevel/Events.c            \
                      ./Drivers/USB/HighLevel/StdDescriptors.c    \
                      ./Drivers/USB/Class/HIDParser.c             \
+                     ./Drivers/USB/Class/ConfigDescriptor.c      \
                      ./Scheduler/Scheduler.c                     \
                      ./MemoryAllocator/DynAlloc.c                \
                      ./Drivers/Board/Temperature.c               \

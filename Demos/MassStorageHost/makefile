@@ -91,6 +91,7 @@ SRC = $(TARGET).c                                           \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
 	  ../../MyUSB/Drivers/AT90USBXXX/Serial_Stream.c        \
 	  ../../MyUSB/Drivers/AT90USBXXX/Serial.c               \
+	  ../../MyUSB/Drivers/USB/Class/ConfigDescriptor.c      \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Pipe.c               \
 	  ../../MyUSB/Drivers/USB/LowLevel/Host.c               \

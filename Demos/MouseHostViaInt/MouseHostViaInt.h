@@ -22,6 +22,7 @@
 		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
 		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
 		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
+		#include <MyUSB/Drivers/USB/Class/ConfigDescriptor.h>     // Configuration Descriptor Parser
 		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>       // Serial stream driver
 		#include <MyUSB/Drivers/Board/LEDs.h>                     // LEDs driver
 		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
