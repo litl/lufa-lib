@@ -48,6 +48,10 @@
 	/* Task Definitions: */
 		TASK(USB_MassStore_Host);
 
+	/* Configuration Descriptor Comparison Functions: */
+		DESCRIPTOR_COMPARATOR(NextMassStorageInterface);
+		DESCRIPTOR_COMPARATOR(NextInterfaceBulkDataEndpoint);
+
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);

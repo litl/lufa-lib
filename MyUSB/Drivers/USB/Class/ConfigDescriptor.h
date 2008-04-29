@@ -25,6 +25,7 @@
 			#define DESCRIPTOR_TYPE(DescriptorPtr)        DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Type
 			#define DESCRIPTOR_SIZE(DescriptorPtr)        DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Size
 			#define DESCRIPTOR_COMPARATOR(name)           uint8_t DCOMP_##name (uint8_t* CurrentDescriptor)
+
 			#define AVR_HOST_GetNextDescriptorComp(DSize, DPos, DSearch) \
 			                                              AVR_HOST_GetNextDescriptorComp_P(DSize, DPos, DCOMP_##DSearch)
 		/* Enums: */

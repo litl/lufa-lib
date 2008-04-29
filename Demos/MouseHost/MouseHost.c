@@ -235,6 +235,7 @@ uint8_t GetConfigDescriptorData(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
+	uint8_t  ErrorCode;
 	
 	/* Get Configuration Descriptor size from the device */
 	if (USB_Host_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
@@ -254,51 +255,61 @@ uint8_t GetConfigDescriptorData(void)
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
 	  return ControlError;
 	
-	while (ConfigDescriptorSize)
+	/* Get the mouse interface from the configuration descriptor */
+	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextMouseInterface)))
 	{
-		/* Get the next interface descriptor from the configuration descriptor */
-		USB_Host_GetNextDescriptorOfType(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_Interface);
-	
-		/* If reached end of configuration descriptor, error out */
-		if (ConfigDescriptorSize == 0)
-		  return NoHIDInterfaceFound;
-
-		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
-		if ((DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class    == MOUSE_CLASS) &&
-		    (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Protocol == MOUSE_PROTOCOL))
-		{
-			break;
-		}
+		/* Descriptor not found, error out */
+		return NoHIDInterfaceFound;
 	}
 
-	/* If reached end of configuration descriptor, error out */
-	if (ConfigDescriptorSize == 0)
-	  return NoHIDInterfaceFound;
-	
-	/* Find the next IN endpoint descriptor after the mouse interface descriptor */
-	while (ConfigDescriptorSize)
+	/* Get the mouse interface's data endpoint descriptor */
+	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+	                                                NextInterfaceMouseDataEndpoint)))
 	{
-		/* Get the next endpoint descriptor from the configuration descriptor data before the next interface descriptor*/
-		USB_Host_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData,
-		                                       DTYPE_Endpoint, DTYPE_Interface);
+		/* Descriptor not found, error out */
+		return NoEndpointFound;
+	}
 	
-		/* If reached end of configuration descriptor, error out */
-		if (ConfigDescriptorSize == 0)
-		  return NoEndpointFound;
-
-		/* Process the endpoint descriptor if it is of the IN type */
-		if (DESCRIPTOR_CAST(ConfigDescriptorData,
-		                    USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-		{
-			/* Retrieve the endpoint address from the endpoint descriptor */
-			MouseDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
-			MouseDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
+	/* Retrieve the endpoint address from the endpoint descriptor */
+	MouseDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
+	MouseDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
 			
-			/* Valid data found, return success */
-			return SuccessfulConfigRead;
+	/* Valid data found, return success */
+	return SuccessfulConfigRead;
+}
+
+DESCRIPTOR_COMPARATOR(NextMouseInterface)
+{
+	/* Descriptor Search Comparitor Function - find next mouse class interface descriptor */
+
+	if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Interface)
+	{
+		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
+		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Class    == MOUSE_CLASS) &&
+		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Protocol == MOUSE_PROTOCOL))
+		{
+			return Descriptor_Search_Found;
 		}
 	}
 	
-	/* If this point reached, no valid data endpoint found, return error */
-	return NoEndpointFound;
+	return Descriptor_Search_NotFound;
+}
+
+DESCRIPTOR_COMPARATOR(NextInterfaceMouseDataEndpoint)
+{
+	/* Descriptor Search Comparitor Function - find next interface endpoint descriptor before next interface descriptor */
+
+	if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Endpoint)
+	{
+		if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+		{
+			return Descriptor_Search_Found;
+		}
+	}
+	else if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Interface)
+	{
+		return Descriptor_Search_Fail;
+	}
+
+	return Descriptor_Search_NotFound;
 }

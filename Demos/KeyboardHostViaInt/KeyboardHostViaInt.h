@@ -54,6 +54,10 @@
 	/* Task Definitions: */
 		TASK(USB_Keyboard_Host);
 
+	/* Configuration Descriptor Comparison Functions: */
+		DESCRIPTOR_COMPARATOR(NextKeyboardInterface);
+		DESCRIPTOR_COMPARATOR(NextInterfaceKeyboardDataEndpoint);
+
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);

@@ -349,6 +349,7 @@ uint8_t GetConfigDescriptorData(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
+	uint8_t  ErrorCode;
 	
 	/* Get Configuration Descriptor size from the device */
 	if (USB_Host_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
@@ -368,61 +369,81 @@ uint8_t GetConfigDescriptorData(void)
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
 	  return ControlError;
 	
-	while (ConfigDescriptorSize)
+	/* Get the keyboard interface from the configuration descriptor */
+	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextKeyboardInterface)))
 	{
-		/* Get the next interface descriptor from the configuration descriptor */
-		USB_Host_GetNextDescriptorOfType(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_Interface);
+		/* Descriptor not found, error out */
+		return NoHIDInterfaceFound;
+	}
 	
-		/* If reached end of configuration descriptor, error out */
-		if (ConfigDescriptorSize == 0)
-		  return NoHIDInterfaceFound;
-
-		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
-		if ((DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Class    == KEYBOARD_CLASS) &&
-		    (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).Protocol == KEYBOARD_PROTOCOL))
-		{
-			break;
-		}
+	/* Get the keyboard interface's HID descriptor */
+	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextHID)))
+	{
+		/* Descriptor not found, error out */
+		return NoHIDDescriptorFound;
 	}
 
-	/* If reached end of configuration descriptor, error out */
-	if (ConfigDescriptorSize == 0)
-	  return NoHIDInterfaceFound;
-	
-	/* Get the next HID descriptor from the configuration descriptor data before the next interface descriptor*/
-	USB_Host_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData, DTYPE_HID, DTYPE_Interface);
-	
-	/* If reached end of configuration descriptor, error out */
-	if (ConfigDescriptorSize == 0)
-	  return NoHIDDescriptorFound;
+	/* Save the HID report size for later use */
+	HIDReportSize = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_HID_t).HIDReportLength;
 
-	/* Save the HID report length for later use */
-	HIDReportSize = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_HID_t).HIDReportLength;		
-
-	/* Find the next IN endpoint descriptor after the keyboard interface descriptor */
-	while (ConfigDescriptorSize)
+	/* Get the keyboard interface's data endpoint descriptor */
+	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+	                                                NextInterfaceKeyboardDataEndpoint)))
 	{
-		/* Get the next endpoint descriptor from the configuration descriptor data before the next interface descriptor*/
-		USB_Host_GetNextDescriptorOfTypeBefore(&ConfigDescriptorSize, &ConfigDescriptorData,
-		                                       DTYPE_Endpoint, DTYPE_Interface);
+		/* Descriptor not found, error out */
+		return NoEndpointFound;
+	}
 	
-		/* If reached end of configuration descriptor, error out */
-		if (ConfigDescriptorSize == 0)
-		  return NoEndpointFound;
-
-		/* Process the endpoint descriptor if it is of the IN type */
-		if (DESCRIPTOR_CAST(ConfigDescriptorData,
-		                    USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-		{
-			/* Retrieve the endpoint address from the endpoint descriptor */
-			KeyboardDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
-			KeyboardDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
+	/* Retrieve the endpoint address from the endpoint descriptor */
+	KeyboardDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
+	KeyboardDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
 			
-			/* Valid data found, return success */
-			return SuccessfulConfigRead;
+	/* Valid data found, return success */
+	return SuccessfulConfigRead;
+}
+
+DESCRIPTOR_COMPARATOR(NextKeyboardInterface)
+{
+	/* Descriptor Search Comparitor Function - find next keyboard class interface descriptor */
+
+	if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Interface)
+	{
+		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
+		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Class    == KEYBOARD_CLASS) &&
+		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Protocol == KEYBOARD_PROTOCOL))
+		{
+			return Descriptor_Search_Found;
 		}
 	}
 	
-	/* If this point reached, no valid data endpoint found, return error */
-	return NoEndpointFound;
+	return Descriptor_Search_NotFound;
+}
+
+DESCRIPTOR_COMPARATOR(NextInterfaceKeyboardDataEndpoint)
+{
+	/* Descriptor Search Comparitor Function - find next interface endpoint descriptor before next interface descriptor */
+
+	if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Endpoint)
+	{
+		if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+		{
+			return Descriptor_Search_Found;
+		}
+	}
+	else if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Interface)
+	{
+		return Descriptor_Search_Fail;
+	}
+
+	return Descriptor_Search_NotFound;
+}
+
+DESCRIPTOR_COMPARATOR(NextHID)
+{
+	/* Descriptor Search Comparitor Function - find next HID descriptor */
+
+	if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_HID)
+	  return Descriptor_Search_Found;
+	else
+	  return Descriptor_Search_NotFound;	  
 }

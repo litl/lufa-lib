@@ -54,6 +54,10 @@
 	/* Task Definitions: */
 		TASK(USB_Mouse_Host);
 
+	/* Configuration Descriptor Comparison Functions: */
+		DESCRIPTOR_COMPARATOR(NextMouseInterface);
+		DESCRIPTOR_COMPARATOR(NextInterfaceMouseDataEndpoint);
+
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);
