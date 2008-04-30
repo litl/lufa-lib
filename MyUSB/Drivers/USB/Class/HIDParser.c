@@ -205,7 +205,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 #endif
 					}
 					
-#if !defined(HID_INCLUDE_CONTANT_DATA_ITEMS)
+#if !defined(HID_INCLUDE_CONSTANT_DATA_ITEMS)
 					if (!(ReportItemData & IOF_CONSTANT))
 					  ParserData->TotalReportItems++;
 #else

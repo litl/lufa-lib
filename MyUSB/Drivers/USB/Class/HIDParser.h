@@ -18,31 +18,30 @@
 
 		#include "../../../Common/Common.h"
 
-	/* Private Interface - For use in library only: */
-		/* Macros: */
-			#if !defined(HID_STATETABLE_STACK_DEPTH)
-				#define HID_STATETABLE_STACK_DEPTH   3
-			#endif
-			
-			#if !defined(HID_USAGE_STACK_DEPTH)
-				#define HID_USAGE_STACK_DEPTH        8
-			#endif
+	/* Preprocessor checks and defines: */
+		#if !defined(HID_STATETABLE_STACK_DEPTH)
+			#define HID_STATETABLE_STACK_DEPTH    3
+		#endif
+		
+		#if !defined(HID_USAGE_STACK_DEPTH)
+			#define HID_USAGE_STACK_DEPTH         8
+		#endif
 
-			#if !defined(HID_MAX_COLLECTIONS)
-				#define HID_MAX_COLLECTIONS          5
-			#endif
-			
-			#if !defined(HID_MAX_REPORTITEMS)
-				#define HID_MAX_REPORTITEMS          30
-			#endif
+		#if !defined(HID_MAX_COLLECTIONS)
+			#define HID_MAX_COLLECTIONS           5
+		#endif
+		
+		#if !defined(HID_MAX_REPORTITEMS)
+			#define HID_MAX_REPORTITEMS           30
+		#endif
 
 	/* Public Interface - May be used in end-application: */
 		/* Enums: */
 			enum HID_Types_t
 			{
-				REPORT_ITEM_TYPE_In               = 0,
-				REPORT_ITEM_TYPE_Out              = 1,
-				REPORT_ITEM_TYPE_Feature          = 2,
+				REPORT_ITEM_TYPE_In                   = 0,
+				REPORT_ITEM_TYPE_Out                  = 1,
+				REPORT_ITEM_TYPE_Feature              = 2,
 			};
 			
 			enum HID_Parse_ErrorCodes_t
@@ -105,12 +104,6 @@
 							
 				uint32_t                     Value;
 			} HID_ReportItem_t;
-			
-			typedef struct
-			{
-				 HID_ReportItem_Attributes_t Attributes;
-				 uint8_t                     ReportCount;
-			} HID_StateTable_t;
 
 			typedef struct
 			{
@@ -128,4 +121,12 @@
 			void    SetReportItemInfo(uint8_t* const ReportData, const HID_ReportItem_t* ReportItem)
 									  ATTR_NON_NULL_PTR_ARG(1, 2);
 
+	/* Private Interface - For use in library only: */
+		/* Type Defines: */
+			typedef struct
+			{
+				 HID_ReportItem_Attributes_t Attributes;
+				 uint8_t                     ReportCount;
+			} HID_StateTable_t;
+			
 #endif
