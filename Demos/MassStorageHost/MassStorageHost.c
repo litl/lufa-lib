@@ -142,9 +142,10 @@ TASK(USB_MassStore_Host)
 				};
 				
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
+			if ((ErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
 			{
-				puts_P(PSTR("Control error."));
+				puts_P(PSTR("Control Error (Set Configuration).\r\n"));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
@@ -163,13 +164,15 @@ TASK(USB_MassStore_Host)
 			if ((ErrorCode = GetConfigDescriptorData()) != SuccessfulConfigRead)
 			{
 				if (ErrorCode == ControlError)
-				  puts_P(PSTR("Control Error.\r\n"));
+				  puts_P(PSTR("Control Error (Get Configuration).\r\n"));
 				else
-				  printf_P(PSTR("Invalid Device, Error Code %d.\r\n"), ErrorCode);
+				  puts_P(PSTR("Invalid Device.\r\n"));
 
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
+				
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
-				
+
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;
@@ -206,9 +209,10 @@ TASK(USB_MassStore_Host)
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
+			if ((ErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
 			{
-				puts_P(PSTR("Control error."));
+				puts_P(PSTR("Control error (Mass Storage Reset)."));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
@@ -229,9 +233,10 @@ TASK(USB_MassStore_Host)
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(&MassStore_NumberOfLUNs) != HOST_SENDCONTROL_Successful)
+			if ((ErrorCode = USB_Host_SendControlRequest(&MassStore_NumberOfLUNs)) != HOST_SENDCONTROL_Successful)
 			{
-				puts_P(PSTR("Control error."));
+				puts_P(PSTR("Control error (Get Max LUN)."));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);

@@ -189,6 +189,8 @@ static void USB_HostTask(void)
 			}
 
 			USB_Host_SetDeviceAddress(USB_HOST_DEVICEADDRESS);
+
+			USB_Host_WaitMS(10);
 			
 			RAISE_EVENT(USB_DeviceEnumerationComplete);
 			USB_HostState = HOST_STATE_Addressed;

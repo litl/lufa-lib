@@ -133,7 +133,7 @@ TASK(USB_Mouse_Host)
 	/* Switch to determine what user-application handled host state the host state machine is in */
 	switch (USB_HostState)
 	{
-		case HOST_STATE_Addressed:		
+		case HOST_STATE_Addressed:	
 			/* Standard request to set the device configuration to configuration 1 */
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
@@ -145,9 +145,10 @@ TASK(USB_Mouse_Host)
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
+			if ((ErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
 			{
-				puts_P(PSTR("Control error.\r\n"));
+				puts_P(PSTR("Control Error (Set Configuration).\r\n"));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
@@ -166,9 +167,11 @@ TASK(USB_Mouse_Host)
 			if ((ErrorCode = GetConfigDescriptorData()) != SuccessfulConfigRead)
 			{
 				if (ErrorCode == ControlError)
-				  puts_P(PSTR("Control Error.\r\n"));
+				  puts_P(PSTR("Control Error (Get Configuration).\r\n"));
 				else
-				  printf_P(PSTR("Invalid Device, Error Code %d.\r\n"), ErrorCode);
+				  puts_P(PSTR("Invalid Device.\r\n"));
+
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 				
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
@@ -193,6 +196,7 @@ TASK(USB_Mouse_Host)
 			if ((ErrorCode = GetHIDReportData()) != ParseSucessful)
 			{
 				puts_P(PSTR("Report Parse Error.\r\n"));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 			
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);

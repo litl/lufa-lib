@@ -144,9 +144,10 @@ TASK(USB_Keyboard_Host)
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
+			if ((ErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
 			{
-				puts_P(PSTR("Control error.\r\n"));
+				puts_P(PSTR("Control Error (Set Configuration).\r\n"));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
@@ -165,13 +166,15 @@ TASK(USB_Keyboard_Host)
 			if ((ErrorCode = GetConfigDescriptorData()) != SuccessfulConfigRead)
 			{
 				if (ErrorCode == ControlError)
-				  puts_P(PSTR("Control Error.\r\n"));
+				  puts_P(PSTR("Control Error (Get Configuration).\r\n"));
 				else
-				  printf_P(PSTR("Invalid Device, Error Code %d.\r\n"), ErrorCode);
+				  puts_P(PSTR("Invalid Device.\r\n"));
 
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
+				
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
-				
+
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
 				break;
@@ -192,13 +195,14 @@ TASK(USB_Keyboard_Host)
 			if ((ErrorCode = GetHIDReportData()) != ParseSucessful)
 			{
 				puts_P(PSTR("Report Parse Error.\r\n"));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 			
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
 				
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
-				break;			
+				break;	
 			}
 
 			puts_P(PSTR("Dumping HID Report Items.\r\n"));
