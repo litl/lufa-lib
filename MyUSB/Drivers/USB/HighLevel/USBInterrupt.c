@@ -131,7 +131,7 @@ ISR(USB_GEN_vect)
 	{
 		USB_INT_Clear(USB_INT_VBERRI);
 
-		USB_HOST_VBUS_Manual_Off();
+		USB_Host_VBUS_Manual_Off();
 
 		RAISE_EVENT(USB_HostError, HOST_ERROR_VBusVoltageDip);
 		RAISE_EVENT(USB_DeviceUnattached);
@@ -148,11 +148,11 @@ ISR(USB_GEN_vect)
 	
 		RAISE_EVENT(USB_DeviceAttached);
 
-		USB_HOST_VBUS_Manual_Off();
+		USB_Host_VBUS_Manual_Off();
 
 		USB_OTGPAD_On();
-		USB_HOST_VBUS_Auto_Enable();
-		USB_HOST_VBUS_Auto_On();
+		USB_Host_VBUS_Auto_Enable();
+		USB_Host_VBUS_Auto_On();
 
 		USB_INT_Enable(USB_INT_DDISCI);
 		
@@ -163,7 +163,7 @@ ISR(USB_GEN_vect)
 	{
 		USB_INT_Clear(USB_INT_BCERRI);
 		
-		USB_HOST_VBUS_Manual_Off();
+		USB_Host_VBUS_Manual_Off();
 		USB_Host_PrepareForDeviceConnect();
 	}
 	#endif
@@ -183,8 +183,8 @@ ISR(USB_GEN_vect)
 
 		RAISE_EVENT(USB_UIDChange);
 
-		USB_HOST_VBUS_Manual_Off();
-		USB_HOST_VBUS_Auto_Enable();
+		USB_Host_VBUS_Manual_Off();
+		USB_Host_VBUS_Auto_Enable();
 		USB_OTGPAD_On();
 
 		USB_SetupInterface();	

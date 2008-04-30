@@ -20,11 +20,11 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 {
 	uint8_t* HeaderStream   = (uint8_t*)&USB_HostRequest;
 	uint8_t* DataStream     = (uint8_t*)BufferPtr;
-	bool     SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
+	bool     SOFGenEnabled  = USB_Host_SOFGeneration_IsEnabled();
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Successful;
 	uint16_t DataLen        = USB_HostRequest.DataLength;
 
-	USB_HOST_SOFGeneration_Enable();
+	USB_Host_SOFGeneration_Enable();
 	
 	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
 	  return ReturnStatus;
@@ -126,7 +126,7 @@ End_Of_Control_Send:
 	Pipe_Freeze();
 	
 	if (!(SOFGenEnabled))
-	  USB_HOST_SOFGeneration_Disable();
+	  USB_Host_SOFGeneration_Disable();
 
 	Pipe_ResetPipe(PIPE_CONTROLPIPE);
 

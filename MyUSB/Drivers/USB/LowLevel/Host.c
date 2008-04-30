@@ -15,11 +15,11 @@
 
 uint8_t USB_Host_WaitMS(uint8_t MS)
 {
-	bool    SOFGenEnabled  = USB_HOST_SOFGeneration_IsEnabled();
+	bool    SOFGenEnabled  = USB_Host_SOFGeneration_IsEnabled();
 	uint8_t ErrorCode      = HOST_WAITERROR_Successful;
 	
 	USB_INT_Clear(USB_INT_HSOFI);
-	USB_HOST_SOFGeneration_Enable();
+	USB_Host_SOFGeneration_Enable();
 
 	while (MS)
 	{
@@ -54,24 +54,24 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 	}
 
 	if (!(SOFGenEnabled))
-	  USB_HOST_SOFGeneration_Disable();
+	  USB_Host_SOFGeneration_Disable();
 
 	return ErrorCode;
 }
 
 void USB_Host_ResetDevice(void)
 {
-	bool SOFGenEnabled = USB_HOST_SOFGeneration_IsEnabled();
+	bool SOFGenEnabled = USB_Host_SOFGeneration_IsEnabled();
 
 	USB_INT_Disable(USB_INT_DDISCI);
 	
 	USB_Host_WaitMS(20);
 
-	USB_HOST_ResetBus();
-	while (!(USB_HOST_ResetBus_IsDone()));
+	USB_Host_ResetBus();
+	while (!(USB_Host_ResetBus_IsDone()));
 
 	USB_INT_Clear(USB_INT_HSOFI);
-	USB_HOST_SOFGeneration_Enable();	
+	USB_Host_SOFGeneration_Enable();	
 	
 	for (uint8_t MSRem = 10; MSRem != 0; MSRem--)
 	{
@@ -90,18 +90,18 @@ void USB_Host_ResetDevice(void)
 	}
 
 	if (!(SOFGenEnabled))
-	  USB_HOST_SOFGeneration_Disable();
+	  USB_Host_SOFGeneration_Disable();
 
 	USB_INT_Enable(USB_INT_DDISCI);
 }
 
 void USB_Host_PrepareForDeviceConnect(void)
 {
-	USB_HOST_VBUS_Auto_Off();
+	USB_Host_VBUS_Auto_Off();
 	USB_OTGPAD_Off();
 
-	USB_HOST_VBUS_Manual_Enable();
-	USB_HOST_VBUS_Manual_On();
+	USB_Host_VBUS_Manual_Enable();
+	USB_Host_VBUS_Manual_On();
 	
 	USB_INT_Enable(USB_INT_SRPI);
 	USB_INT_Enable(USB_INT_BCERRI);

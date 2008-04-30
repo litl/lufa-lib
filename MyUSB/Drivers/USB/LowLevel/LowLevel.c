@@ -151,9 +151,9 @@ static void USB_ResetInterface(void)
 
 	#if defined(USB_CAN_BE_HOST)
 	Pipe_ClearPipes();
-	USB_HOST_VBUS_Auto_Enable();
-	USB_HOST_VBUS_Auto_Off();
-	USB_HOST_HostMode_Off();
+	USB_Host_VBUS_Auto_Enable();
+	USB_Host_VBUS_Auto_Off();
+	USB_Host_HostMode_Off();
 	#endif
 	
 	USB_Detach();
@@ -223,10 +223,10 @@ void USB_SetupInterface(void)
 	#if (defined(USB_CAN_BE_DEVICE) && defined(USB_FULL_CONTROLLER))
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
-		if (USB_Options & USB_DEV_OPT_LOWSPEED)
-		  USB_DEV_SetLowSpeed();
+		if (USB_Options & USB_DEVICE_OPT_LOWSPEED)
+		  USB_Device_SetLowSpeed();
 		else
-		  USB_DEV_SetHighSpeed();
+		  USB_Device_SetHighSpeed();
 		  
 		USB_INT_Enable(USB_INT_VBUS);
 	}
@@ -261,7 +261,7 @@ void USB_SetupInterface(void)
 	USB_INT_Enable(USB_INT_SUSPEND);
 	USB_INT_Enable(USB_INT_EORSTI);	
 	#elif defined(USB_HOST_ONLY)
-	USB_HOST_HostMode_On();
+	USB_Host_HostMode_On();
 	#else
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
@@ -270,7 +270,7 @@ void USB_SetupInterface(void)
 	}
 	else if (USB_CurrentMode == USB_MODE_HOST)
 	{
-		USB_HOST_HostMode_On();
+		USB_Host_HostMode_On();
 	}
 	#endif
 	

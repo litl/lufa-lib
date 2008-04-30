@@ -16,7 +16,7 @@
 			#define MYUSB_VERSION_MAJOR    1
 			#define MYUSB_VERSION_MINOR    3
 			#define MYUSB_VERSION_REVISION 3
-			#define MYUSB_VERSION          1.3.3f
-			#define MYUSB_VERSION_STRING   "1.3.3"
+			#define MYUSB_VERSION          1.4.0f
+			#define MYUSB_VERSION_STRING   "1.4.0"
 
 #endif

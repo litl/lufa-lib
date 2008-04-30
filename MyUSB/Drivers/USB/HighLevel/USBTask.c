@@ -86,7 +86,7 @@ static void USB_HostTask(void)
 				USB_IsConnected = true;
 				RAISE_EVENT(USB_Connect);
 					
-				USB_HOST_SOFGeneration_Enable();
+				USB_Host_SOFGeneration_Enable();
 				Pipe_ClearPipes();
 				
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
@@ -188,7 +188,7 @@ static void USB_HostTask(void)
 				break;
 			}
 
-			USB_HOST_SetDeviceAddress(USB_HOST_DEVICEADDRESS);
+			USB_Host_SetDeviceAddress(USB_HOST_DEVICEADDRESS);
 			
 			RAISE_EVENT(USB_DeviceEnumerationComplete);
 			USB_HostState = HOST_STATE_Addressed;
@@ -200,7 +200,7 @@ static void USB_HostTask(void)
 	{
 		RAISE_EVENT(USB_DeviceEnumerationFailed, ErrorCode);
 
-		USB_HOST_VBUS_Auto_Off();
+		USB_Host_VBUS_Auto_Off();
 
 		RAISE_EVENT(USB_DeviceUnattached);
 		
