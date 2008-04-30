@@ -344,7 +344,7 @@ uint8_t GetConfigDescriptorData(void)
 	  return ControlError;
 	
 	/* Get the mass storage interface from the configuration descriptor */
-	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
 	                                                NextMassStorageInterface)))
 	{
 		/* Descriptor not found, error out */
@@ -354,7 +354,7 @@ uint8_t GetConfigDescriptorData(void)
 	/* Get the IN and OUT data endpoints for the mass storage interface */
 	while (!(MassStoreEndpointNumber_IN && MassStoreEndpointNumber_OUT))
 	{
-		if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+		if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
 		                                                NextInterfaceBulkDataEndpoint)))
 		{
 			/* Descriptor not found, error out */

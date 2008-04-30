@@ -393,14 +393,14 @@ uint8_t GetConfigDescriptorData(void)
 	  return ControlError;
 	
 	/* Get the mouse interface from the configuration descriptor */
-	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextMouseInterface)))
+	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextMouseInterface)))
 	{
 		/* Descriptor not found, error out */
 		return NoHIDInterfaceFound;
 	}
 	
 	/* Get the mouse interface's HID descriptor */
-	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextHID)))
+	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextHID)))
 	{
 		/* Descriptor not found, error out */
 		return NoHIDDescriptorFound;
@@ -410,7 +410,7 @@ uint8_t GetConfigDescriptorData(void)
 	HIDReportSize = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_HID_t).HIDReportLength;
 
 	/* Get the mouse interface's data endpoint descriptor */
-	if ((ErrorCode = AVR_HOST_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
 	                                                NextInterfaceMouseDataEndpoint)))
 	{
 		/* Descriptor not found, error out */

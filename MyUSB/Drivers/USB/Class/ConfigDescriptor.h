@@ -27,8 +27,8 @@
 
 			#define DESCRIPTOR_COMPARATOR(name)           uint8_t DCOMP_##name (void* CurrentDescriptor)
 
-			#define AVR_HOST_GetNextDescriptorComp(DSize, DPos, DSearch) \
-			                                              AVR_HOST_GetNextDescriptorComp_P(DSize, DPos, DCOMP_##DSearch)
+			#define USB_Host_GetNextDescriptorComp(DSize, DPos, DSearch) \
+			                                              USB_Host_GetNextDescriptorComp_P(DSize, DPos, DCOMP_##DSearch)
 		/* Enums: */
 			enum DSEARCH_Return_ErrorCodes_t
 			{
@@ -123,7 +123,7 @@
 			
 	/* Private Interface - For use in library only: */
 		/* Function Prototypes: */
-			uint8_t AVR_HOST_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
-                                                    uint8_t (*SearchRoutine)(void*));														  
+			uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
+                                                     uint8_t (*SearchRoutine)(void*));
 
 #endif
