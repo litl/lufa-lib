@@ -385,7 +385,7 @@ DESCRIPTOR_COMPARATOR(NextMassStorageInterface)
 {
 	/* Descriptor Search Comparitor Function - find next mass storage class interface descriptor */
 
-	if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Interface)
+	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
 		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
 		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Class    == MASS_STORE_CLASS)    &&
@@ -404,12 +404,12 @@ DESCRIPTOR_COMPARATOR(NextInterfaceBulkDataEndpoint)
 	/* Descriptor Search Comparitor Function - find next interface bulk endpoint descriptor before next
 	                                           interface descriptor */
 
-	if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Endpoint)
+	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{
 		if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_BULK)
 		  return Descriptor_Search_Found;
 	}
-	else if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Header_t).Type == DTYPE_Interface)
+	else if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
 		return Descriptor_Search_Fail;
 	}

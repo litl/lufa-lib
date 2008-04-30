@@ -24,7 +24,8 @@
 			#define DESCRIPTOR_CAST(DescriptorPtr, Type)  (*DESCRIPTOR_PCAST(DescriptorPtr, Type))
 			#define DESCRIPTOR_TYPE(DescriptorPtr)        DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Type
 			#define DESCRIPTOR_SIZE(DescriptorPtr)        DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Size
-			#define DESCRIPTOR_COMPARATOR(name)           uint8_t DCOMP_##name (uint8_t* CurrentDescriptor)
+
+			#define DESCRIPTOR_COMPARATOR(name)           uint8_t DCOMP_##name (void* CurrentDescriptor)
 
 			#define AVR_HOST_GetNextDescriptorComp(DSize, DPos, DSearch) \
 			                                              AVR_HOST_GetNextDescriptorComp_P(DSize, DPos, DCOMP_##DSearch)
@@ -33,7 +34,7 @@
 			{
 				Descriptor_Search_Found                = 0,
 				Descriptor_Search_Fail                 = 1,
-				Descriptor_Search_NotFound             = 3,
+				Descriptor_Search_NotFound             = 2,
 			};
 
 			enum DSEARCH_Comp_Return_ErrorCodes_t
@@ -73,7 +74,7 @@
 				{
 					USB_Host_GetNextDescriptor(BytesRem, CurrConfigLoc);	  
 
-					if ((DESCRIPTOR_TYPE(*CurrConfigLoc) == Type) && *BytesRem)
+					if (DESCRIPTOR_TYPE(*CurrConfigLoc) == Type)
 					  return;
 				}
 			}
@@ -92,7 +93,7 @@
 				{
 					USB_Host_GetNextDescriptor(BytesRem, CurrConfigLoc);
 
-					if ((DESCRIPTOR_TYPE(*CurrConfigLoc) == Type) && *BytesRem)
+					if (DESCRIPTOR_TYPE(*CurrConfigLoc) == Type)
 					{
 						return;
 					}
@@ -123,6 +124,6 @@
 	/* Private Interface - For use in library only: */
 		/* Function Prototypes: */
 			uint8_t AVR_HOST_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
-                                                    uint8_t (*SearchRoutine)(uint8_t*));														  
+                                                    uint8_t (*SearchRoutine)(void*));														  
 
 #endif

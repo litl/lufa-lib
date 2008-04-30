@@ -43,7 +43,7 @@ uint8_t USB_Host_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr, void* 
 }
 
 uint8_t AVR_HOST_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
-                                         uint8_t (*SearchRoutine)(uint8_t*))
+                                         uint8_t (*SearchRoutine)(void*))
 {
 	uint8_t ErrorCode;
 		
