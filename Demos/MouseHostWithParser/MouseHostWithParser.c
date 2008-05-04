@@ -317,19 +317,15 @@ TASK(USB_Mouse_Host)
 						/* Determine if the report is for the X or Y delta movement */
 						if (ReportItem->Attributes.Usage.Usage == USAGE_X)
 						{
-							/* Set LEDs according to the movement direction */
-							if (DeltaMovement > 0)
-							  LEDMask |= LEDS_LED1;
-							else if ((int8_t)ReportItem->Value < 0)
-							  LEDMask |= LEDS_LED2;
+							/* Turn on the appropriate LED according to direction if the delta is non-zero */
+							if (DeltaMovement)
+							  LEDMask |= ((DeltaMovement > 0) ? LEDS_LED1 : LEDS_LED2);
 						}
 						else
 						{
-							/* Set LEDs according to the movement direction */
-							if (DeltaMovement > 0)
-							  LEDMask |= LEDS_LED3;
-							else if ((int8_t)ReportItem->Value < 0)
-							  LEDMask |= LEDS_LED4;						
+							/* Turn on the appropriate LED according to direction if the delta is non-zero */
+							if (DeltaMovement)
+							  LEDMask |= ((DeltaMovement > 0) ? LEDS_LED3 : LEDS_LED4);
 						}
 					}
 				}

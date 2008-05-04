@@ -359,6 +359,7 @@ uint8_t GetConfigDescriptorData(void)
 	/* Get the IN and OUT data endpoints for the mass storage interface */
 	while (!(MassStoreEndpointNumber_IN && MassStoreEndpointNumber_OUT))
 	{
+		/* Fetch the next bulk endpoint from the current mass storage interface */
 		if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
 		                                                NextInterfaceBulkDataEndpoint)))
 		{

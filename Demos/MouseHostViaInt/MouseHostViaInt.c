@@ -18,6 +18,11 @@
 	as well as printed out the serial terminal as formatted dY, dY and
 	button status information.
 
+	This uses a naiive method where the returned report structure is
+	assumed. A better implementation uses the HID report parser for
+	correct report data processing across all compatable mice, as shown
+	in the MouseHostWithParser demo application.
+
 	Currently only single interface mice are supported.	
 */
 

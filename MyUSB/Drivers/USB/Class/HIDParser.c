@@ -44,7 +44,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 
 		switch (*ReportData & (TYPE_MASK | TAG_MASK))
 		{
-			case (TYPE_GLOBAL | GLOBAL_TAG_PUSH):
+			case (TYPE_GLOBAL | TAG_GLOBAL_PUSH):
 				if (CurrStateTable == &StateTable[HID_STATETABLE_STACK_DEPTH])
 				  return HID_PARSE_HIDStackOverflow;
 	
@@ -54,52 +54,52 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 
 				CurrStateTable++;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_POP):
+			case (TYPE_GLOBAL | TAG_GLOBAL_POP):
 				if (CurrStateTable == &StateTable[0])
 				  return HID_PARSE_HIDStackUnderflow;
 				  
 				CurrStateTable--;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_USAGEPAGE):
+			case (TYPE_GLOBAL | TAG_GLOBAL_USAGEPAGE):
 				CurrStateTable->Attributes.Usage.Page = ReportItemData;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_LOGICALMIN):
+			case (TYPE_GLOBAL | TAG_GLOBAL_LOGICALMIN):
 				CurrStateTable->Attributes.Logical.Minimum = ReportItemData;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_LOGICALMAX):
+			case (TYPE_GLOBAL | TAG_GLOBAL_LOGICALMAX):
 				CurrStateTable->Attributes.Logical.Maximum = ReportItemData;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_PHYSMIN):
+			case (TYPE_GLOBAL | TAG_GLOBAL_PHYSMIN):
 				CurrStateTable->Attributes.Physical.Minimum = ReportItemData;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_PHYSMAX):
+			case (TYPE_GLOBAL | TAG_GLOBAL_PHYSMAX):
 				CurrStateTable->Attributes.Physical.Maximum = ReportItemData;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_UNITEXP):
+			case (TYPE_GLOBAL | TAG_GLOBAL_UNITEXP):
 				CurrStateTable->Attributes.Unit.Exponent = ReportItemData;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_UNIT):
+			case (TYPE_GLOBAL | TAG_GLOBAL_UNIT):
 				CurrStateTable->Attributes.Unit.Type = ReportItemData;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_REPORTSIZE):
+			case (TYPE_GLOBAL | TAG_GLOBAL_REPORTSIZE):
 				CurrStateTable->Attributes.BitSize = ReportItemData;
 				break;
-			case (TYPE_GLOBAL | GLOBAL_TAG_REPORTCOUNT):
+			case (TYPE_GLOBAL | TAG_GLOBAL_REPORTCOUNT):
 				CurrStateTable->ReportCount = ReportItemData;
 				break;
-			case (TYPE_LOCAL | LOCAL_TAG_USAGE):
+			case (TYPE_LOCAL | TAG_LOCAL_USAGE):
 				if (UsageStackSize == (HID_USAGE_STACK_DEPTH - 1))
 				  return HID_PARSE_UsageStackOverflow;
 			
 				UsageStack[UsageStackSize++] = ReportItemData;
 				break;
-			case (TYPE_LOCAL | LOCAL_TAG_USAGEMIN):
+			case (TYPE_LOCAL | TAG_LOCAL_USAGEMIN):
 				CurrStateTable->Attributes.Usage.Minimum = ReportItemData;
 				break;
-			case (TYPE_LOCAL | LOCAL_TAG_USAGEMAX):
+			case (TYPE_LOCAL | TAG_LOCAL_USAGEMAX):
 				CurrStateTable->Attributes.Usage.Maximum = ReportItemData;
 				break;
-			case (TYPE_MAIN | MAIN_TAG_COLLECTION):
+			case (TYPE_MAIN | TAG_MAIN_COLLECTION):
 				if (CurrCollectionPath == NULL)
 				{
 					CurrCollectionPath = &ParserData->CollectionPaths[0];
@@ -138,17 +138,17 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				}
 				
 				break;
-			case (TYPE_MAIN | MAIN_TAG_ENDCOLLECTION):
+			case (TYPE_MAIN | TAG_MAIN_ENDCOLLECTION):
 				if (CurrCollectionPath == NULL)
 				  return HID_PARSE_UnexpectedEndCollection;
 		
 				CurrCollectionPath = CurrCollectionPath->Parent;
 
 				break;
-			case (TYPE_MAIN | MAIN_TAG_INPUT):
-			case (TYPE_MAIN | MAIN_TAG_OUTPUT):
+			case (TYPE_MAIN | TAG_MAIN_INPUT):
+			case (TYPE_MAIN | TAG_MAIN_OUTPUT):
 #if defined(HID_ENABLE_FEATURE_PROCESSING)
-			case (TYPE_MAIN | MAIN_TAG_FEATURE):
+			case (TYPE_MAIN | TAG_MAIN_FEATURE):
 #endif
 				for (uint8_t ReportItemNum = 0; ReportItemNum < CurrStateTable->ReportCount; ReportItemNum++)
 				{
@@ -180,14 +180,14 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 											
 					switch (*ReportData & TAG_MASK)
 					{
-						case MAIN_TAG_INPUT:
+						case TAG_MAIN_INPUT:
 							CurrReportItem->ItemType  = REPORT_ITEM_TYPE_In;
 							CurrReportItem->BitOffset = BitOffsetIn;
 								
 							BitOffsetIn += CurrStateTable->Attributes.BitSize;
 							
 							break;
-						case MAIN_TAG_OUTPUT:
+						case TAG_MAIN_OUTPUT:
 							CurrReportItem->ItemType  = REPORT_ITEM_TYPE_Out;
 							CurrReportItem->BitOffset = BitOffsetOut;
 								
@@ -195,7 +195,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 							
 							break;
 #if defined(HID_ENABLE_FEATURE_PROCESSING)
-						case MAIN_TAG_FEATURE:
+						case TAG_MAIN_FEATURE:
 							CurrReportItem->ItemType  = REPORT_ITEM_TYPE_Feature;						
 							CurrReportItem->BitOffset = BitOffsetFeature;
 								

@@ -302,14 +302,33 @@ TASK(USB_Keyboard_Host)
 						/* Retrieve the keyboard scancode from the report data retrieved from the device */
 						GetReportItemInfo((void*)&KeyboardReport, ReportItem);
 						
+						/* Key code is an unsigned char in length, cast to the appropriate type */
+						uint8_t KeyCode = (uint8_t)ReportItem->Value;
+
 						/* If scancode is non-zero, a key is being pressed */
-						if (ReportItem->Value)
+						if (KeyCode)
 						{
 							/* Toggle status LED to indicate keypress */
 							if (LEDs_GetLEDs() & LEDS_LED2)
 							  LEDs_TurnOffLEDs(LEDS_LED2);
 							else
 							  LEDs_TurnOnLEDs(LEDS_LED2);
+
+							char PressedKey = 0;
+
+							/* Convert scancode to printable character if alphanumeric */
+							if ((KeyCode >= 0x04) && (KeyCode <= 0x1D))
+							  PressedKey = (KeyCode - 0x04) + 'A';
+							else if ((KeyCode >= 0x1E) && (KeyCode <= 0x27))
+							  PressedKey = (KeyCode - 0x1E) + '0';
+							else if (KeyCode == 0x2C)
+							  PressedKey = ' ';						
+							else if (KeyCode == 0x28)
+							  PressedKey = '\n';
+								 
+							/* Print the pressed key character out through the serial port if valid */
+							if (PressedKey)
+							  printf_P(PSTR("%c"), PressedKey);
 						}
 						
 						/* Once a scancode is found, stop scanning through the report items */

@@ -306,8 +306,8 @@ static bool SCSI_Command_ReadWrite_6_10(const bool IsDataRead, const bool IsMode
 		((uint8_t*)&BlockAddress)[0] = CommandBlock.SCSICommandData[3];
 
 		/* Load in the 8-bit total blocks */
-		((uint8_t*)&BlockAddress)[0] = 0x00;	
-		((uint8_t*)&BlockAddress)[1] = CommandBlock.SCSICommandData[4];	
+		((uint8_t*)&TotalBlocks)[1] = 0x00;	
+		((uint8_t*)&TotalBlocks)[0] = CommandBlock.SCSICommandData[4];
 	}
 	
 	/* Check if the block address is outside the maximum allowable value */

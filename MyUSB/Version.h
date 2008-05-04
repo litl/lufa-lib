@@ -14,9 +14,9 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define MYUSB_VERSION_MAJOR    1
-			#define MYUSB_VERSION_MINOR    3
-			#define MYUSB_VERSION_REVISION 3
-			#define MYUSB_VERSION          1.4.0f
-			#define MYUSB_VERSION_STRING   "1.4.0"
+			#define MYUSB_VERSION_MINOR    4
+			#define MYUSB_VERSION_REVISION 1
+			#define MYUSB_VERSION          1.4.1f
+			#define MYUSB_VERSION_STRING   "1.4.1"
 
 #endif
