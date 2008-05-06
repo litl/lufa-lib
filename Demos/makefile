@@ -86,6 +86,7 @@ clean:
 	make -C AudioInput clean
 	make -C AudioOutput clean
 	make -C CDC clean
+	make -C CDCHost clean
 	make -C Joystick clean
 	make -C Keyboard clean
 	make -C KeyboardViaInt clean
@@ -109,6 +110,7 @@ clean_list:
 	make -C AudioInput clean_list
 	make -C AudioOutput clean_list
 	make -C CDC clean_list
+	make -C CDCHost clean_list
 	make -C Joystick clean_list
 	make -C Keyboard clean_list
 	make -C KeyboardInt clean_list
