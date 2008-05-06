@@ -135,7 +135,7 @@ void SCSI_DecodeSCSICommand(void)
 
 static bool SCSI_Command_Inquiry(void)
 {
-	uint16_t  AllocationLength = (((uint16_t)CommandBlock.SCSICommandData[3] << 8) |
+	uint16_t AllocationLength  = (((uint16_t)CommandBlock.SCSICommandData[3] << 8) |
 	                                         CommandBlock.SCSICommandData[4]);
 	uint16_t BytesTransferred  = (AllocationLength < sizeof(InquiryData))? AllocationLength :
 	                                                                       sizeof(InquiryData);

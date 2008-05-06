@@ -42,6 +42,7 @@
 			#define PIPE_MAX_SIZE                          256
 
 			#define PIPE_EPNUM_MASK                        0b111
+			#define PIPE_EPSIZE_MASK                       0x7FF
 
 			#define PIPE_INT_IN                            UPIENX, (1 << RXINE) , UPINTX, (1 << RXINI)
 			#define PIPE_INT_OUT                           UPIENX, (1 << TXOUTE), UPINTX, (1 << TXOUTI)
@@ -235,12 +236,14 @@
 		
 	/* Private Interface - For use in library only: */
 		/* Inline Functions: */
-			static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes)
+			static inline uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
 			                                             ATTR_WARN_UNUSED_RESULT ATTR_CONST;
-			static inline uint8_t Pipe_BytesToEPSizeMask(const uint16_t Bytes)
+			static inline uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
 			{
 				uint8_t SizeCheck = 8;
 				uint8_t SizeMask  = 0;
+				
+				Bytes &= PIPE_EPSIZE_MASK;
 
 				do
 				{

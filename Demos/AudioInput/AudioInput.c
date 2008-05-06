@@ -143,6 +143,8 @@ TASK(USB_Audio_Task)
 			OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
 			TCCR0A  = (1 << WGM01);  // CTC mode
 			TCCR0B  = (1 << CS00);   // Fcpu speed
+			
+			HasConfiguredTimer = true;
 		}
 		
 		/* Check to see if the CTC flag is set */

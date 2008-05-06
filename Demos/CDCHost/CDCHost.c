@@ -9,34 +9,29 @@
 */
 
 /*
-	Keyboard host demonstration application. This gives a simple reference
-	application for implementing a USB Keyboard host, for USB keyboards using
-	the standard Keyboard HID profile.
+	CDC host demonstration application. This gives a simple reference application
+	for implementing a USB CDC host, for CDC devices using the standard ACM profile.
 	
-	Pressed alpha-numeric, enter or space key is transmitted through the serial
-	USART at serial settings 9600, 8, N, 1.
-
-	This uses a naive method where the returned report structure is assumed.
-	A better implementation uses the HID report parser for correct report data
-	processing across all compatable keyboards, as shown in the
-	KeyboardHostWithParser demo application.
-
-	Currently only single interface keyboards are supported.
+	This demo prints out received CDC data through the serial port.
+	
+	Not that this demo is only compatible with devices which report the correct CDC
+	and ACM class, subclass and protocol values. Most USB-Serial cables have vendor
+	specific features, thus use vendor-specfic class/subclass/protocol codes to force
+	the user to use specialized drivers. This demo is not compaible with such devices.
 */
 
 /*
 	USB Mode:           Host
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Keyboard
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
+	USB Class:          Communications Device Class (CDC)
+	USB Subclass:       Abstract Control Model (ACM)
+	Relevant Standards: USBIF CDC Class Standard
+	Usable Speeds:      Full Speed Mode
 */
 
-#include "KeyboardHost.h"
+#include "CDCHost.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB KBD Host App");
+BUTTLOADTAG(ProjName,     "MyUSB CDC Host App");
 BUTTLOADTAG(BuildTime,    __TIME__);
 BUTTLOADTAG(BuildDate,    __DATE__);
 BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
@@ -45,12 +40,16 @@ BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
 TASK_LIST
 {
 	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
-	{ Task: USB_Keyboard_Host    , TaskStatus: TASK_STOP },
+	{ Task: USB_CDC_Host         , TaskStatus: TASK_STOP },
 };
 
 /* Globals */
-uint8_t  KeyboardDataEndpointNumber;
-uint16_t KeyboardDataEndpointSize;
+uint8_t  CDCDataEndpointInNumber;
+uint16_t CDCDataEndpointInSize;
+uint8_t  CDCDataEndpointOutNumber;
+uint16_t CDCDataEndpointOutSize;
+uint8_t  CDCDataEndpointNotificationNumber;
+uint16_t CDCDataEndpointNotificationSize;
 
 int main(void)
 {
@@ -76,7 +75,7 @@ int main(void)
 
 	/* Startup message */
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
-	       "Keyboard Host Demo running.\r\n" ESC_INVERSE_OFF));
+	       "CDC Host Demo running.\r\n" ESC_INVERSE_OFF));
 		   
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
@@ -89,14 +88,14 @@ EVENT_HANDLER(USB_DeviceAttached)
 
 	/* Start keyboard and USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
-	Scheduler_SetTaskMode(USB_Keyboard_Host, TASK_RUN);
+	Scheduler_SetTaskMode(USB_CDC_Host, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_DeviceUnattached)
 {
 	/* Stop keyboard and USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
-	Scheduler_SetTaskMode(USB_Keyboard_Host, TASK_STOP);
+	Scheduler_SetTaskMode(USB_CDC_Host, TASK_STOP);
 
 	puts_P(PSTR("\r\nDevice Unattached.\r\n"));
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
@@ -120,7 +119,7 @@ EVENT_HANDLER(USB_DeviceEnumerationFailed)
 	printf_P(PSTR(" -- In State %d\r\n"), USB_HostState);
 }
 
-TASK(USB_Keyboard_Host)
+TASK(USB_CDC_Host)
 {
 	uint8_t ErrorCode;
 
@@ -178,66 +177,66 @@ TASK(USB_Keyboard_Host)
 				break;
 			}
 
-			/* Configure the keyboard data pipe */
-			Pipe_ConfigurePipe(KEYBOARD_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
-			                   KeyboardDataEndpointNumber, KeyboardDataEndpointSize, PIPE_BANK_SINGLE);
+			/* Configure the data pipes */
+			Pipe_ConfigurePipe(CDC_DATAPIPE_IN, EP_TYPE_BULK, PIPE_TOKEN_IN,
+			                   CDCDataEndpointInNumber, CDCDataEndpointInSize, PIPE_BANK_SINGLE);
 
+			Pipe_ConfigurePipe(CDC_DATAPIPE_OUT, EP_TYPE_BULK, PIPE_TOKEN_OUT,
+			                   CDCDataEndpointOutNumber, CDCDataEndpointOutSize, PIPE_BANK_SINGLE);
+							   
+			Pipe_ConfigurePipe(CDC_NOTIFICATIONPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
+			                   CDCDataEndpointNotificationNumber, CDCDataEndpointNotificationSize, PIPE_BANK_SINGLE);							   
+
+			Pipe_SelectPipe(CDC_DATAPIPE_IN);
 			Pipe_SetInfiniteINRequests();
 		
-			puts_P(PSTR("Keyboard Enumerated.\r\n"));
+			Pipe_SelectPipe(CDC_NOTIFICATIONPIPE);
+			Pipe_SetInfiniteINRequests();
+
+			puts_P(PSTR("CDC Device Enumerated.\r\n"));
 				
 			USB_HostState = HOST_STATE_Ready;
 			break;
 		case HOST_STATE_Ready:
-			/* Select and unfreeze keyboard data pipe */
-			Pipe_SelectPipe(KEYBOARD_DATAPIPE);	
+			/* Select and unfreeze the data IN pipe */
+			Pipe_SelectPipe(CDC_DATAPIPE_IN);
 			Pipe_Unfreeze();
 
-			/* Check if data has been recieved from the attached keyboard */
+			/* Check if data is in the pipe */
 			if (Pipe_ReadWriteAllowed())
 			{
-				USB_KeyboardReport_Data_t KeyboardReport;
-					
-				/* Read in keyboard report data */
-				KeyboardReport.Modifier = Pipe_Read_Byte();
-				Pipe_Ignore_Byte();
-				KeyboardReport.KeyCode  = Pipe_Read_Byte();
+				/* Get the length of the pipe data, and create a new buffer to hold it */
+				uint16_t BufferLength = Pipe_BytesInPipe();
+				uint8_t Buffer[BufferLength];
 				
-				/* Indicate if the modifier byte is non-zero */
-				LEDs_ChangeLEDs(LEDS_LED1, (KeyboardReport.Modifier) ? LEDS_LED1 : 0);
+				/* Read in the pipe data to the tempoary buffer */
+				Pipe_Read_Stream_LE(Buffer, BufferLength);
 				
-				/* Check if a key has been pressed */
-				if (KeyboardReport.KeyCode)
-				{
-					/* Toggle status LED to indicate keypress */
-					if (LEDs_GetLEDs() & LEDS_LED2)
-					  LEDs_TurnOffLEDs(LEDS_LED2);
-					else
-					  LEDs_TurnOnLEDs(LEDS_LED2);
-						  
-					char PressedKey = 0;
-
-					/* Retrieve pressed key character if alphanumeric */
-					if ((KeyboardReport.KeyCode >= 0x04) && (KeyboardReport.KeyCode <= 0x1D))
-					  PressedKey = (KeyboardReport.KeyCode - 0x04) + 'A';
-					else if ((KeyboardReport.KeyCode >= 0x1E) && (KeyboardReport.KeyCode <= 0x27))
-					  PressedKey = (KeyboardReport.KeyCode - 0x1E) + '0';
-					else if (KeyboardReport.KeyCode == 0x2C)
-					  PressedKey = ' ';						
-					else if (KeyboardReport.KeyCode == 0x28)
-					  PressedKey = '\n';
-						 
-					/* Print the pressed key character out through the serial port if valid */
-					if (PressedKey)
-					  printf_P(PSTR("%c"), PressedKey);
-				}
-				
-				/* Clear the IN endpoint, ready for next data packet */
+				/* Clear the pipe after it is read, ready for the next packet */
 				Pipe_FIFOCON_Clear();
+				
+				/* Print out the buffer contents to the USART */
+				for (uint16_t BufferByte = 0; BufferByte < BufferLength; BufferByte++)
+				  printf_P(PSTR("%c"), Buffer[BufferByte]);
 			}
 
-			/* Freeze keyboard data pipe */
+			/* Freeze data IN pipe after use */
 			Pipe_Freeze();
+
+			/* Select and unfreeze the notification pipe */
+			Pipe_SelectPipe(CDC_NOTIFICATIONPIPE);
+			Pipe_Unfreeze();
+			
+			/* Check if data is in the pipe */
+			if (Pipe_ReadWriteAllowed())
+			{
+				/* Discard the event notification */
+				Pipe_FIFOCON_Clear();
+			}
+			
+			/* Freeze data IN pipe after use */
+			Pipe_Freeze();
+						
 			break;
 	}
 }
@@ -266,38 +265,67 @@ uint8_t GetConfigDescriptorData(void)
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
 	  return ControlError;
 	
-	/* Get the keyboard interface from the configuration descriptor */
-	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextKeyboardInterface)))
+	/* Get the CDC interface from the configuration descriptor */
+	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextCDCInterface)))
 	{
 		/* Descriptor not found, error out */
-		return NoHIDInterfaceFound;
+		return NoCDCInterfaceFound;
 	}
 
-	/* Get the keyboard interface's data endpoint descriptor */
-	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
-	                                                NextInterfaceKeyboardDataEndpoint)))
+	/* Get the IN and OUT data endpoints for the CDC interface */
+	while (!(CDCDataEndpointInNumber && CDCDataEndpointOutNumber && CDCDataEndpointNotificationNumber))
 	{
-		/* Descriptor not found, error out */
-		return NoEndpointFound;
+		/* Fetch the next bulk endpoint from the current mass storage interface */
+		if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+		                                                NextInterfaceCDCDataEndpoint)))
+		{
+			/* Descriptor not found, error out */
+			return NoEndpointFound;
+		}
+		
+		uint8_t  EPAddress = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
+		uint16_t EPSize    = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
+
+		/* Check if the found endpoint is a interrupt or bulk type descriptor */
+		if (DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_INTERRUPT)
+		{
+			/* If the endpoint is a IN type interrupt endpoint, set appropriate globals */
+			if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+			{
+				CDCDataEndpointNotificationNumber = EPAddress;
+				CDCDataEndpointNotificationSize   = EPSize;
+			}
+		}
+		else
+		{
+			/* Check if the endpoint is a bulk IN or bulk OUT endpoint, set appropriate globals */
+			if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+			{
+				CDCDataEndpointInNumber  = EPAddress;
+				CDCDataEndpointInSize    = EPSize;
+			}
+			else
+			{
+				CDCDataEndpointOutNumber = EPAddress;
+				CDCDataEndpointOutSize   = EPSize;
+			}
+		}
 	}
-	
-	/* Retrieve the endpoint address from the endpoint descriptor */
-	KeyboardDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
-	KeyboardDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
-			
+
 	/* Valid data found, return success */
 	return SuccessfulConfigRead;
 }
 
-DESCRIPTOR_COMPARATOR(NextKeyboardInterface)
+DESCRIPTOR_COMPARATOR(NextCDCInterface)
 {
 	/* Descriptor Search Comparitor Function - find next keyboard class interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
 		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
-		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Class    == KEYBOARD_CLASS) &&
-		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Protocol == KEYBOARD_PROTOCOL))
+		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Class    == CDC_CLASS)    &&
+		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).SubClass == CDC_SUBCLASS) &&
+		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Protocol == CDC_PROTOCOL))
 		{
 			return Descriptor_Search_Found;
 		}
@@ -306,14 +334,18 @@ DESCRIPTOR_COMPARATOR(NextKeyboardInterface)
 	return Descriptor_Search_NotFound;
 }
 
-DESCRIPTOR_COMPARATOR(NextInterfaceKeyboardDataEndpoint)
+DESCRIPTOR_COMPARATOR(NextInterfaceCDCDataEndpoint)
 {
-	/* Descriptor Search Comparitor Function - find next interface endpoint descriptor before next interface descriptor */
+	/* Descriptor Search Comparitor Function - find next interface bulk or interrupt endpoint descriptor before
+	                                           next interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{
-		if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-		  return Descriptor_Search_Found;
+		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_BULK) ||
+		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_INTERRUPT))
+		{
+			return Descriptor_Search_Found;
+		}
 	}
 	else if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{

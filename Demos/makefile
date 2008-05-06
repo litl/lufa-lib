@@ -25,6 +25,9 @@ all:
 	make -C CDC clean
 	make -C CDC all
 
+	make -C CDCHost clean
+	make -C CDCHost all
+
 	make -C Joystick clean
 	make -C Joystick all
 

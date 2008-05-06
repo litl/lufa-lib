@@ -31,6 +31,8 @@
 		#define MIDI_COMMAND_NOTE_OFF        0x80
 
 		#define MIDI_STANDARD_VELOCITY       64
+		
+		#define MIDI_CHANNEL(channel)        (channel - 1)
 
 	/* Task Definitions: */
 		TASK(USB_MIDI_Task);

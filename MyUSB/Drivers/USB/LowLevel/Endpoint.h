@@ -30,6 +30,7 @@
 			#define ENDPOINT_CONTROLEP_DEFAULT_SIZE            8
 			
 			#define ENDPOINT_EPNUM_MASK                        0b111
+			#define ENDPOINT_EPSIZE_MASK                       0x7FF
 			
 			#if defined(USB_FULL_CONTROLLER)
 				#define ENDPOINT_MAXENDPOINTS                  7
@@ -235,12 +236,14 @@
 			#define Endpoint_IsSetupRecieved()             ((UEINTX & (1 << RXSTPI)) ? true : false)
 	
 		/* Inline Functions: */
-			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)
+			static inline uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes)
 			                                                 ATTR_WARN_UNUSED_RESULT ATTR_CONST;
-			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)
+			static inline uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes)
 			{
 				uint8_t SizeCheck = 8;
 				uint8_t SizeMask  = 0;
+
+				Bytes &= ENDPOINT_EPSIZE_MASK;
 
 				do
 				{

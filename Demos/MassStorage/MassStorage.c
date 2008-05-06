@@ -68,7 +68,7 @@ int main(void)
 	LEDs_Init();
 	Dataflash_Init(SPI_SPEED_FCPU_DIV_2);
 
-	/* Clear Dataflash Section Protectioms, if enabled */
+	/* Clear Dataflash Section Protections, if enabled */
 	VirtualMemory_ResetDataflashProtections();
 	
 	/* Indicate USB not ready */

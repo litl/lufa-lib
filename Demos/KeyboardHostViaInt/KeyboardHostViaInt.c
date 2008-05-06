@@ -17,7 +17,7 @@
 	Pressed alpha-numeric, enter or space key is transmitted through the serial
 	USART at serial settings 9600, 8, N, 1.
 
-	This uses a naiive method where the returned report structure is assumed.
+	This uses a naive method where the returned report structure is assumed.
 	A better implementation uses the HID report parser for correct report data
 	processing across all compatable keyboards, as shown in the
 	KeyboardHostWithParser demo application.
