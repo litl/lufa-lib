@@ -164,7 +164,7 @@
 		/* Function Prototypes: */
 			void USB_SetupInterface(void);
 			
-			#ifdef INCLUDE_FROM_LOWLEVEL_C
+			#if defined(INCLUDE_FROM_LOWLEVEL_C)
 				static void USB_ResetInterface(void);
 			#endif
 			

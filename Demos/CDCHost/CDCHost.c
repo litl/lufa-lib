@@ -189,6 +189,7 @@ TASK(USB_CDC_Host)
 
 			Pipe_SelectPipe(CDC_DATAPIPE_IN);
 			Pipe_SetInfiniteINRequests();
+			Pipe_Unfreeze();
 		
 			Pipe_SelectPipe(CDC_NOTIFICATIONPIPE);
 			Pipe_SetInfiniteINRequests();
@@ -198,9 +199,8 @@ TASK(USB_CDC_Host)
 			USB_HostState = HOST_STATE_Ready;
 			break;
 		case HOST_STATE_Ready:
-			/* Select and unfreeze the data IN pipe */
+			/* Select and the data IN pipe */
 			Pipe_SelectPipe(CDC_DATAPIPE_IN);
-			Pipe_Unfreeze();
 
 			/* Check if data is in the pipe */
 			if (Pipe_ReadWriteAllowed())
@@ -220,9 +220,6 @@ TASK(USB_CDC_Host)
 				  printf_P(PSTR("%c"), Buffer[BufferByte]);
 			}
 
-			/* Freeze data IN pipe after use */
-			Pipe_Freeze();
-
 			/* Select and unfreeze the notification pipe */
 			Pipe_SelectPipe(CDC_NOTIFICATIONPIPE);
 			Pipe_Unfreeze();
@@ -234,7 +231,7 @@ TASK(USB_CDC_Host)
 				Pipe_FIFOCON_Clear();
 			}
 			
-			/* Freeze data IN pipe after use */
+			/* Freeze notification IN pipe after use */
 			Pipe_Freeze();
 						
 			break;

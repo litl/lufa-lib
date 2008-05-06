@@ -35,6 +35,10 @@
 	Usable Speeds:      Full Speed Mode
 */
 
+/* ---  Project Configuration  --- */
+//#define MICROPHONE_BIASED_TO_HALF_RAIL
+/* --- --- --- --- --- --- --- --- */
+
 #include "AudioInput.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -102,7 +106,7 @@ EVENT_HANDLER(USB_CreateEndpoints)
 {
 	/* Setup audio stream endpoint */
 	Endpoint_ConfigureEndpoint(AUDIO_STREAM_EPNUM, EP_TYPE_ISOCHRONOUS,
-		                       ENDPOINT_DIR_OUT, AUDIO_STREAM_EPSIZE,
+		                       ENDPOINT_DIR_IN, AUDIO_STREAM_EPSIZE,
 	                           ENDPOINT_BANK_DOUBLE);
 
 	/* Indicate USB connected and ready */
@@ -157,7 +161,12 @@ TASK(USB_Audio_Task)
 			if (Endpoint_ReadWriteAllowed())
 			{
 				/* Audio sample is ADC value scaled to fit the entire range, then offset to half rail */
-				int16_t AudioSample = (((SAMPLE_MAX_RANGE / ADC_MAX_RANGE) * ADC_GetResult()) - (SAMPLE_MAX_RANGE / 2));
+				int16_t AudioSample = ((SAMPLE_MAX_RANGE / ADC_MAX_RANGE) * ADC_GetResult());
+				
+				#if defined(MICROPHONE_BIASED_TO_HALF_RAIL)
+				/* Microphone is biased to hald rail voltage, subtract the bias from the sample value */
+				AudioSample -= (SAMPLE_MAX_RANGE / 2));
+				#endif
 				
 				/* Write the sample to the buffer */
 				Endpoint_Write_Word_LE(AudioSample);
