@@ -18,6 +18,11 @@
 		#include "../../../Common/Common.h"
 		#include "../HighLevel/USBTask.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define ENDPOINT_DIR_OUT                           0
@@ -261,4 +266,9 @@
 			void Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum, const uint8_t UECFG0Xdata,
 			                                  const uint8_t UECFG1Xdata);
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

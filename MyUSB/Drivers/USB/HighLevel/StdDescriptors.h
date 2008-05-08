@@ -23,6 +23,11 @@
 			#include "../LowLevel/Device.h"
 		#endif
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define NO_DESCRIPTOR_STRING              0
@@ -171,4 +176,10 @@
 			bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
 			                       void** const DescriptorAddr, uint16_t* const Size)
 								   ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);
+
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

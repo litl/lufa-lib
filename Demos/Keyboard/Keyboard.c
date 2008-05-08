@@ -98,19 +98,19 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
-	/* Setup Keyboard Report Endpoints */
+	/* Setup Keyboard Keycode Report Endpoint */
 	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
-	/* Setup Keyboard Report Endpoints */
+	/* Setup Keyboard LED Report Endpoint */
 	Endpoint_ConfigureEndpoint(KEYBOARD_LEDS_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_OUT, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
-
+	
 	/* Start Keyboard reporting task */
 	Scheduler_SetTaskMode(USB_Keyboard_Report, TASK_RUN);
 }

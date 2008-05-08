@@ -19,6 +19,11 @@
 		#include "../../../Common/Common.h"
 		#include "../HighLevel/USBInterrupt.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define USB_HOST_DEVICEADDRESS             1
@@ -92,5 +97,11 @@
 			uint8_t USB_Host_WaitMS(uint8_t MS);
 			void    USB_Host_ResetDevice(void);
 			void    USB_Host_PrepareForDeviceConnect(void);
+
+
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
 
 #endif

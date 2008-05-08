@@ -47,7 +47,7 @@ uint8_t       DFU_Status    = OK;
 DFU_Command_t SentCommand;
 uint8_t       ResponseByte;
 
-AppPtr_t      AppStartPtr   = 0x0000;
+AppPtr_t      AppStartPtr   = (AppPtr_t)0x0000;
 
 uint8_t       Flash64KBPage = 0;
 uint16_t      StartAddr     = 0x0000;

@@ -18,6 +18,11 @@
 		#include "../LowLevel/HostChapter9.h"
 		#include "../HighLevel/StdDescriptors.h"
 		
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define DESCRIPTOR_PCAST(DescriptorPtr, Type) ((Type*)DescriptorPtr)
@@ -125,5 +130,10 @@
 		/* Function Prototypes: */
 			uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
                                                      uint8_t (*SearchRoutine)(void*));
-
+			
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

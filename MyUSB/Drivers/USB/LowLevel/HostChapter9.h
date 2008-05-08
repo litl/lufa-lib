@@ -18,6 +18,11 @@
 		#include "LowLevel.h"
 		#include "StdRequestType.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Type Defines: */
 			typedef struct
@@ -59,4 +64,9 @@
 				static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType);
 			#endif
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

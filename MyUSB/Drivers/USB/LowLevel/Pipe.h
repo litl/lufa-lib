@@ -18,6 +18,11 @@
 		#include "../../../Common/Common.h"
 		#include "../HighLevel/USBTask.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define PIPE_ERRORFLAG_CRC16                   (1 << 4)
@@ -261,4 +266,9 @@
 			void Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata,
 			                          const uint8_t UPCFG1Xdata);
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

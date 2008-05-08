@@ -16,6 +16,11 @@
 
 		#include "../../../Common/Common.h"
 		
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Preprocessor Checks: */
 		#if !defined(INCLUDE_FROM_ADC_H)
 			#error Do not include this file directly. Include MyUSB/Drivers/AT90USBXXX/ADC.h instead.
@@ -72,4 +77,9 @@
 				return ADC_GetResult();
 			}
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

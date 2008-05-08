@@ -34,6 +34,11 @@
 			#include "DevChapter9.h"
 		#endif
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Preprocessor Checks and Defines: */
 		#if (F_CPU == 8000000)
 			#if (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
@@ -167,5 +172,10 @@
 			#if defined(INCLUDE_FROM_LOWLEVEL_C)
 				static void USB_ResetInterface(void);
 			#endif
+
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
 			
 #endif

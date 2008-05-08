@@ -9,48 +9,35 @@
 */
 
 /*
-	CDC host demonstration application. This gives a simple reference application
-	for implementing a USB CDC host, for CDC devices using the standard ACM profile.
+	Still Image host demonstration application. This gives a simple reference
+	application for implementing a Still Image host, for USB devices such as
+	digital cameras.
 	
-	This demo prints out received CDC data through the serial port.
-	
-	Not that this demo is only compatible with devices which report the correct CDC
-	and ACM class, subclass and protocol values. Most USB-Serial cables have vendor
-	specific features, thus use vendor-specfic class/subclass/protocol codes to force
-	the user to use specialized drivers. This demo is not compaible with such devices.
+	*** WORK IN PROGRESS - NOT CURRENTLY FUNCTIONING ***
 */
 
-/*
-	USB Mode:           Host
-	USB Class:          Communications Device Class (CDC)
-	USB Subclass:       Abstract Control Model (ACM)
-	Relevant Standards: USBIF CDC Class Standard
-	Usable Speeds:      Full Speed Mode
-*/
-
-#include "CDCHost.h"
+#include "StillImageHost.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB CDC Host App");
-BUTTLOADTAG(BuildTime,    __TIME__);
-BUTTLOADTAG(BuildDate,    __DATE__);
-BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
+BUTTLOADTAG(ProjName,  "MyUSB SIMG Host App");
+BUTTLOADTAG(BuildTime, __TIME__);
+BUTTLOADTAG(BuildDate, __DATE__);
 
 /* Scheduler Task List */
 TASK_LIST
 {
 	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
-	{ Task: USB_CDC_Host         , TaskStatus: TASK_STOP },
+	{ Task: USB_SImage_Host      , TaskStatus: TASK_STOP },
 };
 
 /* Globals */
-uint8_t  CDCDataEndpointInNumber;
-uint16_t CDCDataEndpointInSize;
-uint8_t  CDCDataEndpointOutNumber;
-uint16_t CDCDataEndpointOutSize;
-uint8_t  CDCDataEndpointNotificationNumber;
-uint16_t CDCDataEndpointNotificationSize;
-uint8_t  CDCDataEndpointNotificationFrequency;
+uint8_t  SImageEndpointNumber_IN;
+uint8_t  SImageEndpointNumber_OUT;
+uint8_t  SImageEndpointNumber_EVENTS;
+uint16_t SImageEndpointSize_IN;
+uint16_t SImageEndpointSize_OUT;
+uint16_t SImageEndpointSize_EVENTS;
+uint8_t  SImageEndpointIntFreq_EVENTS;
 
 int main(void)
 {
@@ -59,7 +46,8 @@ int main(void)
 	wdt_disable();
 
 	/* Disable Clock Division */
-	SetSystemClockPrescaler(0);
+	CLKPR = (1 << CLKPCE);
+	CLKPR = 0;
 
 	/* Hardware Initialization */
 	SerialStream_Init(9600);
@@ -76,7 +64,7 @@ int main(void)
 
 	/* Startup message */
 	puts_P(PSTR(ESC_RESET ESC_BG_WHITE ESC_INVERSE_ON ESC_ERASE_DISPLAY
-	       "CDC Host Demo running.\r\n" ESC_INVERSE_OFF));
+	       "Still Image Host Demo running.\r\n" ESC_INVERSE_OFF));
 		   
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
@@ -86,17 +74,17 @@ EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR("Device Attached.\r\n"));
 	LEDs_SetAllLEDs(LEDS_NO_LEDS);
-
-	/* Start keyboard and USB management task */
+	
+	/* Start USB management and Still Image tasks */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
-	Scheduler_SetTaskMode(USB_CDC_Host, TASK_RUN);
+	Scheduler_SetTaskMode(USB_SImage_Host, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_DeviceUnattached)
 {
-	/* Stop keyboard and USB management task */
+	/* Stop USB management and Still Image tasks */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
-	Scheduler_SetTaskMode(USB_CDC_Host, TASK_STOP);
+	Scheduler_SetTaskMode(USB_SImage_Host, TASK_STOP);
 
 	puts_P(PSTR("\r\nDevice Unattached.\r\n"));
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
@@ -120,7 +108,7 @@ EVENT_HANDLER(USB_DeviceEnumerationFailed)
 	printf_P(PSTR(" -- In State %d\r\n"), USB_HostState);
 }
 
-TASK(USB_CDC_Host)
+TASK(USB_SImage_Host)
 {
 	uint8_t ErrorCode;
 
@@ -142,10 +130,9 @@ TASK(USB_CDC_Host)
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
-			if ((ErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
+			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
 			{
-				puts_P(PSTR("Control Error (Set Configuration).\r\n"));
-				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
+				puts_P(PSTR("Control error.\r\n"));
 
 				/* Indicate error via status LEDs */
 				LEDs_SetAllLEDs(LEDS_LED1);
@@ -178,64 +165,57 @@ TASK(USB_CDC_Host)
 				break;
 			}
 
-			/* Configure the data pipes */
-			Pipe_ConfigurePipe(CDC_DATAPIPE_IN, EP_TYPE_BULK, PIPE_TOKEN_IN,
-			                   CDCDataEndpointInNumber, CDCDataEndpointInSize, PIPE_BANK_SINGLE);
-
-			Pipe_ConfigurePipe(CDC_DATAPIPE_OUT, EP_TYPE_BULK, PIPE_TOKEN_OUT,
-			                   CDCDataEndpointOutNumber, CDCDataEndpointOutSize, PIPE_BANK_SINGLE);
-							   
-			Pipe_ConfigurePipe(CDC_NOTIFICATIONPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
-			                   CDCDataEndpointNotificationNumber, CDCDataEndpointNotificationSize, PIPE_BANK_SINGLE);							   
-
-			Pipe_SelectPipe(CDC_DATAPIPE_IN);
-			Pipe_SetInfiniteINRequests();
-			Pipe_Unfreeze();
+			Pipe_ConfigurePipe(SIMAGE_DATA_IN_PIPE, EP_TYPE_BULK, PIPE_TOKEN_IN,
+			                   SImageEndpointNumber_IN, SImageEndpointSize_IN,
+			                   PIPE_BANK_DOUBLE);			
 		
-			Pipe_SelectPipe(CDC_NOTIFICATIONPIPE);
-			Pipe_SetInfiniteINRequests();
-			Pipe_SetInterruptFreq(CDCDataEndpointNotificationFrequency);
+			Pipe_ConfigurePipe(SIMAGE_DATA_OUT_PIPE, EP_TYPE_BULK, PIPE_TOKEN_OUT,
+			                   SImageEndpointNumber_OUT, SImageEndpointSize_OUT,
+			                   PIPE_BANK_DOUBLE);			
 
-			puts_P(PSTR("CDC Device Enumerated.\r\n"));
+			Pipe_ConfigurePipe(SIMAGE_EVENTS_PIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
+			                   SImageEndpointNumber_EVENTS, SImageEndpointSize_EVENTS,
+			                   PIPE_BANK_DOUBLE);			
+
+			Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
+			Pipe_SetInfiniteINRequests();
+			Pipe_Freeze();
+			
+			Pipe_SelectPipe(SIMAGE_DATA_OUT_PIPE);
+			Pipe_Freeze();
+			
+			Pipe_SelectPipe(SIMAGE_EVENTS_PIPE);
+			Pipe_SetInfiniteINRequests();
+			Pipe_SetInterruptFreq(SImageEndpointIntFreq_EVENTS);
+
+			puts_P(PSTR("Still Image Device Enumerated.\r\n"));
 				
 			USB_HostState = HOST_STATE_Ready;
 			break;
 		case HOST_STATE_Ready:
-			/* Select and the data IN pipe */
-			Pipe_SelectPipe(CDC_DATAPIPE_IN);
+			/* Indicate device busy via the status LEDs */
+			LEDs_SetAllLEDs(LEDS_LED3 | LEDS_LED4);
 
-			/* Check if data is in the pipe */
-			if (Pipe_ReadWriteAllowed())
+			uint8_t ReturnCode;
+			
+			if ((ReturnCode = SImage_GetInfo()) != NoError)
 			{
-				/* Get the length of the pipe data, and create a new buffer to hold it */
-				uint16_t BufferLength = Pipe_BytesInPipe();
-				uint8_t Buffer[BufferLength];
+				printf_P(PSTR("Device failed command %d: %d.\r\n"), PIMA_Command.Code, ReturnCode);
+			
+				/* Indicate error via status LEDs */
+				LEDs_SetAllLEDs(LEDS_LED1);
 				
-				/* Read in the pipe data to the tempoary buffer */
-				Pipe_Read_Stream_LE(Buffer, BufferLength);
-				
-				/* Clear the pipe after it is read, ready for the next packet */
-				Pipe_FIFOCON_Clear();
-				
-				/* Print out the buffer contents to the USART */
-				for (uint16_t BufferByte = 0; BufferByte < BufferLength; BufferByte++)
-				  printf_P(PSTR("%c"), Buffer[BufferByte]);
+				/* Wait until USB device disconnected */
+				while (USB_IsConnected);
+				break;				
 			}
 
-			/* Select and unfreeze the notification pipe */
-			Pipe_SelectPipe(CDC_NOTIFICATIONPIPE);
-			Pipe_Unfreeze();
+			/* Indicate device no longer busy */
+			LEDs_SetAllLEDs(LEDS_LED4);
 			
-			/* Check if data is in the pipe */
-			if (Pipe_ReadWriteAllowed())
-			{
-				/* Discard the event notification */
-				Pipe_FIFOCON_Clear();
-			}
+			/* Wait until USB device disconnected */
+			while (USB_IsConnected);
 			
-			/* Freeze notification IN pipe after use */
-			Pipe_Freeze();
-						
 			break;
 	}
 }
@@ -264,19 +244,20 @@ uint8_t GetConfigDescriptorData(void)
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
 	  return ControlError;
 	
-	/* Get the CDC interface from the configuration descriptor */
-	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextCDCInterface)))
+	/* Get the Still Image interface from the configuration descriptor */
+	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+	                                                NextStillImageInterface)))
 	{
 		/* Descriptor not found, error out */
-		return NoCDCInterfaceFound;
+		return NoInterfaceFound;
 	}
 
-	/* Get the IN and OUT data endpoints for the CDC interface */
-	while (!(CDCDataEndpointInNumber && CDCDataEndpointOutNumber && CDCDataEndpointNotificationNumber))
+	/* Get the IN and OUT data and event endpoints for the Still Image interface */
+	while (!(SImageEndpointNumber_IN && SImageEndpointNumber_OUT && SImageEndpointNumber_EVENTS))
 	{
-		/* Fetch the next bulk endpoint from the current mass storage interface */
+		/* Fetch the next endpoint from the current Still Image interface */
 		if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
-		                                                NextInterfaceCDCDataEndpoint)))
+		                                                NextSImageInterfaceDataEndpoint)))
 		{
 			/* Descriptor not found, error out */
 			return NoEndpointFound;
@@ -290,9 +271,9 @@ uint8_t GetConfigDescriptorData(void)
 			/* If the endpoint is a IN type interrupt endpoint, set appropriate globals */
 			if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 			{
-				CDCDataEndpointNotificationNumber    = EndpointData->EndpointAddress;
-				CDCDataEndpointNotificationSize      = EndpointData->EndpointSize;
-				CDCDataEndpointNotificationFrequency = EndpointData->PollingIntervalMS;
+				SImageEndpointNumber_EVENTS  = EndpointData->EndpointAddress;
+				SImageEndpointSize_EVENTS    = EndpointData->EndpointSize;
+				SImageEndpointIntFreq_EVENTS = EndpointData->PollingIntervalMS;
 			}
 		}
 		else
@@ -300,13 +281,13 @@ uint8_t GetConfigDescriptorData(void)
 			/* Check if the endpoint is a bulk IN or bulk OUT endpoint, set appropriate globals */
 			if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 			{
-				CDCDataEndpointInNumber  = EndpointData->EndpointAddress;
-				CDCDataEndpointInSize    = EndpointData->EndpointSize;
+				SImageEndpointNumber_IN  = EndpointData->EndpointAddress;
+				SImageEndpointSize_IN    = EndpointData->EndpointSize;
 			}
 			else
 			{
-				CDCDataEndpointOutNumber = EndpointData->EndpointAddress;
-				CDCDataEndpointOutSize   = EndpointData->EndpointSize;
+				SImageEndpointNumber_OUT = EndpointData->EndpointAddress;
+				SImageEndpointSize_OUT   = EndpointData->EndpointSize;
 			}
 		}
 	}
@@ -315,16 +296,16 @@ uint8_t GetConfigDescriptorData(void)
 	return SuccessfulConfigRead;
 }
 
-DESCRIPTOR_COMPARATOR(NextCDCInterface)
+DESCRIPTOR_COMPARATOR(NextStillImageInterface)
 {
-	/* Descriptor Search Comparitor Function - find next keyboard class interface descriptor */
+	/* Descriptor Search Comparitor Function - find next Still Image class interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
-		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
-		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Class    == CDC_CLASS)    &&
-		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).SubClass == CDC_SUBCLASS) &&
-		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Protocol == CDC_PROTOCOL))
+		/* Check the descriptor class and protocol, break out if correct class/protocol interface found */
+		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Class    == SIMAGE_CLASS)    &&
+		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).SubClass == SIMAGE_SUBCLASS) &&
+		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Protocol == SIMAGE_PROTOCOL))
 		{
 			return Descriptor_Search_Found;
 		}
@@ -333,9 +314,9 @@ DESCRIPTOR_COMPARATOR(NextCDCInterface)
 	return Descriptor_Search_NotFound;
 }
 
-DESCRIPTOR_COMPARATOR(NextInterfaceCDCDataEndpoint)
+DESCRIPTOR_COMPARATOR(NextSImageInterfaceDataEndpoint)
 {
-	/* Descriptor Search Comparitor Function - find next interface bulk or interrupt endpoint descriptor before
+	/* Descriptor Search Comparitor Function - find next interface BULK or INTERRUPT endpoint descriptor before
 	                                           next interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)

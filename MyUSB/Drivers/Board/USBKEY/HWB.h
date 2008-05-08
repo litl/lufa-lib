@@ -17,6 +17,11 @@
 
 		#include "../../../Common/Common.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Preprocessor Checks: */
 		#if !defined(INCLUDE_FROM_HWB_H)
 			#error Do not include this file directly. Include MyUSB/Drivers/Board/HWB.h instead.
@@ -35,5 +40,10 @@
 			{
 				return (!(PINE & (1 << 2)));
 			}
+
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
 			
 #endif

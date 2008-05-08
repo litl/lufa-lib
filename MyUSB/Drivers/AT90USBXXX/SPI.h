@@ -14,6 +14,11 @@
 	/* Includes: */
 		#include <stdbool.h>
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Private Interface - For use in library only: */
 		/* Macros: */
 			#define SPI_USE_DOUBLESPEED            (1 << 7)
@@ -48,4 +53,9 @@
 				return SPDR;
 			}
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

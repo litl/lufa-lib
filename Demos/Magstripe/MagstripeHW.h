@@ -36,13 +36,13 @@
 	wires must be connected to the same port.
 */
 
-#ifndef __MAGSTRIPE_H__
-#define __MAGSTRIPE_H__
+#ifndef _MAGSTRIPEHW_H_
+#define _MAGSTRIPEHW_H_
 
 	/* Includes: */
 		#include <avr/io.h>
 
-		#include "../../Common/Common.h"
+		#include <MyUSB/Common/Common.h>
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */

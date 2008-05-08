@@ -20,6 +20,11 @@
 		#include <avr/interrupt.h>
 		#include <avr/version.h>
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define ATOMIC_BLOCK(exitmode)     for ( exitmode, __ToDo = __iCliRetVal(); __ToDo ; __ToDo = 0 )
@@ -39,5 +44,10 @@
 		static __inline__ void    __iSeiParam(const uint8_t* __s)  { sei(); __asm__ volatile ("" ::: "memory"); (void)__s; }
 		static __inline__ void    __iCliParam(const uint8_t* __s)  { cli(); __asm__ volatile ("" ::: "memory"); (void)__s; }
 		static __inline__ void    __iRestore(const  uint8_t* __s)  { SREG = *__s; __asm__ volatile ("" ::: "memory"); }
+
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
 		
 #endif

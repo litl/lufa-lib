@@ -61,13 +61,13 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				CurrStateTable--;
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_USAGEPAGE):
-				CurrStateTable->Attributes.Usage.Page = ReportItemData;
+				CurrStateTable->Attributes.Usage.Page       = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_LOGICALMIN):
-				CurrStateTable->Attributes.Logical.Minimum = ReportItemData;
+				CurrStateTable->Attributes.Logical.Minimum  = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_LOGICALMAX):
-				CurrStateTable->Attributes.Logical.Maximum = ReportItemData;
+				CurrStateTable->Attributes.Logical.Maximum  = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_PHYSMIN):
 				CurrStateTable->Attributes.Physical.Minimum = ReportItemData;
@@ -76,28 +76,28 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				CurrStateTable->Attributes.Physical.Maximum = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_UNITEXP):
-				CurrStateTable->Attributes.Unit.Exponent = ReportItemData;
+				CurrStateTable->Attributes.Unit.Exponent    = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_UNIT):
-				CurrStateTable->Attributes.Unit.Type = ReportItemData;
+				CurrStateTable->Attributes.Unit.Type        = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_REPORTSIZE):
-				CurrStateTable->Attributes.BitSize = ReportItemData;
+				CurrStateTable->Attributes.BitSize          = ReportItemData;
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_REPORTCOUNT):
-				CurrStateTable->ReportCount = ReportItemData;
+				CurrStateTable->ReportCount                 = ReportItemData;
 				break;
 			case (TYPE_LOCAL | TAG_LOCAL_USAGE):
-				if (UsageStackSize == (HID_USAGE_STACK_DEPTH - 1))
+				if (UsageStackSize == HID_USAGE_STACK_DEPTH)
 				  return HID_PARSE_UsageStackOverflow;
 			
 				UsageStack[UsageStackSize++] = ReportItemData;
 				break;
 			case (TYPE_LOCAL | TAG_LOCAL_USAGEMIN):
-				CurrStateTable->Attributes.Usage.Minimum = ReportItemData;
+				CurrStateTable->Attributes.Usage.Minimum    = ReportItemData;
 				break;
 			case (TYPE_LOCAL | TAG_LOCAL_USAGEMAX):
-				CurrStateTable->Attributes.Usage.Maximum = ReportItemData;
+				CurrStateTable->Attributes.Usage.Maximum    = ReportItemData;
 				break;
 			case (TYPE_MAIN | TAG_MAIN_COLLECTION):
 				if (CurrCollectionPath == NULL)

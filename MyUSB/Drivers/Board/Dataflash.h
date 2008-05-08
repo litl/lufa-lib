@@ -34,6 +34,11 @@
 		#include "Board/Dataflash.h"
 	#endif
 	
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define Dataflash_GetSelectedChip()          (DATAFLASH_CHIPCS_PORT & DATAFLASH_CHIPCS_MASK)
@@ -105,4 +110,9 @@
 				Dataflash_SendByte(BufferByte);
 			}
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+	
 #endif

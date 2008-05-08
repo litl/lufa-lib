@@ -17,6 +17,11 @@
 
 		#include "../Common/Common.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define TASK(name)                        void name (void)
@@ -55,13 +60,17 @@
 			static inline void Scheduler_GoSchedule(const uint8_t TotalTasks)
 			{
 				Scheduler_InitScheduler(TotalTasks);
-			
+
 				for (;;)
 				{
-					for (uint8_t CurrTask = 0; CurrTask < TotalTasks; CurrTask++)
+					TaskEntry_t* CurrTask = &Scheduler_TaskList[0];
+					
+					while (CurrTask != &Scheduler_TaskList[TotalTasks])
 					{
-						if (Scheduler_TaskList[CurrTask].TaskStatus == TASK_RUN)
-						  Scheduler_TaskList[CurrTask].Task();
+						if (CurrTask->TaskStatus == TASK_RUN)
+						  CurrTask->Task();
+
+						CurrTask++;
 					}
 				}
 			}
@@ -87,5 +96,10 @@
 		/* Macros: */
 			#define TOTAL_TASKS                       (sizeof(Scheduler_TaskList) / sizeof(TaskEntry_t))
 			#define MAX_DELAYCTR_COUNT                0xFFFF
+		
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
 		
 #endif

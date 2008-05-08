@@ -125,8 +125,8 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			TotalEndpoints:         2,
 				
 			Class:                  0x0A,
-			SubClass:               0,
-			Protocol:               0,
+			SubClass:               0x00,
+			Protocol:               0x00,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},

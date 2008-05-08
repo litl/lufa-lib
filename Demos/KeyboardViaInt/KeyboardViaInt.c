@@ -97,7 +97,7 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_CreateEndpoints)
 {
-	/* Setup Keyboard Report Endpoints */
+	/* Setup Keyboard Keycode Report Endpoint */
 	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
@@ -105,7 +105,7 @@ EVENT_HANDLER(USB_CreateEndpoints)
 	/* Enable the endpoint IN interrupt ISR for the report endpoint */
 	USB_INT_Enable(ENDPOINT_INT_IN);
 
-	/* Setup Keyboard Report Endpoints */
+	/* Setup Keyboard LED Report Endpoint */
 	Endpoint_ConfigureEndpoint(KEYBOARD_LEDS_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_OUT, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);

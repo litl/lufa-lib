@@ -16,6 +16,11 @@
 
 		#include "../../../Common/Common.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+		
 	/* Preprocessor Checks: */
 		#if !defined(INCLUDE_FROM_LEDS_H)
 			#error Do not include this file directly. Include MyUSB/Drivers/Board/LEDS.h instead.
@@ -64,4 +69,9 @@
 				return (PORTD & LEDS_ALL_LEDS);
 			}
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+	
 #endif

@@ -367,19 +367,18 @@ uint8_t GetConfigDescriptorData(void)
 			return NoEndpointFound;
 		}
 		
-		uint8_t  EPAddress = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
-		uint16_t EPSize    = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
+		USB_Descriptor_Endpoint_t* EndpointData = DESCRIPTOR_PCAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t);
 
 		/* Check if the endpoint is a bulk IN or bulk OUT endpoint, set appropriate globals */
-		if (EPAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
+		if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 		{
-			MassStoreEndpointNumber_IN  = EPAddress;
-			MassStoreEndpointSize_IN    = EPSize;
+			MassStoreEndpointNumber_IN  = EndpointData->EndpointAddress;
+			MassStoreEndpointSize_IN    = EndpointData->EndpointSize;
 		}
 		else
 		{
-			MassStoreEndpointNumber_OUT = EPAddress;
-			MassStoreEndpointSize_OUT   = EPSize;
+			MassStoreEndpointNumber_OUT = EndpointData->EndpointAddress;;
+			MassStoreEndpointSize_OUT   = EndpointData->EndpointSize;
 		}		
 	}
 
@@ -393,7 +392,7 @@ DESCRIPTOR_COMPARATOR(NextMassStorageInterface)
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
-		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
+		/* Check the descriptor class and protocol, break out if correct class/protocol interface found */
 		if ((DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Class    == MASS_STORE_CLASS)    &&
 		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).SubClass == MASS_STORE_SUBCLASS) &&
 		    (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Interface_t).Protocol == MASS_STORE_PROTOCOL))
@@ -412,7 +411,10 @@ DESCRIPTOR_COMPARATOR(NextInterfaceBulkDataEndpoint)
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{
-		if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).Attributes == EP_TYPE_BULK)
+		uint8_t EndpointType = (DESCRIPTOR_CAST(CurrentDescriptor,
+		                                        USB_Descriptor_Endpoint_t).Attributes & EP_TYPE_MASK);
+
+		if (EndpointType == EP_TYPE_BULK)
 		  return Descriptor_Search_Found;
 	}
 	else if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)

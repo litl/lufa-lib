@@ -27,6 +27,11 @@
 			#error The selected board does not contain a temperature sensor.
 		#endif
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define TEMP_ADC_CHANNEL   0
@@ -43,4 +48,9 @@
 			#define TEMP_TABLE_SIZE   (sizeof(Temperature_Lookup) / sizeof(Temperature_Lookup[0]))
 			#define TEMP_TABLE_OFFSET -20		
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

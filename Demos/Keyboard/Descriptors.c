@@ -43,7 +43,7 @@ USB_Descriptor_HID_Keyboard_Report_t KeyboardReport PROGMEM =
 		0x91, 0x02,          /*   Output (Data, Variable, Absolute)             */
 		0x95, 0x01,          /*   Report Count (1)                              */
 		0x75, 0x03,          /*   Report Size (3)                               */
-		0x91, 0x03,          /*   Output (Const, Variable Absolute)             */
+		0x91, 0x03,          /*   Output (Const, Variable, Absolute)            */
 		0x95, 0x01,          /*   Report Count (1)                              */
 		0x75, 0x08,          /*   Report Size (8)                               */
 		0x15, 0x00,          /*   Logical Minimum (0)                           */

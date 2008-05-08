@@ -18,6 +18,11 @@
 		#include "../../Common/Common.h"
 		#include "../Misc/TerminalCodes.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define Serial_IsCharRecieved() (!(UCSR1A & (1 << RXC1)))
@@ -42,5 +47,10 @@
 				while (!(UCSR1A & (1 << RXC1)));
 				return UDR1; 
 			}
+
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
 		
 #endif

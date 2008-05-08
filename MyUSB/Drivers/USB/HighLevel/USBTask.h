@@ -23,6 +23,11 @@
 		#include "Events.h"
 		#include "StdDescriptors.h"
 		
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Global Variables: */
 			extern volatile bool    USB_IsConnected;
@@ -63,4 +68,9 @@
 				void USB_InitTaskPointer(void);
 			#endif
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

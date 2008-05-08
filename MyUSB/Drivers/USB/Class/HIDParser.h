@@ -18,6 +18,11 @@
 
 		#include "../../../Common/Common.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Preprocessor checks and defines: */
 		#if !defined(HID_STATETABLE_STACK_DEPTH)
 			#define HID_STATETABLE_STACK_DEPTH    3
@@ -129,4 +134,9 @@
 				 uint8_t                     ReportCount;
 			} HID_StateTable_t;
 			
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+
 #endif

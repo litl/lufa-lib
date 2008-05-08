@@ -84,7 +84,7 @@ int main(void)
 	boot_rww_enable();
 
 	/* Start the user application */
-	AppPtr_t AppStartPtr = 0;
+	AppPtr_t AppStartPtr = (AppPtr_t)0x0000;
 	AppStartPtr();	
 }
 

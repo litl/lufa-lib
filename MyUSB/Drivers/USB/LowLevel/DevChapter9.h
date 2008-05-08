@@ -21,6 +21,11 @@
 		#include "LowLevel.h"
 		#include "StdRequestType.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Global Variables: */
 			extern uint8_t USB_ConfigurationNumber;
@@ -41,5 +46,10 @@
 				static void USB_Device_GetStatus(const uint8_t RequestType);
 				static void USB_Device_ClearSetFeature(const uint8_t Request, const uint8_t RequestType);
 			#endif
+
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
 		
 #endif

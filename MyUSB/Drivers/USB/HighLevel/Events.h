@@ -17,6 +17,11 @@
 		#include "../../../Common/Common.h"
 		#include "../LowLevel/USBMode.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#define RAISE_EVENT(e, ...)                 Event_ ## e (__VA_ARGS__)
@@ -130,4 +135,9 @@
 				#endif
 			#endif
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+		
 #endif

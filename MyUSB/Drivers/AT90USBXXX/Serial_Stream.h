@@ -17,6 +17,11 @@
 		
 		#include "Serial.h"
 	
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Private Interface - For use in library only: */		
 		/* External Variables: */
 			extern FILE USARTStream;
@@ -33,5 +38,10 @@
 				
 				stdout = &USARTStream;
 			}
+
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
 
 #endif

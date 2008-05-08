@@ -16,6 +16,11 @@
 
 		#include "../../../Common/Common.h"
 
+	/* Enable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			extern "C" {
+		#endif
+
 	/* Preprocessor Checks: */
 		#if !defined(INCLUDE_FROM_JOYSTICK_H)
 			#error Do not include this file directly. Include MyUSB/Drivers/Board/Joystick.h instead.
@@ -50,4 +55,9 @@
 				return ((~PINB & JOY_BMASK) | ((~PINE & JOY_EMASK) >> 1));
 			}
 
+	/* Disable C linkage for C++ Compilers: */
+		#if defined(__cplusplus)
+			}
+		#endif
+	
 #endif

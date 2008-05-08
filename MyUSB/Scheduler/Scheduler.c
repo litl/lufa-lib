@@ -47,21 +47,29 @@ bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* co
 
 void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool Run)
 {
-	for (uint8_t i = 0; i < Scheduler_TotalTasks; i++)
+	TaskEntry_t* CurrTask = &Scheduler_TaskList[0];
+					
+	while (CurrTask != &Scheduler_TaskList[Scheduler_TotalTasks])
 	{
-		if (Scheduler_TaskList[i].Task == Task)
+		if (CurrTask->Task == Task)
 		{
-			Scheduler_TaskList[i].TaskStatus = Run;
-			return;
+			CurrTask->TaskStatus = Run;
+			break;
 		}
+		
+		CurrTask++;
 	}
 }
 
 void Scheduler_SetGroupTaskMode(const uint8_t GroupID, const bool Run)
 {
-	for (uint8_t i = 0; i < Scheduler_TotalTasks; i++)
+	TaskEntry_t* CurrTask = &Scheduler_TaskList[0];
+					
+	while (CurrTask != &Scheduler_TaskList[Scheduler_TotalTasks])
 	{
-		if (Scheduler_TaskList[i].GroupID == GroupID)
-		  Scheduler_TaskList[i].TaskStatus = Run;
+		if (CurrTask->GroupID == GroupID)
+		  CurrTask->TaskStatus = Run;
+		
+		CurrTask++;
 	}
 }
