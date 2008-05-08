@@ -29,6 +29,10 @@ void SImage_SendCommand(uint8_t* Buffer)
 
 	/* Send the PIMA command block to the attached device */
 	Pipe_FIFOCON_Clear();
+
+	/* Increment and wrap the Transaction ID value */
+	if (++PIMA_TransactionID == 0xFFFFFFFF)
+	  PIMA_TransactionID = 1;
 				
 	/* Freeze pipe after use */
 	Pipe_Freeze();
@@ -115,17 +119,6 @@ void SImage_GetResponse(void)
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
-
-	/* Wait until pipe is ready to be read from (contains data) */
-	while (!(Pipe_ReadWriteAllowed()))
-	{
-		/* If USB device is disconnected during transfer, exit function */
-		if (!(USB_IsConnected))
-		{
-			Pipe_Freeze();
-			return;
-		}
-	}
 	
 	/* Load in the response from the attached device */
 	Pipe_Read_Stream_LE(&PIMA_Response, sizeof(PIMA_Container_t));
@@ -166,43 +159,62 @@ uint8_t SImage_ClearPipeStall(const uint8_t PipeEndpointNum)
 
 uint8_t SImage_GetInfo(void)
 {
-	uint8_t ReturnCode = NoError;
+	uint8_t ReturnCode;
 
 	PIMA_Command = (PIMA_Container_t)
 	{
 		DataLength:    (sizeof(PIMA_Container_t) + 4),
 		Type:          CType_CommandBlock,
-		Code:          PIMA_GETDEVICEINFO,
+		Code:          PIMA_OPERATION_GETDEVICEINFO,
 		TransactionID: PIMA_TransactionID,
 	};
 	
+	/* Use a null Session ID for GETDEVICEINFO requests only */
 	uint32_t SessionID = 0;
 	
+	/* Send the PIMA command to the attached device */
 	SImage_SendCommand((uint8_t*)&SessionID);
 	
-	if (++PIMA_TransactionID == 0xFFFFFFFF)
-	  PIMA_TransactionID = 1;
-	
+	/* Wait until a response is received, return error code if and error occurs */
 	if ((ReturnCode = SImage_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
 
+	/* Get the response header from the device */
 	SImage_GetResponse();
 
+	/* First response should be a data block containing device info */
 	if (PIMA_Response.Type != CType_DataBlock)
 	  return BadResponse;
 
-	uint8_t Temp[PIMA_Response.DataLength];
-	SImage_GetData(Temp);
-	
+	/* Create buffer big enough to hold the returned data minus the header */
+	uint8_t DeviceInfo[PIMA_Response.DataLength - sizeof(PIMA_Container_t)];
+
+	/* Get the data from the attached device */
+	SImage_GetData(DeviceInfo);
+
+	/* Print out raw data from the device (note, strings are in Unicode, so nulls are skipped) */
+	printf_P(PSTR("Device Info Data (Size: %lu):\r\n"), PIMA_Response.DataLength);
+	for (uint16_t CByte = 0; CByte < (PIMA_Response.DataLength - sizeof(PIMA_Container_t)); CByte++)
+	{
+		if (DeviceInfo[CByte])
+		  printf("%c", DeviceInfo[CByte]);
+	}
+	puts_P("\r\n");
+
+	/* Wait for the next response from the device */
 	if ((ReturnCode = SImage_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
 
+	/* Get the next response header from the device */
 	SImage_GetResponse();
-
-	if (PIMA_Response.Type != CType_ResponseBlock)
-	  return BadResponse;
-	  
+		
+	/* Finished with the device, clear the pipe to discard unused data */
 	Pipe_FIFOCON_Clear();
 
-	return ReturnCode;
+	/* Second response from the device should be a response block indicating that the command suceeded */
+	if ((PIMA_Response.Type != CType_ResponseBlock) || (PIMA_Response.Code != PIMA_RESPONSE_OK))
+	  return BadResponse;
+	
+	/* If this point reached, the command completed sucessfully, return with success code */
+	return NoError;
 }

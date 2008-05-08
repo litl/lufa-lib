@@ -53,7 +53,7 @@
 		};
 	
 	/* External Variables: */
-		PIMA_Container_t PIMA_Command;
+		extern PIMA_Container_t PIMA_Command;
 	
 	/* Function Prototypes: */
 		void    SImage_SendCommand(uint8_t* Buffer);

@@ -11,6 +11,8 @@
 #ifndef _PIMA_CODES_H_
 
 	/* Macros: */
-		#define PIMA_GETDEVICEINFO    0x1001
+		#define PIMA_OPERATION_GETDEVICEINFO    0x1001
+		
+		#define PIMA_RESPONSE_OK                0x2001
 
 #endif
