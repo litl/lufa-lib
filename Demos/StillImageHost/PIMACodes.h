@@ -12,6 +12,8 @@
 
 	/* Macros: */
 		#define PIMA_OPERATION_GETDEVICEINFO    0x1001
+		#define PIMA_OPERATION_OPENSESSION      0x1002
+		#define PIMA_OPERATION_CLOSESESSION     0x1003
 		
 		#define PIMA_RESPONSE_OK                0x2001
 

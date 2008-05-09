@@ -198,17 +198,33 @@ TASK(USB_SImage_Host)
 
 			uint8_t ReturnCode;
 			
+			puts_P(PSTR("Retrieving Device Info...\r\n"));
+			
 			if ((ReturnCode = SImage_GetInfo()) != NoError)
 			{
-				printf_P(PSTR("Device failed command %d: %d.\r\n"), PIMA_Command.Code, ReturnCode);
-			
-				/* Indicate error via status LEDs */
-				LEDs_SetAllLEDs(LEDS_LED1);
-				
-				/* Wait until USB device disconnected */
-				while (USB_IsConnected);
-				break;				
+				ShowCommandError(ReturnCode);
+				break;
 			}
+			
+			puts_P(PSTR("Opening Session...\r\n"));
+
+			if ((ReturnCode = SImage_OpenCloseSession(0x0001, SESSION_OPEN)) != NoError)
+			{
+				ShowCommandError(ReturnCode);
+				break;
+			}
+
+			puts_P(PSTR("Retrieving Objects...\r\n"));
+
+			puts_P(PSTR("Closing Session...\r\n"));
+
+			if ((ReturnCode = SImage_OpenCloseSession(0x0001, SESSION_CLOSE)) != NoError)
+			{
+				ShowCommandError(ReturnCode);
+				break;
+			}
+
+			puts_P(PSTR("Done.\r\n"));
 
 			/* Indicate device no longer busy */
 			LEDs_SetAllLEDs(LEDS_LED4);
@@ -218,6 +234,17 @@ TASK(USB_SImage_Host)
 			
 			break;
 	}
+}
+
+void ShowCommandError(uint8_t ErrorCode)
+{
+	printf_P(PSTR("Device failed command %d: %d.\r\n"), PIMA_Command.Code, ErrorCode);
+			
+	/* Indicate error via status LEDs */
+	LEDs_SetAllLEDs(LEDS_LED1);
+				
+	/* Wait until USB device disconnected */
+	while (USB_IsConnected);
 }
 
 uint8_t GetConfigDescriptorData(void)

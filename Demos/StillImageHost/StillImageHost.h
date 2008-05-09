@@ -58,6 +58,7 @@
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 		
 	/* Function Prototypes: */
+		void    ShowCommandError(uint8_t ErrorCode);
 		uint8_t GetConfigDescriptorData(void);
 		
 #endif

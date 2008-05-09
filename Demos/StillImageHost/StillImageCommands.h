@@ -22,6 +22,9 @@
 		#define SIMAGE_EVENTS_PIPE             0x03
 
 		#define COMMAND_DATA_TIMEOUT_MS        5000
+		
+		#define SESSION_OPEN                   true
+		#define SESSION_CLOSE                  false
 
 	/* Type Defines: */
 		typedef struct
@@ -63,5 +66,6 @@
 		uint8_t SImage_ClearPipeStall(const uint8_t PipeEndpointNum);
 
 		uint8_t SImage_GetInfo(void);
+		uint8_t SImage_OpenCloseSession(uint32_t SessionID, bool Open);
 
 #endif
