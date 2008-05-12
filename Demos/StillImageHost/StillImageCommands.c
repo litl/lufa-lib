@@ -62,7 +62,7 @@ uint8_t SImage_RecieveBlockHeader(void)
 	/* Unfreeze the data IN pipe */
 	Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
-
+	
 	/* Wait until data recieved on the IN pipe */
 	while (!(Pipe_ReadWriteAllowed()))
 	{
@@ -122,7 +122,6 @@ uint8_t SImage_RecieveBlockHeader(void)
 	
 	/* Load in the response from the attached device */
 	Pipe_Read_Stream_LE(&PIMA_RecievedBlock, PIMA_COMMAND_SIZE(0));
-
 	
 	/* Response blocks blocks have associated parameters */
 	if (PIMA_RecievedBlock.Type == CType_ResponseBlock)
@@ -136,7 +135,8 @@ uint8_t SImage_RecieveBlockHeader(void)
 			Pipe_Read_Stream_LE(&PIMA_RecievedBlock.Params, ParamBytes);
 		}
 		
-		/* Clear pipe after use */
+		/* Clear pipe banks after use */
+		Pipe_FIFOCON_Clear();
 		Pipe_FIFOCON_Clear();
 	}
 	

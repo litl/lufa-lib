@@ -13,7 +13,18 @@
 	application for implementing a Still Image host, for USB devices such as
 	digital cameras.
 	
-	*** WORK IN PROGRESS - NOT CURRENTLY FUNCTIONING ***
+	This demo will enumerate an attached USB Still Image device, print out its
+	information structure, open a session with the device and finally close the
+	session.
+*/
+
+/*
+	USB Mode:           Host
+	USB Class:          Still Image Device
+	USB Subclass:       N/A
+	Relevant Standards: USBIF Still Image Class Specification
+	                    PIMA 15740 Specification
+	Usable Speeds:      Full Speed Mode
 */
 
 #include "StillImageHost.h"
