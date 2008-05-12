@@ -196,31 +196,110 @@ TASK(USB_SImage_Host)
 			/* Indicate device busy via the status LEDs */
 			LEDs_SetAllLEDs(LEDS_LED3 | LEDS_LED4);
 
-			uint8_t ReturnCode;
-			
 			puts_P(PSTR("Retrieving Device Info...\r\n"));
 			
-			if ((ReturnCode = SImage_GetInfo()) != NoError)
+			PIMA_SendBlock = (PIMA_Container_t)
+				{
+					DataLength:    PIMA_COMMAND_SIZE(0),
+					Type:          CType_CommandBlock,
+					Code:          PIMA_OPERATION_GETDEVICEINFO,
+					TransactionID: 0x00000000,
+					Params:        {},
+				};
+			
+			/* Send the GETDEVICEINFO block */
+			SImage_SendBlockHeader();
+			
+			/* Recieve the response data block */
+			if ((ErrorCode = SImage_RecieveBlockHeader()) != NoError)
 			{
-				ShowCommandError(ReturnCode);
+				ShowCommandError(ErrorCode, false);
 				break;
 			}
 			
-			puts_P(PSTR("Opening Session...\r\n"));
+			/* Calculate the size of the returned device info data structure */
+			uint16_t DeviceInfoSize = (PIMA_RecievedBlock.DataLength - PIMA_COMMAND_SIZE(0));
+			
+			/* Create a buffer large enough to hold the entire device info */
+			uint8_t DeviceInfo[DeviceInfoSize];
 
-			if ((ReturnCode = SImage_OpenCloseSession(0x0001, SESSION_OPEN)) != NoError)
+			/* Read in the data block data (containing device info) */
+			SImage_ReadData(DeviceInfo, DeviceInfoSize);
+			
+			/* Print out each non-null byte of the device info buffer */
+			uint8_t* NextInfoByte = &DeviceInfo[0];
+			while (DeviceInfoSize--)
 			{
-				ShowCommandError(ReturnCode);
+				if (*NextInfoByte)
+				  printf("%c", *NextInfoByte);
+				  
+				NextInfoByte++;
+			}
+			
+			/* Recieve the final response block */
+			if ((ErrorCode = SImage_RecieveBlockHeader()) != NoError)
+			{
+				ShowCommandError(ErrorCode, false);
 				break;
 			}
-
-			puts_P(PSTR("Retrieving Objects...\r\n"));
+			
+			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
+			{
+				ShowCommandError(PIMA_RecievedBlock.Code, true);
+				break;
+			}
+			
+			puts_P(PSTR("\r\nOpening Session...\r\n"));
+			
+			PIMA_SendBlock = (PIMA_Container_t)
+				{
+					DataLength:    PIMA_COMMAND_SIZE(1),
+					Type:          CType_CommandBlock,
+					Code:          PIMA_OPERATION_OPENSESSION,
+					TransactionID: 0x00000000,
+					Params:        {0x00000001},
+				};
+			
+			/* Send the OPENSESSION block, open a session with an ID of 0x0001 */
+			SImage_SendBlockHeader();
+			
+			/* Recieve the response block */
+			if ((ErrorCode = SImage_RecieveBlockHeader()) != NoError)
+			{
+				ShowCommandError(ErrorCode, false);
+				break;
+			}
+			
+			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
+			{
+				ShowCommandError(PIMA_RecievedBlock.Code, true);
+				break;
+			}
 
 			puts_P(PSTR("Closing Session...\r\n"));
 
-			if ((ReturnCode = SImage_OpenCloseSession(0x0001, SESSION_CLOSE)) != NoError)
+			PIMA_SendBlock = (PIMA_Container_t)
+				{
+					DataLength:    PIMA_COMMAND_SIZE(1),
+					Type:          CType_CommandBlock,
+					Code:          PIMA_OPERATION_CLOSESESSION,
+					TransactionID: 0x00000002,
+					Params:        {0x00000001},
+				};
+			
+			/* Send the CLOSESESSION block, close the session with an ID of 0x0001 */
+			SImage_SendBlockHeader();
+			
+			/* Recieve the response block */
+			if ((ErrorCode = SImage_RecieveBlockHeader()) != NoError)
 			{
-				ShowCommandError(ReturnCode);
+				ShowCommandError(ErrorCode, false);
+				break;
+			}
+
+			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
+			{
+				ShowCommandError(PIMA_RecievedBlock.Code, true);
 				break;
 			}
 
@@ -236,9 +315,12 @@ TASK(USB_SImage_Host)
 	}
 }
 
-void ShowCommandError(uint8_t ErrorCode)
+void ShowCommandError(uint8_t ErrorCode, bool ResponseCodeError)
 {
-	printf_P(PSTR("Device failed command %d: %d.\r\n"), PIMA_Command.Code, ErrorCode);
+	char* FailureType = ((ResponseCodeError) ? PSTR("Response Code != OK") : PSTR("Transaction Fail"));
+
+	printf_P(PSTR(ESC_BG_RED "Command Error (%S).\r\n"), FailureType);
+	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 			
 	/* Indicate error via status LEDs */
 	LEDs_SetAllLEDs(LEDS_LED1);

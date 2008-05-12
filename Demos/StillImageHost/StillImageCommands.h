@@ -23,8 +23,8 @@
 
 		#define COMMAND_DATA_TIMEOUT_MS        5000
 		
-		#define SESSION_OPEN                   true
-		#define SESSION_CLOSE                  false
+		#define PIMA_COMMAND_SIZE(params)      ((sizeof(PIMA_SendBlock) - sizeof(PIMA_SendBlock.Params)) + \
+		                                        (params * sizeof(PIMA_SendBlock.Params[0])))
 
 	/* Type Defines: */
 		typedef struct
@@ -33,6 +33,7 @@
 			uint16_t Type;
 			uint16_t Code;
 			uint32_t TransactionID;
+			uint32_t Params[4];
 		} PIMA_Container_t;
 	
 	/* Enums: */
@@ -56,16 +57,17 @@
 		};
 	
 	/* External Variables: */
-		extern PIMA_Container_t PIMA_Command;
+		extern PIMA_Container_t PIMA_SendBlock;
+		extern PIMA_Container_t PIMA_RecievedBlock;
+		extern PIMA_Container_t PIMA_EventBlock;
 	
 	/* Function Prototypes: */
-		void    SImage_SendCommand(uint8_t* Buffer);
-		uint8_t SImage_WaitForDataReceived(void);
-		void    SImage_GetResponse(void);
-		void    SImage_GetData(uint8_t* Buffer);
+		void    SImage_SendBlockHeader(void);
+		uint8_t SImage_RecieveBlockHeader(void);
+		void    SImage_RecieveEventHeader(void);
+		void    SImage_SendData(void* Buffer, uint16_t Bytes);
+		uint8_t SImage_ReadData(void* Buffer, uint16_t Bytes);
+		bool    SImage_IsEventReceived(void);
 		uint8_t SImage_ClearPipeStall(const uint8_t PipeEndpointNum);
-
-		uint8_t SImage_GetInfo(void);
-		uint8_t SImage_OpenCloseSession(uint32_t SessionID, bool Open);
 
 #endif

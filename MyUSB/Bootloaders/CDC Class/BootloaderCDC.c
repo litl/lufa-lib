@@ -396,9 +396,9 @@ TASK(CDC_Task)
 		}
 		else if (Command == 's')
 		{
-			WriteNextResponseByte(boot_signature_byte_get(0));
+			WriteNextResponseByte(boot_signature_byte_get(4));
 			WriteNextResponseByte(boot_signature_byte_get(2));
-			WriteNextResponseByte(boot_signature_byte_get(4));		
+			WriteNextResponseByte(boot_signature_byte_get(0));		
 		}
 		else if (Command == 'b')
 		{
