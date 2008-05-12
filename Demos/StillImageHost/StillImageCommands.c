@@ -24,11 +24,13 @@ void SImage_SendBlockHeader(void)
 	/* Write the PIMA block to the data OUT pipe */
 	Pipe_Write_Stream_LE(&PIMA_SendBlock, PIMA_COMMAND_SIZE(0));
 	
-	/* Command blocks have associated parameters */
+	/* If the block type is a command, send its parameters (if any) */
 	if (PIMA_SendBlock.Type == CType_CommandBlock)
 	{
+		/* Determine the size of the parameters in the block via the data length attribute */
 		uint8_t ParamBytes = (PIMA_SendBlock.DataLength - PIMA_COMMAND_SIZE(0));
 
+		/* Check if any parameters in the command block */
 		if (ParamBytes)
 		{
 			/* Write the PIMA parameters to the data OUT pipe */
@@ -45,13 +47,17 @@ void SImage_SendBlockHeader(void)
 
 void SImage_RecieveEventHeader(void)
 {
+	/* Unfreeze the events pipe */
 	Pipe_SelectPipe(SIMAGE_EVENTS_PIPE);
 	Pipe_Unfreeze();
 	
+	/* Read in the event data into the global structure */
 	Pipe_Read_Stream_LE(&PIMA_EventBlock, sizeof(PIMA_EventBlock));
 	
+	/* Clear the pipe after read complete to prepare for next event */
 	Pipe_FIFOCON_Clear();
 	
+	/* Freeze the event pipe again after use */
 	Pipe_Freeze();
 }
 
@@ -123,9 +129,10 @@ uint8_t SImage_RecieveBlockHeader(void)
 	/* Load in the response from the attached device */
 	Pipe_Read_Stream_LE(&PIMA_RecievedBlock, PIMA_COMMAND_SIZE(0));
 	
-	/* Response blocks blocks have associated parameters */
+	/* Check if the returned block type is a response block */
 	if (PIMA_RecievedBlock.Type == CType_ResponseBlock)
 	{
+		/* Determine the size of the parameters in the block via the data length attribute */
 		uint8_t ParamBytes = (PIMA_RecievedBlock.DataLength - PIMA_COMMAND_SIZE(0));
 
 		/* Check if the device has returned any parameters */
@@ -148,13 +155,14 @@ uint8_t SImage_RecieveBlockHeader(void)
 
 void SImage_SendData(void* Buffer, uint16_t Bytes)
 {
+	/* Unfreeze the data OUT pipe */
 	Pipe_SelectPipe(SIMAGE_DATA_OUT_PIPE);
 	Pipe_Unfreeze();
-
+	
+	/* Write the data contents to the pipe */
 	Pipe_Write_Stream_LE(Buffer, Bytes);
 
-	Pipe_FIFOCON_Clear();
-
+	/* Freeze the pipe again after use */
 	Pipe_Freeze();
 }
 
@@ -162,13 +170,14 @@ uint8_t SImage_ReadData(void* Buffer, uint16_t Bytes)
 {
 	uint8_t ErrorCode = NoError;
 
+	/* Unfreeze the data IN pipe */
 	Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
 
+	/* Read in the data into the buffer */
 	ErrorCode = Pipe_Read_Stream_LE(Buffer, Bytes);
 
-	Pipe_FIFOCON_Clear();
-
+	/* Freeze the pipe again after use */
 	Pipe_Freeze();
 	
 	return ErrorCode;
@@ -178,12 +187,15 @@ bool SImage_IsEventReceived(void)
 {
 	bool IsEventReceived = false;
 
+	/* Unfreeze the Event pipe */
 	Pipe_SelectPipe(SIMAGE_EVENTS_PIPE);
 	Pipe_Unfreeze();
 	
-	if (Pipe_ReadWriteAllowed())
+	/* If the pipe contains data, an event has been recieved */
+	if (Pipe_BytesInPipe())
 	  IsEventReceived = true;
 	
+	/* Freeze the pipe after use */
 	Pipe_Freeze();
 	
 	return IsEventReceived;
