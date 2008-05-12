@@ -58,6 +58,7 @@
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 		
 	/* Function Prototypes: */
+		void    UnicodeToASCII(uint8_t* UnicodeString, char* Buffer);
 		void    ShowCommandError(uint8_t ErrorCode, bool ResponseCodeError);
 		uint8_t GetConfigDescriptorData(void);
 		

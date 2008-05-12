@@ -237,30 +237,53 @@ TASK(USB_SImage_Host)
 			/* Read in the data block data (containing device info) */
 			SImage_ReadData(DeviceInfo, DeviceInfoSize);
 			
-			/* Print out each non-null byte of the device info buffer */
-			uint8_t* NextInfoByte = &DeviceInfo[0];
-			while (DeviceInfoSize--)
-			{
-				if (*NextInfoByte)
-				  printf("%c", *NextInfoByte);
-				  
-				NextInfoByte++;
-			}
+			/* Create a pointer for walking through the info dataset */
+			uint8_t* DeviceInfoPos = DeviceInfo;
 			
-			/* Recieve the final response block */
+			/* Skip over the data before the unicode device information strings */
+			DeviceInfoPos += 8;                                      // Skip to VendorExtensionDesc String
+			DeviceInfoPos += ((*DeviceInfoPos << 1) + 1);            // Skip over VendorExtensionDesc String
+			DeviceInfoPos += 2;                                      // Skip over FunctionalMode
+			DeviceInfoPos += (4 + (*(uint32_t*)DeviceInfoPos << 1)); // Skip over OperationCode Array
+			DeviceInfoPos += (4 + (*(uint32_t*)DeviceInfoPos << 1)); // Skip over EventCode Array
+			DeviceInfoPos += (4 + (*(uint32_t*)DeviceInfoPos << 1)); // Skip over DevicePropCode Array
+			DeviceInfoPos += (4 + (*(uint32_t*)DeviceInfoPos << 1)); // Skip over ObjectFormatCode Array
+			DeviceInfoPos += (4 + (*(uint32_t*)DeviceInfoPos << 1)); // Skip over ObjectFormatCode Array
+			
+			/* Extract and convert the Manufacturer Unicode string to ASCII and print it through the USART */
+			char Manufacturer[*DeviceInfoPos];
+			UnicodeToASCII(DeviceInfoPos, Manufacturer);
+			printf_P(PSTR("   Manufacturer: %s\r\n"), Manufacturer);
+
+			DeviceInfoPos += ((*DeviceInfoPos << 1) + 1);            // Skip over Manufacturer String
+
+			/* Extract and convert the Model Unicode string to ASCII and print it through the USART */
+			char Model[*DeviceInfoPos];
+			UnicodeToASCII(DeviceInfoPos, Model);
+			printf_P(PSTR("   Model: %s\r\n"), Model);
+
+			DeviceInfoPos += ((*DeviceInfoPos << 1) + 1);            // Skip over Model String
+
+			/* Extract and convert the Device Version Unicode string to ASCII and print it through the USART */
+			char DeviceVersion[*DeviceInfoPos];
+			UnicodeToASCII(DeviceInfoPos, DeviceVersion);
+			printf_P(PSTR("   Device Version: %s\r\n"), DeviceVersion);
+
+			/* Recieve the final response block from the device */
 			if ((ErrorCode = SImage_RecieveBlockHeader()) != NoError)
 			{
 				ShowCommandError(ErrorCode, false);
 				break;
 			}
 			
+			/* Verify that the command completed successfully */
 			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
 			{
 				ShowCommandError(PIMA_RecievedBlock.Code, true);
 				break;
 			}
 			
-			puts_P(PSTR("\r\nOpening Session...\r\n"));
+			puts_P(PSTR("Opening Session...\r\n"));
 			
 			PIMA_SendBlock = (PIMA_Container_t)
 				{
@@ -274,13 +297,14 @@ TASK(USB_SImage_Host)
 			/* Send the OPENSESSION block, open a session with an ID of 0x0001 */
 			SImage_SendBlockHeader();
 			
-			/* Recieve the response block */
+			/* Recieve the response block from the device */
 			if ((ErrorCode = SImage_RecieveBlockHeader()) != NoError)
 			{
 				ShowCommandError(ErrorCode, false);
 				break;
 			}
 			
+			/* Verify that the command completed successfully */
 			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
 			{
 				ShowCommandError(PIMA_RecievedBlock.Code, true);
@@ -294,20 +318,21 @@ TASK(USB_SImage_Host)
 					DataLength:    PIMA_COMMAND_SIZE(1),
 					Type:          CType_CommandBlock,
 					Code:          PIMA_OPERATION_CLOSESESSION,
-					TransactionID: 0x00000002,
+					TransactionID: 0x00000001,
 					Params:        {0x00000001},
 				};
 			
 			/* Send the CLOSESESSION block, close the session with an ID of 0x0001 */
 			SImage_SendBlockHeader();
 			
-			/* Recieve the response block */
+			/* Recieve the response block from the device */
 			if ((ErrorCode = SImage_RecieveBlockHeader()) != NoError)
 			{
 				ShowCommandError(ErrorCode, false);
 				break;
 			}
 
+			/* Verify that the command completed successfully */
 			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
 			{
 				ShowCommandError(PIMA_RecievedBlock.Code, true);
@@ -324,6 +349,25 @@ TASK(USB_SImage_Host)
 			
 			break;
 	}
+}
+
+void UnicodeToASCII(uint8_t* UnicodeString, char* Buffer)
+{
+	/* Get the number of characters in the string, skip to the start of the string data */
+	uint8_t CharactersRemaining = *(UnicodeString++);
+	
+	/* Loop through the entire unicode string */
+	while (CharactersRemaining--)
+	{
+		/* Load in the next unicode character (only the lower byte, only Unicode coded ASCII supported) */
+		*(Buffer++) = *UnicodeString;
+		
+		/* Jump to the next unicode character */
+		UnicodeString += 2;
+	}
+	
+	/* Null terminate the string */
+	*Buffer = 0;
 }
 
 void ShowCommandError(uint8_t ErrorCode, bool ResponseCodeError)
