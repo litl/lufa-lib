@@ -13,7 +13,7 @@
 #define INCLUDE_FROM_EVENTS_C
 #include "Events.h"
 
-static void __stub (void)
+static void __stub(void)
 {
 
 }

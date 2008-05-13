@@ -88,7 +88,7 @@
 
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_MASSSTORAGE_C)
-			static void ReadInCommandBlock(void);
+			static bool ReadInCommandBlock(void);
 			static void ReturnCommandStatus(void);
 		#endif
 

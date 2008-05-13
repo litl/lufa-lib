@@ -62,10 +62,14 @@ static void USB_DeviceTask(void)
 {
 	if (USB_IsConnected)
 	{
+		uint8_t PrevEndpoint = Endpoint_GetCurrentEndpoint();
+	
 		Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 
 		if (Endpoint_IsSetupRecieved())
 		  USB_Device_ProcessControlPacket();
+		  
+		Endpoint_SelectEndpoint(PrevEndpoint);
 	}
 }
 #endif

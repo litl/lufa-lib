@@ -35,8 +35,6 @@
 		#define MODE_10                                    true
 		#define MODE_6                                     false
 		
-		#define INFORMATIONAL_PAGE_OVERHEAD(pages)         (3 + (2 * pages))
-		
 	/* Type Defines: */
 		typedef struct
 		{
@@ -95,45 +93,6 @@
 			uint8_t      SenseKeySpecific[3];
 		} SCSI_Request_Sense_Response_t;
 		
-		typedef struct
-		{
-			unsigned int DCR  : 1;
-			unsigned int DTE  : 1;
-			unsigned int PER  : 1;
-			unsigned int EER  : 1;
-			unsigned int RC   : 1;
-			unsigned int TB   : 1;
-			unsigned int ARRE : 1;
-			unsigned int AWRE : 1;
-
-			uint8_t      ReadRetryCount;
-			
-			uint8_t      _RESERVED1[4];
-			
-			uint8_t      WriteRetryCount;
-			
-			uint8_t      _RESERVED2;
-
-			uint16_t     RecoveryTimeLimit;
-		} SCSI_Read_Write_Error_Recovery_Sense_Page_t;
-		
-		typedef struct
-		{
-			unsigned int LogErr      : 1;
-			unsigned int _RESERVED1  : 1;
-			unsigned int Test        : 1;
-			unsigned int Dexcpt      : 1;
-			unsigned int _RESERVED2  : 3;
-			unsigned int Perf        : 1;
-			
-			unsigned int MRIE        : 4;
-			unsigned int _RESERVED3  : 4;
-
-			uint32_t     IntervalTimer;
-		
-			uint32_t     ReportCount;
-		} SCSI_Informational_Exceptions_Sense_Page_t;
-		
 	/* Function Prototypes: */
 		void SCSI_DecodeSCSICommand(void);
 		
@@ -143,13 +102,6 @@
 			static bool SCSI_Command_Read_Capacity_10(void);
 			static bool SCSI_Command_Send_Diagnostic(void);
 			static bool SCSI_Command_ReadWrite_6_10(const bool IsDataRead, const bool IsMode10);
-			static bool SCSI_Command_Mode_Sense_6_10(const bool IsMode10);
-			static void SCSI_WriteSensePageHeader(const uint8_t DataLength, const bool IsMode10);
-			static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
-											void* PageDataPtr,
-			                                const int16_t AllocationLength,
-											const bool IsMode10)
-			                                ATTR_NON_NULL_PTR_ARG(3);
 		#endif
 		
 #endif

@@ -125,8 +125,8 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 			TotalEndpoints:         2,
 				
 			Class:                  0x0A,
-			SubClass:               0,
-			Protocol:               0,
+			SubClass:               0x00,
+			Protocol:               0x00,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
@@ -175,9 +175,9 @@ USB_Descriptor_String_t ProductString =
 
 USB_Descriptor_String_t SerialNumberString =
 {
-	Header:                 {Size: USB_STRING_LEN(13), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(12), Type: DTYPE_String},
 		
-	UnicodeString:          {'0','.','0','.','0','.','0','.','0','.','0','.','0'}
+	UnicodeString:          {'0','0','0','0','0','0','0','0','0','0','0','0'}
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,

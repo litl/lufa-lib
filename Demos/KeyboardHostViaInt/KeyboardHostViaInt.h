@@ -65,6 +65,6 @@
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 		
 	/* Function Prototypes: */
-		uint8_t GetConfigDescriptorData(void);
+		uint8_t ProcessConfigurationDescriptor(void);
 		
 #endif

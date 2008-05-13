@@ -31,7 +31,7 @@
 		
 		#define MIDI_STREAM_OUT_EPNUM       1
 		#define MIDI_STREAM_IN_EPNUM        2
-		#define MIDI_STREAM_EPSIZE          32
+		#define MIDI_STREAM_EPSIZE          64
 		
 	/* Type Defines: */
 		typedef struct

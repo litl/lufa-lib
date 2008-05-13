@@ -161,10 +161,7 @@ TASK(USB_MassStorage)
 			LEDs_TurnOnLEDs(LEDS_LED3 | LEDS_LED4);
 
 			/* Process sent command block from the host */
-			ReadInCommandBlock();
-
-			/* If selected data pipe is not stalled, then the command block is valid, so process it */
-			if (!(Endpoint_IsStalled()))
+			if (ReadInCommandBlock())
 			{
 				/* Check direction of command, select Data IN endpoint if data is from the device */
 				if (CommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
@@ -180,11 +177,8 @@ TASK(USB_MassStorage)
 				CommandStatus.Header.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
 
 				/* Stall data pipe if command failed */
-				if ((CommandStatus.Header.Status == Command_Fail) &&
-					(CommandStatus.Header.SCSICommandResidue))
-				{
-					Endpoint_StallTransaction();
-				}
+				if (CommandStatus.Header.Status == Command_Fail)
+				  Endpoint_StallTransaction();
 
 				/* Return command status block to the host */
 				ReturnCommandStatus();
@@ -194,14 +188,14 @@ TASK(USB_MassStorage)
 			}
 			else
 			{
-				/* Indicate error */
+				/* Indicate error reading in the command block from the host */
 				LEDs_SetAllLEDs(LEDS_LED1);
 			}
 		}
 	}
 }
 
-static void ReadInCommandBlock(void)
+static bool ReadInCommandBlock(void)
 {
 	/* Select the Data Out endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
@@ -219,7 +213,7 @@ static void ReadInCommandBlock(void)
 		Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 		Endpoint_StallTransaction();
 		
-		return;
+		return false;
 	}
 
 	/* Read in command block command data */
@@ -227,6 +221,8 @@ static void ReadInCommandBlock(void)
 	  
 	/* Clear the endpoint */
 	Endpoint_FIFOCON_Clear();
+	
+	return true;
 }
 
 static void ReturnCommandStatus(void)

@@ -46,11 +46,7 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t  MassStoreEndpointNumber_IN;
-uint8_t  MassStoreEndpointNumber_OUT;
-uint16_t MassStoreEndpointSize_IN;
-uint16_t MassStoreEndpointSize_OUT;
-uint8_t  MassStore_NumberOfLUNs;
+uint8_t MassStore_NumberOfLUNs;
 
 int main(void)
 {
@@ -161,7 +157,7 @@ TASK(USB_MassStore_Host)
 			puts_P(PSTR("Getting Config Data.\r\n"));
 		
 			/* Get and process the configuration descriptor data */
-			if ((ErrorCode = GetConfigDescriptorData()) != SuccessfulConfigRead)
+			if ((ErrorCode = ProcessConfigurationDescriptor()) != SuccessfulConfigRead)
 			{
 				if (ErrorCode == ControlError)
 				  puts_P(PSTR("Control Error (Get Configuration).\r\n"));
@@ -177,18 +173,6 @@ TASK(USB_MassStore_Host)
 				while (USB_IsConnected);
 				break;
 			}
-
-			/* Configure the data pipes */
-			Pipe_ConfigurePipe(MASS_STORE_DATA_IN_PIPE, EP_TYPE_BULK, PIPE_TOKEN_IN,
-			                   MassStoreEndpointNumber_IN, MassStoreEndpointSize_IN,
-			                   PIPE_BANK_DOUBLE);
-
-			Pipe_ConfigurePipe(MASS_STORE_DATA_OUT_PIPE, EP_TYPE_BULK, PIPE_TOKEN_OUT,
-			                   MassStoreEndpointNumber_OUT, MassStoreEndpointSize_OUT,
-			                   PIPE_BANK_DOUBLE);
-
-			Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-			Pipe_SetInfiniteINRequests();
 
 			puts_P(PSTR("Mass Storage Disk Enumerated.\r\n"));
 				
@@ -324,11 +308,12 @@ void ShowDiskReadError(uint8_t ErrorCode)
 	while (USB_IsConnected);
 }
 
-uint8_t GetConfigDescriptorData(void)
+uint8_t ProcessConfigurationDescriptor(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
 	uint8_t  ErrorCode;
+	uint8_t  FoundEndpoints = 0;
 	
 	/* Get Configuration Descriptor size from the device */
 	if (USB_Host_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
@@ -357,7 +342,7 @@ uint8_t GetConfigDescriptorData(void)
 	}
 
 	/* Get the IN and OUT data endpoints for the mass storage interface */
-	while (!(MassStoreEndpointNumber_IN && MassStoreEndpointNumber_OUT))
+	while (FoundEndpoints != ((1 << MASS_STORE_DATA_IN_PIPE) | (1 << MASS_STORE_DATA_OUT_PIPE)))
 	{
 		/* Fetch the next bulk endpoint from the current mass storage interface */
 		if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
@@ -372,13 +357,25 @@ uint8_t GetConfigDescriptorData(void)
 		/* Check if the endpoint is a bulk IN or bulk OUT endpoint, set appropriate globals */
 		if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 		{
-			MassStoreEndpointNumber_IN  = EndpointData->EndpointAddress;
-			MassStoreEndpointSize_IN    = EndpointData->EndpointSize;
+			/* Configure the data IN pipe */
+			Pipe_ConfigurePipe(MASS_STORE_DATA_IN_PIPE, EP_TYPE_BULK, PIPE_TOKEN_IN,
+			                   EndpointData->EndpointAddress, EndpointData->EndpointSize,
+			                   PIPE_BANK_DOUBLE);
+
+			Pipe_SetInfiniteINRequests();
+
+			/* Set the flag indicating that the data IN pipe has been found */
+			FoundEndpoints |= (1 << MASS_STORE_DATA_IN_PIPE);
 		}
 		else
 		{
-			MassStoreEndpointNumber_OUT = EndpointData->EndpointAddress;;
-			MassStoreEndpointSize_OUT   = EndpointData->EndpointSize;
+			/* Configure the data OUT pipe */
+			Pipe_ConfigurePipe(MASS_STORE_DATA_OUT_PIPE, EP_TYPE_BULK, PIPE_TOKEN_OUT,
+			                   EndpointData->EndpointAddress, EndpointData->EndpointSize,
+			                   PIPE_BANK_DOUBLE);
+
+			/* Set the flag indicating that the data OUT pipe has been found */
+			FoundEndpoints |= (1 << MASS_STORE_DATA_OUT_PIPE);
 		}		
 	}
 

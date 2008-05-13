@@ -60,6 +60,6 @@
 	/* Function Prototypes: */
 		void    UnicodeToASCII(uint8_t* UnicodeString, char* Buffer);
 		void    ShowCommandError(uint8_t ErrorCode, bool ResponseCodeError);
-		uint8_t GetConfigDescriptorData(void);
+		uint8_t ProcessConfigurationDescriptor(void);
 		
 #endif

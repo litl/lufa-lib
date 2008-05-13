@@ -90,6 +90,6 @@
 		
 	/* Function Prototypes: */
 		uint8_t GetHIDReportData(void);
-		uint8_t GetConfigDescriptorData(void);
+		uint8_t ProcessConfigurationDescriptor(void);
 		
 #endif

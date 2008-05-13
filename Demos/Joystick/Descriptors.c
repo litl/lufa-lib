@@ -143,9 +143,9 @@ USB_Descriptor_String_t ProductString PROGMEM =
 
 USB_Descriptor_String_t SerialNumberString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(13), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(12), Type: DTYPE_String},
 		
-	UnicodeString:          {'0','.','0','.','0','.','0','.','0','.','0','.','0'}
+	UnicodeString:          {'0','0','0','0','0','0','0','0','0','0','0','0'}
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,

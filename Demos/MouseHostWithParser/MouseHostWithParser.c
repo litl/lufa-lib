@@ -48,9 +48,6 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t          MouseDataEndpointNumber;
-uint16_t         MouseDataEndpointSize;
-
 uint16_t         HIDReportSize;
 HID_ReportInfo_t HIDReportInfo;
 
@@ -164,7 +161,7 @@ TASK(USB_Mouse_Host)
 			puts_P(PSTR("Getting Config Data.\r\n"));
 		
 			/* Get and process the configuration descriptor data */
-			if ((ErrorCode = GetConfigDescriptorData()) != SuccessfulConfigRead)
+			if ((ErrorCode = ProcessConfigurationDescriptor()) != SuccessfulConfigRead)
 			{
 				if (ErrorCode == ControlError)
 				  puts_P(PSTR("Control Error (Get Configuration).\r\n"));
@@ -180,12 +177,6 @@ TASK(USB_Mouse_Host)
 				while (USB_IsConnected);
 				break;
 			}
-
-			/* Configure the mouse data pipe */
-			Pipe_ConfigurePipe(MOUSE_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
-			                   MouseDataEndpointNumber, MouseDataEndpointSize, PIPE_BANK_SINGLE);
-
-			Pipe_SetInfiniteINRequests();
 		
 			puts_P(PSTR("Processing HID Report.\r\n"));
 
@@ -368,7 +359,7 @@ uint8_t GetHIDReportData(void)
 	return ParseSucessful;
 }
 
-uint8_t GetConfigDescriptorData(void)
+uint8_t ProcessConfigurationDescriptor(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
@@ -418,8 +409,13 @@ uint8_t GetConfigDescriptorData(void)
 	}
 	
 	/* Retrieve the endpoint address from the endpoint descriptor */
-	MouseDataEndpointNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointAddress;
-	MouseDataEndpointSize   = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t).EndpointSize;
+	USB_Descriptor_Endpoint_t* EndpointData = DESCRIPTOR_PCAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t);
+
+	/* Configure the mouse data pipe */
+	Pipe_ConfigurePipe(MOUSE_DATAPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
+	                   EndpointData->EndpointAddress, EndpointData->EndpointSize, PIPE_BANK_SINGLE);
+
+	Pipe_SetInfiniteINRequests();
 			
 	/* Valid data found, return success */
 	return SuccessfulConfigRead;

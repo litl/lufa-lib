@@ -43,6 +43,7 @@
 		HANDLES_EVENT(USB_CreateEndpoints);
 
    /* Function Prototypes: */
-   	void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t CableID, const uint8_t Channel);
+		void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff,
+		                        const uint8_t CableID, const uint8_t Channel);
 
 #endif

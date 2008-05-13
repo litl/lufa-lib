@@ -43,15 +43,6 @@ TASK_LIST
 	{ Task: USB_CDC_Host         , TaskStatus: TASK_STOP },
 };
 
-/* Globals */
-uint8_t  CDCDataEndpointInNumber;
-uint16_t CDCDataEndpointInSize;
-uint8_t  CDCDataEndpointOutNumber;
-uint16_t CDCDataEndpointOutSize;
-uint8_t  CDCDataEndpointNotificationNumber;
-uint16_t CDCDataEndpointNotificationSize;
-uint8_t  CDCDataEndpointNotificationFrequency;
-
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -161,7 +152,7 @@ TASK(USB_CDC_Host)
 			puts_P(PSTR("Getting Config Data.\r\n"));
 		
 			/* Get and process the configuration descriptor data */
-			if ((ErrorCode = GetConfigDescriptorData()) != SuccessfulConfigRead)
+			if ((ErrorCode = ProcessConfigurationDescriptor()) != SuccessfulConfigRead)
 			{
 				if (ErrorCode == ControlError)
 				  puts_P(PSTR("Control Error (Get Configuration).\r\n"));
@@ -177,24 +168,6 @@ TASK(USB_CDC_Host)
 				while (USB_IsConnected);
 				break;
 			}
-
-			/* Configure the data pipes */
-			Pipe_ConfigurePipe(CDC_DATAPIPE_IN, EP_TYPE_BULK, PIPE_TOKEN_IN,
-			                   CDCDataEndpointInNumber, CDCDataEndpointInSize, PIPE_BANK_SINGLE);
-
-			Pipe_ConfigurePipe(CDC_DATAPIPE_OUT, EP_TYPE_BULK, PIPE_TOKEN_OUT,
-			                   CDCDataEndpointOutNumber, CDCDataEndpointOutSize, PIPE_BANK_SINGLE);
-							   
-			Pipe_ConfigurePipe(CDC_NOTIFICATIONPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
-			                   CDCDataEndpointNotificationNumber, CDCDataEndpointNotificationSize, PIPE_BANK_SINGLE);							   
-
-			Pipe_SelectPipe(CDC_DATAPIPE_IN);
-			Pipe_SetInfiniteINRequests();
-			Pipe_Unfreeze();
-		
-			Pipe_SelectPipe(CDC_NOTIFICATIONPIPE);
-			Pipe_SetInfiniteINRequests();
-			Pipe_SetInterruptFreq(CDCDataEndpointNotificationFrequency);
 
 			puts_P(PSTR("CDC Device Enumerated.\r\n"));
 				
@@ -240,11 +213,12 @@ TASK(USB_CDC_Host)
 	}
 }
 
-uint8_t GetConfigDescriptorData(void)
+uint8_t ProcessConfigurationDescriptor(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
 	uint8_t  ErrorCode;
+	uint8_t  FoundEndpoints = 0;
 	
 	/* Get Configuration Descriptor size from the device */
 	if (USB_Host_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
@@ -272,7 +246,7 @@ uint8_t GetConfigDescriptorData(void)
 	}
 
 	/* Get the IN and OUT data endpoints for the CDC interface */
-	while (!(CDCDataEndpointInNumber && CDCDataEndpointOutNumber && CDCDataEndpointNotificationNumber))
+	while (FoundEndpoints != ((1 << CDC_NOTIFICATIONPIPE) | (1 << CDC_DATAPIPE_IN) | (1 << CDC_DATAPIPE_OUT)))
 	{
 		/* Fetch the next bulk endpoint from the current mass storage interface */
 		if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
@@ -287,26 +261,45 @@ uint8_t GetConfigDescriptorData(void)
 		/* Check if the found endpoint is a interrupt or bulk type descriptor */
 		if ((EndpointData->Attributes & EP_TYPE_MASK) == EP_TYPE_INTERRUPT)
 		{
-			/* If the endpoint is a IN type interrupt endpoint, set appropriate globals */
+			/* If the endpoint is a IN type interrupt endpoint */
 			if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-			{
-				CDCDataEndpointNotificationNumber    = EndpointData->EndpointAddress;
-				CDCDataEndpointNotificationSize      = EndpointData->EndpointSize;
-				CDCDataEndpointNotificationFrequency = EndpointData->PollingIntervalMS;
+			{							   
+				/* Configure the notification pipe */
+				Pipe_ConfigurePipe(CDC_NOTIFICATIONPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
+								   EndpointData->EndpointAddress, EndpointData->EndpointSize, PIPE_BANK_SINGLE);							   
+
+				Pipe_SetInfiniteINRequests();
+				Pipe_SetInterruptFreq(EndpointData->PollingIntervalMS);
+				
+				/* Set the flag indicating that the notification pipe has been found */
+				FoundEndpoints |= (1 << CDC_NOTIFICATIONPIPE);
 			}
 		}
 		else
 		{
-			/* Check if the endpoint is a bulk IN or bulk OUT endpoint, set appropriate globals */
+			/* Check if the endpoint is a bulk IN or bulk OUT endpoint */
 			if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 			{
-				CDCDataEndpointInNumber  = EndpointData->EndpointAddress;
-				CDCDataEndpointInSize    = EndpointData->EndpointSize;
+				/* Configure the data IN pipe */
+				Pipe_ConfigurePipe(CDC_DATAPIPE_IN, EP_TYPE_BULK, PIPE_TOKEN_IN,
+								   EndpointData->EndpointAddress, EndpointData->EndpointSize, PIPE_BANK_SINGLE);
+
+				Pipe_SetInfiniteINRequests();
+				Pipe_Unfreeze();
+				
+				/* Set the flag indicating that the data IN pipe has been found */
+				FoundEndpoints |= (1 << CDC_DATAPIPE_IN);
 			}
 			else
 			{
-				CDCDataEndpointOutNumber = EndpointData->EndpointAddress;
-				CDCDataEndpointOutSize   = EndpointData->EndpointSize;
+				/* Configure the data OUT pipe */
+				Pipe_ConfigurePipe(CDC_DATAPIPE_OUT, EP_TYPE_BULK, PIPE_TOKEN_OUT,
+								   EndpointData->EndpointAddress, EndpointData->EndpointSize, PIPE_BANK_SINGLE);
+				
+				Pipe_Unfreeze();
+				
+				/* Set the flag indicating that the data OUT pipe has been found */
+				FoundEndpoints |= (1 << CDC_DATAPIPE_OUT);
 			}
 		}
 	}

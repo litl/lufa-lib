@@ -128,7 +128,7 @@ TASK(USB_MIDI_Task)
 		uint8_t JoystickChanges = (JoystickStatus ^ PrevJoystickStatus);
 		
 		/* Get HWB status - if set use channel 10 (percussion), otherwise use channel 1 */
-		uint8_t Channel = ((HWB_GetStatus()) ? MIDI_CHANNEL(10) : MIDI_CHANNEL(0));
+		uint8_t Channel = ((HWB_GetStatus()) ? MIDI_CHANNEL(10) : MIDI_CHANNEL(1));
 
 		if (JoystickChanges & JOY_LEFT)
 		  SendMIDINoteChange(0x3C, (JoystickStatus & JOY_LEFT), 0, Channel);

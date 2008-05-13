@@ -68,17 +68,8 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 		while (!(Endpoint_ReadWriteAllowed()));
 
 		/* Write data to the dataflash buffer in groups of 64 bytes (endpoint size) */
-		for (uint8_t WriteLoop = 0; WriteLoop < (VIRTUAL_MEMORY_SUB_BLOCK_SIZE / 8); WriteLoop++)
-		{
-			Dataflash_SendByte(Endpoint_Read_Byte());
-			Dataflash_SendByte(Endpoint_Read_Byte());
-			Dataflash_SendByte(Endpoint_Read_Byte());
-			Dataflash_SendByte(Endpoint_Read_Byte());
-			Dataflash_SendByte(Endpoint_Read_Byte());
-			Dataflash_SendByte(Endpoint_Read_Byte());
-			Dataflash_SendByte(Endpoint_Read_Byte());
-			Dataflash_SendByte(Endpoint_Read_Byte());
-		}
+		for (uint8_t WriteLoop = 0; WriteLoop < MASS_STORAGE_IO_EPSIZE; WriteLoop++)
+		  Dataflash_SendByte(Endpoint_Read_Byte());
 		
 		/* Update dataflash buffer counter and sub block counter */
 		CurrDFByte += 64;
@@ -88,7 +79,7 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 		Endpoint_FIFOCON_Clear();
 
 		/* Check if end of block reached */
-		if (SubBlockTransfers == VIRTUAL_MEMORY_SUB_BLOCKS_PER_BLOCK)
+		if (SubBlockTransfers == VIRTUAL_MEMORY_EPPACKETS_PER_BLOCK)
 		{
 			/* Decrement the blocks remaining counter and reset the sub block counter */
 			TotalBlocks--;
@@ -155,17 +146,8 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 		while (!(Endpoint_ReadWriteAllowed()));
 
 		/* Read data from the dataflash in groups of 64 bytes (endpoint size) */
-		for (uint8_t ReadLoop = 0; ReadLoop < (VIRTUAL_MEMORY_SUB_BLOCK_SIZE / 8); ReadLoop++)
-		{
-			Endpoint_Write_Byte(Dataflash_SendByte(0));
-			Endpoint_Write_Byte(Dataflash_SendByte(0));
-			Endpoint_Write_Byte(Dataflash_SendByte(0));
-			Endpoint_Write_Byte(Dataflash_SendByte(0));
-			Endpoint_Write_Byte(Dataflash_SendByte(0));
-			Endpoint_Write_Byte(Dataflash_SendByte(0));
-			Endpoint_Write_Byte(Dataflash_SendByte(0));
-			Endpoint_Write_Byte(Dataflash_SendByte(0));
-		}
+		for (uint8_t ReadLoop = 0; ReadLoop < MASS_STORAGE_IO_EPSIZE; ReadLoop++)
+		  Endpoint_Write_Byte(Dataflash_SendByte(0));
 		
 		/* Send endpoint data */
 		Endpoint_FIFOCON_Clear();
@@ -175,7 +157,7 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 		SubBlockTransfers++;
 
 		/* Check if end of block reached */
-		if (SubBlockTransfers == VIRTUAL_MEMORY_SUB_BLOCKS_PER_BLOCK)
+		if (SubBlockTransfers == VIRTUAL_MEMORY_EPPACKETS_PER_BLOCK)
 		{
 			/* Decrement the blocks remaining counter and reset the sub block counter */
 			TotalBlocks--;

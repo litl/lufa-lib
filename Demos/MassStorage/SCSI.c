@@ -42,21 +42,6 @@ SCSI_Inquiry_Response_t InquiryData =
 		RevisionID:          {'0','.','0','0'},
 	};
 
-SCSI_Read_Write_Error_Recovery_Sense_Page_t RecoveryPage =
-	{
-		AWRE:                true,
-
-		ReadRetryCount:      0x03,
-		WriteRetryCount:     0x03,
-	};
-
-SCSI_Informational_Exceptions_Sense_Page_t InformationalExceptionsPage =
-	{
-		MRIE:                true,
-		
-		ReportCount:         1,
-	};
-
 SCSI_Request_Sense_Response_t SenseData =
 	{
 		Valid:               true,
@@ -95,16 +80,7 @@ void SCSI_DecodeSCSICommand(void)
 		case SCSI_CMD_READ_6:
 			CommandSuccess = SCSI_Command_ReadWrite_6_10(DATA_READ, MODE_6);
 			break;
-		case SCSI_CMD_MODE_SENSE_6:
-			CommandSuccess = SCSI_Command_Mode_Sense_6_10(MODE_6);
-			break;
-		case SCSI_CMD_MODE_SENSE_10:
-			CommandSuccess = SCSI_Command_Mode_Sense_6_10(MODE_10);
-			break;
-		case SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL:
 		case SCSI_CMD_TEST_UNIT_READY:
-		case SCSI_CMD_VERIFY_10:
-			/* These commands should just succeed, no handling required */
 			CommandSuccess = true;
 			CommandBlock.Header.DataTransferLength = 0;
 			break;
@@ -336,104 +312,4 @@ static bool SCSI_Command_ReadWrite_6_10(const bool IsDataRead, const bool IsMode
 	/* Update the bytes transferred counter and succeed the command */
 	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
 	return true;
-}
-
-static bool SCSI_Command_Mode_Sense_6_10(const bool IsMode10)
-{
-	uint8_t  AllocationLength = (IsMode10 ? CommandBlock.SCSICommandData[8] : CommandBlock.SCSICommandData[4]);							   
-	uint8_t  PageCode         = (CommandBlock.SCSICommandData[2] & 0x3F);
-
-	/* Determine which SENSE page has been requested by the host */
-	switch (PageCode)
-	{
-		case SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY:
-			/* Send SENSE page header */
-			SCSI_WriteSensePageHeader(sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t)
-			                        + INFORMATIONAL_PAGE_OVERHEAD(1), IsMode10);
-
-			/* Send requested SENSE page */
-			SCSI_WriteSensePage(SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY,
-			                    sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t),
-			                    &RecoveryPage,
-			                    (AllocationLength - 4),
-			                    IsMode10);
-			break;
-		case SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS:
-			/* Send SENSE page header */
-			SCSI_WriteSensePageHeader(sizeof(SCSI_Informational_Exceptions_Sense_Page_t)
-			                        + INFORMATIONAL_PAGE_OVERHEAD(1), IsMode10);
-
-			/* Send requested SENSE page */
-			SCSI_WriteSensePage(SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS,
-			                    sizeof(SCSI_Informational_Exceptions_Sense_Page_t),
-			                    &InformationalExceptionsPage,
-			                    (AllocationLength - 4),
-			                    IsMode10);
-			break;
-		case SCSI_SENSE_PAGE_ALL:
-			/* Send SENSE page header */
-			SCSI_WriteSensePageHeader(sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t)
-			                        + sizeof(SCSI_Informational_Exceptions_Sense_Page_t)
-			                        + INFORMATIONAL_PAGE_OVERHEAD(2), IsMode10);
-			
-			/* Send first page to the host (pages must be sent in ascending order) */
-			SCSI_WriteSensePage(SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY,
-			                    sizeof(SCSI_Read_Write_Error_Recovery_Sense_Page_t),
-			                    &RecoveryPage,
-			                    (AllocationLength - 4),
-			                    IsMode10);
-			
-			/* Send second page to the host (pages must be sent in ascending order) */
-			SCSI_WriteSensePage(SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS,
-			                    sizeof(SCSI_Informational_Exceptions_Sense_Page_t),
-			                    &InformationalExceptionsPage,
-			                    (AllocationLength - sizeof(SCSI_Informational_Exceptions_Sense_Page_t)
-                                                  - 6),
-			                    IsMode10);
-			break;
-		default:
-			/* Page not supported - update the SENSE key and fail the command */
-			SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
-						   SCSI_ASENSE_INVALID_FIELD_IN_CDB,
-						   SCSI_ASENSEQ_NO_QUALIFIER);
-			return false;
-	}
-
-	/* Send the endpoint data, update the bytes transferred counter and succeed the command */
-	Endpoint_FIFOCON_Clear();
-	CommandBlock.Header.DataTransferLength -= AllocationLength;
-	return true;
-}
-
-static void SCSI_WriteSensePageHeader(const uint8_t DataLength, const bool IsMode10)
-{
-	if (IsMode10)
-	  Endpoint_Write_Byte(0x00);
-
-	Endpoint_Write_Byte(DataLength);	
-
-	if (IsMode10)
-	  Endpoint_Write_Word_BE(0x0000);
-	  
-	Endpoint_Write_Word_BE(0x0000);
-	Endpoint_Write_Byte(0x00);
-}
-								
-static void SCSI_WriteSensePage(const uint8_t PageCode, const uint8_t PageSize,
-                                void* PageDataPtr, const int16_t AllocationLength,
-                                const bool IsMode10)
-{
-	int16_t BytesToTransfer = (AllocationLength < PageSize)? AllocationLength : PageSize;
-
-	/* Negative or zero allocation length prevents the page from being sent */
-	if (AllocationLength <= 0)
-	  return;
-
-	/* Write page information to the endpoint */
-	Endpoint_Write_Byte(PageCode);
-	Endpoint_Write_Byte(PageSize);
-	
-	BytesToTransfer -= 2;
-	
-	Endpoint_Write_Stream_LE(PageDataPtr, BytesToTransfer);
 }

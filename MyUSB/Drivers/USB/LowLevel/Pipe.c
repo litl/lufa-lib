@@ -19,7 +19,7 @@ void Pipe_ConfigurePipe_P(const uint8_t PipeNum,
                           const uint8_t UPCFG0Xdata,
                           const uint8_t UPCFG1Xdata)
 {
-	Pipe_SelectPipe(PipeNum & PIPE_PIPENUM_MASK);
+	Pipe_SelectPipe(PipeNum);
 	Pipe_EnablePipe();
 	
 	UPCFG0X = UPCFG0Xdata;
