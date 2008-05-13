@@ -87,6 +87,7 @@ OBJDIR = .
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                           \
+	  ConfigDescriptor.c                                    \
 	  MassStoreCommands.c                                   \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
 	  ../../MyUSB/Drivers/AT90USBXXX/Serial_Stream.c        \
