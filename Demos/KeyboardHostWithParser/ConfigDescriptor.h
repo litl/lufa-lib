@@ -15,7 +15,7 @@
 		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
 		#include <MyUSB/Drivers/USB/Class/ConfigDescriptor.h>     // Configuration Descriptor Parser
 		
-		#include "KeyboardHostWithParser.h"
+		#include "HIDReport.h"
 		
 	/* Macros: */
 		#define KEYBOARD_DATAPIPE              1

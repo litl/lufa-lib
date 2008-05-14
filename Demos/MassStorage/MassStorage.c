@@ -176,7 +176,7 @@ TASK(USB_MassStorage)
 				/* Load in the Command Data residue into the CSW */
 				CommandStatus.Header.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
 
-				/* Stall data pipe if command failed */
+				/* Stall the selected data pipe if command failed to terminate the command processing */
 				if (CommandStatus.Header.Status == Command_Fail)
 				  Endpoint_StallTransaction();
 
@@ -235,9 +235,6 @@ static void ReturnCommandStatus(void)
 	{
 		/* Run the USB task manually to process any received control requests */
 		USB_USBTask();
-
-		/* Re-select the Data Out endpoint as the USB task selects the control endpoint */
-		Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 	}
 
 	/* Select the Data In endpoint */
@@ -248,9 +245,6 @@ static void ReturnCommandStatus(void)
 	{
 		/* Run the USB task manually to process any received control requests */
 		USB_USBTask();
-
-		/* Re-select the Data In endpoint as the USB task selects the control endpoint */
-		Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 	}
 	
 	/* Wait until read/write to IN data endpoint allowed */

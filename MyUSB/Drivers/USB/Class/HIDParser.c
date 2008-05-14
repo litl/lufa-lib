@@ -157,7 +157,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 					if (ParserData->TotalReportItems == HID_MAX_REPORTITEMS)
 					  return HID_PARSE_InsufficientReportItems;
 				  
-					memcpy((void*)&CurrReportItem->Attributes,
+					memcpy(&CurrReportItem->Attributes,
 					       &CurrStateTable->Attributes,
 					       sizeof(HID_ReportItem_Attributes_t));
 

@@ -26,6 +26,10 @@
 		#define SCSI_CMD_MODE_SENSE_6                          0x1A
 		#define SCSI_CMD_MODE_SENSE_10                         0x5A
 
+		#define SCSI_SENSE_PAGE_READ_WRITE_ERR_RECOVERY        0x01
+		#define SCSI_SENSE_PAGE_INFORMATIONAL_EXCEPTIONS       0x1C
+		#define SCSI_SENSE_PAGE_ALL                            0x3F
+
 		#define SCSI_SENSE_KEY_GOOD                            0x00
 		#define SCSI_SENSE_KEY_RECOVERED_ERROR                 0x01
 		#define SCSI_SENSE_KEY_NOT_READY                       0x02
