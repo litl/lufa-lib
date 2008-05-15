@@ -176,8 +176,8 @@ TASK(USB_MassStorage)
 				/* Load in the Command Data residue into the CSW */
 				CommandStatus.Header.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
 
-				/* Stall the selected data pipe if command failed to terminate the command processing */
-				if (CommandStatus.Header.Status == Command_Fail)
+				/* Stall the selected data pipe if command failed (if data is still to be transferred) */
+				if ((CommandStatus.Header.Status == Command_Fail) && (CommandStatus.Header.SCSICommandResidue))
 				  Endpoint_StallTransaction();
 
 				/* Return command status block to the host */

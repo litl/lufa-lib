@@ -1,4 +1,4 @@
-==========================================
+===========================================
              MyUSB Library
      Copyright (C) Dean Camera, 2008.
               
@@ -6,7 +6,7 @@
       www.fourwalledcubicle.com
 
  Released under the LGPL Licence, Version 3
-===========================================
+============================================
 
 
 --------------------------------------------
@@ -22,7 +22,7 @@ Please consider donating a small amount to myself, to support my future Open Sou
 
 For the latest documentation, check out the project entry on the Four Walled Cubicle site Wiki, at http://wiki.fourwalledcubicle.com.
 
-For code updates, be sure to visit my website, at http://www.fourwalledcubicle. MyUSB developments are frequently discussed on my development blog, at http://blog.fourwalledcubicle.com.
+For code updates, be sure to visit my website, at http://www.fourwalledcubicle.com. MyUSB developments are frequently discussed on my development blog, at http://fourwalledcubicle.com/blog.
 
 
 If you have Programmer's Notepad installed (which ships with the latest WinAVR), you can open up the included .pnproj file to view the entire library and demonstration applications easily.
@@ -40,7 +40,7 @@ A number of library demonstration applications are included, in the Demos/ direc
 
 Currently the library is designed for the AT90USB1286, AT90USB1287, AT90USB646, AT90USB647, AT90USB162, AT90USB82 and ATMEGA32U4 AVR microcontrollers. I recommend using MyUSB on a USBKEY board, although any board containing a supported AVR will work once the examples are recompiled.
 
-The board drivers currently support the USBKEY, STK525 and STK526. When using the board drivers, the "BOARD" symbol must be defined in the project's makefile to one of the BOARD_USBKEY, BOARD_STK525, BOARD_STK526 or BOARD_RZUSBSTICK constants.
+The board drivers currently support the USBKEY, STK525, STK526 and RZUSBSTICK. When using the board drivers, the "BOARD" symbol must be defined in the project's makefile to one of the BOARD_USBKEY, BOARD_STK525, BOARD_STK526 or BOARD_RZUSBSTICK constants.
 
 If you are using the USBKEY, I recommend purchasing a set of Tom Deutschman's USBKEY header adaptors (http://www.wizbangdesigns.com/10017_PCB.html) and female-female jumper wires (http://www.wizbangdesigns.com/20003.html) to make the board much easier and more plesant to work with.
 
