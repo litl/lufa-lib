@@ -32,10 +32,5 @@
 		void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks);
 		void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks);
 		void VirtualMemory_ResetDataflashProtections(void);
-
-		#if defined(INCLUDE_FROM_DATAFLASHMANAGER_C)
-			static uint16_t VirtualMemory_DFPageFromBlock(const uint16_t BlockAddress) ATTR_CONST;
-			static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint16_t BlockAddress) ATTR_CONST;
-		#endif
 		
 #endif

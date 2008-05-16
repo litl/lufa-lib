@@ -65,17 +65,17 @@
 				#if (DATAFLASH_TOTALCHIPS == 2)
 					uint8_t SelectedChipMask = Dataflash_GetSelectedChip();
 					
-					Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+					Dataflash_DeselectChip();
 					Dataflash_SelectChip(SelectedChipMask);
 				#else
-					Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+					Dataflash_DeselectChip();
 					Dataflash_SelectChip(DATAFLASH_CHIP1);	
 				#endif
 			}
 
 			static inline void Dataflash_WaitWhileBusy(void)
 			{
-				Dataflash_ToggleSelectedChipCS();			
+				Dataflash_ToggleSelectedChipCS();
 				Dataflash_SendByte(DF_CMD_GETSTATUS);
 				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
 			}
@@ -84,7 +84,7 @@
 			{
 				if (PageAddress > (DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS))
 				{
-					Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+					Dataflash_DeselectChip();
 					return;
 				}
 
@@ -94,7 +94,7 @@
 					else
 					  Dataflash_SelectChip(DATAFLASH_CHIP1);
 				#else
-					Dataflash_SelectChip(DATAFLASH_NO_CHIP);
+					Dataflash_DeselectChip();
 					Dataflash_SelectChip(DATAFLASH_CHIP1);
 				#endif
 			}

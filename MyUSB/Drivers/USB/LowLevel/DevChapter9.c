@@ -165,7 +165,7 @@ static void USB_Device_GetDescriptor(void)
 	
 	if (DescriptorBytesToSend > DescriptorBytesRem)
 	{
-		if ((DescriptorBytesRem % USB_ControlEndpointSize) == 0)
+		if (!(DescriptorBytesRem % USB_ControlEndpointSize))
 		  SendZeroPacket = true;
 	}
 	else

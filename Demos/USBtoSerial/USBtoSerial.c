@@ -53,8 +53,6 @@ CDC_Line_Coding_t LineCoding = { BaudRateBPS: 9600,
 RingBuff_t        Rx_Buffer;
 RingBuff_t        Tx_Buffer;
 
-volatile bool     Transmitting = false;
-
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -210,11 +208,8 @@ TASK(CDC_Task)
 		if (Rx_Buffer.Elements)
 		{
 			/* Initiate the transmission of the buffer contents if USART idle */
-			if (!(Transmitting))
-			{
-				Transmitting = true;
-				Serial_TxByte(Buffer_GetElement(&Rx_Buffer));
-			}
+			if (UCSR1A & (1 << TXC1))
+			  Serial_TxByte(Buffer_GetElement(&Rx_Buffer));
 		}
 
 		/* Select the Serial Tx Endpoint */
@@ -226,12 +221,25 @@ TASK(CDC_Task)
 			/* Wait until Serial Tx Endpoint Ready for Read/Write */
 			while (!(Endpoint_ReadWriteAllowed()));
 			
+			/* Check before sending the data if the endpoint is completely full */
+			bool IsFull = (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE);
+			
 			/* Write the transmission buffer contents to the recieved data endpoint */
 			while (Tx_Buffer.Elements && (Endpoint_BytesInEndpoint() < CDC_TXRX_EPSIZE))
 			  Endpoint_Write_Byte(Buffer_GetElement(&Tx_Buffer));
 			
 			/* Send the data */
-			Endpoint_FIFOCON_Clear();	
+			Endpoint_FIFOCON_Clear();
+			
+			/* If a full endpoint was sent, we need to send an empty packet afterwards to terminate the transfer */
+			if (IsFull)
+			{
+				/* Wait until Serial Tx Endpoint Ready for Read/Write */
+				while (!(Endpoint_ReadWriteAllowed()));
+
+				/* Send an empty packet to terminate the transfer */
+				Endpoint_FIFOCON_Clear();			
+			}
 		}
 	}
 }
@@ -241,8 +249,6 @@ ISR(USART1_TX_vect)
 	/* Send next character if avaliable */
 	if (Rx_Buffer.Elements)
 	  UDR1 = Buffer_GetElement(&Rx_Buffer);
-	else
-	  Transmitting = false;
 }
 
 ISR(USART1_RX_vect)

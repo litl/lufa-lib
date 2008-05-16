@@ -476,7 +476,7 @@ checklibmode:
 	@echo ------------------------------------
 
 # Display compiler version information.
-gccversion : 
+gccversion:
 	@$(CC) --version
 
 

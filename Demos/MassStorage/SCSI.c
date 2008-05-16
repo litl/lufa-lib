@@ -258,8 +258,8 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	((uint8_t*)&BlockAddress)[0] = CommandBlock.SCSICommandData[5];
 
 	/* Load in the 16-bit total blocks (SCSI uses big-endian, so have to do it byte-by-byte) */
-	((uint8_t*)&TotalBlocks)[1] = CommandBlock.SCSICommandData[7];
-	((uint8_t*)&TotalBlocks)[0] = CommandBlock.SCSICommandData[8];	
+	((uint8_t*)&TotalBlocks)[1]  = CommandBlock.SCSICommandData[7];
+	((uint8_t*)&TotalBlocks)[0]  = CommandBlock.SCSICommandData[8];	
 	
 	/* Check if the block address is outside the maximum allowable value */
 	if (BlockAddress > VIRTUAL_MEMORY_BLOCKS)
@@ -272,17 +272,11 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 		return false;
 	}
 
-	/* Indicate dataflash in use */
-	LEDs_TurnOnLEDs(LEDS_LED1);
-
 	/* Determine if the packet is a READ (10) or WRITE (10) command, call appropriate function */
 	if (IsDataRead == DATA_READ)
 	  VirtualMemory_ReadBlocks(BlockAddress, TotalBlocks);	
 	else
 	  VirtualMemory_WriteBlocks(BlockAddress, TotalBlocks);
-
-	/* Indicate dataflash no longer in use */
-	LEDs_TurnOffLEDs(LEDS_LED1);
 
 	/* Update the bytes transferred counter and succeed the command */
 	CommandBlock.Header.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);

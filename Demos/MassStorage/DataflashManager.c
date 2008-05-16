@@ -13,8 +13,8 @@
 
 void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage        = VirtualMemory_DFPageFromBlock(BlockAddress);
-	uint16_t CurrDFByte        = VirtualMemory_DFPageOffsetFromBlock(BlockAddress);
+	uint16_t CurrDFPage        = (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFByte        = (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 	uint8_t  SubBlockTransfers = 0;
 
 	/* Select the dataflash IC based on the page number */
@@ -29,9 +29,6 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 	Dataflash_ToggleSelectedChipCS();
 	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
 	Dataflash_SendAddressBytes(0, CurrDFByte);
-
-	/* Wait until the endpoint is ready to be read from */
-	while (!(Endpoint_ReadWriteAllowed()));
 
 	while (TotalBlocks)
 	{
@@ -99,8 +96,8 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 
 void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage        = VirtualMemory_DFPageFromBlock(BlockAddress);
-	uint16_t CurrDFByte        = VirtualMemory_DFPageOffsetFromBlock(BlockAddress);
+	uint16_t CurrDFPage        = (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFByte        = (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 	uint8_t  SubBlockTransfers = 0;
 
 	/* Select the dataflash IC based on the page number */
@@ -115,9 +112,6 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 	Dataflash_SendByte(0);
 	Dataflash_SendByte(0);
 	Dataflash_SendByte(0);
-	
-	/* Wait until endpoint is ready to be written to */
-	while (!(Endpoint_ReadWriteAllowed()));
 
 	while (TotalBlocks)
 	{
@@ -153,7 +147,7 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 		Endpoint_FIFOCON_Clear();
 
 		/* Update dataflash page byte and sub block counters */
-		CurrDFByte += 64;
+		CurrDFByte += MASS_STORAGE_IO_EPSIZE;
 		SubBlockTransfers++;
 
 		/* Check if end of block reached */
@@ -207,16 +201,4 @@ void VirtualMemory_ResetDataflashProtections(void)
 	
 	/* Deselect current dataflash chip */
 	Dataflash_DeselectChip();
-}
-
-static uint16_t VirtualMemory_DFPageFromBlock(const uint16_t BlockAddress)
-{
-	/* Translate from logical block address to dataflash page address */
-	return (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-}
-
-static uint16_t VirtualMemory_DFPageOffsetFromBlock(const uint16_t BlockAddress)
-{
-	/* Translate from logical block address to dataflash buffer address */
-	return (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 }

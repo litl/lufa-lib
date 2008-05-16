@@ -135,24 +135,22 @@ End_Of_Control_Send:
 
 static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType)
 {
-	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Successful;
 	uint16_t TimeoutCounter = USB_HOST_TIMEOUT_MS;
 
 	while (!(((WaitType == Wait_For_Setup_Sent)  && Pipe_IsSetupSent())         ||
 	         ((WaitType == Wait_For_In_Received) && Pipe_Setup_In_IsReceived()) ||
 	         ((WaitType == Wait_For_Out_Ready)   && Pipe_Setup_Out_IsReady())))
 	{
-		if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
-		  return ReturnStatus;
+		uint8_t ErrorCode;
+
+		if ((ErrorCode = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
+		  return ErrorCode;
 			
 		if (!(TimeoutCounter--))
-		{
-			ReturnStatus = HOST_SENDCONTROL_SoftwareTimeOut;
-			return ReturnStatus;
-		}
+		  return HOST_SENDCONTROL_SoftwareTimeOut;
 	}
 
-	return ReturnStatus;
+	return HOST_SENDCONTROL_Successful;
 }
 
 #endif

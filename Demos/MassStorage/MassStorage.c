@@ -68,7 +68,7 @@ int main(void)
 	LEDs_Init();
 	Dataflash_Init(SPI_SPEED_FCPU_DIV_2);
 
-	/* Clear Dataflash Section Protections, if enabled */
+	/* Clear Dataflash sector protections, if enabled */
 	VirtualMemory_ResetDataflashProtections();
 	
 	/* Indicate USB not ready */
@@ -117,7 +117,7 @@ EVENT_HANDLER(USB_CreateEndpoints)
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 	
-	/* Start mass storage reporting task */
+	/* Start mass storage task */
 	Scheduler_SetTaskMode(USB_MassStorage, TASK_RUN);
 }
 
