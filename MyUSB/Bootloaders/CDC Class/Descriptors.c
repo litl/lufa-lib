@@ -21,8 +21,8 @@ USB_Descriptor_Device_t DeviceDescriptor =
 				
 	Endpoint0Size:          8,
 		
-	VendorID:               0x0000,
-	ProductID:              USB_PRODUCT_ID('C', 'B'),
+	VendorID:               0x03EB,
+	ProductID:              0x204A,
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,

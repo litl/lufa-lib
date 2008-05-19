@@ -113,6 +113,7 @@ DESCRIPTOR_COMPARATOR(NextInterfaceBulkDataEndpoint)
 		uint8_t EndpointType = (DESCRIPTOR_CAST(CurrentDescriptor,
 		                                        USB_Descriptor_Endpoint_t).Attributes & EP_TYPE_MASK);
 
+		/* Check the endpoint type, break out if correct BULK type endpoint found */
 		if (EndpointType == EP_TYPE_BULK)
 		  return Descriptor_Search_Found;
 	}

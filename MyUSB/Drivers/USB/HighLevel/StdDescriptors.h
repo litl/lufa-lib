@@ -34,7 +34,6 @@
 			
 			#define USB_CONFIG_POWER_MA(x)            (x >> 1)
 			#define USB_STRING_LEN(x)                 (sizeof(USB_Descriptor_Header_t) + (x << 1))
-			#define USB_PRODUCT_ID(x, y)              (((uint16_t)x << 8) | y)
 			
 			#define LANGUAGE_ID_ENG                   0x0409
 

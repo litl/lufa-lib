@@ -21,8 +21,8 @@ USB_Descriptor_Device_t DeviceDescriptor =
 				
 	Endpoint0Size:          CONTROL_ENDPOINT_SIZE,
 		
-	VendorID:               0x03EB,           // ATMEL
-	ProductID:              PRODUCT_ID_CODE,  // Device-specific DFU PID value
+	VendorID:               0x03EB,
+	ProductID:              PRODUCT_ID_CODE,
 	ReleaseNumber:          0x0000,
 		
 	ManafacturerStrIndex:   0x01,
