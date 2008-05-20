@@ -13,31 +13,31 @@
 volatile SchedulerDelayCounter_t Scheduler_TickCounter;
 volatile uint8_t                 Scheduler_TotalTasks;
 
-bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* const TaskCounter)
+bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* const DelayCounter)
 {
+	SchedulerDelayCounter_t CurrentTickValue_LCL;
 	SchedulerDelayCounter_t DelayCounter_LCL;
-	SchedulerDelayCounter_t TaskCounter_LCL;
 	
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	{
-		DelayCounter_LCL = Scheduler_TickCounter;
+		CurrentTickValue_LCL = Scheduler_TickCounter;
 	}
 	
-	TaskCounter_LCL = *TaskCounter;
+	DelayCounter_LCL = *TaskCounter;
 	
-	if (DelayCounter_LCL >= TaskCounter_LCL)
+	if (CurrentTickValue_LCL >= DelayCounter_LCL)
 	{
-		if ((DelayCounter_LCL - TaskCounter_LCL) >= Delay)
+		if ((CurrentTickValue_LCL - DelayCounter_LCL) >= Delay)
 		{
-			*TaskCounter = DelayCounter_LCL;
+			*TaskCounter = CurrentTickValue_LCL;
 			return true;
 		}
 	}
 	else
 	{
-		if (((MAX_DELAYCTR_COUNT - TaskCounter_LCL) + DelayCounter_LCL) >= Delay)
+		if (((MAX_DELAYCTR_COUNT - DelayCounter_LCL) + CurrentTickValue_LCL) >= Delay)
 		{
-			*TaskCounter = DelayCounter_LCL;
+			*TaskCounter = CurrentTickValue_LCL;
 			return true;
 		}	
 	}
@@ -45,7 +45,7 @@ bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* co
 	return false;
 }
 
-void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool Run)
+void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool TaskStatus)
 {
 	TaskEntry_t* CurrTask = &Scheduler_TaskList[0];
 					
@@ -53,7 +53,7 @@ void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool Run)
 	{
 		if (CurrTask->Task == Task)
 		{
-			CurrTask->TaskStatus = Run;
+			CurrTask->TaskStatus = TaskStatus;
 			break;
 		}
 		
@@ -61,14 +61,14 @@ void Scheduler_SetTaskMode(const TaskPtr_t Task, const bool Run)
 	}
 }
 
-void Scheduler_SetGroupTaskMode(const uint8_t GroupID, const bool Run)
+void Scheduler_SetGroupTaskMode(const uint8_t GroupID, const bool TaskStatus)
 {
 	TaskEntry_t* CurrTask = &Scheduler_TaskList[0];
 					
 	while (CurrTask != &Scheduler_TaskList[Scheduler_TotalTasks])
 	{
 		if (CurrTask->GroupID == GroupID)
-		  CurrTask->TaskStatus = Run;
+		  CurrTask->TaskStatus = TaskStatus;
 		
 		CurrTask++;
 	}
