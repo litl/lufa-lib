@@ -94,10 +94,10 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				UsageStack[UsageStackSize++] = ReportItemData;
 				break;
 			case (TYPE_LOCAL | TAG_LOCAL_USAGEMIN):
-				CurrStateTable->Attributes.Usage.Minimum    = ReportItemData;
+				CurrStateTable->Attributes.Usage.MinMax.Minimum = ReportItemData;
 				break;
 			case (TYPE_LOCAL | TAG_LOCAL_USAGEMAX):
-				CurrStateTable->Attributes.Usage.Maximum    = ReportItemData;
+				CurrStateTable->Attributes.Usage.MinMax.Maximum = ReportItemData;
 				break;
 			case (TYPE_MAIN | TAG_MAIN_COLLECTION):
 				if (CurrCollectionPath == NULL)
@@ -218,8 +218,8 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 	  
 		if ((*ReportData & TYPE_MASK) == TYPE_MAIN)
 		{
-			CurrStateTable->Attributes.Usage.Minimum = 0;
-			CurrStateTable->Attributes.Usage.Maximum = 0;
+			CurrStateTable->Attributes.Usage.MinMax.Minimum = 0;
+			CurrStateTable->Attributes.Usage.MinMax.Maximum = 0;
 			UsageStackSize = 0;
 		}
 		

@@ -8,6 +8,16 @@
  Released under the LGPL Licence, Version 3
 */
 
+/** \file
+ *
+ *  Master include file for the library USB functionality. This file should be included in all user projects making
+ *  use of the USB portions of the library, instead of including any headers in the USB/LowLevel or USB/HighLevel
+ *  directories.
+ *
+ *  Class specific utility files in USB/Class/ must still be included manually, as they are not normally part of
+ *  the USB library unless desired by the library user.
+ */
+
 #ifndef __USB_H__
 #define __USB_H__
 
