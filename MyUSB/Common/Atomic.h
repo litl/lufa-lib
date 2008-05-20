@@ -8,25 +8,27 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if !defined(__COMMON_H__) && !defined(__DOXYGEN__)
-	#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
-#endif
-
-/** \file Atomic.h
+/** \file
+ *
  *  This file contains macros for the generation of atomic and non-atomic blocks, where interrupts are explicitly
  *  enabled or disabled during the block's execution to prevent data corruption from simultaneous access.
  *
- *  Do not include this file directly, rather include the Common.h header file instead to gain this file's
- *  functionality.
+ *  \note Do not include this file directly, rather include the Common.h header file instead to gain this file's
+ *        functionality.
  */
 
-#if (!defined(__ATOMIC_H__) && defined(__COMMON_H__)) || defined(__DOXYGEN__)
+#ifndef __ATOMIC_H__
 #define __ATOMIC_H__
 
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/interrupt.h>
 		#include <avr/version.h>
+
+	/* Preprocessor Checks: */
+		#if !defined(__COMMON_H__)
+			#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
+		#endif
 
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)

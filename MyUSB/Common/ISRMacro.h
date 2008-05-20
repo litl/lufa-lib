@@ -8,18 +8,15 @@
  Released under the LGPL Licence, Version 3
 */
 
-/** \file ISRMacro.h
+/** \file
+ *
  *  This file contains macros for enhanced ISRs, by allowing special attributes to be applied to any given ISR.
  *
- *  Do not include this file directly, rather include the Common.h header file instead to gain this file's
- *  functionality.
+ *  \note Do not include this file directly, rather include the Common.h header file instead to gain this file's
+ *        functionality.
  */
 
-#if !defined(__COMMON_H__) && !defined(__DOXYGEN__)
-	#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
-#endif
-
-#if (!defined(__ISRMACRO_H__) && defined(__COMMON_H__)) || defined(__DOXYGEN__)
+#ifndef __ISRMACRO_H__
 #define __ISRMACRO_H__
 
 	/* Preprocessor Checks and Defines: */

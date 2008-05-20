@@ -23,13 +23,13 @@ bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* co
 		CurrentTickValue_LCL = Scheduler_TickCounter;
 	}
 	
-	DelayCounter_LCL = *TaskCounter;
+	DelayCounter_LCL = *DelayCounter;
 	
 	if (CurrentTickValue_LCL >= DelayCounter_LCL)
 	{
 		if ((CurrentTickValue_LCL - DelayCounter_LCL) >= Delay)
 		{
-			*TaskCounter = CurrentTickValue_LCL;
+			*DelayCounter = CurrentTickValue_LCL;
 			return true;
 		}
 	}
@@ -37,7 +37,7 @@ bool Scheduler_HasDelayElapsed(const uint16_t Delay, SchedulerDelayCounter_t* co
 	{
 		if (((MAX_DELAYCTR_COUNT - DelayCounter_LCL) + CurrentTickValue_LCL) >= Delay)
 		{
-			*TaskCounter = CurrentTickValue_LCL;
+			*DelayCounter = CurrentTickValue_LCL;
 			return true;
 		}	
 	}

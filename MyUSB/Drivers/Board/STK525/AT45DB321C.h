@@ -8,6 +8,14 @@
  Released under the LGPL Licence, Version 3
 */
 
+/** \file
+ *
+ *  Board specific Dataflash commands header for the AT45DB321C as mounted on the STK525.
+ *
+ *  \note This file should not be included directly. It is automatically included as needed by the dataflash driver
+ *        dispatch header located in MyUSB/Drivers/Board/Dataflash.h.
+ */
+
 #ifndef __DATAFLASH_CMDS_H__
 #define __DATAFLASH_CMDS_H__
 

@@ -8,7 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-/** \file Common.h
+/** \file
+ *
  *  This file contains macros which are common to all library elements, and which may be useful in user code. It
  *  also includes other common headees, such as Atomic.h, FunctionAttributes.h and BoardTypes.h.
  */

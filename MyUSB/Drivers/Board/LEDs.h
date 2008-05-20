@@ -8,13 +8,27 @@
  Released under the LGPL Licence, Version 3
 */
 
+/** \file
+ *
+ *  This file is the master dispatch header file for the board-specific LED driver, for boards containing user
+ *  controllable LEDs.
+ *
+ *  User code should include this file, which will in turn include the correct LED driver header file for the
+ *  currently selected board.
+ *
+ *  If the BOARD value is set to BOARD_USER, this will include the /Board/LEDs.h file in the user project
+ *  directory.
+ */
+ 
 #ifndef __LEDS_H__
 #define __LEDS_H__
 
 	/* Macros: */
-	#define INCLUDE_FROM_LEDS_H
-	#define INCLUDE_FROM_BOARD_DRIVER
-
+	#if !defined(__DOXYGEN__)
+		#define INCLUDE_FROM_LEDS_H
+		#define INCLUDE_FROM_BOARD_DRIVER
+	#endif
+	
 	/* Includes: */
 	#include "../../Common/BoardTypes.h"
 
@@ -30,6 +44,48 @@
 		#include "RZUSBSTICK/LEDs.h"
 	#elif (BOARD == BOARD_USER)
 		#include "Board/LEDs.h"
+	#endif
+	
+	/* Psudo-Functions for Doxygen: */
+	#if defined(__DOXYGEN__)
+		/** Initializes the board LED driver so that the LEDs can be controlled. This sets the appropriate port
+		 *  I/O pins as outputs, and sets the LEDs to default to off.
+		 */
+		static inline void LEDs_Init(void);
+
+		/** Turns on the LEDs specified in the given LED mask.
+		 *
+		 *  \param LEDMask  Mask of the board LEDs to manipulate (see board-specific LEDs.h driver file)
+		 */
+		static inline void LEDs_TurnOnLEDs(const uint8_t LEDMask);
+
+		/** Turns off the LEDs specified in the given LED mask.
+		 *
+		 *  \param LEDMask  Mask of the board LEDs to manipulate (see board-specific LEDs.h driver file)
+		 */
+		static inline void LEDs_TurnOffLEDs(const uint8_t LEDMask);
+
+		/** Turns off all LEDs not specified in the given LED mask, and turns on all the LEDs in the given LED
+		 *  mask.
+		 *
+		 *  \param LEDMask  Mask of the board LEDs to manipulate (see board-specific LEDs.h driver file)
+		 */
+		static inline void LEDs_SetAllLEDs(const uint8_t LEDMask);
+
+		/** Turns off all LEDs in the LED mask that are not set in the active mask, and turns on all the LEDs
+		 *  specified in both the LED and active masks.
+		 *
+		 *  \param LEDMask     Mask of the board LEDs to manipulate (see board-specific LEDs.h driver file)
+		 *  \param ActiveMask  Mask of whether the LEDs in the LED mask should be turned on or off
+		 */
+		static inline void LEDs_ChangeLEDs(const uint8_t LEDMask, const uint8_t ActiveMask);
+
+		/** Returns the status of all the board LEDs; set LED masks in the return value indicate that the
+		 *  corresponding LED is on.
+		 *
+		 *  \return Mask of the board LEDs which are currently turned on
+		 */
+		static inline uint8_t LEDs_GetLEDs(void) ATTR_WARN_UNUSED_RESULT;
 	#endif
 
 #endif

@@ -8,7 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-/** \file DynAlloc.h
+/** \file
+ *
  *  Dynamic, auto-defragmenting block memory allocator library. This library provides a convenient replacement for
  *  the standard avr-libc dynamic memory allocation routines. Memory is handed out in block chunks, to reduce the
  *  management memory overhead.

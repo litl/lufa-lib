@@ -8,7 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-/** \file Version.h
+/** \file
+ *
  *  Version constants for informational purposes and version-specific macro creation. This header file contains the
  *  current MyUSB version number in several forms, for use in the user-application (for example, for printing out 
  *  whilst debugging, or for testing for version compatibility).

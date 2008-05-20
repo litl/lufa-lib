@@ -8,12 +8,22 @@
  Released under the LGPL Licence, Version 3
 */
 
+/** \file
+ *
+ *  This file is the master dispatch header file for the device-specific ADC driver, for AVRs containing an ADC.
+ *
+ *  User code should include this file, which will in turn include the correct ADC driver header file for the
+ *  currently selected AVR model.
+ */
+ 
 #ifndef __ADC_H__
 #define __ADC_H__
 
 	/* Macros: */
-	#define INCLUDE_FROM_ADC_H
-	#define INCLUDE_FROM_CHIP_DRIVER
+	#if !defined(__DOXYGEN__)
+		#define INCLUDE_FROM_ADC_H
+		#define INCLUDE_FROM_CHIP_DRIVER
+	#endif
 
 	/* Includes: */
 		#if (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || \

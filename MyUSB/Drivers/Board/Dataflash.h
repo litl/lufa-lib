@@ -8,12 +8,26 @@
  Released under the LGPL Licence, Version 3
 */
 
+/** \file
+ *
+ *  This file is the master dispatch header file for the board-specific dataflash driver, for boards containing
+ *  dataflash ICs for external non-volatile storage.
+ *
+ *  User code should include this file, which will in turn include the correct dataflash driver header file for
+ *  the currently selected board.
+ *
+ *  If the BOARD value is set to BOARD_USER, this will include the /Board/Dataflash.h file in the user project
+ *  directory.
+ */
+ 
 #ifndef __DATAFLASH_H__
 #define __DATAFLASH_H__
 
 	/* Macros: */
-	#define INCLUDE_FROM_DATAFLASH_H
-	#define INCLUDE_FROM_BOARD_DRIVER
+	#if !defined(__DOXYGEN__)
+		#define INCLUDE_FROM_DATAFLASH_H
+		#define INCLUDE_FROM_BOARD_DRIVER
+	#endif
 
 	/* Includes: */
 	#include "../AT90USBXXX/SPI.h"
@@ -41,12 +55,26 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
+			/** Returns the mask of the currently selected Dataflash chip, either DATAFLASH_NO_CHIP or a
+			 *  DATAFLASH_CHIPn mask (where n is the chip number).
+			 */
 			#define Dataflash_GetSelectedChip()          (DATAFLASH_CHIPCS_PORT & DATAFLASH_CHIPCS_MASK)
+
+			/** Selects the dataflash chip given as a chip mask, in the form of DATAFLASH_CHIPn (where n
+			 *  is the chip number).
+			 */
 			#define Dataflash_SelectChip(mask)   MACROS{ DATAFLASH_CHIPCS_PORT = ((DATAFLASH_CHIPCS_PORT \
 			                                             & ~DATAFLASH_CHIPCS_MASK) | mask);              }MACROE
+			
+			/** Deselects the current dataflash chip, so that no dataflash is selected. */
 			#define Dataflash_DeselectChip()             Dataflash_SelectChip(DATAFLASH_NO_CHIP)
 
 		/* Inline Functions: */
+			/** Initializes the dataflash driver (including the SPI driver) so that commands and data may be
+			 *  sent to an attached dataflash IC.
+			 *
+			 *  \param PrescalerMask  SPI prescaler mask, see SPI.h documentation
+			 */
 			static inline void Dataflash_Init(const uint8_t PrescalerMask)
 			{
 				DATAFLASH_CHIPCS_DDR  |= DATAFLASH_CHIPCS_MASK;
@@ -55,11 +83,20 @@
 				SPI_Init(PrescalerMask, true);
 			}
 
+			/** Sends a byte to the currently selected dataflash IC, and returns a byte from the dataflash.
+			 *
+			 *  \param Byte of data to send to the dataflash
+			 *
+			 *  \return Last response byte from the dataflash
+			 */
 			static inline uint8_t Dataflash_SendByte(const uint8_t Byte)
 			{
 				return SPI_SendByte(Byte);
 			}
 
+			/** Toggles the select line of the currently selected dataflash IC, so that it is ready to receive
+			 *  a new command.
+			 */
 			static inline void Dataflash_ToggleSelectedChipCS(void)
 			{
 				#if (DATAFLASH_TOTALCHIPS == 2)
@@ -73,6 +110,9 @@
 				#endif
 			}
 
+			/** Spinloops while the currently selected dataflash is busy executing a command, such as a main
+			 *  memory page program or main memory to buffer transfer.
+			 */
 			static inline void Dataflash_WaitWhileBusy(void)
 			{
 				Dataflash_ToggleSelectedChipCS();
@@ -80,9 +120,17 @@
 				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
 			}
 
+			/** Selects a dataflash IC from the given page number, which should range from 0 to
+			 *  ((DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS) - 1). For boards containing only one
+			 *  dataflash IC, this will select DATAFLASH_CHIP1. If the given page number is outside the total number
+			 *  of pages contained in the boards dataflash ICs, all dataflash ICs are deselected.
+			 *
+			 *  \param PageAddress  Address of the page to manipulate, ranging from
+			 *                      ((DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS) - 1).
+			 */
 			static inline void Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 			{
-				if (PageAddress > (DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS))
+				if (PageAddress >= (DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS))
 				{
 					Dataflash_DeselectChip();
 					return;
@@ -99,6 +147,12 @@
 				#endif
 			}
 
+			/** Sends a set of page and buffer address bytes to the currently selected dataflash IC, for use with
+			 *  dataflash commands which require a complete 24-byte address.
+			 *
+			 *  \param PageAddress  Page address within the selected dataflash IC
+			 *  \param BufferByte   Address within the dataflash's buffer
+			 */
 			static inline void Dataflash_SendAddressBytes(uint16_t PageAddress, const uint16_t BufferByte)
 			{	
 				#if (DATAFLASH_TOTALCHIPS == 2)

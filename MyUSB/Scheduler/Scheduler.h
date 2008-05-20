@@ -8,7 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-/** \file Scheduler.h
+/** \file
+ *
  *  Simple round-robbin cooperative scheduler for use in basic projects where non realtime tasks need
  *  to be executed. Each task is executed in sequence, and can be enabled or disabled individually or as a group.
  *

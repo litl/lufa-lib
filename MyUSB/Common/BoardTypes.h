@@ -8,20 +8,22 @@
  Released under the LGPL Licence, Version 3
 */
 
-#if !defined(INCLUDE_FROM_BOARD_DRIVER)
-	#error Do not include this file directly. It will be included as needed by library headers.
-#endif
-
-/** \file BoardTypes.h
+/** \file
+ *
  *  This file contains constants which can be passed to the compiler (via setting the macro BOARD) in the
  *  user project makefile using the -D option to configure the library board-specific drivers.
  *
- *  Do not include this file directly, rather include the Common.h header file instead to gain this file's
- *  functionality.
+ *  \note Do not include this file directly, rather include the Common.h header file instead to gain this file's
+ *        functionality.
  */
 	
-#if (!defined(__BOARDTYPES_H__) && defined(INCLUDE_FROM_BOARD_DRIVER)) || defined(__DOXYGEN__)
+#ifndef __BOARDTYPES_H__
 #define __BOARDTYPES_H__
+
+	/* Preprocessor Checks: */
+		#if !defined(__COMMON_H__)
+			#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
+		#endif
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

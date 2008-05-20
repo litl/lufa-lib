@@ -8,21 +8,23 @@
  Released under the LGPL Licence, Version 3
 */
 
-/** \file FunctionAttributes.h
+/** \file
+ *
  *  This file contains macros for applying GCC specific attributes to functions to control various optimizer
  *  and code generation features of the compiler. Attributes may be placed in the function prototype in any
  *  order, and multiple attributes can be specified for a single function via a space seperated list.
  *
- *  Do not include this file directly, rather include the Common.h header file instead to gain this file's
- *  functionality.
+ *  \note Do not include this file directly, rather include the Common.h header file instead to gain this file's
+ *        functionality.
  */
- 
-#if !defined(__COMMON_H__) && !defined(__DOXYGEN__)
-	#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
-#endif
 
-#if (!defined(__FUNCATTR_H__) && defined(__COMMON_H__)) || defined(__DOXYGEN__)
+#ifndef __FUNCATTR_H__
 #define __FUNCATTR_H__
+
+	/* Preprocessor Checks: */
+		#if !defined(__COMMON_H__)
+			#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
+		#endif
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

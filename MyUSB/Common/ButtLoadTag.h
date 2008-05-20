@@ -8,12 +8,13 @@
  Released under the LGPL Licence, Version 3
 */
 
-/** \file ButtLoadTag.h
+/** \file
+ *
  *  This file contains macros for the embedding of compile-time strings into the resultant project binary for
  *  identification purposes. It is designed to prefix "tags" with the magic string of "@(#)" so that the tags
  *  can easily be identified in the binary data.
  *
- *  These tags are compatible with the ButtLoad project at http://www.fourwalledcubicle.com/ButtLoad.php.
+ *  These tags are compatible with the ButtLoad project at http://www.fourwalledcubicle.com/ButtLoad.php .
  */
 
 #ifndef __BUTTLOADTAG_H__

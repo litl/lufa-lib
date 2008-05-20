@@ -8,6 +8,14 @@
  Released under the LGPL Licence, Version 3
 */
 
+/** \file
+ *
+ *  Board specific LED driver header for the STK525.
+ *
+ *  \note This file should not be included directly. It is automatically included as needed by the LEDs driver
+ *        dispatch header located in MyUSB/Drivers/Board/LEDs.h.
+ */
+ 
 #ifndef __LEDS_STK525_H__
 #define __LEDS_STK525_H__
 
@@ -27,16 +35,27 @@
 		#endif
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros: */		
+		/* Macros: */
+			/** LED mask for the first LED on the board. */
 			#define LEDS_LED1        (1 << 4)
-			#define LEDS_LED2        (1 << 5)
-			#define LEDS_LED3        (1 << 7)
-			#define LEDS_LED4        (1 << 6)
-			#define LEDS_ALL_LEDS    (LEDS_LED1 | LEDS_LED2 | LEDS_LED3 | LEDS_LED4)
-			#define LEDS_NO_LEDS     0
 
-	/* Private Interface - For use in library only: */
+			/** LED mask for the second LED on the board. */
+			#define LEDS_LED2        (1 << 5)
+
+			/** LED mask for the third LED on the board. */
+			#define LEDS_LED3        (1 << 7)
+
+			/** LED mask for the fourth LED on the board. */
+			#define LEDS_LED4        (1 << 6)
+
+			/** LED mask for all the LEDs on the board. */
+			#define LEDS_ALL_LEDS    (LEDS_LED1 | LEDS_LED2 | LEDS_LED3 | LEDS_LED4)
+
+			/** LED mask for the none of the board LEDs */
+			#define LEDS_NO_LEDS          0
+
 		/* Inline Functions: */
+		#if !defined(__DOXYGEN__)
 			static inline void LEDs_Init(void)
 			{
 				DDRD  |=  LEDS_ALL_LEDS;
@@ -68,6 +87,7 @@
 			{
 				return (PORTD & LEDS_ALL_LEDS);
 			}
+		#endif
 
 	/* Disable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
