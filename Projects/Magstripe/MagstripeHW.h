@@ -1,14 +1,4 @@
 /*
-             MyUSB Library
-     Copyright (C) Dean Camera, 2008.
-              
-  dean [at] fourwalledcubicle [dot] com
-      www.fourwalledcubicle.com
-
- Released under the LGPL Licence, Version 3
-*/
-
-/*
 	Macros and functions for TTL magnetic stripe readers (such as the Omron
 	V3B-4K) added by Denver Gingerich.
 

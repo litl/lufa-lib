@@ -147,6 +147,7 @@ static void USB_ResetInterface(void)
 
 	#if defined(USB_CAN_BE_DEVICE)
 	Endpoint_ClearEndpoints();
+	USB_Detach();
 	#endif
 
 	#if defined(USB_CAN_BE_HOST)
@@ -155,9 +156,7 @@ static void USB_ResetInterface(void)
 	USB_Host_VBUS_Auto_Off();
 	USB_Host_HostMode_Off();
 	#endif
-	
-	USB_Detach();
-	
+		
 	USB_REG_Off();
 
 	USB_IsConnected         = false;
@@ -253,10 +252,10 @@ void USB_SetupInterface(void)
 			USB_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 		#endif
 	}
+
+	USB_Attach();
 	#endif
 	
-	USB_Attach();
-
 	#if defined(USB_DEVICE_ONLY)	
 	USB_INT_Enable(USB_INT_SUSPEND);
 	USB_INT_Enable(USB_INT_EORSTI);	

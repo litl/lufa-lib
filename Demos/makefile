@@ -34,6 +34,9 @@ all:
 	make -C Keyboard clean
 	make -C Keyboard all
 
+	make -C KeyboardFullInt clean
+	make -C KeyboardFullInt all
+
 	make -C KeyboardViaInt clean
 	make -C KeyboardViaInt all
 
@@ -45,9 +48,6 @@ all:
 
 	make -C KeyboardHostViaInt clean
 	make -C KeyboardHostViaInt all
-
-	make -C Magstripe clean
-	make -C Magstripe all
 
 	make -C MassStorage clean
 	make -C MassStorage all
@@ -92,11 +92,11 @@ clean:
 	make -C CDCHost clean
 	make -C Joystick clean
 	make -C Keyboard clean
+	make -C KeyboardFullInt clean
 	make -C KeyboardViaInt clean
 	make -C KeyboardHost clean
 	make -C KeyboardHostWithParser clean
 	make -C KeyboardHostViaInt clean
-	make -C Magstripe clean
 	make -C MassStorage clean
 	make -C MassStorageHost clean
 	make -C MIDI clean
@@ -117,11 +117,11 @@ clean_list:
 	make -C CDCHost clean_list
 	make -C Joystick clean_list
 	make -C Keyboard clean_list
-	make -C KeyboardInt clean_list
+	make -C KeyboardFullInt clean_list
+	make -C KeyboardViaInt clean_list
 	make -C KeyboardHost clean_list
 	make -C KeyboardHostWithParser clean_list
 	make -C KeyboardHostViaInt clean_list
-	make -C Magstripe clean_list
 	make -C MassStorage clean_list
 	make -C MassStorageHost clean_list
 	make -C MIDI clean_list

@@ -44,9 +44,9 @@
 MCU = at90usb1287
 
 
-# Target board (USBKEY, STK525, STK526, RZUSBSTICK, USER or blank for projects not requiring
-# MyUSB board drivers). If USER is selected, put custom board drivers in a directory called 
-# "Board" inside the application directory.
+# Target board (USBKEY, STK525, STK526, USER or blank for projects not requiring
+# MyUSB board drivers). If USER is selected, put custom board drivers in a directory
+# called "Board" inside the application directory.
 BOARD  = USBKEY
 
 
@@ -76,7 +76,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = BootloaderCDC
+TARGET = BootloaderDFU
 
 
 # Object files directory
@@ -86,15 +86,15 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c                                              \
-	  Descriptors.c                                            \
-	  ../../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
-	  ../../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
-	  ../../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
-	  ../../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
-	  ../../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
-	  ../../../MyUSB/Drivers/USB/HighLevel/Events.c            \
-	  ../../../MyUSB/Drivers/USB/HighLevel/StdDescriptors.c    \
+SRC = $(TARGET).c                                           \
+	  Descriptors.c                                         \
+	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
+	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
+	  ../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
+	  ../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
+	  ../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
+	  ../../MyUSB/Drivers/USB/HighLevel/Events.c            \
+	  ../../MyUSB/Drivers/USB/HighLevel/StdDescriptors.c    \
 	  
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -107,7 +107,7 @@ CPPSRC =
 #     Even though the DOS/Win* filesystem matches both .s and .S the same,
 #     it will preserve the spelling of the filenames, and gcc itself does
 #     care about how the name is spelled on its command-line.
-ASRC =
+ASRC = 
 
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
@@ -127,7 +127,7 @@ DEBUG = dwarf-2
 #     Each directory must be seperated by a space.
 #     Use forward slashes for directory separators.
 #     For a directory that has spaces, enclose it in quotes.
-EXTRAINCDIRS = ../../../
+EXTRAINCDIRS = ../../
 
 
 # Compiler flag to set the C Standard level.
@@ -172,6 +172,7 @@ CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
 CFLAGS += -ffunction-sections
+CFLAGS += -fdata-sections
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
 CFLAGS += -finline-limit=20
@@ -314,7 +315,7 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 
 # Uncomment the following if you do /not/ wish a verification to be
 # performed after programming the device.
-#AVRDUDE_NO_VERIFY = -V
+AVRDUDE_NO_VERIFY = -V
 
 # Increase verbosity level.  Please use this when submitting bug
 # reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude> 
@@ -636,6 +637,8 @@ clean_list:
 	$(REMOVE) $(TARGET).lss
 	$(REMOVE) $(SRC:%.c=$(OBJDIR)/%.o)
 	$(REMOVE) $(SRC:%.c=$(OBJDIR)/%.lst)
+	$(REMOVE) $(ASRC:%.S=$(OBJDIR)/%.o)
+	$(REMOVE) $(ASRC:%.S=$(OBJDIR)/%.lst)
 	$(REMOVE) $(SRC:.c=.s)
 	$(REMOVE) $(SRC:.c=.d)
 	$(REMOVE) $(SRC:.c=.i)

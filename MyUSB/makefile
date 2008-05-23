@@ -29,13 +29,8 @@ MYUSB_SRC_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
                      ./Drivers/AT90USBXXX/Serial_Stream.c        \
 
 all:
-	make -C Bootloaders/ clean
-	make -C Bootloaders/ all
 	
 clean:
-	make -C Bootloaders/ clean
-
 	rm -f $(MYUSB_SRC_FILES:%.c=%.o)
 	
 clean_list:
-	make -C Bootloaders/ clean_list

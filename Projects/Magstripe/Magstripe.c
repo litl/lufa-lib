@@ -1,27 +1,19 @@
 /*
-             MyUSB Library
-     Copyright (C) Dean Camera, 2008.
-              
-  dean [at] fourwalledcubicle [dot] com
-      www.fourwalledcubicle.com
+	Firmware for a USB AVR powered USB TTL magnetic stripe reader (using a card
+	reader such as the Omron V3B-4K) by Denver Gingerich. This project is designed
+	to be used with the open source Stripe Snoop project at http://stripesnoop.sourceforge.net/.
+	
+	See http://ossguy.com/ss_usb/ for the USB reader hardware project website,
+	including construction and support details.
 
- Released under the LGPL Licence, Version 3
-*/
-
-/*
-	Demonstration application for a TTL magnetic stripe reader (such as the
-	Omron V3B-4K) by Denver Gingerich. See http://ossguy.com/ss_usb/ for the
-	demonstration project website, including construction and support details.
-
-	To use, connect your magentic card reader device to the AT90USB1287 IC as
-	follows:
+	To use, connect your magentic card reader device to the USB AVR as follows:
 	
 	 ---- Signal ---+--- AVR Port ----
 	    DATA        |   PORTC, Pin 0
 	    CLOCK       |   PORTC, Pin 3
 	    CARD LOAD   |   PORTC, Pin 4
 
-	This example is based on the MyUSB Keyboard demonstration application,
+	This project is based on the MyUSB Keyboard demonstration application,
 	written by Denver Gingerich.
 */
 
