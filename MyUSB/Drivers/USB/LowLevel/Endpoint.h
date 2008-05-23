@@ -49,7 +49,7 @@
 			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UEINTX, (1 << TXINI)
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UEINTX, (1 << RXOUTI)
 			
-			#if defined(USB_FULL_CONTROLLER)
+			#if defined(USB_FULL_CONTROLLER) || defined(__DOXYGEN__)
 				#define Endpoint_BytesInEndpoint()             UEBCX
 			#else
 				#define Endpoint_BytesInEndpoint()             UEBCLX
@@ -61,7 +61,6 @@
 			#define Endpoint_EnableEndpoint()          MACROS{ UECONX  |=  (1 << EPEN);                   }MACROE
 			#define Endpoint_DisableEndpoint()         MACROS{ UECONX  &= ~(1 << EPEN);                   }MACROE
 			#define Endpoint_IsEnabled()                     ((UECONX  &   (1 << EPEN)) ? true : false)
-			#define Endpoint_ResetEndpoint(epnum)      MACROS{ UENUM    =  epnum; uint8_t temp = UECONX; UECONX = (temp | (1 << EPEN)); UECONX = (temp & ~(1 << EPEN)); }MACROE
 			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);                  }MACROE
 			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);                  }MACROE
 			
@@ -237,6 +236,7 @@
 			#define Endpoint_Read_Stream(Buffer, Length)   Endpoint_Read_Stream_LE(Buffer, Length)
 
 	/* Private Interface - For use in library only: */
+	#if !defined(__DOXYGEN__)
 		/* Macros: */
 			#define Endpoint_IsSetupRecieved()             ((UEINTX & (1 << RXSTPI)) ? true : false)
 	
@@ -265,6 +265,7 @@
 		/* Function Prototypes: */
 			void Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum, const uint8_t UECFG0Xdata,
 			                                  const uint8_t UECFG1Xdata);
+	#endif
 
 	/* Disable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)

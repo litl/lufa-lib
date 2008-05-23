@@ -117,18 +117,18 @@
 			/** Enum for return values of a descriptor comparator made with DESCRIPTOR_COMPARATOR. */
 			enum DSEARCH_Return_ErrorCodes_t
 			{
-				Descriptor_Search_Found                = 0, /**< Current descriptor matches comparator criteria */
-				Descriptor_Search_Fail                 = 1, /**< No further descriptor could possibly match criteria, fail the search */
-				Descriptor_Search_NotFound             = 2, /**< Current descriptor does not match comparator criteria */
+				Descriptor_Search_Found                = 0, /**< Current descriptor matches comparator criteria. */
+				Descriptor_Search_Fail                 = 1, /**< No further descriptor could possibly match criteria, fail the search. */
+				Descriptor_Search_NotFound             = 2, /**< Current descriptor does not match comparator criteria. */
 			};
 
 			/** Enum for return values of USB_Host_GetNextDescriptorComp() */
 			enum DSEARCH_Comp_Return_ErrorCodes_t
 			{
 				Descriptor_Search_Comp_Found           = 0, /**< Configuration descriptor now points to decriptor which matches
-				                                             *   search criteria of the given comparator function */
-				Descriptor_Search_Comp_Fail            = 1, /**< Comparator function returned Descriptor_Search_Fail */
-				Descriptor_Search_Comp_EndOfDescriptor = 2, /**< End of configuration descriptor reached before match found */
+				                                             *   search criteria of the given comparator function. */
+				Descriptor_Search_Comp_Fail            = 1, /**< Comparator function returned Descriptor_Search_Fail. */
+				Descriptor_Search_Comp_EndOfDescriptor = 2, /**< End of configuration descriptor reached before match found. */
 			};
 	
 		/* Function Prototypes: */

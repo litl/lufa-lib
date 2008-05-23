@@ -44,8 +44,8 @@
 			/** Structure for ButtLoad compatible binary tags. */
 			struct ButtLoadTagData
 			{
-				char MagicString[4]; /**< Magic tag header, containing the string "@(#)" */
-				char TagData[];      /**< Tag contents as a char array */
+				char MagicString[4]; /**< Magic tag header, containing the string "@(#)". */
+				char TagData[];      /**< Tag contents as a char array. */
 			};										  
 
 	/* Private Interface - For use in library only: */	

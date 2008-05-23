@@ -129,7 +129,7 @@ uint8_t MassStore_SendRecieveData(void* BufferPtr)
 		Pipe_Unfreeze();
 		
 		/* Read in the block data from the pipe */
-		if (Pipe_Read_Stream_BE(BufferPtr, BytesRem) == PIPE_RWSTREAM_ERROR_DeviceDisconnected)
+		if (Pipe_Read_Stream_LE(BufferPtr, BytesRem) == PIPE_RWSTREAM_ERROR_DeviceDisconnected)
 		  return DeviceDisconnected;
 	}
 	else
@@ -139,7 +139,7 @@ uint8_t MassStore_SendRecieveData(void* BufferPtr)
 		Pipe_Unfreeze();
 
 		/* Write the block data to the pipe */
-		if (Pipe_Write_Stream_BE(BufferPtr, BytesRem) == PIPE_RWSTREAM_ERROR_DeviceDisconnected)
+		if (Pipe_Write_Stream_LE(BufferPtr, BytesRem) == PIPE_RWSTREAM_ERROR_DeviceDisconnected)
 		  return DeviceDisconnected;
 	}
 	

@@ -240,6 +240,7 @@
 			uint8_t Pipe_Read_Stream_BE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 		
 	/* Private Interface - For use in library only: */
+	#if !defined(__DOXYGEN__)
 		/* Inline Functions: */
 			static inline uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
 			                                             ATTR_WARN_UNUSED_RESULT ATTR_CONST;
@@ -265,6 +266,7 @@
 		/* Function Prototypes: */
 			void Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata,
 			                          const uint8_t UPCFG1Xdata);
+	#endif
 
 	/* Disable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)

@@ -21,7 +21,8 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-
+		#include <stdbool.h>
+		
 		#include "../../../Common/Common.h"
 		
 	/* Enable C linkage for C++ Compilers: */
@@ -47,10 +48,10 @@
 			 */
 			#define  ADC_Off()               MACROS{ ADCSRA = 0;                            }MACROE
 			
-			/** Indicates if the ADC is enabled. This macro will return 0 if the ADC is currently disabled, or
-			 *  non zero if the ADC is currently enabled.
+			/** Indicates if the ADC is enabled. This macro will return boolean true if the ADC subsystem is
+			 *  currently enabled, or false otherwise.
 			 */
-			#define  ADC_GetStatus()                 (ADCSRA & (1 << ADEN)
+			#define  ADC_GetStatus()               ((ADCSRA & (1 << ADEN)) ? true : false)
 
 			/** Indicates if the current ADC conversion is completed, or still in progress. This returns boolean
 			 *  false if the reading is still taking place, or true if the conversion is complete and ready to be

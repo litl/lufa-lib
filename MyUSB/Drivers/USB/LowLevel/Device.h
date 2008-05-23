@@ -21,7 +21,7 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#if defined(USB_FULL_CONTROLLER)
+			#if defined(USB_FULL_CONTROLLER) || defined(__DOXYGEN__)
 				#define USB_DEVICE_OPT_LOWSPEED            (1 << 0)
 			#endif
 			
@@ -31,16 +31,20 @@
 			#define USB_Device_IsRemoteWakeupSent()       ((UDCON &  (1 << RMWKUP)) ? false : true)
 			#define USB_Device_IsUSBSuspended()           ((UDINT &  (1 << SUSPI)) ? true : false)
 
+			#define USB_Detach()                    MACROS{ UDCON  |=  (1 << DETACH);  }MACROE
+			#define USB_Attach()                    MACROS{ UDCON  &= ~(1 << DETACH);  }MACROE
+
 		/* Enums: */
 			enum USB_Device_ErrorCodes_t
 			{
 				DEVICE_ERROR_GetDescriptorNotHooked        = 0,
-				DEVICE_ERROR_ControlEndpointCreationFailed = 1,
 			};
 
 	/* Private Interface - For use in library only: */
+	#if !defined(__DOXYGEN__)
 		/* Macros: */		
 			#define USB_Device_SetLowSpeed()        MACROS{ UDCON |=  (1 << LSM);   }MACROE
 			#define USB_Device_SetHighSpeed()       MACROS{ UDCON &= ~(1 << LSM);   }MACROE
-
+	#endif
+	
 #endif

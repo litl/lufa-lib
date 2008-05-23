@@ -135,9 +135,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	printf_P(PSTR(" -- Req Type %d\r\n"), RequestType);
 }
 
-EVENT_HANDLER(USB_CreateEndpoints)
+EVENT_HANDLER(USB_ConfigurationChanged)
 {
-	puts_P(PSTR(EVENT_PREFIX "Make Endpoints\r\n"));
+	puts_P(PSTR(EVENT_PREFIX "Configuration Number Changed\r\n"));
 
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }

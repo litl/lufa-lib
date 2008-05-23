@@ -36,19 +36,22 @@
 	/* Includes: */
 		#include "LowLevel/USBMode.h"
 	
-		#if defined(USB_CAN_BE_HOST)
+		#if defined(USB_CAN_BE_HOST) || defined(__DOXYGEN__)
 			#include "LowLevel/Host.h"
 			#include "LowLevel/HostChapter9.h"
 			#include "LowLevel/Pipe.h"
-			#include "LowLevel/OTG.h"
 		#endif
 		
-		#if defined(USB_CAN_BE_DEVICE)
+		#if defined(USB_CAN_BE_DEVICE) || defined(__DOXYGEN__)
 			#include "LowLevel/Device.h"
 			#include "LowLevel/DevChapter9.h"
 			#include "LowLevel/Endpoint.h"
 		#endif
 		
+		#if defined(USB_CAN_BE_BOTH) || defined(__DOXYGEN__)
+			#include "LowLevel/OTG.h"
+		#endif
+
 		#include "LowLevel/LowLevel.h"
 		#include "HighLevel/USBTask.h"
 		#include "HighLevel/USBInterrupt.h"

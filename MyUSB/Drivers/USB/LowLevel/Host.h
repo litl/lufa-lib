@@ -78,6 +78,7 @@
 			};
 
 	/* Private Interface - For use in library only: */
+	#if !defined(__DOXYGEN__)
 		/* Macros: */
 			#define USB_Host_HostMode_On()          MACROS{ USBCON |=  (1 << HOST);           }MACROE
 			#define USB_Host_HostMode_Off()         MACROS{ USBCON &= ~(1 << HOST);           }MACROE
@@ -97,7 +98,7 @@
 			uint8_t USB_Host_WaitMS(uint8_t MS);
 			void    USB_Host_ResetDevice(void);
 			void    USB_Host_PrepareForDeviceConnect(void);
-
+	#endif
 
 	/* Disable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)

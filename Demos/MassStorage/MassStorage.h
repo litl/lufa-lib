@@ -83,7 +83,7 @@
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
-		HANDLES_EVENT(USB_CreateEndpoints);
+		HANDLES_EVENT(USB_ConfigurationChanged);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Function Prototypes: */

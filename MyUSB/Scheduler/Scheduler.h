@@ -121,9 +121,9 @@
 			/** Structure for holding a single task's information in the scheduler task list. */
 			typedef struct
 			{
-				TaskPtr_t Task;       /**< Pointer to the task to execute */
-				bool      TaskStatus; /**< Status of the task (either TASK_RUN or TASK_STOP) */
-				uint8_t   GroupID;    /**< Group ID of the task so that its status can be changed as a group */
+				TaskPtr_t Task;       /**< Pointer to the task to execute. */
+				bool      TaskStatus; /**< Status of the task (either TASK_RUN or TASK_STOP). */
+				uint8_t   GroupID;    /**< Group ID of the task so that its status can be changed as a group. */
 			} TaskEntry_t;			
 
 		/* Global Variables: */

@@ -101,7 +101,7 @@ EVENT_HANDLER(USB_Disconnect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
-EVENT_HANDLER(USB_CreateEndpoints)
+EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup Keyboard Report Endpoints */
 	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, EP_TYPE_INTERRUPT,

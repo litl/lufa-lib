@@ -37,7 +37,7 @@
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 		HANDLES_EVENT(USB_DeviceError);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
-		HANDLES_EVENT(USB_CreateEndpoints);
+		HANDLES_EVENT(USB_ConfigurationChanged);
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);
 

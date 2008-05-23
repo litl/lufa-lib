@@ -102,7 +102,7 @@ EVENT_HANDLER(USB_Disconnect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
-EVENT_HANDLER(USB_CreateEndpoints)
+EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup CDC Notification, Rx and Tx Endpoints */
 	Endpoint_ConfigureEndpoint(CDC_NOTIFICATION_EPNUM, EP_TYPE_INTERRUPT,
@@ -185,7 +185,7 @@ TASK(CDC_Task)
 	uint8_t     JoyStatus_LCL   = Joystick_GetStatus();
 	static bool ActionSent      = false;
 
-	/* Determine if a joystick action has occured */
+	/* Determine if a joystick action has ocurred */
 	if (JoyStatus_LCL & JOY_UP)
 	  ReportString = JoystickUpString;
 	else if (JoyStatus_LCL & JOY_DOWN)

@@ -40,7 +40,7 @@
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
-		HANDLES_EVENT(USB_CreateEndpoints);
+		HANDLES_EVENT(USB_ConfigurationChanged);
 
    /* Function Prototypes: */
 		void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff,

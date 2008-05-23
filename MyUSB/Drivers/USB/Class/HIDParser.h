@@ -87,21 +87,21 @@
 			/** Enum for indicating what type of report item an entry in a HID_ReportInfo_t ReportItem array is */
 			enum HID_Types_t
 			{
-				REPORT_ITEM_TYPE_In                   = 0, /**< Indicates that the item is an IN report type */
-				REPORT_ITEM_TYPE_Out                  = 1, /**< Indicates that the item is an OUT report type */
-				REPORT_ITEM_TYPE_Feature              = 2, /**< Indicates that the item is a FEATURE report type */
+				REPORT_ITEM_TYPE_In                   = 0, /**< Indicates that the item is an IN report type. */
+				REPORT_ITEM_TYPE_Out                  = 1, /**< Indicates that the item is an OUT report type. */
+				REPORT_ITEM_TYPE_Feature              = 2, /**< Indicates that the item is a FEATURE report type. */
 			};
 			
 			/** Enum for the possible error codes in the return value of the ProcessHIDReport() function */
 			enum HID_Parse_ErrorCodes_t
 			{
-				HID_PARSE_Sucessful                   = 0, /**< Sucessful parse of the HID report descriptor, no error */
-				HID_PARSE_HIDStackOverflow            = 1, /**< More than HID_STATETABLE_STACK_DEPTH nested PUSHes in the report */ 
-				HID_PARSE_HIDStackUnderflow           = 2, /**< A POP was found when the state table stack was empty */
-				HID_PARSE_InsufficientReportItems     = 3, /**< More than HID_MAX_REPORTITEMS report items in the report */
-				HID_PARSE_UnexpectedEndCollection     = 4, /**< END COLLECTION found without matching COLLECTION item */
-				HID_PARSE_InsufficientCollectionPaths = 5, /**< More than HID_MAX_COLLECTIONS collections in the report */
-				HID_PARSE_UsageStackOverflow          = 6, /**< More than HID_USAGE_STACK_DEPTH usages listed in a row */
+				HID_PARSE_Sucessful                   = 0, /**< Sucessful parse of the HID report descriptor, no error. */
+				HID_PARSE_HIDStackOverflow            = 1, /**< More than HID_STATETABLE_STACK_DEPTH nested PUSHes in the report. */ 
+				HID_PARSE_HIDStackUnderflow           = 2, /**< A POP was found when the state table stack was empty. */
+				HID_PARSE_InsufficientReportItems     = 3, /**< More than HID_MAX_REPORTITEMS report items in the report. */
+				HID_PARSE_UnexpectedEndCollection     = 4, /**< END COLLECTION found without matching COLLECTION item. */
+				HID_PARSE_InsufficientCollectionPaths = 5, /**< More than HID_MAX_COLLECTIONS collections in the report. */
+				HID_PARSE_UsageStackOverflow          = 6, /**< More than HID_USAGE_STACK_DEPTH usages listed in a row. */
 			};
 		
 		/* Type Defines: */
@@ -110,67 +110,67 @@
 			 */
 			typedef struct CollectionPath
 			{
-				uint8_t                      Type;   /**< Collection type (for example "Generic Desktop") */
-				uint16_t                     Usage;  /**< Collection usage */
-				struct CollectionPath*       Parent; /** Reference to parent collection, or NULL if root collection */
+				uint8_t                      Type;   /**< Collection type (for example "Generic Desktop"). */
+				uint16_t                     Usage;  /**< Collection usage. */
+				struct CollectionPath*       Parent; /** Reference to parent collection, or NULL if root collection. */
 			} CollectionPath_t;
 		
-			/** Type define for an attribute with both minimum and maximum values (e.g. Logical Min/Max) */
+			/** Type define for an attribute with both minimum and maximum values (e.g. Logical Min/Max). */
 			typedef struct
 			{
-				uint32_t                     Minimum; /**< Minimum value for the attribute */
-				uint32_t                     Maximum; /**< Maximum value for the attribute */
+				uint32_t                     Minimum; /**< Minimum value for the attribute. */
+				uint32_t                     Maximum; /**< Maximum value for the attribute. */
 			} HID_MinMax_t;
 
-			/** Type define for the Unit attributes of a report item */
+			/** Type define for the Unit attributes of a report item. */
 			typedef struct
 			{
-				uint32_t                     Type;     /**< Unit type (refer to HID specifications for details) */
-				uint8_t                      Exponent; /**< Unit exponent (refer to HID specifications for details) */
+				uint32_t                     Type;     /**< Unit type (refer to HID specifications for details). */
+				uint8_t                      Exponent; /**< Unit exponent (refer to HID specifications for details). */
 			} HID_Unit_t;
 			
-			/** Type define for the Usage attributes of a report item */
+			/** Type define for the Usage attributes of a report item. */
 			typedef struct
 			{
-				uint16_t                     Page;   /**< Usage page of the report item */
-				uint16_t                     Usage;  /**< Usage of the report item */
-				HID_MinMax_t                 MinMax; /**< Usage minimum and maximum of the report item */
+				uint16_t                     Page;   /**< Usage page of the report item. */
+				uint16_t                     Usage;  /**< Usage of the report item. */
+				HID_MinMax_t                 MinMax; /**< Usage minimum and maximum of the report item. */
 			} HID_Usage_t;
 
-			/** Type define for all the data attributes of a report item, except flags */
+			/** Type define for all the data attributes of a report item, except flags. */
 			typedef struct
 			{
-				uint8_t                      BitSize;  /**< Size in bits of the report item's data */
+				uint8_t                      BitSize;  /**< Size in bits of the report item's data. */
 				
-				HID_Usage_t                  Usage;    /**< Usage of the report item */
-				HID_Unit_t                   Unit;     /**< Unit type and exponent of the report item */
-				HID_MinMax_t                 Logical;  /**< Logical minimum and maximum of the report item */
-				HID_MinMax_t                 Physical; /**< Physical minimum and maximum of the report item */
+				HID_Usage_t                  Usage;    /**< Usage of the report item. */
+				HID_Unit_t                   Unit;     /**< Unit type and exponent of the report item. */
+				HID_MinMax_t                 Logical;  /**< Logical minimum and maximum of the report item. */
+				HID_MinMax_t                 Physical; /**< Physical minimum and maximum of the report item. */
 			} HID_ReportItem_Attributes_t;
 			
-			/** Type define for a report item (IN, OUT or FEATURE) attributes and other details */
+			/** Type define for a report item (IN, OUT or FEATURE) attributes and other details. */
 			typedef struct
 			{
-				uint16_t                     BitOffset;      /**< Bit offset in the IN, OUT or FEATURE report of the item */
-				uint8_t                      ItemType;       /**< Report item type, a value in HID_Types_t */
+				uint16_t                     BitOffset;      /**< Bit offset in the IN, OUT or FEATURE report of the item. */
+				uint8_t                      ItemType;       /**< Report item type, a value in HID_Types_t. */
 				uint16_t                     ItemFlags;      /**< Item data flags, such as constant/variable, etc. */
-				CollectionPath_t*            CollectionPath; /**< Collection path of the item */
+				CollectionPath_t*            CollectionPath; /**< Collection path of the item. */
 
-				HID_ReportItem_Attributes_t  Attributes;     /**< Report item attributes */
+				HID_ReportItem_Attributes_t  Attributes;     /**< Report item attributes. */
 							
-				uint32_t                     Value;          /**< Current value of the report item */
+				uint32_t                     Value;          /**< Current value of the report item. */
 			} HID_ReportItem_t;
 
-			/** Type define for a complete processed HID report, including all report item data and collections */
+			/** Type define for a complete processed HID report, including all report item data and collections. */
 			typedef struct
 			{
 				uint8_t                      TotalReportItems; /**< Total number of report items stored in the
-				                                                *   ReportItems array */
+				                                                *   ReportItems array. */
 				HID_ReportItem_t             ReportItems[HID_MAX_REPORTITEMS]; /**< Report items array, including
-			                                                                    *   all IN, OUT and FEATURE items */
+			                                                                    *   all IN, OUT and FEATURE items. */
 
 				CollectionPath_t             CollectionPaths[HID_MAX_COLLECTIONS]; /**< All collection items, referenced
-				                                                                    *   by the report items */
+				                                                                    *   by the report items. */
 			} HID_ReportInfo_t;
 			
 		/* Function Prototypes: */

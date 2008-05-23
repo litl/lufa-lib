@@ -107,11 +107,12 @@ static void USB_Device_SetAddress(void)
 
 static void USB_Device_SetConfiguration(void)
 {
-	uint8_t                  ConfigNum = Endpoint_Read_Byte();
+	uint8_t                  ConfigNum     = Endpoint_Read_Byte();
+	uint8_t                  PrevConfigNum = USB_ConfigurationNumber;
 	USB_Descriptor_Device_t* DevDescriptorPtr;
 	uint16_t                 DevDescriptorSize;
 
-	if ((USB_GetDescriptor(DTYPE_Device, 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false) ||
+	if ((USB_GetDescriptor(DTYPE_Device, 0, 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false) ||
 #if defined(USE_RAM_DESCRIPTORS)
 	    (ConfigNum > DevDescriptorPtr->NumberOfConfigurations))
 #elif defined (USE_EEPROM_DESCRIPTORS)
@@ -128,7 +129,10 @@ static void USB_Device_SetConfiguration(void)
 	Endpoint_ClearSetupReceived();
 	Endpoint_Setup_In_Clear();
 
-	RAISE_EVENT(USB_CreateEndpoints);
+	if (!(PrevConfigNum))
+	  RAISE_EVENT(USB_DeviceEnumerationComplete);
+
+	RAISE_EVENT(USB_ConfigurationChanged);
 }
 
 void USB_Device_GetConfiguration(void)
@@ -151,14 +155,17 @@ static void USB_Device_GetDescriptor(void)
 	
 	void*    DescriptorPointer;
 	uint16_t DescriptorBytesRem;
+
+	uint16_t DescriptorLanguageID = Endpoint_Read_Word_LE();
 	
 	bool     SendZeroPacket = false;
 	
-	if (!(USB_GetDescriptor(DescriptorType, DescriptorIndex, &DescriptorPointer, &DescriptorBytesRem)))
-	  return;
+	if (!(USB_GetDescriptor(DescriptorType, DescriptorIndex, DescriptorLanguageID,
+	                        &DescriptorPointer, &DescriptorBytesRem)))
+	{
+		return;
+	}
 	
-	Endpoint_Ignore_Word(); // Ignore language identifier
-
 	DescriptorBytesToSend = Endpoint_Read_Word_LE();
 	
 	Endpoint_ClearSetupReceived();
@@ -224,7 +231,7 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
 		case REQREC_DEVICE:
-			if (USB_GetDescriptor(DTYPE_Configuration, USB_ConfigurationNumber, (void*)&ConfigDescriptorPtr, &ConfigDescriptorSize) == false)
+			if (USB_GetDescriptor(DTYPE_Configuration, USB_ConfigurationNumber, 0, (void*)&ConfigDescriptorPtr, &ConfigDescriptorSize) == false)
 			  return;
 			
 #if defined(USE_RAM_DESCRIPTORS)
@@ -250,7 +257,7 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 			Endpoint_SelectEndpoint(EndpointIndex);
 
 			if (!(Endpoint_IsEnabled()))
-			  StatusByte = FEATURE_ENDPOINT_ENABLED;
+			  StatusByte = 0x01;
 
 			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			  
 			break;

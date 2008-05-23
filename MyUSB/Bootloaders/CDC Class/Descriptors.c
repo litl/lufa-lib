@@ -152,11 +152,11 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 		}
 };
 
-USB_Descriptor_Language_t LanguageString =
+USB_Descriptor_String_t LanguageString PROGMEM =
 {
-	Header:                 {Size: sizeof(USB_Descriptor_Language_t), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(1), Type: DTYPE_String},
 		
-	LanguageID:             LANGUAGE_ID_ENG
+	UnicodeString:          {LANGUAGE_ID_ENG}
 };
 
 USB_Descriptor_String_t ManafacturerString =

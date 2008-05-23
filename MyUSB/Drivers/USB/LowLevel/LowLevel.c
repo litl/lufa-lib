@@ -243,7 +243,7 @@ void USB_SetupInterface(void)
 	USB_Descriptor_Device_t* DeviceDescriptorPtr;
 	uint16_t                 DeviceDescriptorSize;
 
-	if (USB_GetDescriptor(DTYPE_Device, 0, (void*)&DeviceDescriptorPtr, &DeviceDescriptorSize) == true)
+	if (USB_GetDescriptor(DTYPE_Device, 0, 0, (void*)&DeviceDescriptorPtr, &DeviceDescriptorSize) == true)
 	{		  
 		#if defined(USE_RAM_DESCRIPTORS)
 			USB_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;

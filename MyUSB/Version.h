@@ -21,17 +21,17 @@
  *
  *  \section Sec_About About this library
  *
- * Originally based on the AT90USBKEY from Atmel, it is an open-source, driver for the USB-enabled AVR
- * microcontrollers, released under the Lesser GNU Public Licence, Version 3. Currently, the AT90USB1286,
- * AT90USB1287, AT90USB646, AT90USB647, AT90USB162, AT90USB82 and ATMEGA32U4 AVR microcontrollers are supported
- * by the library. Supported boards are the USBKEY, STK525, STK526 and RZUSBSTICK.
+ *  Originally based on the AT90USBKEY from Atmel, it is an open-source, driver for the USB-enabled AVR
+ *  microcontrollers, released under the Lesser GNU Public Licence, Version 3. Currently, the AT90USB1286,
+ *  AT90USB1287, AT90USB646, AT90USB647, AT90USB162, AT90USB82 and ATMEGA32U4 AVR microcontrollers are supported
+ *  by the library. Supported boards are the USBKEY, STK525, STK526 and RZUSBSTICK.
  *
- * The library is currently in a stable release, suitable for download and incorporation into user projects for
- * both host and device modes. For information about the project progression, check out my blog.
+ *  The library is currently in a stable release, suitable for download and incorporation into user projects for
+ *  both host and device modes. For information about the project progression, check out my blog.
  *
- * MyUSB is written specifically for the free AVR-GCC compiler, and uses several GCC-only extensions to make the
- * library API more streamlined and robust. You can download AVR-GCC for free in a convenient windows package, 
- * from the the WinAVR website.
+ *  MyUSB is written specifically for the free AVR-GCC compiler, and uses several GCC-only extensions to make the
+ *  library API more streamlined and robust. You can download AVR-GCC for free in a convenient windows package, 
+ *  from the the WinAVR website.
  *
  *  \section Sec_Links Library Links
  *  Project Homepage: http://www.fourwalledcubicle.com/MyUSB.php \n
@@ -54,6 +54,11 @@
  *  Also included with the library are two fully functional bootloaders, one using the DFU USB class and is
  *  compatible with Atmel's FLIP software or the open source dfu-programmer project, and the other using the
  *  CDC class and the AVR109 protocol to be compatible with such open source software as avrdude and AVR-OSP.
+ *
+ *  \section Sec_Donations Donate
+ *  Please consider donating a small amount to myself, to support this and my future Open Source projects. You
+ *  can donate any amount via PayPal on my website, http://www.fourwalledcubicle.com . All donations are greatly
+ *  appreciated.
  */
 
 #ifndef __MYUSB_VERSION_H__

@@ -285,6 +285,23 @@ TASK(USB_MassStore_Host)
 			for (uint16_t Byte = 0; Byte < DEVICE_BLOCK_SIZE; Byte++)
 			  printf_P(PSTR("0x%.2X "), BlockBuffer[Byte]);
 			
+			puts_P(PSTR("\r\n\r\nASCII Data:\r\n"));
+			
+			/* Do the same in ASCII characters */
+			for (uint16_t Byte = 0; Byte < DEVICE_BLOCK_SIZE; Byte++)
+			{
+				if ((BlockBuffer[Byte] >= '0' && BlockBuffer[Byte] <= '9') ||
+				    (BlockBuffer[Byte] >= 'a' && BlockBuffer[Byte] <= 'z') ||
+				    (BlockBuffer[Byte] >= 'A' && BlockBuffer[Byte] <= 'Z'))
+				{
+					printf_P(PSTR("%c"), BlockBuffer[Byte]);
+				}
+				else
+				{
+					printf_P(PSTR("%c"), '.');				
+				}
+			}
+			
 			/* Indicate device no longer busy */
 			LEDs_SetAllLEDs(LEDS_LED4);
 			

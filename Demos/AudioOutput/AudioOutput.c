@@ -102,7 +102,7 @@ EVENT_HANDLER(USB_Disconnect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
-EVENT_HANDLER(USB_CreateEndpoints)
+EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup audio stream endpoint */
 	Endpoint_ConfigureEndpoint(AUDIO_STREAM_EPNUM, EP_TYPE_ISOCHRONOUS,

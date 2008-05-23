@@ -12,6 +12,7 @@
 #define __USB_MODE_H__
 
 	/* Private Interface - For use in library only: */
+	#if !defined(__DOXYGEN__)
 		/* Macros: */
 			#if ((defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) ||   \
 			      defined(__AVR_AT90USB162__)  || defined(__AVR_AT90USB82__)  ||   \
@@ -48,5 +49,6 @@
 			#if defined(USE_STATIC_OPTIONS)
 				#define USB_Options USE_STATIC_OPTIONS
 			#endif
-			
+	#endif
+	
 #endif
