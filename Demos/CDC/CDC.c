@@ -231,9 +231,21 @@ void SendStringViaCDC(char* FlashString)
 		
 		/* Write the String to the Endpoint */
 		while ((StringByte = pgm_read_byte(FlashString++)) != 0x00)
-		  Endpoint_Write_Byte(StringByte);
-	  
-		/* Send the data */
-		Endpoint_FIFOCON_Clear();
+		{
+			Endpoint_Write_Byte(StringByte);
+			
+			/* Check if the endpoint is full */
+			if (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE)
+			{
+				/* Send the data */
+				Endpoint_FIFOCON_Clear();
+
+				/* Wait until Serial Tx Endpoint Ready for Read/Write */
+				while (!(Endpoint_ReadWriteAllowed()));
+			}
+		}
+
+		/* Send the last packet of the transfer to the host */
+		Endpoint_FIFOCON_Clear();			
 	}
 }
