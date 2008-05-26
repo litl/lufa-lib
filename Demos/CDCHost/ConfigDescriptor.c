@@ -66,7 +66,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 								   EndpointData->EndpointAddress, EndpointData->EndpointSize, PIPE_BANK_SINGLE);							   
 
 				Pipe_SetInfiniteINRequests();
-				Pipe_SetInterruptFreq(EndpointData->PollingIntervalMS);
+				Pipe_SetInterruptPeriod(EndpointData->PollingIntervalMS);
 				
 				/* Set the flag indicating that the notification pipe has been found */
 				FoundEndpoints |= (1 << CDC_NOTIFICATIONPIPE);

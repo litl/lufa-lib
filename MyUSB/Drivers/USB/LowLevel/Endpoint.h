@@ -99,7 +99,8 @@
 			 *  used with the USB_INT_* macros located in USBInterrupt.h.
 			 *
 			 *  This interrupt will fire if enabled on an INTERRUPT type endpoint if a the endpoint interrupt
-			 *  period has elapsed and the endpoint is ready for a new packet to be written (if required).
+			 *  period has elapsed and the endpoint is ready for a new packet to be written to its FIFO buffer
+			 *  (if required).
 			 */
 			#define ENDPOINT_INT_IN                            UEIENX, (1 << TXINE) , UEINTX, (1 << TXINI)
 
@@ -107,8 +108,8 @@
 			 *  used with the USB_INT_* macros located in USBInterrupt.h.
 			 *
 			 *  This interrupt will fire if enabled on an INTERRUPT type endpoint if a the endpoint interrupt
-			 *  period has elapsed and the endpoint is ready for a packet to be read from the endpoint from
-			 *  the host (if received).
+			 *  period has elapsed and the endpoint is ready for a packet from the host to be read from its
+			 *  FIFO buffer (if received).
 			 */
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UEINTX, (1 << RXOUTI)
 			
@@ -128,6 +129,9 @@
 			/** Selects the given endpoint number. If the address from the device descriptors is used, the
 			 *  value should be masked with the ENDPOINT_EPNUM_MASK constant to extract only the endpoint
 			 *  number (and discarding the endpoint direction bit).
+			 *
+			 *  Any endpoint operations which do not require the endpoint number to be indicated will operate on
+			 *  the currently selected endpoint.
 			 */
 			#define Endpoint_SelectEndpoint(epnum)     MACROS{ UENUM    =  epnum;                         }MACROE
 
@@ -138,6 +142,9 @@
 
 			/** Enables the currently selected endpoint so that data can be sent and received through it to
 			 *  and from a host.
+			 *
+			 *  \note Endpoints must first be configured properly rather than just being enabled via the
+			 *        Endpoint_ConfigureEndpoint() macro, which calls Endpoint_EnableEndpoint() automatically.
 			 */
 			#define Endpoint_EnableEndpoint()          MACROS{ UECONX  |=  (1 << EPEN);                   }MACROE
 
@@ -149,7 +156,7 @@
 			/** Returns true if the currently selected endpoint is enabled, false otherwise. */
 			#define Endpoint_IsEnabled()                     ((UECONX  &   (1 << EPEN)) ? true : false)
 
-			/** Returns true if the currently selected pipe may be read from (if data is waiting in the endpoint
+			/** Returns true if the currently selected endpoint may be read from (if data is waiting in the endpoint
 			 *  bank and the endpoint is an OUT direction, or if the bank is not yet full if the endpoint is an
 			 *  IN direction). This function will return false if an error has occured in the endpoint, or if
 			 *  the endpoint is an OUT direction and no packet has been received, or if the endpoint is an IN

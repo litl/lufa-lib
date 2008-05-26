@@ -57,7 +57,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 	                   EndpointData->EndpointAddress, EndpointData->EndpointSize, PIPE_BANK_SINGLE);
 
 	Pipe_SetInfiniteINRequests();
-	Pipe_SetInterruptFreq(EndpointData->PollingIntervalMS);
+	Pipe_SetInterruptPeriod(EndpointData->PollingIntervalMS);
 	Pipe_Unfreeze();
 			
 	/* Enable the pipe IN interrupt for the data pipe */

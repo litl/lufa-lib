@@ -68,7 +68,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 								   PIPE_BANK_DOUBLE);			
 
 				Pipe_SetInfiniteINRequests();
-				Pipe_SetInterruptFreq(EndpointData->PollingIntervalMS);
+				Pipe_SetInterruptPeriod(EndpointData->PollingIntervalMS);
 				
 				/* Set the flag indicating that the events pipe has been found */
 				FoundEndpoints |= (1 << SIMAGE_EVENTS_PIPE);
