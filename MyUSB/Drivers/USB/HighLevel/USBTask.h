@@ -42,7 +42,7 @@
 			 *  \note This variable should be treated as read-only in the user application, and never manually
 			 *        changed in value.
 			 */
-			extern volatile bool    USB_IsConnected;
+			extern volatile bool USB_IsConnected;
 
 			/** Indicates if the USB interface is currently initialized but not neccesarily connected to a host
 			 *  or device (i.e. if USB_Init() has been run).
@@ -50,7 +50,7 @@
 			 *  \note This variable should be treated as read-only in the user application, and never manually
 			 *        changed in value.
 			 */
-			extern volatile bool    USB_IsInitialized;
+			extern volatile bool USB_IsInitialized;
 
 			#if defined(USB_CAN_BE_HOST) || defined(__DOXYGEN__)
 			/** Indicates the current host state machine state. When in host mode, this indicates the state

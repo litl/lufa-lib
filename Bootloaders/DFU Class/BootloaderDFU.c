@@ -129,7 +129,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			/* If the request has a data stage, load it into the command struct */
 			if (SentCommand.DataSize)
 			{
-				while (!(Endpoint_Setup_Out_IsReceived()));
+				while (!(Endpoint_IsSetupOUTReceived()));
 
 				/* First byte of the data stage is the DNLOAD request's command */
 				SentCommand.Command = Endpoint_Read_Byte();
@@ -171,8 +171,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 						/* Check if endpoint is empty - if so clear it and wait until ready for next packet */
 						if (!(Endpoint_BytesInEndpoint()))
 						{
-							Endpoint_Setup_Out_Clear();
-							while (!(Endpoint_Setup_Out_IsReceived()));
+							Endpoint_ClearSetupOUT();
+							while (!(Endpoint_IsSetupOUTReceived()));
 						}
 
 						if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))        // Write flash
@@ -233,17 +233,17 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				}			
 			}
 
-			Endpoint_Setup_Out_Clear();
+			Endpoint_ClearSetupOUT();
 
 			/* Send ZLP to the host to acknowedge the request */
-			Endpoint_Setup_In_Clear();
-			while (!(Endpoint_Setup_In_IsReady()));
+			Endpoint_ClearSetupIN();
+			while (!(Endpoint_IsSetupINReady()));
 				
 			break;
 		case DFU_UPLOAD:
 			Endpoint_ClearSetupReceived();
 
-			while (!(Endpoint_Setup_In_IsReady()));
+			while (!(Endpoint_IsSetupINReady()));
 
 			if (DFU_State != dfuUPLOAD_IDLE)
 			{
@@ -263,8 +263,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 						/* Check if endpoint is full - if so clear it and wait until ready for next packet */
 						if (Endpoint_BytesInEndpoint() == CONTROL_ENDPOINT_SIZE)
 						{
-							Endpoint_Setup_In_Clear();
-							while (!(Endpoint_Setup_In_IsReady()));
+							Endpoint_ClearSetupIN();
+							while (!(Endpoint_IsSetupINReady()));
 						}
 
 						/* Default to one byte processed per read command */
@@ -316,11 +316,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				  DFU_State = dfuIDLE;
 			}
 
-			Endpoint_Setup_In_Clear();
+			Endpoint_ClearSetupIN();
 
 			/* Send ZLP to the host to acknowedge the request */
-			while (!(Endpoint_Setup_Out_IsReceived()));
-			Endpoint_Setup_Out_Clear();
+			while (!(Endpoint_IsSetupOUTReceived()));
+			Endpoint_ClearSetupOUT();
 
 			break;
 		case DFU_GETSTATUS:
@@ -339,10 +339,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			/* Write 8-bit state string ID number */
 			Endpoint_Write_Byte(0);
 
-			Endpoint_Setup_In_Clear();
+			Endpoint_ClearSetupIN();
 			
-			while (!(Endpoint_Setup_Out_IsReceived()));
-			Endpoint_Setup_Out_Clear();
+			while (!(Endpoint_IsSetupOUTReceived()));
+			Endpoint_ClearSetupOUT();
 	
 			break;		
 		case DFU_CLRSTATUS:
@@ -351,8 +351,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			/* Reset the status value variable to the default OK status */
 			DFU_Status = OK;
 			
-			Endpoint_Setup_In_Clear();
-			while (!(Endpoint_Setup_In_IsReady()));
+			Endpoint_ClearSetupIN();
+			while (!(Endpoint_IsSetupINReady()));
 
 			break;
 		case DFU_GETSTATE:
@@ -361,10 +361,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			/* Write the current device state to the endpoint */
 			Endpoint_Write_Byte(DFU_State);
 		
-			Endpoint_Setup_In_Clear();
+			Endpoint_ClearSetupIN();
 			
-			while (!(Endpoint_Setup_Out_IsReceived()));
-			Endpoint_Setup_Out_Clear();
+			while (!(Endpoint_IsSetupOUTReceived()));
+			Endpoint_ClearSetupOUT();
 
 			break;
 		case DFU_ABORT:
@@ -373,8 +373,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			/* Reset the current state variable to the default idle state */
 			DFU_State = dfuIDLE;
 			
-			Endpoint_Setup_In_Clear();
-			while (!(Endpoint_Setup_In_IsReady()));
+			Endpoint_ClearSetupIN();
+			while (!(Endpoint_IsSetupINReady()));
 
 			break;
 	}
@@ -389,10 +389,10 @@ static void DiscardFillerBytes(uint8_t FillerBytes)
 	{
 		if (!(Endpoint_BytesInEndpoint()))
 		{
-			Endpoint_Setup_Out_Clear();
+			Endpoint_ClearSetupOUT();
 
 			/* Wait until next data packet received */
-			while (!(Endpoint_Setup_Out_IsReceived()));
+			while (!(Endpoint_IsSetupOUTReceived()));
 		}
 
 		Endpoint_Ignore_Byte();						

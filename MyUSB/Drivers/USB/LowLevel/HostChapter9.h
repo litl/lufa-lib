@@ -76,7 +76,7 @@
 			 *  and transfers the data stored in the buffer to the device, or from the device to the buffer
 			 *  as requested.
 			 *
-			 *  \param BufferPos  Pointer to the start of the data buffer if the request has a data stage, or
+			 *  \param BufferPtr  Pointer to the start of the data buffer if the request has a data stage, or
 			 *                    NULL if the request transfers no data to or from the device.
 			 *
 			 *  \return A value from the USB_Host_SendControlErrorCodes_t enum to indicate the result.

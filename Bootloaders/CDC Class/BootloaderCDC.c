@@ -136,11 +136,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
 				  Endpoint_Write_Byte(*(LineCodingData++));	
 				
-				Endpoint_Setup_In_Clear();
-				while (!(Endpoint_Setup_In_IsReady()));
+				Endpoint_ClearSetupIN();
+				while (!(Endpoint_IsSetupINReady()));
 				
-				while (!(Endpoint_Setup_Out_IsReceived()));
-				Endpoint_Setup_Out_Clear();
+				while (!(Endpoint_IsSetupOUTReceived()));
+				Endpoint_ClearSetupOUT();
 			}
 			
 			break;
@@ -149,15 +149,15 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 
-				while (!(Endpoint_Setup_Out_IsReceived()));
+				while (!(Endpoint_IsSetupOUTReceived()));
 
 				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
 				  *(LineCodingData++) = Endpoint_Read_Byte();
 
-				Endpoint_Setup_Out_Clear();
+				Endpoint_ClearSetupOUT();
 
-				Endpoint_Setup_In_Clear();
-				while (!(Endpoint_Setup_In_IsReady()));
+				Endpoint_ClearSetupIN();
+				while (!(Endpoint_IsSetupINReady()));
 			}
 	
 			break;
@@ -166,8 +166,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 				
-				Endpoint_Setup_In_Clear();
-				while (!(Endpoint_Setup_In_IsReady()));
+				Endpoint_ClearSetupIN();
+				while (!(Endpoint_IsSetupINReady()));
 			}
 	
 			break;

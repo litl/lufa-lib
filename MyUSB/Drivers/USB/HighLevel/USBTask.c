@@ -66,7 +66,7 @@ static void USB_DeviceTask(void)
 	
 		Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 
-		if (Endpoint_IsSetupRecieved())
+		if (Endpoint_IsSetupReceived())
 		  USB_Device_ProcessControlPacket();
 		  
 		Endpoint_SelectEndpoint(PrevEndpoint);
@@ -90,7 +90,7 @@ static void USB_HostTask(void)
 				USB_IsConnected = true;
 				RAISE_EVENT(USB_Connect);
 					
-				USB_Host_SOFGeneration_Enable();
+				USB_Host_ResumeBus();
 				Pipe_ClearPipes();
 				
 				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)

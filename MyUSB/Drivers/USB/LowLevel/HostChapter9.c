@@ -20,11 +20,11 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 {
 	uint8_t* HeaderStream   = (uint8_t*)&USB_HostRequest;
 	uint8_t* DataStream     = (uint8_t*)BufferPtr;
-	bool     SOFGenEnabled  = USB_Host_SOFGeneration_IsEnabled();
+	bool     SOFGenEnabled  = USB_Host_IsBusSuspended();
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Successful;
 	uint16_t DataLen        = USB_HostRequest.DataLength;
 
-	USB_Host_SOFGeneration_Enable();
+	USB_Host_ResumeBus();
 	
 	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
 	  return ReturnStatus;
@@ -40,7 +40,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 	for (uint8_t HeaderByte = 0; HeaderByte < sizeof(USB_Host_Request_Header_t); HeaderByte++)
 	  Pipe_Write_Byte(*(HeaderStream++));
 
-	Pipe_Setup_Out_Clear();
+	Pipe_ClearSetupOUT();
 	
 	if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Setup_Sent)))
 	  goto End_Of_Control_Send;
@@ -71,7 +71,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 				  *(DataStream++) = Pipe_Read_Byte();			
 
 				Pipe_Freeze();
-				Pipe_Setup_In_Clear();
+				Pipe_ClearSetupIN();
 			}
 		}
 
@@ -81,7 +81,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 		if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Out_Ready)))
 		  goto End_Of_Control_Send;
 
-		Pipe_Setup_Out_Clear();
+		Pipe_ClearSetupOUT();
 	}
 	else
 	{
@@ -108,7 +108,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 				if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Out_Ready)))
 				  goto End_Of_Control_Send;
 
-				Pipe_Setup_Out_Clear();
+				Pipe_ClearSetupOUT();
 			}
 		}
 		
@@ -119,14 +119,14 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 		if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_In_Received)))
 		  goto End_Of_Control_Send;
 
-		Pipe_Setup_In_Clear();
+		Pipe_ClearSetupIN();
 	}
 
 End_Of_Control_Send:
 	Pipe_Freeze();
 	
 	if (!(SOFGenEnabled))
-	  USB_Host_SOFGeneration_Disable();
+	  USB_Host_SuspendBus();
 
 	Pipe_ResetPipe(PIPE_CONTROLPIPE);
 
@@ -137,9 +137,9 @@ static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType)
 {
 	uint16_t TimeoutCounter = USB_HOST_TIMEOUT_MS;
 
-	while (!(((WaitType == Wait_For_Setup_Sent)  && Pipe_IsSetupSent())         ||
-	         ((WaitType == Wait_For_In_Received) && Pipe_Setup_In_IsReceived()) ||
-	         ((WaitType == Wait_For_Out_Ready)   && Pipe_Setup_Out_IsReady())))
+	while (!(((WaitType == Wait_For_Setup_Sent)  && Pipe_IsSetupSent())       ||
+	         ((WaitType == Wait_For_In_Received) && Pipe_IsSetupINReceived()) ||
+	         ((WaitType == Wait_For_Out_Ready)   && Pipe_IsSetupOUTReady())))
 	{
 		uint8_t ErrorCode;
 

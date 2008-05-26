@@ -91,10 +91,10 @@
 			#define Pipe_ClearStall()              MACROS{ UPINTX  &= ~(1 << RXSTALLI);                            }MACROE             
 			#define Pipe_IsStalled()                     ((UPINTX  &   (1 << RXSTALLI)) ? true : false)
 
-			#define Pipe_Setup_In_Clear()          MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);    }MACROE
-			#define Pipe_Setup_In_IsReceived()           ((UPINTX  &   (1 << RXINI)) ? true : false)
-			#define Pipe_Setup_Out_Clear()         MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
-			#define Pipe_Setup_Out_IsReady()             ((UPINTX  &   (1 << TXOUTI)) ? true : false)
+			#define Pipe_IsSetupINReceived()             ((UPINTX  &   (1 << RXINI)) ? true : false)
+			#define Pipe_IsSetupOUTReady()               ((UPINTX  &   (1 << TXOUTI)) ? true : false)
+			#define Pipe_ClearSetupIN()            MACROS{ UPINTX  &= ~(1 << RXINI); UPINTX &= ~(1 << FIFOCON);    }MACROE
+			#define Pipe_ClearSetupOUT()           MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
 
 		/* Enums: */
 			enum Pipe_Stream_RW_ErrorCodes_t
@@ -233,7 +233,6 @@
 			extern uint8_t USB_ControlPipeSize;
 
 		/* Function Prototypes: */
-			void    Pipe_ClearPipes(void);
 			uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 			uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 			uint8_t Pipe_Read_Stream_LE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
@@ -264,6 +263,7 @@
 			};
 		
 		/* Function Prototypes: */
+			void Pipe_ClearPipes(void);
 			void Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata,
 			                          const uint8_t UPCFG1Xdata);
 	#endif

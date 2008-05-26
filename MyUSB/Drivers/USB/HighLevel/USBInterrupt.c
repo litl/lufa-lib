@@ -79,9 +79,9 @@ ISR(USB_GEN_vect)
 		#endif
 		while (!(USB_PLL_IsReady()));
 
-		USB_INT_Clear(USB_INT_WAKEUP);
-
 		USB_CLK_Unfreeze();
+
+		USB_INT_Clear(USB_INT_WAKEUP);
 
 		USB_INT_Disable(USB_INT_WAKEUP);
 		USB_INT_Enable(USB_INT_SUSPEND);

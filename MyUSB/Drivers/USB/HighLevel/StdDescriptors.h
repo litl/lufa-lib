@@ -321,23 +321,23 @@
 			 *  (added with full, identical prototype and name) so that the library can call it to retrieve
 			 *  descriptor data.
 			 *
-			 *  \param Type            The type of the descriptor to retrieve. This may be one of the standard types defined
-			 *                         in the DescriptorTypes_t enum, or may be a class-specific descriptor type value.
-			 *  \param Index           Index of the descriptor to retrieve, when more than one of the given descriptor
-			 *                         types exist. For example, the descriptor type may be DTYPE_String, whereupon the
-			 *                         Index parameter will give the index number of the string to retreive.
-			 *  \param LanguageID      The language ID of the string to return. On devices supporting multiple languages,
-			 *                         this value selects the desired language of the string descriptor. For descriptors
-			 *                         other than string descriptors, this value is set to 0.
-			 *  \param DescriptorAddr  Pointer to the descriptor in memory. This should be set by the routine to
-			 *                         the location of the descriptor, found by the DESCRIPTOR_ADDRESS macro.
-			 *  \param DescriptorSize  Pointer to a variable storing the size of the requested descriptor. This
-			 *                         should be set by the routine to the size in bytes of the descriptor.
+			 *  \param Type               The type of the descriptor to retrieve. This may be one of the standard types defined
+			 *                            in the DescriptorTypes_t enum, or may be a class-specific descriptor type value.
+			 *  \param Index              Index of the descriptor to retrieve, when more than one of the given descriptor
+			 *                            types exist. For example, the descriptor type may be DTYPE_String, whereupon the
+			 *                            Index parameter will give the index number of the string to retreive.
+			 *  \param LanguageID         The language ID of the string to return. On devices supporting multiple languages,
+			 *                            this value selects the desired language of the string descriptor. For descriptors
+			 *                            other than string descriptors, this value is set to 0.
+			 *  \param DescriptorAddress  Pointer to the descriptor in memory. This should be set by the routine to
+			 *                            the location of the descriptor, found by the DESCRIPTOR_ADDRESS macro.
+			 *  \param DescriptorSize     Pointer to a variable storing the size of the requested descriptor. This
+			 *                            should be set by the routine to the size in bytes of the descriptor.
 			 *
 			 *  \return Boolean true if the requested descriptor exists, false otherwise
 			 */
 			bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
-			                       void** const DescriptorAddr, uint16_t* const DescriptorSize)
+			                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 			                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(4, 5);
 
 	/* Disable C linkage for C++ Compilers: */

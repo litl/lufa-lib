@@ -119,6 +119,9 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 
 ISR(ENDPOINT_PIPE_vect)
 {
+	/* Save previously selected endpoint before selecting a new endpoint */
+	uint8_t PrevSelectedEndpoint = Endpoint_GetCurrentEndpoint();
+
 	/* Check if keyboard endpoint has interrupted */
 	if (Endpoint_HasEndpointInterrupted(KEYBOARD_EPNUM))
 	{
@@ -183,5 +186,8 @@ ISR(ENDPOINT_PIPE_vect)
 		/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
 		Endpoint_FIFOCON_Clear();
 	}
+	
+	/* Restore previously selected endpoint */
+	Endpoint_SelectEndpoint(PrevSelectedEndpoint);
 }
 

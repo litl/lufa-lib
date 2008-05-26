@@ -130,7 +130,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
-				Endpoint_Setup_In_Clear();
+				Endpoint_ClearSetupIN();
 			}
 
 			break;
@@ -139,7 +139,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();			
 				Endpoint_Write_Byte(0x00);
-				Endpoint_Setup_In_Clear();
+				Endpoint_ClearSetupIN();
 			}
 			
 			break;

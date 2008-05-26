@@ -172,7 +172,7 @@ USB_Descriptor_String_t SerialNumberString PROGMEM =
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
-                       void** const DescriptorAddr, uint16_t* const DescriptorSize)
+                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 {
 	void*    Address = NULL;
 	uint16_t Size    = 0;
@@ -221,8 +221,8 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t L
 	
 	if (Address != NULL)
 	{
-		*DescriptorAddr = Address;
-		*DescriptorSize = Size;
+		*DescriptorAddress = Address;
+		*DescriptorSize    = Size;
 
 		return true;
 	}

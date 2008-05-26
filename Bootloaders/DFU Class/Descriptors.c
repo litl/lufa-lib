@@ -106,50 +106,50 @@ USB_Descriptor_String_t SerialNumberString =
 	UnicodeString:          {'1','.',('0'+  BOOTLOADER_VERSION_MINOR),'.',('0'+  BOOTLOADER_VERSION_REV)}
 };
 
-bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index,
-                       void** const DescriptorAddr, uint16_t* const Size)
+bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
+					   void** const DescriptorAddress, uint16_t* const DescriptorSize)
 {
-	void*    DescriptorAddress = NULL;
-	uint16_t DescriptorSize    = 0;
+	void*    Address = NULL;
+	uint16_t Size    = 0;
 
 	switch (Type)
 	{
 		case DTYPE_Device:
-			DescriptorAddress = DESCRIPTOR_ADDRESS(DeviceDescriptor);
-			DescriptorSize    = sizeof(USB_Descriptor_Device_t);
+			Address = DESCRIPTOR_ADDRESS(DeviceDescriptor);
+			Size    = sizeof(USB_Descriptor_Device_t);
 			break;
 		case DTYPE_Configuration:
-			DescriptorAddress = DESCRIPTOR_ADDRESS(ConfigurationDescriptor);
-			DescriptorSize    = sizeof(USB_Descriptor_Configuration_t);
+			Address = DESCRIPTOR_ADDRESS(ConfigurationDescriptor);
+			Size    = sizeof(USB_Descriptor_Configuration_t);
 			break;
 		case DTYPE_String:
 			switch (Index)
 			{
 				case 0x00:
-					DescriptorAddress = DESCRIPTOR_ADDRESS(LanguageString);
-					DescriptorSize    = sizeof(USB_Descriptor_Language_t);
+					Address = DESCRIPTOR_ADDRESS(LanguageString);
+					Size    = LanguageString.Header.Size;
 					break;
 				case 0x01:
-					DescriptorAddress = DESCRIPTOR_ADDRESS(ManafacturerString);
-					DescriptorSize    = ManafacturerString.Header.Size;
+					Address = DESCRIPTOR_ADDRESS(ManafacturerString);
+					Size    = ManafacturerString.Header.Size;
 					break;
 				case 0x02:
-					DescriptorAddress = DESCRIPTOR_ADDRESS(ProductString);
-					DescriptorSize    = ProductString.Header.Size;
+					Address = DESCRIPTOR_ADDRESS(ProductString);
+					Size    = ProductString.Header.Size;
 					break;
 				case 0x03:
-					DescriptorAddress = DESCRIPTOR_ADDRESS(SerialNumberString);
-					DescriptorSize    = SerialNumberString.Header.Size;
+					Address = DESCRIPTOR_ADDRESS(SerialNumberString);
+					Size    = SerialNumberString.Header.Size;
 					break;
 			}
 			
 			break;
 	}
 	
-	if (DescriptorAddress != NULL)
+	if (Address != NULL)
 	{
-		*DescriptorAddr = DescriptorAddress;
-		*Size           = DescriptorSize;
+		*DescriptorAddress = Address;
+		*DescriptorSize    = Size;
 
 		return true;
 	}

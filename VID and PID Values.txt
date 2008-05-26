@@ -13,7 +13,7 @@ VID    | PID    | Use
 0x03EB | 0x2046 | Audio Output Demo Application
 0x03EB | 0x2047 | Audio Input Demo Application
 0x03EB | 0x2048 | MIDI Demo Application
-0x03EB | 0x2049 | MagStripe Demo Application
+0x03EB | 0x2049 | MagStripe Project
 0x03EB | 0x204A | CDC Bootloader
 0x03EB | 0x204B | USB to Serial Demo Application
 0x03EB | 0x204C | * UNUSED - FREE FOR HOBBYIST PROJECTS UNTIL ALLOCATED *
