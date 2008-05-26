@@ -156,5 +156,5 @@ EVENT_HANDLER(USB_DeviceUnattached)
 
 EVENT_HANDLER(USB_DeviceEnumerationComplete)
 {
-	puts_P(PSTR(EVENT_PREFIX "Device Enumeration Complete"));
+	puts_P(PSTR(EVENT_PREFIX "Device Enumeration Complete\r\n"));
 }

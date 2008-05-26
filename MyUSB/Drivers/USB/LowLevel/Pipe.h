@@ -97,25 +97,31 @@
 			#define Pipe_ClearSetupOUT()           MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
 
 		/* Enums: */
+			/** Enum for the possible error return codes of the Pipe_*_Stream_* functions. */
 			enum Pipe_Stream_RW_ErrorCodes_t
 			{
-				PIPE_RWSTREAM_ERROR_NoError            = 0,
-				PIPE_RWSTREAM_ERROR_PipeStalled        = 1,				
-				PIPE_RWSTREAM_ERROR_DeviceDisconnected = 2,
+				PIPE_RWSTREAM_ERROR_NoError            = 0, /**< Command completed successfully, no error. */
+				PIPE_RWSTREAM_ERROR_PipeStalled        = 1, /**< The device stalled the pipe during the transfer. */		
+				PIPE_RWSTREAM_ERROR_DeviceDisconnected = 2, /**< Device was disconnected from the host during
+			                                                 *   the transfer.
+			                                                 */
 			};
 
 		/* Inline Functions: */
+			/** Reads one byte from the currently selected pipe's bank, for OUT direction pipes. */
 			static inline uint8_t Pipe_Read_Byte(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Pipe_Read_Byte(void)
 			{
 				return UPDATX;
 			}
 
+			/** Writes one byte from the currently selected pipe's bank, for IN direction pipes. */
 			static inline void Pipe_Write_Byte(const uint8_t Byte)
 			{
 				UPDATX = Byte;
 			}
 
+			/** Discards one byte from the currently selected pipe's bank, for OUT direction pipes. */
 			static inline void Pipe_Ignore_Byte(void)
 			{
 				uint8_t Dummy;
@@ -123,6 +129,9 @@
 				Dummy = UPDATX;
 			}
 			
+			/** Reads two bytes from the currently selected pipe's bank in little endian format, for OUT
+			 *  direction pipes.
+			 */
 			static inline uint16_t Pipe_Read_Word_LE(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint16_t Pipe_Read_Word_LE(void)
 			{
@@ -134,6 +143,9 @@
 				return Data;
 			}
 
+			/** Reads two bytes from the currently selected pipe's bank in big endian format, for OUT
+			 *  direction pipes.
+			 */
 			static inline uint16_t Pipe_Read_Word_BE(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint16_t Pipe_Read_Word_BE(void)
 			{
@@ -145,18 +157,25 @@
 				return Data;
 			}
 			
+			/** Writes two bytes to the currently selected pipe's bank in little endian format, for IN
+			 *  direction pipes.
+			 */
 			static inline void Pipe_Write_Word_LE(const uint16_t Word)
 			{
 				UPDATX = (Word & 0xFF);
 				UPDATX = (Word >> 8);
 			}
 			
+			/** Writes two bytes to the currently selected pipe's bank in big endian format, for IN
+			 *  direction pipes.
+			 */
 			static inline void Pipe_Write_Word_BE(const uint16_t Word)
 			{
 				UPDATX = (Word >> 8);
 				UPDATX = (Word & 0xFF);
 			}
 
+			/** Discards two bytes from the currently selected pipe's bank, for OUT direction pipes. */
 			static inline void Pipe_Ignore_Word(void)
 			{
 				uint8_t Dummy;
@@ -165,6 +184,9 @@
 				Dummy = UPDATX;
 			}
 
+			/** Reads four bytes from the currently selected pipe's bank in little endian format, for OUT
+			 *  direction pipes.
+			 */
 			static inline uint32_t Pipe_Read_DWord_LE(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint32_t Pipe_Read_DWord_LE(void)
 			{
@@ -182,6 +204,9 @@
 				return Data.DWord;
 			}
 
+			/** Reads four bytes from the currently selected pipe's bank in big endian format, for OUT
+			 *  direction pipes.
+			 */
 			static inline uint32_t Pipe_Read_DWord_BE(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint32_t Pipe_Read_DWord_BE(void)
 			{
@@ -199,18 +224,25 @@
 				return Data.DWord;
 			}
 
+			/** Writes four bytes to the currently selected pipe's bank in little endian format, for IN
+			 *  direction pipes.
+			 */
 			static inline void Pipe_Write_DWord_LE(const uint32_t DWord)
 			{
 				Pipe_Write_Word_LE(DWord);
 				Pipe_Write_Word_LE(DWord >> 16);
 			}
 			
+			/** Writes four bytes to the currently selected pipe's bank in big endian format, for IN
+			 *  direction pipes.
+			 */			
 			static inline void Pipe_Write_DWord_BE(const uint32_t DWord)
 			{
 				Pipe_Write_Word_BE(DWord >> 16);
 				Pipe_Write_Word_BE(DWord);
 			}			
 			
+			/** Discards four bytes from the currently selected pipe's bank, for OUT direction pipes. */
 			static inline void Pipe_Ignore_DWord(void)
 			{
 				uint8_t Dummy;
@@ -221,23 +253,97 @@
 				Dummy = UPDATX;
 			}
 
-		/* Function Aliases: */
-			#define Pipe_Read_Word()                   Pipe_Read_Word_LE()
-			#define Pipe_Write_Word(Word)              Pipe_Write_Word_LE(Word)
-			#define Pipe_Read_DWord()                  Pipe_Read_DWord_LE()
-			#define Pipe_Write_DWord(DWord)            Pipe_Write_DWord_LE(DWord)
-			#define Pipe_Write_Stream(Data, Length)    Pipe_Write_Stream_LE(Data, Length)
-			#define Pipe_Read_Stream(Buffer, Length)   Pipe_Read_Stream_LE(Buffer, Length)
-
 		/* External Variables: */
+			/** Global indicating the maximum packet size of the default control pipe located at address
+			 *  0 in the device. This value is set to the value indicated in the attached device's device
+		     *  descriptor once the USB interface is initialized into host mode and a device is attached
+			 *  to the USB bus.
+			 *
+			 *  \note This variable should be treated as read-only in the user application, and never manually
+			 *        changed in value.
+			 */
 			extern uint8_t USB_ControlPipeSize;
 
 		/* Function Prototypes: */
+			/** Writes the given number of bytes to the pipe from the given buffer in little endian,
+			 *  sending full packets to the device as needed. The last packet filled is not automatically sent;
+			 *  the user is responsible for manually sending the last written packet to the host via the
+			 *  Pipe_FIFOCON_Clear() macro.
+			 *
+			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
+			 *  \param Length  Number of bytes to read for the currently selected pipe into the buffer.
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
 			uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Writes the given number of bytes to the pipe from the given buffer in big endian,
+			 *  sending full packets to the device as needed. The last packet filled is not automatically sent;
+			 *  the user is responsible for manually sending the last written packet to the host via the
+			 *  Pipe_FIFOCON_Clear() macro.
+			 *
+			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
+			 *  \param Length  Number of bytes to read for the currently selected pipe into the buffer.
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
 			uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			
+			/** Reads the given number of bytes from the pipe from the given buffer in little endian,
+			 *  discarding fully read packets from the host as needed. The last packet is not automatically
+			 *  discarded once the remaining bytes has been read; the user is responsible for manually
+			 *  discarding the last packet from the host via the Pipe_FIFOCON_Clear() macro.
+			 *
+			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
+			 *  \param Length  Number of bytes to send via the currently selected pipe.
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
 			uint8_t Pipe_Read_Stream_LE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Reads the given number of bytes from the pipe from the given buffer in big endian,
+			 *  discarding fully read packets from the host as needed. The last packet is not automatically
+			 *  discarded once the remaining bytes has been read; the user is responsible for manually
+			 *  discarding the last packet from the host via the Pipe_FIFOCON_Clear() macro.
+			 *
+			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
+			 *  \param Length  Number of bytes to send via the currently selected pipe.
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
 			uint8_t Pipe_Read_Stream_BE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 		
+		/* Function Aliases: */
+			/** Alias for Pipe_Read_Word_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Pipe_Read_Word()                   Pipe_Read_Word_LE()
+
+			/** Alias for Pipe_Write_Word_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Pipe_Write_Word(Word)              Pipe_Write_Word_LE(Word)
+
+			/** Alias for Pipe_Read_DWord_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Pipe_Read_DWord()                  Pipe_Read_DWord_LE()
+
+			/** Alias for Pipe_Write_DWord_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Pipe_Write_DWord(DWord)            Pipe_Write_DWord_LE(DWord)
+
+			/** Alias for Pipe_Read_Stream_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Pipe_Read_Stream(Buffer, Length)   Pipe_Read_Stream_LE(Buffer, Length)
+
+			/** Alias for Pipe_Write_Stream_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Pipe_Write_Stream(Data, Length)    Pipe_Write_Stream_LE(Data, Length)
+
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Inline Functions: */

@@ -15,8 +15,8 @@
 
 uint8_t USB_Host_WaitMS(uint8_t MS)
 {
-	bool    SOFGenEnabled  = USB_Host_IsBusSuspended();
-	uint8_t ErrorCode      = HOST_WAITERROR_Successful;
+	bool    BusSuspended = USB_Host_IsBusSuspended();
+	uint8_t ErrorCode    = HOST_WAITERROR_Successful;
 	
 	USB_INT_Clear(USB_INT_HSOFI);
 	USB_Host_ResumeBus();
@@ -53,7 +53,7 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 		}
 	}
 
-	if (!(SOFGenEnabled))
+	if (BusSuspended)
 	  USB_Host_SuspendBus();
 
 	return ErrorCode;
@@ -61,7 +61,7 @@ uint8_t USB_Host_WaitMS(uint8_t MS)
 
 void USB_Host_ResetDevice(void)
 {
-	bool SOFGenEnabled = USB_Host_IsBusSuspended();
+	bool BusSuspended = USB_Host_IsBusSuspended();
 
 	USB_INT_Disable(USB_INT_DDISCI);
 	
@@ -89,7 +89,7 @@ void USB_Host_ResetDevice(void)
 		_delay_ms(1);
 	}
 
-	if (!(SOFGenEnabled))
+	if (BusSuspended)
 	  USB_Host_SuspendBus();
 
 	USB_INT_Enable(USB_INT_DDISCI);

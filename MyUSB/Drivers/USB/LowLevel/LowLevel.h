@@ -22,11 +22,11 @@
 		#include <avr/interrupt.h>
 		#include <stdbool.h>
 		
+		#include "USBMode.h"
 		#include "../../../Common/Common.h"
 		#include "../HighLevel/Events.h"
 		#include "../HighLevel/USBTask.h"
 		#include "../HighLevel/USBInterrupt.h"
-		#include "USBMode.h"
 		
 		#if defined(USB_CAN_BE_HOST) || defined(__DOXYGEN__)
 			#include "Host.h"
@@ -147,7 +147,23 @@
 			 *  otherwise returns false.
 			 */
 			#define USB_VBUS_GetStatus()             ((USBSTA & (1 << VBUS)) ? true : false)
-	
+
+			/** Detaches the device from the USB bus. This has the effect of removing the device from any
+			 *  host if, ceasing USB communications. If no host is present, this prevents any host from
+			 *  enumerating the device once attached until USB_Attach() is called.
+			 */
+			#define USB_Detach()                    MACROS{ UDCON  |=  (1 << DETACH);  }MACROE
+
+			/** Attaches the device to the USB bus. This announces the device's presence to any attached
+			 *  USB host, starting the enumeration process. If no host is present, attaching the device
+			 *  will allow for enumeration once a host is connected to the device.
+			 *
+			 *  This is inexplicably also required for proper operation while in host mode, to enable the
+			 *  attachment of a device to the host. This is despite the bit being located in the device-mode
+			 *  register and despite the datasheet making no mention of its requirement in host mode.
+			 */
+			#define USB_Attach()                    MACROS{ UDCON  &= ~(1 << DETACH);  }MACROE
+			
 		/* Function Prototypes: */
 			/** Main function to initialize and start the USB interface. Once active, the USB interface will
 			 *  allow for device connection to a host when in device mode, or for device enumeration while in
@@ -292,10 +308,6 @@
 
 		/* Function Prototypes: */
 			void USB_SetupInterface(void);
-			
-			#if defined(INCLUDE_FROM_LOWLEVEL_C)
-				static void USB_ResetInterface(void);
-			#endif
 	#endif
 	
 	/* Disable C linkage for C++ Compilers: */

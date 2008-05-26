@@ -20,7 +20,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 {
 	uint8_t* HeaderStream   = (uint8_t*)&USB_HostRequest;
 	uint8_t* DataStream     = (uint8_t*)BufferPtr;
-	bool     SOFGenEnabled  = USB_Host_IsBusSuspended();
+	bool     BusSuspended   = USB_Host_IsBusSuspended();
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Successful;
 	uint16_t DataLen        = USB_HostRequest.DataLength;
 
@@ -125,7 +125,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 End_Of_Control_Send:
 	Pipe_Freeze();
 	
-	if (!(SOFGenEnabled))
+	if (BusSuspended)
 	  USB_Host_SuspendBus();
 
 	Pipe_ResetPipe(PIPE_CONTROLPIPE);

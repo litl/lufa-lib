@@ -10,7 +10,6 @@
 
 #include "USBMode.h"
 
-#define INCLUDE_FROM_LOWLEVEL_C
 #include "LowLevel.h"
 
 #if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
@@ -115,7 +114,22 @@ void USB_Init(
 
 void USB_ShutDown(void)
 {
-	USB_ResetInterface();
+	if (USB_IsConnected)
+	  RAISE_EVENT(USB_Disconnect);
+
+	USB_INT_DisableAllInterrupts();
+	USB_INT_ClearAllInterrupts();
+
+	USB_IsConnected         = false;
+	USB_IsInitialized       = false;
+
+	#if defined(USB_CAN_BE_HOST)
+	USB_HostState           = HOST_STATE_Unattached;
+	#endif
+
+	#if defined(USB_CAN_BE_DEVICE)
+	USB_ConfigurationNumber = 0;
+	#endif
 
 	#if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
 	USB_CurrentMode = USB_MODE_NONE;
@@ -137,27 +151,10 @@ void USB_ShutDown(void)
 	#endif
 }
 
-static void USB_ResetInterface(void)
+void USB_SetupInterface(void)
 {
-	if (USB_IsConnected)
-	  RAISE_EVENT(USB_Disconnect);
-
 	USB_INT_DisableAllInterrupts();
 	USB_INT_ClearAllInterrupts();
-
-	#if defined(USB_CAN_BE_DEVICE)
-	Endpoint_ClearEndpoints();
-	USB_Detach();
-	#endif
-
-	#if defined(USB_CAN_BE_HOST)
-	Pipe_ClearPipes();
-	USB_Host_VBUS_Auto_Enable();
-	USB_Host_VBUS_Auto_Off();
-	USB_Host_HostMode_Off();
-	#endif
-		
-	USB_REG_Off();
 
 	USB_IsConnected         = false;
 	USB_IsInitialized       = false;
@@ -169,43 +166,7 @@ static void USB_ResetInterface(void)
 	#if defined(USB_CAN_BE_DEVICE)
 	USB_ConfigurationNumber = 0;
 	#endif
-}
-
-void USB_SetupInterface(void)
-{	
-	USB_ResetInterface();
-
-	#if defined(USB_CAN_BE_BOTH)
-	if (UHWCON & (1 << UIDE))
-	{
-		USB_INT_Clear(USB_INT_IDTI);
-		USB_INT_Enable(USB_INT_IDTI);
-	}
-	#endif
-
-	#if defined(USB_CAN_BE_DEVICE)
-	Endpoint_ClearEndpoints();
-	#endif
 	
-	#if defined(USB_CAN_BE_HOST)
-	Pipe_ClearPipes();
-	#endif
-	
-	#if defined(USB_CAN_BE_BOTH)
-	if (UHWCON & (1 << UIDE))
-	{
-		USB_INT_Enable(USB_INT_IDTI);
-		USB_CurrentMode = USB_GetUSBModeFromUID();
-	}
-	#elif defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER)
-		USB_INT_Enable(USB_INT_VBUS);
-		#endif
-	#endif
-		
-	if (!(USB_Options & USB_OPT_REG_DISABLED))
-	  USB_REG_On();
-
 	#if defined(__AVR_ATmega32U4__) && !defined(MANUAL_PLL_CONTROL)
 	PLLFRQ = ((1 << PLLUSB) | (1 << PDIV3) | (1 << PDIV1));
 	#endif
@@ -217,6 +178,23 @@ void USB_SetupInterface(void)
 	while (!(USB_PLL_IsReady()));
 		
 	USB_Interface_Reset();
+	
+	#if defined(USB_CAN_BE_BOTH)
+	if (UHWCON & (1 << UIDE))
+	{
+		USB_INT_Clear(USB_INT_IDTI);
+		USB_INT_Enable(USB_INT_IDTI);
+		USB_CurrentMode = USB_GetUSBModeFromUID();
+	}
+	#elif defined(USB_DEVICE_ONLY)
+		#if defined(USB_FULL_CONTROLLER)
+		USB_INT_Enable(USB_INT_VBUS);
+		#endif
+	#endif
+		
+	if (!(USB_Options & USB_OPT_REG_DISABLED))
+	  USB_REG_On();
+	
 	USB_CLK_Unfreeze();
 
 	#if (defined(USB_CAN_BE_DEVICE) && defined(USB_FULL_CONTROLLER))
@@ -252,9 +230,9 @@ void USB_SetupInterface(void)
 			USB_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 		#endif
 	}
+	#endif
 
 	USB_Attach();
-	#endif
 	
 	#if defined(USB_DEVICE_ONLY)	
 	USB_INT_Enable(USB_INT_SUSPEND);
@@ -277,6 +255,5 @@ void USB_SetupInterface(void)
 	USB_InitTaskPointer();
 	#else
 	USB_IsInitialized = true;
-	USB_IsConnected   = false;
 	#endif
 }

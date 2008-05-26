@@ -27,6 +27,9 @@ ISR(USB_GEN_vect)
 			
 			if (USB_IsInitialized)
 			{
+				if (USB_IsConnected)
+				  RAISE_EVENT(USB_Disconnect);
+
 				USB_SetupInterface();
 				
 				USB_IsConnected = true;
@@ -135,7 +138,7 @@ ISR(USB_GEN_vect)
 
 		RAISE_EVENT(USB_HostError, HOST_ERROR_VBusVoltageDip);
 		RAISE_EVENT(USB_DeviceUnattached);
-					
+
 		USB_IsConnected = false;
 		USB_HostState   = HOST_STATE_Unattached;
 	}

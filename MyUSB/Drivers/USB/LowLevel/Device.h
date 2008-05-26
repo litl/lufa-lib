@@ -79,18 +79,6 @@
 			 */
 			#define USB_Device_IsUSBSuspended()           ((UDINT &  (1 << SUSPI)) ? true : false)
 
-			/** Detaches the device from the USB bus. This has the effect of removing the device from any
-			 *  host if, ceasing USB communications. If no host is present, this prevents any host from
-			 *  enumerating the device once attached until USB_Attach() is called.
-			 */
-			#define USB_Detach()                    MACROS{ UDCON  |=  (1 << DETACH);  }MACROE
-
-			/** Attaches the device to the USB bus. This announces the device's presence to any attached
-			 *  USB host, starting the enumeration process. If no host is present, attaching the device
-			 *  will allow for enumeration once a host is connected to the device.
-			 */
-			#define USB_Attach()                    MACROS{ UDCON  &= ~(1 << DETACH);  }MACROE
-
 		/* Enums: */
 			/** Enum for the ErrorCode parameter of the USB_DeviceError event.
 			 *

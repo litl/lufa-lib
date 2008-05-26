@@ -107,13 +107,13 @@ TASK(TestApp_CheckJoystick)
 	  LEDMask |= LEDS_LED1;
 		
 	if (JoyStatus_LCL & JOY_DOWN)
-	  LEDMask |= LEDS_LED1;
+	  LEDMask |= LEDS_LED2;
 
 	if (JoyStatus_LCL & JOY_LEFT)
-	  LEDMask |= LEDS_LED1;
+	  LEDMask |= LEDS_LED3;
 
 	if (JoyStatus_LCL & JOY_RIGHT)
-	  LEDMask |= LEDS_LED1;
+	  LEDMask |= LEDS_LED4;
 			
 	if (JoyStatus_LCL & JOY_PRESS)
 	  LEDMask  = LEDS_ALL_LEDS;
