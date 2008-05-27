@@ -26,10 +26,10 @@
 	/* Macros: */
 		#define BOOTLOADER_VERSION_MINOR 1
 		#define BOOTLOADER_VERSION_REV   0
+		#define BOOTLOADER_VERSION       ((BOOTLOADER_VERSION_MINOR << 4) | BOOTLOADER_VERSION_REV)
+
 		#define BOOTLOADER_ID_BYTE1      0xDC
 		#define BOOTLOADER_ID_BYTE2      0xFB
-
-		#define BOOTLOADER_VERSION       ((BOOTLOADER_VERSION_MINOR << 4) | BOOTLOADER_VERSION_REV)
 		
 		#define IS_ONEBYTE_COMMAND(dataarr, cb1)       (dataarr[0] == cb1)
 		#define IS_TWOBYTE_COMMAND(dataarr, cb1, cb2) ((dataarr[0] == cb1) && (dataarr[1] == cb2))

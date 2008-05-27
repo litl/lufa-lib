@@ -182,7 +182,7 @@
 			 */
 			void USB_UIDChange(void);
 
-			/** Event for USB host error. This event fires when a hardware fault has ocurred whilst the USB
+			/** Event for USB host error. This event fires when a hardware fault has occurred whilst the USB
 			 *  interface is in host mode.
 			 *
 			 *  \param ErrorCode  Error code indicating the failure reason, a value in USB_Host_ErrorCodes_t

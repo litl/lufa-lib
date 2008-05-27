@@ -308,11 +308,17 @@
 			{
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 				
-				uint16_t                UnicodeString[]; /**< String data, as unicode characters (alternatively,
+				int16_t                 UnicodeString[]; /**< String data, as unicode characters (alternatively,
 				                                          *   string language IDs). If normal ASCII characters are
 				                                          *   to be used, they must be added as an array of characters
 				                                          *   rather than a normal C string so that they are widened to
-				                                          *   Unicode size. */
+				                                          *   Unicode size.
+				                                          *
+				                                          *   Under GCC, strings prefixed with the "L" character (before
+				                                          *   the opening string quotation mark) are considered to be
+				                                          *   Unicode strings, and may be used instead of an explicit
+				                                          *   array of ASCII characters.
+				                                          */
 			} USB_Descriptor_String_t;
 
 		/* Function Prototypes: */

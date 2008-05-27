@@ -149,7 +149,7 @@
 			 */
 			enum USB_Host_EnumerationErrorCodes_t
 			{
-				HOST_ENUMERROR_NoError          = 0, /**< No error ocurred. Used internally, this is not a valid
+				HOST_ENUMERROR_NoError          = 0, /**< No error occurred. Used internally, this is not a valid
 				                                      *   ErrorCode parameter value for the USB_DeviceEnumerationFailed
 				                                      *   event.
 				                                      */

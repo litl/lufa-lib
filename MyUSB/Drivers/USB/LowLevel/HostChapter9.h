@@ -53,7 +53,7 @@
 			 */
 			enum USB_Host_SendControlErrorCodes_t
 			{
-				HOST_SENDCONTROL_Successful       = 0, /**< No error ocurred in the request transfer. */
+				HOST_SENDCONTROL_Successful       = 0, /**< No error occurred in the request transfer. */
 				HOST_SENDCONTROL_DeviceDisconnect = 1, /**< The attached device was disconnected during the
 				                                        *   request transfer.
 				                                        */

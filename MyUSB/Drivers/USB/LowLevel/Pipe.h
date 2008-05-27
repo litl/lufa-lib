@@ -25,19 +25,19 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			/** Mask for Pipe_GetErrorFlags(), indicating that a CRC error ocurred in the pipe on the received data. */
+			/** Mask for Pipe_GetErrorFlags(), indicating that a CRC error occurred in the pipe on the received data. */
 			#define PIPE_ERRORFLAG_CRC16                   (1 << 4)
 
-			/** Mask for Pipe_GetErrorFlags(), indicating that a hardware timeout error ocurred in the pipe. */
+			/** Mask for Pipe_GetErrorFlags(), indicating that a hardware timeout error occurred in the pipe. */
 			#define PIPE_ERRORFLAG_TIMEOUT                 (1 << 3)
 
-			/** Mask for Pipe_GetErrorFlags(), indicating that a hardware PID error ocurred in the pipe. */
+			/** Mask for Pipe_GetErrorFlags(), indicating that a hardware PID error occurred in the pipe. */
 			#define PIPE_ERRORFLAG_PID                     (1 << 2)
 
-			/** Mask for Pipe_GetErrorFlags(), indicating that a hardware data PID error ocurred in the pipe. */
+			/** Mask for Pipe_GetErrorFlags(), indicating that a hardware data PID error occurred in the pipe. */
 			#define PIPE_ERRORFLAG_DATAPID                 (1 << 1)
 
-			/** Mask for Pipe_GetErrorFlags(), indicating that a hardware data toggle error ocurred in the pipe. */
+			/** Mask for Pipe_GetErrorFlags(), indicating that a hardware data toggle error occurred in the pipe. */
 			#define PIPE_ERRORFLAG_DATATGL                 (1 << 0)
 
 			/** Token mask for Pipe_ConfigurePipe(). This sets the pipe as a SETUP token (for CONTROL type pipes),
@@ -225,7 +225,7 @@
 			#define Pipe_ClearError()              MACROS{ UPINTX  &= ~(1 << PERRI);                               }MACROE
 
 			/** Returns true if the master pipe error flag is set for the currently selected pipe, indicating that
-			 *  some sort of hardware error has ocurred on the pipe.
+			 *  some sort of hardware error has occurred on the pipe.
 			 *
 			 *  \see Pipe_GetErrorFlags() macro for information on retreiving the exact error flag.
 			 */
@@ -236,7 +236,7 @@
 			#define Pipe_ClearErrorFlags()         MACROS{ UPERRX   = 0;                                           }MACROE
 
 			/** Returns a mask of the hardware error flags which have occured on the currently selected pipe. This
-			 *  value can then be masked against the PIPE_ERRORFLAG_* masks to determine what error has ocurred.
+			 *  value can then be masked against the PIPE_ERRORFLAG_* masks to determine what error has occurred.
 			 */
 			#define Pipe_GetErrorFlags()                   UPERRX
 

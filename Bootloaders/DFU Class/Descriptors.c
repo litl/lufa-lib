@@ -89,14 +89,14 @@ USB_Descriptor_String_t ManafacturerString =
 {
 	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
 		
-	UnicodeString:          {'D','e','a','n',' ','C','a','m','e','r','a'}
+	UnicodeString:          L"Dean Camera"
 };
 
 USB_Descriptor_String_t ProductString =
 {
-	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(26), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','B','o','o','t','l','o','a','d','e','r'}
+	UnicodeString:          L"MyUSB DFU Class Bootloader"
 };
 
 USB_Descriptor_String_t SerialNumberString =

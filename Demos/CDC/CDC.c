@@ -185,7 +185,7 @@ TASK(CDC_Task)
 	uint8_t     JoyStatus_LCL   = Joystick_GetStatus();
 	static bool ActionSent      = false;
 
-	/* Determine if a joystick action has ocurred */
+	/* Determine if a joystick action has occurred */
 	if (JoyStatus_LCL & JOY_UP)
 	  ReportString = JoystickUpString;
 	else if (JoyStatus_LCL & JOY_DOWN)

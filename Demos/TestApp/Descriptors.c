@@ -79,21 +79,21 @@ USB_Descriptor_String_t ManafacturerString PROGMEM =
 {
 	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
 		
-	UnicodeString:          {'D','e','a','n',' ','C','a','m','e','r','a'}
+	UnicodeString:          L"Dean Camera"
 };
 
 USB_Descriptor_String_t ProductString PROGMEM =
 {
 	Header:                 {Size: USB_STRING_LEN(10), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','D','e','m','o'}
+	UnicodeString:          L"MyUSB Demo"
 };
 
 USB_Descriptor_String_t SerialNumberString PROGMEM =
 {
 	Header:                 {Size: USB_STRING_LEN(12), Type: DTYPE_String},
 		
-	UnicodeString:          {'0','0','0','0','0','0','0','0','0','0','0','0'}
+	UnicodeString:          L"000000000000"
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,

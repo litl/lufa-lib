@@ -154,21 +154,21 @@ USB_Descriptor_String_t ManafacturerString PROGMEM =
 {
 	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
 		
-	UnicodeString:          {'D','e','n','v','e','r',' ','G','i','n','g','e','r','i','c','h'}
+	UnicodeString:          L"Denver Gingerich"
 };
 
 USB_Descriptor_String_t ProductString PROGMEM =
 {
 	Header:                 {Size: USB_STRING_LEN(19), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','K','e','y','b','o','a','r','d',' ','D','e','m','o'}
+	UnicodeString:          L"MyUSB Keyboard Demo"
 };
 
 USB_Descriptor_String_t SerialNumberString PROGMEM =
 {
 	Header:                 {Size: USB_STRING_LEN(12), Type: DTYPE_String},
 		
-	UnicodeString:          {'0','0','0','0','0','0','0','0','0','0','0','0'}
+	UnicodeString:          L"000000000000"
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,

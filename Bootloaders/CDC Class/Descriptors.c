@@ -163,21 +163,21 @@ USB_Descriptor_String_t ManafacturerString =
 {
 	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
 		
-	UnicodeString:          {'D','e','a','n',' ','C','a','m','e','r','a'}
+	UnicodeString:          L"Dean Camera"
 };
 
 USB_Descriptor_String_t ProductString =
 {
-	Header:                 {Size: USB_STRING_LEN(20), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(26), Type: DTYPE_String},
 		
-	UnicodeString:          {'M','y','U','S','B',' ','C','D','C',' ','B','o','o','t','l','o','a','d','e','r'}
+	UnicodeString:          L"MyUSB CDC Class Bootloader"
 };
 
 USB_Descriptor_String_t SerialNumberString =
 {
 	Header:                 {Size: USB_STRING_LEN(12), Type: DTYPE_String},
 		
-	UnicodeString:          {'0','0','0','0','0','0','0','0','0','0','0','0'}
+	UnicodeString:          L"000000000000"
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,

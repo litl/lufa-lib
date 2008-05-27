@@ -225,7 +225,7 @@ static void USB_Device_GetStatus(const uint8_t RequestType)
 	uint16_t                               ConfigDescriptorSize;
 	uint8_t                                ConfigAttributes;
 
-	Endpoint_Ignore_Word(); // Ignore unused Value word
+	Endpoint_Ignore_Word();
 	EndpointIndex = (Endpoint_Read_Byte() & ENDPOINT_EPNUM_MASK);
 	
 	switch (RequestType & CONTROL_REQTYPE_RECIPIENT)
