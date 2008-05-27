@@ -523,7 +523,7 @@
 					SizeMask++;
 				} while (SizeCheck != (ENDPOINT_MAX_SIZE >> 1));
 				
-				return (SizeMask + 1);
+				return ((SizeMask + 1) << EPSIZE0);
 			};
 
 		/* Function Prototypes: */

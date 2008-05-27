@@ -33,8 +33,7 @@
 		#endif
 	
 	/* Macros: */
-		#if (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || \
-			 defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB647__))
+		#if defined(USB_FULL_CONTROLLER)
 			#define TCCRxA          TCCR3A
 			#define TCCRxB          TCCR3B
 			#define OCRxA           OCR3A

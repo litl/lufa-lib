@@ -554,7 +554,7 @@
 					SizeMask++;
 				} while (SizeCheck != (PIPE_MAX_SIZE >> 1));
 				
-				return (SizeMask + 1);
+				return ((SizeMask + 1) << EPSIZE0);
 			};
 		
 		/* Function Prototypes: */
