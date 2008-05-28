@@ -10,38 +10,35 @@
 
 #include "Descriptors.h"
 
-USB_Descriptor_HID_Mouse_Report_t MouseReport PROGMEM =
+USB_Descriptor_HIDReport_Datatype_t MouseReport[] PROGMEM =
 {
-	ReportData:
-	{
-		0x05, 0x01,          /* Usage Page (Generic Desktop)             */
-		0x09, 0x02,          /* Usage (Mouse)                            */
-		0xA1, 0x01,          /* Collection (Application)                 */
-		0x09, 0x01,          /*   Usage (Pointer)                        */
-		0xA1, 0x00,          /*   Collection (Application)               */
-		0x05, 0x09,          /*     Usage Page (Button)                  */
-		0x19, 0x01,          /*     Usage Minimum (1)                    */
-		0x29, 0x02,          /*     Usage Maximum (2)                    */
-		0x15, 0x00,          /*     Logical Minimum (0)                  */
-		0x25, 0x01,          /*     Logical Maximum (1)                  */
-		0x75, 0x01,          /*     Report Size (1)                      */
-		0x95, 0x02,          /*     Report Count (2)                     */
-		0x81, 0x02,          /*     Input (Data, Variable, Absolute)     */
-		0x75, 0x06,          /*     Report Size (6)                      */
-		0x95, 0x01,          /*     Report Count (1)                     */
-		0x81, 0x01,          /*     Input (Constant)                     */
-		0x05, 0x01,          /*     Usage Page (Generic Desktop Control) */
-		0x09, 0x30,          /*     Usage X                              */
-		0x09, 0x31,          /*     Usage Y                              */
-		0x09, 0x38,          /*     Usage Wheel                          */
-		0x15, 0x81,          /*     Logical Minimum (-127)               */
-		0x25, 0x7F,          /*     Logical Maximum (127)                */
-		0x75, 0x08,          /*     Report Size (8)                      */
-		0x95, 0x02,          /*     Report Count (2)                     */
-		0x81, 0x06,          /*     Input (Data, Variable, Relative)     */
-		0xC0,                /*   End Collection                         */
-		0xC0                 /* End Collection                           */
-	}
+	0x05, 0x01,          /* Usage Page (Generic Desktop)             */
+	0x09, 0x02,          /* Usage (Mouse)                            */
+	0xA1, 0x01,          /* Collection (Application)                 */
+	0x09, 0x01,          /*   Usage (Pointer)                        */
+	0xA1, 0x00,          /*   Collection (Application)               */
+	0x05, 0x09,          /*     Usage Page (Button)                  */
+	0x19, 0x01,          /*     Usage Minimum (1)                    */
+	0x29, 0x02,          /*     Usage Maximum (2)                    */
+	0x15, 0x00,          /*     Logical Minimum (0)                  */
+	0x25, 0x01,          /*     Logical Maximum (1)                  */
+	0x75, 0x01,          /*     Report Size (1)                      */
+	0x95, 0x02,          /*     Report Count (2)                     */
+	0x81, 0x02,          /*     Input (Data, Variable, Absolute)     */
+	0x75, 0x06,          /*     Report Size (6)                      */
+	0x95, 0x01,          /*     Report Count (1)                     */
+	0x81, 0x01,          /*     Input (Constant)                     */
+	0x05, 0x01,          /*     Usage Page (Generic Desktop Control) */
+	0x09, 0x30,          /*     Usage X                              */
+	0x09, 0x31,          /*     Usage Y                              */
+	0x09, 0x38,          /*     Usage Wheel                          */
+	0x15, 0x81,          /*     Logical Minimum (-127)               */
+	0x25, 0x7F,          /*     Logical Maximum (127)                */
+	0x75, 0x08,          /*     Report Size (8)                      */
+	0x95, 0x02,          /*     Report Count (2)                     */
+	0x81, 0x06,          /*     Input (Data, Variable, Relative)     */
+	0xC0,                /*   End Collection                         */
+	0xC0                 /* End Collection                           */
 };
 
 USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
@@ -107,7 +104,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			CountryCode:      		0x00,
 			TotalHIDDescriptors:    0x01,
 			HIDReportType:    		0x22,
-			HIDReportLength:        sizeof(USB_Descriptor_HID_Mouse_Report_t)
+			HIDReportLength:        sizeof(MouseReport)
 		},
 
 	MouseEndpoint:
@@ -193,7 +190,7 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t L
 			break;
 		case DTYPE_Report:
 			Address = DESCRIPTOR_ADDRESS(MouseReport);
-			Size    = sizeof(USB_Descriptor_HID_Mouse_Report_t);
+			Size    = sizeof(MouseReport);
 			break;
 	}
 	

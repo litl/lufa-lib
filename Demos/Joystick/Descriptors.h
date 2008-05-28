@@ -30,10 +30,7 @@
 			uint16_t                              HIDReportLength;
 		} USB_Descriptor_HID_t;
 
-		typedef struct
-		{
-			uint8_t ReportData[50];
-		} USB_Descriptor_HID_Joystick_Report_t;
+		typedef uint8_t USB_Descriptor_HIDReport_Datatype_t;
 
 		typedef struct
 		{

@@ -69,7 +69,7 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 		  Dataflash_SendByte(Endpoint_Read_Byte());
 		
 		/* Update dataflash buffer counter and sub block counter */
-		CurrDFByte += 64;
+		CurrDFByte += MASS_STORAGE_IO_EPSIZE;
 		SubBlockTransfers++;
 
 		/* Acknowedge the endpoint packet, switch to next endpoint bank */

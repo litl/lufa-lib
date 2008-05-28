@@ -274,7 +274,7 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 
 	/* Determine if the packet is a READ (10) or WRITE (10) command, call appropriate function */
 	if (IsDataRead == DATA_READ)
-	  VirtualMemory_ReadBlocks(BlockAddress, TotalBlocks);	
+	  VirtualMemory_ReadBlocks(BlockAddress, TotalBlocks);
 	else
 	  VirtualMemory_WriteBlocks(BlockAddress, TotalBlocks);
 

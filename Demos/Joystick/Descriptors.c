@@ -10,37 +10,34 @@
 
 #include "Descriptors.h"
 
-USB_Descriptor_HID_Joystick_Report_t JoystickReport PROGMEM =
+USB_Descriptor_HIDReport_Datatype_t JoystickReport[] PROGMEM =
 {
-	ReportData:
-	{
-		0x05, 0x01,          /* Usage Page (Generic Desktop)                       */
-		0x09, 0x04,          /* Usage (Joystick)                                   */
-		0xa1, 0x01,          /* Collection (Application)                           */
-		0x09, 0x01,          /*   Usage (Pointer)                                  */
-		0xa1, 0x00,          /*   Collection (Physical)                            */
-		0x05, 0x01,          /*     Usage Page (Generic Desktop)                   */
-		0x09, 0x30,          /*     Usage (X)                                      */
-		0x09, 0x31,          /*     Usage (Y)                                      */
-		0x15, 0x9c,          /*     Logical Minimum (-100)                         */
-		0x25, 0x64,          /*     Logical Maximum (100)                          */
-		0x75, 0x08,          /*     Report Size (8)                                */
-		0x95, 0x02,          /*     Report Count (2)                               */
-		0x81, 0x82,          /*     Input (Data, Variable, Absolute, Volatile)     */
-		0x05, 0x09,          /*     Usage Page (Button)                            */
-		0x09, 0x02,          /*     Usage (Button 2)                               */
-		0x09, 0x01,          /*     Usage (Button 1)                               */
-		0x15, 0x00,          /*     Logical Minimum (0)                            */
-		0x25, 0x01,          /*     Logical Maximum (1)                            */
-		0x75, 0x01,          /*     Report Size (1)                                */
-		0x95, 0x02,          /*     Report Count (2)                               */
-		0x81, 0x02,          /*     Input (Data, Variable, Absolute)               */
-		0x75, 0x06,          /*     Report Size (6)                                */
-		0x95, 0x01,          /*     Report Count (1)                               */
-		0x81, 0x01,          /*     Input (Constant)                               */
-		0xc0,                /*   End Collection                                   */
-		0xc0                 /* End Collection                                     */
-	}
+	0x05, 0x01,          /* Usage Page (Generic Desktop)                       */
+	0x09, 0x04,          /* Usage (Joystick)                                   */
+	0xa1, 0x01,          /* Collection (Application)                           */
+	0x09, 0x01,          /*   Usage (Pointer)                                  */
+	0xa1, 0x00,          /*   Collection (Physical)                            */
+	0x05, 0x01,          /*     Usage Page (Generic Desktop)                   */
+	0x09, 0x30,          /*     Usage (X)                                      */
+	0x09, 0x31,          /*     Usage (Y)                                      */
+	0x15, 0x9c,          /*     Logical Minimum (-100)                         */
+	0x25, 0x64,          /*     Logical Maximum (100)                          */
+	0x75, 0x08,          /*     Report Size (8)                                */
+	0x95, 0x02,          /*     Report Count (2)                               */
+	0x81, 0x82,          /*     Input (Data, Variable, Absolute, Volatile)     */
+	0x05, 0x09,          /*     Usage Page (Button)                            */
+	0x09, 0x02,          /*     Usage (Button 2)                               */
+	0x09, 0x01,          /*     Usage (Button 1)                               */
+	0x15, 0x00,          /*     Logical Minimum (0)                            */
+	0x25, 0x01,          /*     Logical Maximum (1)                            */
+	0x75, 0x01,          /*     Report Size (1)                                */
+	0x95, 0x02,          /*     Report Count (2)                               */
+	0x81, 0x02,          /*     Input (Data, Variable, Absolute)               */
+	0x75, 0x06,          /*     Report Size (6)                                */
+	0x95, 0x01,          /*     Report Count (1)                               */
+	0x81, 0x01,          /*     Input (Constant)                               */
+	0xc0,                /*   End Collection                                   */
+	0xc0                 /* End Collection                                     */
 };
 
 USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
@@ -106,7 +103,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			CountryCode:      		0x00,
 			TotalHIDDescriptors:    0x01,
 			HIDReportType:    		0x22,
-			HIDReportLength:        sizeof(USB_Descriptor_HID_Joystick_Report_t)
+			HIDReportLength:        sizeof(JoystickReport)
 		},
 
 	JoystickEndpoint:
@@ -192,7 +189,7 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t L
 			break;
 		case DTYPE_Report:
 			Address = DESCRIPTOR_ADDRESS(JoystickReport);
-			Size    = sizeof(USB_Descriptor_HID_Joystick_Report_t);
+			Size    = sizeof(JoystickReport);
 			break;
 	}
 	
