@@ -90,10 +90,44 @@ EVENT_HANDLER(USB_Connect)
 
 	/* Indicate USB enumerating */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+	
+	/* Sample reload timer initialization */
+	OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
+	TCCR0A  = (1 << WGM01);  // CTC mode
+	TCCR0B  = (1 << CS00);   // Fcpu speed
+			
+#if defined(AUDIO_OUT_MONO)
+	/* Set speaker as output */
+	DDRC   |= (1 << 6);
+#elif defined(AUDIO_OUT_STEREO)
+	/* Set speakers as outputs */
+	DDRC   |= ((1 << 6) | (1 << 5));
+#endif
+
+#if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
+	/* PWM speaker timer initialization */
+	TCCRxA  = ((1 << WGMx0) | (1 << COMxA1) | (1 << COMxA0)
+							| (1 << COMxB1) | (1 << COMxB0)); // Set on match, clear on TOP
+	TCCRxB  = ((1 << CSx0));  // Phase Correct 8-Bit PWM, Fcpu speed
+#endif	
 }
 
 EVENT_HANDLER(USB_Disconnect)
 {
+	/* Stop the timers */
+	TCCR0B = 0;
+#if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
+	TCCRxB = 0;
+#endif		
+
+#if defined(AUDIO_OUT_MONO)
+	/* Set speaker as input to reduce current draw */
+	DDRC   |= (1 << 6);
+#elif defined(AUDIO_OUT_STEREO)
+	/* Set speakers as inputs to reduce current draw */
+	DDRC   |= ((1 << 6) | (1 << 5));
+#endif
+
 	/* Stop running audio and USB management tasks */
 	Scheduler_SetTaskMode(USB_Audio_Task, TASK_STOP);
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
@@ -136,109 +170,72 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 TASK(USB_Audio_Task)
 {
-	static bool HasConfiguredTimers = false;
+	/* Select the audio stream endpoint */
+	Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
 	
-	if (USB_IsConnected)
+	/* Check if the current endpoint can be read from (contains a packet) */
+	if (Endpoint_ReadWriteAllowed())
 	{
-		/* Timers are only set up once after the USB has been connected */
-		if (!(HasConfiguredTimers))
+		/* Process the endpoint bytes all at once; the audio is at such a high sample rate that this
+		 * does not have any noticable latency on the USB management task */
+		while (Endpoint_BytesInEndpoint())
 		{
-			/* Sample reload timer initialization */
-			OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
-			TCCR0A  = (1 << WGM01);  // CTC mode
-			TCCR0B  = (1 << CS00);   // Fcpu speed
+			/* Wait until next audio sample should be processed */
+			if (!(TIFR0 & (1 << OCF0A)))
+				continue;
+			else
+				TIFR0 |= (1 << OCF0A);
+
+			/* Retreive the signed 16-bit left and right audio samples */
+			int16_t LeftSample_16Bit  = (int16_t)Endpoint_Read_Word_LE();
+			int16_t RightSample_16Bit = (int16_t)Endpoint_Read_Word_LE();
+
+			/* Massage signed 16-bit left and right audio samples into signed 8-bit */
+			int8_t  LeftSample_8Bit   = (LeftSample_16Bit  >> 8);
+			int8_t  RightSample_8Bit  = (RightSample_16Bit >> 8);
 			
-#if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
-			/* PWM speaker timer initialization */
-			TCCRxA  = ((1 << WGMx0) | (1 << COMxA1) | (1 << COMxA0)
-			                        | (1 << COMxB1) | (1 << COMxB0)); // Set on match, clear on TOP
-			TCCRxB  = ((1 << CSx0));  // Phase Correct 8-Bit PWM, Fcpu speed
-#endif
-
 #if defined(AUDIO_OUT_MONO)
-			/* Set speaker as output */
-			DDRC   |= (1 << 6);
-#elif defined(AUDIO_OUT_STEREO)
-			/* Set speakers as outputs */
-			DDRC   |= ((1 << 6) | (1 << 5));
-#endif
+			/* Mix the two channels together to produce a mono, 8-bit sample */
+			int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
 
-			HasConfiguredTimers = true;
+			/* Load the sample into the PWM timer channel */
+			OCRxA = ((uint8_t)MixedSample_8Bit ^ (1 << 7));
+#elif defined(AUDIO_OUT_STEREO)
+			/* Load the dual 8-bit samples into the PWM timer channels */
+			OCRxA = ((uint8_t)LeftSample_8Bit  ^ (1 << 7));
+			OCRxB = ((uint8_t)RightSample_8Bit ^ (1 << 7));
+#else
+			uint8_t LEDMask = LEDS_NO_LEDS;
+
+			/* Make left channel positive (absolute) */
+			if (LeftSample_8Bit < 0)
+			  LeftSample_8Bit = -LeftSample_8Bit;
+
+			/* Make right channel positive (absolute) */
+			if (RightSample_8Bit < 0)
+			  RightSample_8Bit = -RightSample_8Bit;
+
+			/* Set first LED based on sample value */
+			if (LeftSample_8Bit < ((128 / 8) * 1))
+			  LEDMask |= LEDS_LED2;
+			else if (LeftSample_8Bit < ((128 / 8) * 3))
+			  LEDMask |= (LEDS_LED1 | LEDS_LED2);
+			else
+			  LEDMask |= LEDS_LED1;
+
+			/* Set second LED based on sample value */
+			if (RightSample_8Bit < ((128 / 8) * 1))
+			  LEDMask |= LEDS_LED4;
+			else if (RightSample_8Bit < ((128 / 8) * 3))
+			  LEDMask |= (LEDS_LED3 | LEDS_LED4);
+			else
+			  LEDMask |= LEDS_LED3;
+			  
+			LEDs_SetAllLEDs(LEDMask);
+#endif
 		}
 		
-		/* Check to see if the CTC flag is set */
-		if (TIFR0 & (1 << OCF0A))
-		{
-			/* Select the audio stream endpoint */
-			Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
-			
-			/* Check if the current endpoint can be read from (contains a packet) */
-			if (Endpoint_ReadWriteAllowed())
-			{
-				/* Retrieve the signed 16-bit left and right audio samples */
-				int16_t LeftSample_16Bit  = (int16_t)Endpoint_Read_Word_LE();
-				int16_t RightSample_16Bit = (int16_t)Endpoint_Read_Word_LE();
-
-				/* Massage signed 16-bit left and right audio samples into signed 8-bit */
-				int8_t  LeftSample_8Bit   = (LeftSample_16Bit  >> 8);
-				int8_t  RightSample_8Bit  = (RightSample_16Bit >> 8);
-				
-#if defined(AUDIO_OUT_MONO)
-				/* Mix the two channels together to produce a mono, 8-bit sample */
-				int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
-
-				/* Load the sample into the PWM timer channel */
-				OCRxA = (MixedSample_8Bit ^ (1 << 7));
-#elif defined(AUDIO_OUT_STEREO)
-				/* Load the dual 8-bit samples into the PWM timer channels */
-				OCRxA = (LeftSample_8Bit  ^ (1 << 7));
-				OCRxB = (RightSample_8Bit ^ (1 << 7));
-#else
-				uint8_t LEDMask = LEDS_NO_LEDS;
-
-				/* Make left channel positive (absolute) */
-				if (LeftSample_8Bit < 0)
-				  LeftSample_8Bit = -LeftSample_8Bit;
-
-				/* Make right channel positive (absolute) */
-				if (RightSample_8Bit < 0)
-				  RightSample_8Bit = -RightSample_8Bit;
-
-				/* Set first LED based on sample value */
-				if (LeftSample_8Bit < ((128 / 8) * 1))
-				  LEDMask |= LEDS_LED2;
-				else if (LeftSample_8Bit < ((128 / 8) * 3))
-				  LEDMask |= (LEDS_LED1 | LEDS_LED2);
-				else
-				  LEDMask |= LEDS_LED1;
-
-				/* Set second LED based on sample value */
-				if (RightSample_8Bit < ((128 / 8) * 1))
-				  LEDMask |= LEDS_LED4;
-				else if (RightSample_8Bit < ((128 / 8) * 3))
-				  LEDMask |= (LEDS_LED3 | LEDS_LED4);
-				else
-				  LEDMask |= LEDS_LED3;
-				  
-				LEDs_SetAllLEDs(LEDMask);
-#endif
-
-				/* Check to see if all bytes in the current endpoint have been read, if so clear the endpoint */
-				if (!(Endpoint_BytesInEndpoint()))
-				  Endpoint_FIFOCON_Clear();
-			}
-			
-			/* Clear the CTC flag */
-			TIFR0 |= (1 << OCF0A);
-		}
-	}
-	else
-	{
-		/* Stop the timers */
-		TCCR0B = 0;
-#if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
-		TCCRxB = 0;
-#endif		
-		HasConfiguredTimers = false;
+		/* Acknowedge the packet, clear the bank ready for the next packet */
+		Endpoint_FIFOCON_Clear();
 	}
 }

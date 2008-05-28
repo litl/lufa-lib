@@ -90,10 +90,18 @@ EVENT_HANDLER(USB_Connect)
 
 	/* Indicate USB enumerating */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+
+	/* Sample reload timer initialization */
+	OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
+	TCCR0A  = (1 << WGM01);  // CTC mode
+	TCCR0B  = (1 << CS00);   // Fcpu speed
 }
 
 EVENT_HANDLER(USB_Disconnect)
 {
+	/* Stop the sample reload timer */
+	TCCR0B = 0;
+
 	/* Stop running audio and USB management tasks */
 	Scheduler_SetTaskMode(USB_Audio_Task, TASK_STOP);
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
@@ -136,55 +144,35 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 TASK(USB_Audio_Task)
 {
-	static bool HasConfiguredTimer = false;
+	/* Select the audio stream endpoint */
+	Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
 	
-	if (USB_IsConnected)
+	/* Check if the current endpoint can be read from (contains a packet) */
+	if (Endpoint_ReadWriteAllowed())
 	{
-		/* Timers are only set up once after the USB has been connected */
-		if (!(HasConfiguredTimer))
+		/* Process the endpoint bytes all at once; the audio is at such a high sample rate that this
+		 * does not have any noticable latency on the USB management task */
+		while (Endpoint_BytesInEndpoint() < AUDIO_STREAM_EPSIZE)
 		{
-			/* Sample reload timer initialization */
-			OCR0A   = (F_CPU / AUDIO_SAMPLE_FREQUENCY);
-			TCCR0A  = (1 << WGM01);  // CTC mode
-			TCCR0B  = (1 << CS00);   // Fcpu speed
+			/* Wait until next audio sample should be processed */
+			if (!(TIFR0 & (1 << OCF0A)))
+				continue;
+			else
+				TIFR0 |= (1 << OCF0A);
+
+			/* Audio sample is ADC value scaled to fit the entire range */
+			int16_t AudioSample = ((SAMPLE_MAX_RANGE / ADC_MAX_RANGE) * ADC_GetResult());
 			
-			HasConfiguredTimer = true;
+#if defined(MICROPHONE_BIASED_TO_HALF_RAIL)
+			/* Microphone is biased to half rail voltage, subtract the bias from the sample value */
+			AudioSample -= (SAMPLE_MAX_RANGE / 2));
+#endif
+			
+			/* Write the sample to the buffer */
+			Endpoint_Write_Word_LE(AudioSample);			
 		}
 		
-		/* Check to see if the CTC flag is set */
-		if (TIFR0 & (1 << OCF0A))
-		{
-			/* Select the audio stream endpoint */
-			Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
-			
-			/* Check if the current endpoint can be read from (contains a packet) */
-			if (Endpoint_ReadWriteAllowed())
-			{
-				/* Audio sample is ADC value scaled to fit the entire range, then offset to half rail */
-				int16_t AudioSample = ((SAMPLE_MAX_RANGE / ADC_MAX_RANGE) * ADC_GetResult());
-				
-				#if defined(MICROPHONE_BIASED_TO_HALF_RAIL)
-				/* Microphone is biased to hald rail voltage, subtract the bias from the sample value */
-				AudioSample -= (SAMPLE_MAX_RANGE / 2));
-				#endif
-				
-				/* Write the sample to the buffer */
-				Endpoint_Write_Word_LE(AudioSample);
-
-				/* Check to see if all bytes in the current endpoint have been written, if so send the data */
-				if (Endpoint_BytesInEndpoint() == AUDIO_STREAM_EPSIZE)
-				  Endpoint_FIFOCON_Clear();
-			}
-
-			/* Clear the CTC flag */
-			TIFR0 |= (1 << OCF0A);
-		}
-	}
-	else
-	{
-		/* Stop the timers */
-		TCCR0B = 0;
-		
-		HasConfiguredTimer = false;
+		/* Send the full packet to the host */
+		Endpoint_FIFOCON_Clear();
 	}
 }
