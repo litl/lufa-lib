@@ -28,6 +28,9 @@
 	/* Task Definitions: */
 		TASK(USB_Mouse_Report);
 
+	/* Macros: */
+		#define REQ_GetReport   0x01
+
 	/* Type Defines: */
 		typedef struct
 		{
@@ -40,5 +43,6 @@
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
+		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 #endif

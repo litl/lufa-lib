@@ -49,6 +49,13 @@
 			 */
 			#define USB_STRING_LEN(x)                 (sizeof(USB_Descriptor_Header_t) + (x << 1))
 			
+			/** Macro to encode a given four digit floating point version number (e.g. 01.23) into Binary Coded
+			 *  Decimal, format for descriptor fields requiring BCD encoding such as the USB version number in the
+			 *  standard device descriptor.
+			 */
+			#define VERSION_BCD(x)                    ((((VERSION_TENS(x) << 4) | VERSION_ONES(x)) << 8) | \
+			                                          ((VERSION_TENTHS(x) << 4) | VERSION_HUNDREDTHS(x)))
+
 			/** String language ID for the English language. Should be used in USB_Descriptor_Language_t descriptors
 			 *  to indicate that the English language is supported by the device in its string descriptors.
 			 */
@@ -346,6 +353,15 @@
 			                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 			                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(4, 5);
 
+	/* Private Interface - For use in library only: */
+	#if !defined(__DOXYGEN__)
+		/* Macros: */
+			#define VERSION_TENS(x)                   (int)(x / 10)
+			#define VERSION_ONES(x)                   (int)(x - (10 * VERSION_TENS(x)))
+			#define VERSION_TENTHS(x)                 (int)((x - (int)x) * 10)
+			#define VERSION_HUNDREDTHS(x)             (int)(((x - (int)x) * 100) - (VERSION_TENTHS(x) * 10))
+	#endif
+	
 	/* Disable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
 			}

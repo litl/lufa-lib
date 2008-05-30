@@ -188,7 +188,7 @@ TASK(USB_CDC_Host)
 				Pipe_Read_Stream_LE(Buffer, BufferLength);
 				
 				/* Clear the pipe after it is read, ready for the next packet */
-				Pipe_FIFOCON_Clear();
+				Pipe_ClearCurrentBank();
 				
 				/* Print out the buffer contents to the USART */
 				for (uint16_t BufferByte = 0; BufferByte < BufferLength; BufferByte++)
@@ -203,7 +203,7 @@ TASK(USB_CDC_Host)
 			if (Pipe_ReadWriteAllowed())
 			{
 				/* Discard the event notification */
-				Pipe_FIFOCON_Clear();
+				Pipe_ClearCurrentBank();
 			}
 			
 			/* Freeze notification IN pipe after use */

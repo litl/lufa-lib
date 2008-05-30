@@ -34,10 +34,14 @@
 	/* Task Definitions: */
 		TASK(USB_Keyboard_Report);
 
+	/* Macros: */
+		#define REQ_GetReport   0x01
+
 	/* Type Defines: */
 		typedef struct
 		{
 			uint8_t Modifier;
+			uint8_t Reserved;
 			uint8_t KeyCode;
 		} USB_KeyboardReport_Data_t;
 			
@@ -45,5 +49,6 @@
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
+		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 #endif

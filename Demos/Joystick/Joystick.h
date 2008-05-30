@@ -28,17 +28,21 @@
 	/* Task Definitions: */
 		TASK(USB_Joystick_Report);
 
+	/* Macros: */
+		#define REQ_GetReport   0x01
+
 	/* Type Defines: */
 		typedef struct
 		{
-			uint8_t Button;
 			int8_t  X;
 			int8_t  Y;
+			uint8_t Button;
 		} USB_JoystickReport_Data_t;
 			
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
-
+		HANDLES_EVENT(USB_UnhandledControlPacket);
+		
 #endif

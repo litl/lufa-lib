@@ -232,7 +232,7 @@ ISR(ENDPOINT_PIPE_vect)
 			                                              MouseReport.Button);
 					
 			/* Clear the IN endpoint, ready for next data packet */
-			Pipe_FIFOCON_Clear();	
+			Pipe_ClearCurrentBank();
 		}
 	}
 }

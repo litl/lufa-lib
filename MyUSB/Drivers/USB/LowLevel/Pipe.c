@@ -16,6 +16,7 @@
 uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 
 void Pipe_ConfigurePipe_P(const uint8_t PipeNum,
+                          const uint16_t PipeSize,
                           const uint8_t UPCFG0Xdata,
                           const uint8_t UPCFG1Xdata)
 {
@@ -23,7 +24,7 @@ void Pipe_ConfigurePipe_P(const uint8_t PipeNum,
 	Pipe_EnablePipe();
 	
 	UPCFG0X = UPCFG0Xdata;
-	UPCFG1X = ((UPCFG1X & (1 << ALLOC)) | UPCFG1Xdata);
+	UPCFG1X = ((UPCFG1X & (1 << ALLOC)) | UPCFG1Xdata | Pipe_BytesToEPSizeMask(PipeSize));
 	UPCFG2X = 0;
 	
 	Pipe_AllocateMemory();
@@ -54,7 +55,7 @@ uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length)
 	{
 		if (!(Pipe_ReadWriteAllowed()))
 		{
-			Pipe_FIFOCON_Clear();
+			Pipe_ClearCurrentBank();
 				
 			while (!(Pipe_ReadWriteAllowed()))
 			{
@@ -85,7 +86,7 @@ uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length)
 	{
 		if (!(Pipe_ReadWriteAllowed()))
 		{
-			Pipe_FIFOCON_Clear();
+			Pipe_ClearCurrentBank();
 				
 			while (!(Pipe_ReadWriteAllowed()))
 			{
@@ -116,7 +117,7 @@ uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)
 	{
 		if (!(Pipe_ReadWriteAllowed()))
 		{
-			Pipe_FIFOCON_Clear();
+			Pipe_ClearCurrentBank();
 				
 			while (!(Pipe_ReadWriteAllowed()))
 			{
@@ -147,7 +148,7 @@ uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length)
 	{
 		if (!(Pipe_ReadWriteAllowed()))
 		{
-			Pipe_FIFOCON_Clear();
+			Pipe_ClearCurrentBank();
 				
 			while (!(Pipe_ReadWriteAllowed()))
 			{

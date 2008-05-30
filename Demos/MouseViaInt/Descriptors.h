@@ -47,6 +47,10 @@
 		#define DTYPE_HID                 0x21
 		#define DTYPE_Report              0x22
 
+	/* External Variables: */
+		extern USB_Descriptor_HIDReport_Datatype_t MouseReport[];
+		extern USB_Descriptor_Configuration_t      ConfigurationDescriptor;
+
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
 		                       void** const DescriptorAddress, uint16_t* const DescriptorSize)

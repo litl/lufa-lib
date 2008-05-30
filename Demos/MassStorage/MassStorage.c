@@ -220,7 +220,7 @@ static bool ReadInCommandBlock(void)
 	Endpoint_Read_Stream_LE(&CommandBlock.SCSICommandData, CommandBlock.Header.SCSICommandLength);
 	  
 	/* Clear the endpoint */
-	Endpoint_FIFOCON_Clear();
+	Endpoint_ClearCurrentBank();
 	
 	return true;
 }
@@ -254,5 +254,5 @@ static void ReturnCommandStatus(void)
 	Endpoint_Write_Stream_LE(&CommandStatus, sizeof(CommandStatus));
 	
 	/* Send the CSW */
-	Endpoint_FIFOCON_Clear();
+	Endpoint_ClearCurrentBank();
 }

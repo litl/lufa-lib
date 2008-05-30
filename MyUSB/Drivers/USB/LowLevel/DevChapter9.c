@@ -149,42 +149,34 @@ void USB_Device_GetConfiguration(void)
 
 static void USB_Device_GetDescriptor(void)
 {
-	uint8_t  DescriptorIndex = Endpoint_Read_Byte();
-	uint8_t  DescriptorType  = Endpoint_Read_Byte();
-	uint16_t DescriptorBytesToSend;
+	uint8_t  DescriptorIndex       = Endpoint_Read_Byte();
+	uint8_t  DescriptorType        = Endpoint_Read_Byte();
+	uint16_t DescriptorLanguageID  = Endpoint_Read_Word_LE();
+	uint16_t DescriptorBytesToSend = Endpoint_Read_Word_LE();
 	
 	void*    DescriptorPointer;
-	uint16_t DescriptorBytesRem;
-
-	uint16_t DescriptorLanguageID = Endpoint_Read_Word_LE();
+	uint16_t DescriptorSize;
 	
-	bool     SendZeroPacket = false;
+	bool     SendZLP;
 	
 	if (!(USB_GetDescriptor(DescriptorType, DescriptorIndex, DescriptorLanguageID,
-	                        &DescriptorPointer, &DescriptorBytesRem)))
+	                        &DescriptorPointer, &DescriptorSize)))
 	{
 		return;
 	}
 	
-	DescriptorBytesToSend = Endpoint_Read_Word_LE();
-	
 	Endpoint_ClearSetupReceived();
 	
-	if (DescriptorBytesToSend > DescriptorBytesRem)
-	{
-		if (!(DescriptorBytesRem % USB_ControlEndpointSize))
-		  SendZeroPacket = true;
-	}
-	else
-	{
-		DescriptorBytesRem = DescriptorBytesToSend;
-	}
+	if (DescriptorBytesToSend > DescriptorSize)
+	  DescriptorBytesToSend = DescriptorSize;
+	  
+	SendZLP = !(DescriptorBytesToSend % USB_ControlEndpointSize);
 	
-	while (DescriptorBytesRem && (!(Endpoint_IsSetupOUTReceived())))
+	while (DescriptorBytesToSend && (!(Endpoint_IsSetupOUTReceived())))
 	{
 		while (!(Endpoint_IsSetupINReady()));
 		
-		while (DescriptorBytesRem && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
+		while (DescriptorBytesToSend && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
 		{
 			#if defined(USE_RAM_DESCRIPTORS)
 			Endpoint_Write_Byte(*((uint8_t*)DescriptorPointer++));
@@ -194,7 +186,7 @@ static void USB_Device_GetDescriptor(void)
 			Endpoint_Write_Byte(pgm_read_byte(DescriptorPointer++));
 			#endif
 			
-			DescriptorBytesRem--;
+			DescriptorBytesToSend--;
 		}
 		
 		Endpoint_ClearSetupIN();
@@ -206,7 +198,7 @@ static void USB_Device_GetDescriptor(void)
 		return;
 	}
 	
-	if (SendZeroPacket == true)
+	if (SendZLP)
 	{
 		while (!(Endpoint_IsSetupINReady()));
 		Endpoint_ClearSetupIN();

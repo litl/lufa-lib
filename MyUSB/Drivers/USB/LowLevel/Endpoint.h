@@ -181,9 +181,9 @@
 			 *        once the routine completes regardless of if the endpoint configuration succeeds.
 			 */
 			#define Endpoint_ConfigureEndpoint(num, type, dir, size, banks)                           \
-												       Endpoint_ConfigureEndpoint_P(num,              \
+												       Endpoint_ConfigureEndpoint_P(num, size,        \
                                                        ((type << EPTYPE0) | dir),                     \
-											           (Endpoint_BytesToEPSizeMask(size) | banks))
+											           banks)
 													   
 			/** Returns true if the currently selected endpoint is configured, false otherwise. */
 			#define Endpoint_IsConfigured()                  ((UESTA0X & (1 << CFGOK)) ? true : false)
@@ -204,12 +204,12 @@
 			 */
 			#define Endpoint_HasEndpointInterrupted(n)       ((UEINT   &   (1 << n)) ? true : false)
 
-			/** Clears the endpoint bank, and switches to the alternate bank if the currently selected endpoint
-			 *  is dual-banked. When cleared, this either frees the bank up for the next packet from the host
-			 *  (if the endpoint is of the OUT direction) or sends the packet contents to the host (if the
-			 *  endpoint is of the IN direction).
+			/** Clears the currently selected endpoint bank, and switches to the alternate bank if the currently
+			 *  selected endpoint is dual-banked. When cleared, this either frees the bank up for the next packet
+			 *  from the host (if the endpoint is of the OUT direction) or sends the packet contents to the host
+			 *  (if the endpoint is of the IN direction).
 			 */
-			#define Endpoint_FIFOCON_Clear()           MACROS{ UEINTX  &= ~(1 << FIFOCON);               }MACROE
+			#define Endpoint_ClearCurrentBank()       MACROS{ UEINTX  &= ~(1 << FIFOCON);               }MACROE
 			
 			/** Returns true if the current CONTROL type endpoint is ready for an IN packet, false otherwise. */
 			#define Endpoint_IsSetupINReady()               ((UEINTX  & (1 << TXINI))  ? true : false)
@@ -422,7 +422,7 @@
 			/** Writes the given number of bytes to the endpoint from the given buffer in little endian,
 			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the
-			 *  Endpoint_FIFOCON_Clear() macro.
+			 *  Endpoint_ClearCurrentBank() macro.
 			 *
 			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
@@ -434,7 +434,7 @@
 			/** Writes the given number of bytes to the endpoint from the given buffer in big endian,
 			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the
-			 *  Endpoint_FIFOCON_Clear() macro.
+			 *  Endpoint_ClearCurrentBank() macro.
 			 *
 			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
@@ -446,7 +446,7 @@
 			/** Reads the given number of bytes from the endpoint from the given buffer in little endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
-			 *  discarding the last packet from the host via the Endpoint_FIFOCON_Clear() macro.
+			 *  discarding the last packet from the host via the Endpoint_ClearCurrentBank() macro.
 			 *
 			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected endpoint.
@@ -458,7 +458,7 @@
 			/** Reads the given number of bytes from the endpoint from the given buffer in big endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
-			 *  discarding the last packet from the host via the Endpoint_FIFOCON_Clear() macro.
+			 *  discarding the last packet from the host via the Endpoint_ClearCurrentBank() macro.
 			 *
 			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected endpoint.
@@ -528,8 +528,10 @@
 
 		/* Function Prototypes: */
 			void Endpoint_ClearEndpoints(void);
-			void Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum, const uint8_t UECFG0Xdata,
-			                                  const uint8_t UECFG1Xdata);
+			void Endpoint_ConfigureEndpoint_P(const uint8_t  EndpointNum,
+			                                  const uint16_t EndpointSize,
+			                                  const uint8_t  UECFG0Xdata,
+			                                  const uint8_t  UECFG1Xdata);
 	#endif
 
 	/* Disable C linkage for C++ Compilers: */

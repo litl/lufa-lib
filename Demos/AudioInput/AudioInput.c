@@ -173,6 +173,6 @@ TASK(USB_Audio_Task)
 		}
 		
 		/* Send the full packet to the host */
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 	}
 }

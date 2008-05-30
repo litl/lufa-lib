@@ -213,7 +213,7 @@ TASK(CDC_Task)
 	
 	/* Throw away any recieved data from the host */
 	if (Endpoint_ReadWriteAllowed())
-	  Endpoint_FIFOCON_Clear();
+	  Endpoint_ClearCurrentBank();
 }
 
 void SendStringViaCDC(char* FlashString)
@@ -238,7 +238,7 @@ void SendStringViaCDC(char* FlashString)
 			if (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE)
 			{
 				/* Send the data */
-				Endpoint_FIFOCON_Clear();
+				Endpoint_ClearCurrentBank();
 
 				/* Wait until Serial Tx Endpoint Ready for Read/Write */
 				while (!(Endpoint_ReadWriteAllowed()));
@@ -246,6 +246,6 @@ void SendStringViaCDC(char* FlashString)
 		}
 
 		/* Send the last packet of the transfer to the host */
-		Endpoint_FIFOCON_Clear();			
+		Endpoint_ClearCurrentBank();
 	}
 }

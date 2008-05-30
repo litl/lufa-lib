@@ -226,7 +226,7 @@ TASK(USB_Keyboard_Host)
 				Pipe_Read_Stream_LE(KeyboardReport, Pipe_BytesInPipe());
 				
 				/* Clear the IN endpoint, ready for next data packet */
-				Pipe_FIFOCON_Clear();
+				Pipe_ClearCurrentBank();
 
 				/* Check each HID report item in turn, looking for keyboard scan code reports */
 				for (uint8_t ReportNumber = 0; ReportNumber < HIDReportInfo.TotalReportItems; ReportNumber++)

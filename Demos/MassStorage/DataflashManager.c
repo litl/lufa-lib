@@ -73,7 +73,7 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 		SubBlockTransfers++;
 
 		/* Acknowedge the endpoint packet, switch to next endpoint bank */
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 
 		/* Check if end of block reached */
 		if (SubBlockTransfers == VIRTUAL_MEMORY_EPPACKETS_PER_BLOCK)
@@ -144,7 +144,7 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 		  Endpoint_Write_Byte(Dataflash_SendByte(0));
 		
 		/* Send endpoint data */
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 
 		/* Update dataflash page byte and sub block counters */
 		CurrDFByte += MASS_STORAGE_IO_EPSIZE;

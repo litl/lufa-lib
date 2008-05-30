@@ -122,7 +122,7 @@ TASK(USB_Keyboard_Report)
 	
 	/* Throw away any LED reports from the host */
 	if (Endpoint_ReadWriteAllowed())
-	  Endpoint_FIFOCON_Clear();
+	  Endpoint_ClearCurrentBank();
 
 	/* Abort task if no card inserted */
 	if (!(MagStatus_LCL & MAG_CLS))
@@ -189,7 +189,7 @@ void Keyboard_SendKeyReport(uint8_t KeyCode)
 			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
 			
 			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 		}
 	}
 }

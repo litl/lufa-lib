@@ -127,7 +127,7 @@ static bool SCSI_Command_Inquiry(void)
 		/* When endpoint filled, send the data and wait until it is ready to be written to again */
 		if (Endpoint_BytesInEndpoint() == MASS_STORAGE_IO_EPSIZE)
 		{
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 			while (!(Endpoint_ReadWriteAllowed()));
 		}
 					
@@ -137,7 +137,7 @@ static bool SCSI_Command_Inquiry(void)
 	}
 	
 	/* Send the final endpoint data packet to the host */
-	Endpoint_FIFOCON_Clear();
+	Endpoint_ClearCurrentBank();
 
 	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.Header.DataTransferLength -= BytesTransferred;	
@@ -158,7 +158,7 @@ static bool SCSI_Command_Request_Sense(void)
 		/* When endpoint filled, send the data and wait until it is ready to be written to again */
 		if (Endpoint_BytesInEndpoint() == MASS_STORAGE_IO_EPSIZE)
 		{
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 			while (!(Endpoint_ReadWriteAllowed()));
 		}
 					
@@ -168,7 +168,7 @@ static bool SCSI_Command_Request_Sense(void)
 	}
 
 	/* Send the final endpoint data packet to the host */
-	Endpoint_FIFOCON_Clear();
+	Endpoint_ClearCurrentBank();
 
 	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.Header.DataTransferLength -= BytesTransferred;	
@@ -184,7 +184,7 @@ static bool SCSI_Command_Read_Capacity_10(void)
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCK_SIZE);
 
 	/* Send the endpoint data packet to the host */
-	Endpoint_FIFOCON_Clear();
+	Endpoint_ClearCurrentBank();
 
 	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.Header.DataTransferLength -= 8;

@@ -201,7 +201,7 @@ TASK(CDC_Task)
 			}
 			
 			/* Clear the endpoint buffer */
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 		}
 		
 		/* Check if Rx buffer contains data */
@@ -229,8 +229,8 @@ TASK(CDC_Task)
 			  Endpoint_Write_Byte(Buffer_GetElement(&Tx_Buffer));
 			
 			/* Send the data */
-			Endpoint_FIFOCON_Clear();
-			
+			Endpoint_ClearCurrentBank();
+
 			/* If a full endpoint was sent, we need to send an empty packet afterwards to terminate the transfer */
 			if (IsFull)
 			{
@@ -238,7 +238,7 @@ TASK(CDC_Task)
 				while (!(Endpoint_ReadWriteAllowed()));
 
 				/* Send an empty packet to terminate the transfer */
-				Endpoint_FIFOCON_Clear();			
+				Endpoint_ClearCurrentBank();
 			}
 		}
 	}

@@ -32,7 +32,7 @@ void MassStore_SendCommand(void)
 	Pipe_Write_Stream_LE(&SCSICommandBlock, sizeof(CommandBlockWrapper_t));
 
 	/* Send the data in the OUT pipe to the attached device */
-	Pipe_FIFOCON_Clear();
+	Pipe_ClearCurrentBank();
 	
 	/* Freeze pipe after use */
 	Pipe_Freeze();
@@ -144,7 +144,7 @@ uint8_t MassStore_SendRecieveData(void* BufferPtr)
 	}
 	
 	/* Acknowedge the packet */
-	Pipe_FIFOCON_Clear();
+	Pipe_ClearCurrentBank();
 
 	/* Freeze used pipe after use */
 	Pipe_Freeze();
@@ -173,7 +173,7 @@ void MassStore_GetReturnedStatus(void)
 	Pipe_Read_Stream_LE(&SCSICommandStatus, sizeof(CommandStatusWrapper_t));
 	
 	/* Clear the data ready for next reception */
-	Pipe_FIFOCON_Clear();
+	Pipe_ClearCurrentBank();
 
 	/* Freeze the IN pipe after use */
 	Pipe_Freeze();

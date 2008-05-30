@@ -212,16 +212,9 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 					
 					/* If both bytes in current word have been read, increment the address counter */
 					if (HighByte)
-					{
-						HighByte = 0;
-						
-						/* Increment the address counter after use */
-						CurrAddress++;
-					}
-					else
-					{
-						HighByte = 1;
-					}
+					  CurrAddress++;
+					
+					HighByte ^= 1;
 				}
 			}
 		}
@@ -296,7 +289,7 @@ static uint8_t FetchNextCommandByte(void)
 	/* If OUT endpoint empty, clear it and wait for the next packet from the host */
 	if (!(Endpoint_BytesInEndpoint()))
 	{
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 		while (!(Endpoint_ReadWriteAllowed()));
 	}
 	
@@ -312,7 +305,7 @@ static void WriteNextResponseByte(const uint8_t Response)
 	/* If OUT endpoint empty, clear it and wait for the next packet from the host */
 	if (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE)
 	{
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 		while (!(Endpoint_ReadWriteAllowed()));
 	}
 	
@@ -450,19 +443,14 @@ TASK(CDC_Task)
 		}
 		else if ((Command == 'C') || (Command == 'c'))
 		{
-			uint32_t FillAddress = ((uint32_t)CurrAddress << 1);
-			
 			if (Command == 'c')
 			{
-				/* Add one byte offset to the fill address */
-				FillAddress++;
-				
-				/* Increment the address after use */			
-				CurrAddress++;				
+				/* Increment the address if the second byte is being written */
+				CurrAddress++;
 			}
-
+			
 			/* Write the high byte to the current flash page */
-			boot_page_fill(FillAddress, FetchNextCommandByte());
+			boot_page_fill(((uint32_t)CurrAddress << 1), FetchNextCommandByte());
 			
 			/* Send confirmation byte back to the host */
 			WriteNextResponseByte('\r');		
@@ -526,20 +514,20 @@ TASK(CDC_Task)
 		bool IsEndpointFull = !(Endpoint_ReadWriteAllowed());
 
 		/* Send the endpoint data to the host */
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 		
 		/* If a full endpoint's worth of data was sent, we need to send an empty packet afterwards to signal end of transfer */
 		if (IsEndpointFull)
 		{
 			while (!(Endpoint_ReadWriteAllowed()));
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 		}
 		
 		/* Select the OUT endpoint */
 		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 
 		/* Acknowledge the command from the host */
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 	}
 }
 

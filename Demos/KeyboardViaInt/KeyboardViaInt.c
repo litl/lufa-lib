@@ -51,6 +51,10 @@ TASK_LIST
 	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
 };
 
+/* Global Variables */
+USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: 0};
+
+
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -117,6 +121,80 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }
 
+HANDLES_EVENT(USB_UnhandledControlPacket)
+{
+	/* Handle HID Class specific requests */
+	switch (Request)
+	{
+		case REQ_GetReport:
+			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Ignore report type and ID number value */
+				Endpoint_Ignore_Word();
+				
+				/* Ignore unused Interface number value */
+				Endpoint_Ignore_Word();
+
+				/* Read in the number of bytes in the report to send to the host */
+				uint16_t BytesToSend     = Endpoint_Read_Word_LE();
+				
+				/* Get a pointer to the HID IN report */
+				uint8_t* ReportPointer   = (uint8_t*)&KeyboardReportData;
+				uint16_t ReportSize      = sizeof(KeyboardReportData);
+				
+				bool     SendZLP;
+
+				Endpoint_ClearSetupReceived();
+	
+				/* If trying to send more bytes than exist to the host, clamp the value at the report size */
+				if (BytesToSend > ReportSize)
+				  BytesToSend = ReportSize;
+	
+				/* If the number of bytes to send will be an integer multiple of the control endpoint size,
+				   a zero length packet must be sent afterwards to terminate the transfer */
+				SendZLP = !(BytesToSend % USB_ControlEndpointSize);
+				
+				/* Loop while still bytes to send and the host hasn't aborted the transfer (via an OUT packet) */
+				while (BytesToSend && (!(Endpoint_IsSetupOUTReceived())))
+				{
+					/* Wait until endpoint is ready for an IN packet */
+					while (!(Endpoint_IsSetupINReady()));
+					
+					/* Write out one packet's worth of data to the endpoint, until endpoint full or all data written */
+					while (BytesToSend && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
+					{
+						Endpoint_Write_Byte(pgm_read_byte(ReportPointer++));
+						BytesToSend--;
+					}
+					
+					/* Send the endpoint packet to the host */
+					Endpoint_ClearSetupIN();
+				}
+				
+				/* Check if the host aborted the transfer prematurely with an OUT packet */
+				if (Endpoint_IsSetupOUTReceived())
+				{
+					/* Clear the OUT packet, abort any further communications for the request */
+					Endpoint_ClearSetupOUT();
+					return;
+				}
+				
+				/* If a zero length packet needs to be sent, send it now */
+				if (SendZLP)
+				{
+					while (!(Endpoint_IsSetupINReady()));
+					Endpoint_ClearSetupIN();
+				}
+
+				/* Wait until host acknowledges the transfer */
+				while (!(Endpoint_IsSetupOUTReceived()));
+				  Endpoint_ClearSetupOUT();
+			}
+		
+			break;
+	}
+}
+
 ISR(ENDPOINT_PIPE_vect)
 {
 	/* Save previously selected endpoint before selecting a new endpoint */
@@ -125,8 +203,7 @@ ISR(ENDPOINT_PIPE_vect)
 	/* Check if keyboard endpoint has interrupted */
 	if (Endpoint_HasEndpointInterrupted(KEYBOARD_EPNUM))
 	{
-		USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: 0};
-		uint8_t                   JoyStatus_LCL      = Joystick_GetStatus();
+		uint8_t JoyStatus_LCL = Joystick_GetStatus();
 
 		if (JoyStatus_LCL & JOY_UP)
 		  KeyboardReportData.KeyCode = 0x04; // A
@@ -146,12 +223,14 @@ ISR(ENDPOINT_PIPE_vect)
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
 		/* Write Keyboard Report Data */
-		Endpoint_Write_Byte(KeyboardReportData.Modifier);
-		Endpoint_Write_Byte(0x00);
-		Endpoint_Write_Byte(KeyboardReportData.KeyCode);			
+		Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
 
 		/* Handshake the IN Endpoint - send the data to the host */
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
+			
+		/* Clear the report data afterwards */
+		KeyboardReportData.Modifier = 0;
+		KeyboardReportData.KeyCode  = 0;
 		
 		/* Clear the endpoint IN interrupt flag */
 		USB_INT_Clear(ENDPOINT_INT_IN);
@@ -184,7 +263,7 @@ ISR(ENDPOINT_PIPE_vect)
 		LEDs_SetAllLEDs(LEDMask);
 
 		/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 	}
 	
 	/* Restore previously selected endpoint */

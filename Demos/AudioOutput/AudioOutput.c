@@ -236,6 +236,6 @@ TASK(USB_Audio_Task)
 		}
 		
 		/* Acknowedge the packet, clear the bank ready for the next packet */
-		Endpoint_FIFOCON_Clear();
+		Endpoint_ClearCurrentBank();
 	}
 }

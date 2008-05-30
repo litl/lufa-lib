@@ -46,9 +46,10 @@
  *  CDC class and the AVR109 protocol to be compatible with such open source software as avrdude and AVR-OSP.
  *
  *  \section Sec_Donations Donate
- *  Please consider donating a small amount to myself, to support this and my future Open Source projects. You
- *  can donate any amount via PayPal on my website, http://www.fourwalledcubicle.com . All donations are greatly
- *  appreciated.
+ *  I am a 19 year old University student studying for a double degree in Computer Science and Electronics
+ *  Engineering. This leaves little time for any sort of work or leisure. Please consider donating a small amount
+ *  to myself to support this and my future Open Source projects. You can donate any amount via PayPal on my
+ *  website, http://www.fourwalledcubicle.com . All donations are greatly appreciated.
  */
  
  /** \page Page_VIDPID VID and PID values

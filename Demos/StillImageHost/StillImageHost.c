@@ -206,7 +206,7 @@ TASK(USB_SImage_Host)
 			SImage_ReadData(DeviceInfo, DeviceInfoSize);
 			
 			/* Once all the data has been read, the pipe must be cleared before the response can be sent */
-			Pipe_FIFOCON_Clear();
+			Pipe_ClearCurrentBank();
 			
 			/* Create a pointer for walking through the info dataset */
 			uint8_t* DeviceInfoPos = DeviceInfo;

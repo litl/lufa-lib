@@ -38,7 +38,7 @@ void SImage_SendBlockHeader(void)
 		}
 		
 		/* Send the PIMA command block to the attached device */
-		Pipe_FIFOCON_Clear();
+		Pipe_ClearCurrentBank();
 	}
 					
 	/* Freeze pipe after use */
@@ -55,7 +55,7 @@ void SImage_RecieveEventHeader(void)
 	Pipe_Read_Stream_LE(&PIMA_EventBlock, sizeof(PIMA_EventBlock));
 	
 	/* Clear the pipe after read complete to prepare for next event */
-	Pipe_FIFOCON_Clear();
+	Pipe_ClearCurrentBank();
 	
 	/* Freeze the event pipe again after use */
 	Pipe_Freeze();
@@ -143,8 +143,8 @@ uint8_t SImage_RecieveBlockHeader(void)
 		}
 		
 		/* Clear pipe banks after use */
-		Pipe_FIFOCON_Clear();
-		Pipe_FIFOCON_Clear();
+		Pipe_ClearCurrentBank();
+		Pipe_ClearCurrentBank();
 	}
 	
 	/* Freeze the IN pipe after use */

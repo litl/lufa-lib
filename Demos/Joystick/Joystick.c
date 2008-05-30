@@ -47,6 +47,9 @@ TASK_LIST
 	{ Task: USB_Joystick_Report  , TaskStatus: TASK_STOP },
 };
 
+/* Global Variables */
+USB_JoystickReport_Data_t JoystickReportData = {Button: 0, X: 0, Y: 0};
+
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -107,10 +110,83 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(USB_Joystick_Report, TASK_RUN);
 }
 
+HANDLES_EVENT(USB_UnhandledControlPacket)
+{
+	/* Handle HID Class specific requests */
+	switch (Request)
+	{
+		case REQ_GetReport:
+			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Ignore unused Report Type and Report ID values */
+				Endpoint_Ignore_Word();
+				
+				/* Ignore unused Interface number value */
+				Endpoint_Ignore_Word();
+
+				/* Read in the number of bytes in the report to send to the host */
+				uint16_t BytesToSend     = Endpoint_Read_Word_LE();
+				
+				/* Get a pointer to the HID report and determine its size from the HID descriptor */
+				uint8_t* ReportPointer   = (uint8_t*)&JoystickReport;
+				uint16_t ReportSize      = pgm_read_word(&ConfigurationDescriptor.JoystickHID.HIDReportLength);
+				
+				bool     SendZLP;
+
+				Endpoint_ClearSetupReceived();
+	
+				/* If trying to send more bytes than exist to the host, clamp the value at the report size */
+				if (BytesToSend > ReportSize)
+				  BytesToSend = ReportSize;
+	
+				/* If the number of bytes to send will be an integer multiple of the control endpoint size,
+				   a zero length packet must be sent afterwards to terminate the transfer */
+				SendZLP = !(BytesToSend % USB_ControlEndpointSize);
+				
+				/* Loop while still bytes to send and the host hasn't aborted the transfer (via an OUT packet) */
+				while (BytesToSend && (!(Endpoint_IsSetupOUTReceived())))
+				{
+					/* Wait until endpoint is ready for an IN packet */
+					while (!(Endpoint_IsSetupINReady()));
+					
+					/* Write out one packet's worth of data to the endpoint, until endpoint full or all data written */
+					while (BytesToSend && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
+					{
+						Endpoint_Write_Byte(pgm_read_byte(ReportPointer++));
+						BytesToSend--;
+					}
+					
+					/* Send the endpoint packet to the host */
+					Endpoint_ClearSetupIN();
+				}
+				
+				/* Check if the host aborted the transfer prematurely with an OUT packet */
+				if (Endpoint_IsSetupOUTReceived())
+				{
+					/* Clear the OUT packet, abort any further communications for the request */
+					Endpoint_ClearSetupOUT();
+					return;
+				}
+				
+				/* If a zero length packet needs to be sent, send it now */
+				if (SendZLP)
+				{
+					while (!(Endpoint_IsSetupINReady()));
+					Endpoint_ClearSetupIN();
+				}
+
+				/* Wait until host acknowledges the transfer */
+				while (!(Endpoint_IsSetupOUTReceived()));
+				  Endpoint_ClearSetupOUT();
+			}
+		
+			break;
+	}
+}
+
 TASK(USB_Joystick_Report)
 {
-	USB_JoystickReport_Data_t JoystickReportData = {Button: 0, X: 0, Y: 0};
-	uint8_t                   JoyStatus_LCL      = Joystick_GetStatus();
+	uint8_t JoyStatus_LCL = Joystick_GetStatus();
 
 	if (JoyStatus_LCL & JOY_UP)
 	  JoystickReportData.Y =  100;
@@ -138,12 +214,15 @@ TASK(USB_Joystick_Report)
 		if (Endpoint_ReadWriteAllowed())
 		{
 			/* Write Joystick Report Data */
-			Endpoint_Write_Byte(JoystickReportData.X);
-			Endpoint_Write_Byte(JoystickReportData.Y);
-			Endpoint_Write_Byte(JoystickReportData.Button);
-			
+			Endpoint_Write_Stream_LE(&JoystickReportData, sizeof(JoystickReportData));
+
 			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
+			
+			/* Clear the report data afterwards */
+			JoystickReportData.X      = 0;
+			JoystickReportData.Y      = 0;
+			JoystickReportData.Button = 0;
 		}
 	}
 }

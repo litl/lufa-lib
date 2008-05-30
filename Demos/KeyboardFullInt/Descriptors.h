@@ -47,7 +47,11 @@
 	        USB_Descriptor_Endpoint_t             KeyboardEndpoint;
 	        USB_Descriptor_Endpoint_t             KeyboardLEDsEndpoint;
 		} USB_Descriptor_Configuration_t;
-					
+
+	/* External Variables: */
+		extern USB_Descriptor_HIDReport_Datatype_t KeyboardReport[];
+		extern USB_Descriptor_Configuration_t      ConfigurationDescriptor;
+
 	/* Macros: */
 		#define KEYBOARD_EPNUM               1
 		#define KEYBOARD_LEDS_EPNUM          2

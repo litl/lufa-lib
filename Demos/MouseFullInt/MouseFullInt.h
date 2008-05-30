@@ -24,6 +24,9 @@
 		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
 		#include <MyUSB/Drivers/Board/HWB.h>          // Hardware Button driver
 		
+	/* Macros: */
+		#define REQ_GetReport   0x01
+
 	/* Type Defines: */
 		typedef struct
 		{

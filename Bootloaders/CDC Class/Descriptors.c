@@ -14,7 +14,7 @@ USB_Descriptor_Device_t DeviceDescriptor =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
-	USBSpecification:       0x0101,
+	USBSpecification:       VERSION_BCD(01.10),
 	Class:                  0x02,
 	SubClass:               0x00,
 	Protocol:               0x00,
@@ -25,9 +25,9 @@ USB_Descriptor_Device_t DeviceDescriptor =
 	ProductID:              0x204A,
 	ReleaseNumber:          0x0000,
 		
-	ManafacturerStrIndex:   0x01,
-	ProductStrIndex:        0x02,
-	SerialNumStrIndex:      0x03,
+	ManafacturerStrIndex:   NO_DESCRIPTOR_STRING,
+	ProductStrIndex:        0x01,
+	SerialNumStrIndex:      NO_DESCRIPTOR_STRING,
 		
 	NumberOfConfigurations: 1
 };
@@ -159,25 +159,11 @@ USB_Descriptor_String_t LanguageString PROGMEM =
 	UnicodeString:          {LANGUAGE_ID_ENG}
 };
 
-USB_Descriptor_String_t ManafacturerString =
-{
-	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
-		
-	UnicodeString:          L"Dean Camera"
-};
-
 USB_Descriptor_String_t ProductString =
 {
-	Header:                 {Size: USB_STRING_LEN(26), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(20), Type: DTYPE_String},
 		
-	UnicodeString:          L"MyUSB CDC Class Bootloader"
-};
-
-USB_Descriptor_String_t SerialNumberString =
-{
-	Header:                 {Size: USB_STRING_LEN(12), Type: DTYPE_String},
-		
-	UnicodeString:          L"000000000000"
+	UnicodeString:          L"MyUSB CDC Bootloader"
 };
 
 bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
@@ -204,16 +190,8 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t L
 					Size    = pgm_read_byte(&LanguageString.Header.Size);
 					break;
 				case 0x01:
-					Address = DESCRIPTOR_ADDRESS(ManafacturerString);
-					Size    = pgm_read_byte(&ManafacturerString.Header.Size);
-					break;
-				case 0x02:
 					Address = DESCRIPTOR_ADDRESS(ProductString);
 					Size    = pgm_read_byte(&ProductString.Header.Size);
-					break;
-				case 0x03:
-					Address = DESCRIPTOR_ADDRESS(SerialNumberString);
-					Size    = pgm_read_byte(&SerialNumberString.Header.Size);
 					break;
 			}
 			

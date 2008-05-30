@@ -271,7 +271,7 @@ TASK(USB_Mouse_Host)
 				LEDs_SetAllLEDs(LEDMask);
 					
 				/* Clear the IN endpoint, ready for next data packet */
-				Pipe_FIFOCON_Clear();
+				Pipe_ClearCurrentBank();
 			}
 
 			/* Freeze mouse data pipe */

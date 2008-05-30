@@ -154,7 +154,7 @@ TASK(USB_MIDI_Task)
 
 	/* Check if endpoint is ready to be read from, if so discard its (unused) data */
 	if (Endpoint_ReadWriteAllowed())
-	  Endpoint_FIFOCON_Clear();
+	  Endpoint_ClearCurrentBank();
 }
 
 void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t CableID, const uint8_t Channel)
@@ -176,5 +176,5 @@ void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t Cab
 	Endpoint_Write_Byte(MIDI_STANDARD_VELOCITY);
 	
 	/* Send the data in the endpoint to the host */
-	Endpoint_FIFOCON_Clear();
+	Endpoint_ClearCurrentBank();
 }

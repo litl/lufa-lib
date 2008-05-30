@@ -16,6 +16,7 @@
 uint8_t USB_ControlEndpointSize = ENDPOINT_CONTROLEP_DEFAULT_SIZE;
 
 void Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum,
+                                  const uint16_t EndpointSize,
                                   const uint8_t UECFG0Xdata,
                                   const uint8_t UECFG1Xdata)
 {
@@ -23,7 +24,7 @@ void Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum,
 	Endpoint_EnableEndpoint();
 	
 	UECFG0X = UECFG0Xdata;
-	UECFG1X = ((UECFG1X & (1 << ALLOC)) | UECFG1Xdata);
+	UECFG1X = ((UECFG1X & (1 << ALLOC)) | UECFG1Xdata | Endpoint_BytesToEPSizeMask(EndpointSize));
 	
 	Endpoint_AllocateMemory();
 }
@@ -50,7 +51,7 @@ uint8_t Endpoint_Write_Stream_LE(void* Buffer, uint16_t Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 
 			while (!(Endpoint_ReadWriteAllowed()))
 			{
@@ -81,7 +82,7 @@ uint8_t Endpoint_Write_Stream_BE(void* Buffer, uint16_t Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 
 			while (!(Endpoint_ReadWriteAllowed()))
 			{
@@ -112,7 +113,7 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 
 			while (!(Endpoint_ReadWriteAllowed()))
 			{
@@ -143,7 +144,7 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
-			Endpoint_FIFOCON_Clear();
+			Endpoint_ClearCurrentBank();
 
 			while (!(Endpoint_ReadWriteAllowed()))
 			{

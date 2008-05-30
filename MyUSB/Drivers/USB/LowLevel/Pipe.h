@@ -187,9 +187,9 @@
 			 *        routine completes regardless of if the pipe configuration succeeds.
 			 */			
 			#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
-												   MACROS{ Pipe_ConfigurePipe_P(num,         \
+												   MACROS{ Pipe_ConfigurePipe_P(num, size,   \
 																			  ((type << PTYPE0) | token | ((epnum & PIPE_EPNUM_MASK) << PEPNUM0)),   \
-																			  (Pipe_BytesToEPSizeMask(size) | banks)); }MACROE
+																			  banks); }MACROE
 
 			/** Returns true if the currently selected pipe is configured, false otherwise. */
 			#define Pipe_IsConfigured()                  ((UPSTAX  & (1 << CFGOK)) ? true : false)
@@ -213,7 +213,7 @@
 			 *  (if the endpoint is of the OUT direction) or sends the packet contents to the host (if the
 			 *  pipe is of the IN direction).
 			 */
-			#define Pipe_FIFOCON_Clear()           MACROS{ UPINTX  &= ~(1 << FIFOCON);                             }MACROE
+			#define Pipe_ClearCurrentBank()        MACROS{ UPINTX  &= ~(1 << FIFOCON);                             }MACROE
 
 			/** Unfreezes the pipe, allowing it to communicate with an attached device. */
 			#define Pipe_Unfreeze()                MACROS{ UPCONX  &= ~(1 << PFREEZE);                             }MACROE
@@ -451,7 +451,7 @@
 			/** Writes the given number of bytes to the pipe from the given buffer in little endian,
 			 *  sending full packets to the device as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the
-			 *  Pipe_FIFOCON_Clear() macro.
+			 *  Pipe_ClearCurrentBank() macro.
 			 *
 			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected pipe into the buffer.
@@ -463,7 +463,7 @@
 			/** Writes the given number of bytes to the pipe from the given buffer in big endian,
 			 *  sending full packets to the device as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the
-			 *  Pipe_FIFOCON_Clear() macro.
+			 *  Pipe_ClearCurrentBank() macro.
 			 *
 			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected pipe into the buffer.
@@ -475,7 +475,7 @@
 			/** Reads the given number of bytes from the pipe from the given buffer in little endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
-			 *  discarding the last packet from the host via the Pipe_FIFOCON_Clear() macro.
+			 *  discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
 			 *
 			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected pipe.
@@ -487,7 +487,7 @@
 			/** Reads the given number of bytes from the pipe from the given buffer in big endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
-			 *  discarding the last packet from the host via the Pipe_FIFOCON_Clear() macro.
+			 *  discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
 			 *
 			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected pipe.
@@ -559,8 +559,10 @@
 		
 		/* Function Prototypes: */
 			void Pipe_ClearPipes(void);
-			void Pipe_ConfigurePipe_P(const uint8_t PipeNum, const uint8_t UPCFG0Xdata,
-			                          const uint8_t UPCFG1Xdata);
+			void Pipe_ConfigurePipe_P(const uint8_t  PipeNum,
+			                          const uint16_t PipeSize,
+			                          const uint8_t  UPCFG0Xdata,
+			                          const uint8_t  UPCFG1Xdata);
 	#endif
 
 	/* Disable C linkage for C++ Compilers: */

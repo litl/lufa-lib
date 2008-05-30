@@ -227,7 +227,7 @@ TASK(USB_Keyboard_Host)
 				}
 				
 				/* Clear the IN endpoint, ready for next data packet */
-				Pipe_FIFOCON_Clear();
+				Pipe_ClearCurrentBank();
 			}
 
 			/* Freeze keyboard data pipe */

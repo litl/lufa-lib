@@ -57,7 +57,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
-	USBSpecification:       0x0101,
+	USBSpecification:       VERSION_BCD(01.10),
 	Class:                  0x00,
 	SubClass:               0x00,	
 	Protocol:               0x00,
@@ -112,10 +112,10 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		{  
 			Header:                 {Size: sizeof(USB_Descriptor_HID_t), Type: DTYPE_HID},
 			
-			HIDSpec:                0x1001,
+			HIDSpec:                VERSION_BCD(01.11),
 			CountryCode:            0x00,
 			TotalHIDDescriptors:    0x01,
-			HIDReportType:          0x22,
+			HIDReportType:          DTYPE_Report,
 			HIDReportLength:        sizeof(KeyboardReport)  
 		},
 		

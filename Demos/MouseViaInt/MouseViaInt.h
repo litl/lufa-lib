@@ -26,6 +26,9 @@
 		#include <MyUSB/Drivers/Board/HWB.h>          // Hardware Button driver
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 
+	/* Macros: */
+		#define REQ_GetReport   0x01
+
 	/* Type Defines: */
 		typedef struct
 		{
@@ -38,5 +41,6 @@
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
-
+		HANDLES_EVENT(USB_UnhandledControlPacket);
+		
 #endif
