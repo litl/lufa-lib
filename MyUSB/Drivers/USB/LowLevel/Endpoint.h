@@ -261,6 +261,13 @@
 				                                                 *   the transfer.
 				                                                 */
 			};
+			
+			/** Enum for the possible error return codes of the Endpoint_*_Control_Stream_* functions. */
+			enum Endpoint_ControlStream_RW_ErrorCodes_t
+			{
+				ENDPOINT_RWCSTREAM_ERROR_NoError            = 0, /**< Command completed successfully, no error. */
+				ENDPOINT_RWCSTREAM_ERROR_HostAborted        = 1, /**< The aborted the transfer prematurely. */
+			};
 
 		/* Inline Functions: */
 			/** Reads one byte from the currently selected endpoint's bank, for OUT direction endpoints. */
@@ -424,6 +431,8 @@
 			 *  the user is responsible for manually sending the last written packet to the host via the
 			 *  Endpoint_ClearCurrentBank() macro.
 			 *
+			 *  \note This routine should not be used on CONTROL type endpoints.
+			 *
 			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
 			 *
@@ -435,6 +444,8 @@
 			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the
 			 *  Endpoint_ClearCurrentBank() macro.
+			 *
+			 *  \note This routine should not be used on CONTROL type endpoints.
 			 *
 			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
@@ -448,6 +459,8 @@
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
 			 *  discarding the last packet from the host via the Endpoint_ClearCurrentBank() macro.
 			 *
+			 *  \note This routine should not be used on CONTROL type endpoints.
+			 *
 			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected endpoint.
 			 *
@@ -460,12 +473,70 @@
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
 			 *  discarding the last packet from the host via the Endpoint_ClearCurrentBank() macro.
 			 *
+			 *  \note This routine should not be used on CONTROL type endpoints.
+			 *
 			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected endpoint.
 			 *
 			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Writes the given number of bytes to the CONTROL type endpoint from the given buffer in little endian,
+			 *  sending full packets to the host as needed. The host OUT acknowedgement is not automatically cleared
+			 *  in both failure and success states; the user is responsible for manually clearing the setup OUT to
+			 *  finalize the transfer via the Endpoint_ClearSetupOUT() macro.
+			 *
+			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
+			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
+			 *
+			 *  \return A value from the Endpoint_ControlStream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Endpoint_Write_Control_Stream_LE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Writes the given number of bytes to the CONTROL type endpoint from the given buffer in big endian,
+			 *  sending full packets to the host as needed. The host OUT acknowedgement is not automatically cleared
+			 *  in both failure and success states; the user is responsible for manually clearing the setup OUT to
+			 *  finalize the transfer via the Endpoint_ClearSetupOUT() macro.
+			 *
+			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
+			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
+			 *
+			 *  \return A value from the Endpoint_ControlStream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Endpoint_Write_Control_Stream_BE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Reads the given number of bytes from the CONTROL endpoint from the given buffer in little endian,
+			 *  discarding fully read packets from the host as needed. The device IN acknowedgement is not
+			 *  automatically sent after success or failure states; the user is responsible for manually sending the
+			 *  setup IN to finalize the transfer via the Endpoint_ClearSetupIN() macro.
+			 *
+			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
+			 *  \param Length  Number of bytes to send via the currently selected endpoint.
+			 *
+			 *  \return A value from the Endpoint_ControlStream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Endpoint_Read_Control_Stream_LE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Reads the given number of bytes from the CONTROL endpoint from the given buffer in big endian,
+			 *  discarding fully read packets from the host as needed. The device IN acknowedgement is not
+			 *  automatically sent after success or failure states; the user is responsible for manually sending the
+			 *  setup IN to finalize the transfer via the Endpoint_ClearSetupIN() macro.
+			 *
+			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
+			 *  \param Length  Number of bytes to send via the currently selected endpoint.
+			 *
+			 *  \return A value from the Endpoint_ControlStream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Endpoint_Read_Control_Stream_BE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 
 		/* Function Aliases: */
 			/** Alias for Endpoint_Read_Word_LE(). By default USB transfers use little endian format, thus
@@ -481,23 +552,33 @@
 			/** Alias for Endpoint_Read_DWord_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
-			#define Endpoint_Read_DWord()                  Endpoint_Read_DWord_LE()
+			#define Endpoint_Read_DWord()                       Endpoint_Read_DWord_LE()
 
 			/** Alias for Endpoint_Write_DWord_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
-			#define Endpoint_Write_DWord(DWord)            Endpoint_Write_DWord_LE(DWord)
+			#define Endpoint_Write_DWord(DWord)                 Endpoint_Write_DWord_LE(DWord)
 
 			/** Alias for Endpoint_Read_Stream_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
-			#define Endpoint_Read_Stream(Buffer, Length)   Endpoint_Read_Stream_LE(Buffer, Length)
+			#define Endpoint_Read_Stream(Buffer, Length)        Endpoint_Read_Stream_LE(Buffer, Length)
 
 			/** Alias for Endpoint_Write_Stream_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
-			#define Endpoint_Write_Stream(Data, Length)    Endpoint_Write_Stream_LE(Data, Length)
-
+			#define Endpoint_Write_Stream(Data, Length)         Endpoint_Write_Stream_LE(Data, Length)
+			
+			/** Alias for Endpoint_Write_Control_Stream_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Endpoint_Write_Control_Stream(Data, Length) Endpoint_Write_Control_Stream_LE(Data, Length)			
+			
+			/** Alias for Endpoint_Read_Control_Stream_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Endpoint_Read_Control_Stream(Data, Length) Endpoint_Read_Control_Stream_LE(Data, Length)	
+			
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Macros: */	
