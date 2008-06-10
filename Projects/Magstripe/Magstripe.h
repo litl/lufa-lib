@@ -40,6 +40,9 @@
 	/* Task Definitions: */
 		TASK(USB_Keyboard_Report);
 
+	/* Macros: */
+		#define REQ_GetReport   0x01
+
 	/* Type Defines: */
 		typedef struct
 		{
@@ -50,6 +53,7 @@
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
+		HANDLES_EVENT(USB_UnhandledControlPacket);
 		HANDLES_EVENT(USB_ConfigurationChanged);
 
 #endif

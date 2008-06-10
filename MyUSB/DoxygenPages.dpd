@@ -276,3 +276,118 @@
   *  </table>
   */
   
+ /** \page Page_Migration141 Migrating from V1.4.1
+  *
+  *  Below is migration information for updating existing projects based on the MyUSB library version 1.4.1 to
+  *  the 1.5.0 API. It does not indicate all new additions to the library, only areas relevant to making older
+  *  projects compatible with the new API.
+  *
+  *  <b>Non USB Library Components</b>
+  *    <ul>
+  *     <li>
+  *      The Atomic.h and ISRMacro.h header files in MyUSB/Common have been removed, as the library is now only
+  *      compatible with avr-libc library versions newer than the time before the functionality of the deleted
+  *      headers was available.
+  *     </li>
+  *    </ul>
+  *
+  *  <b>Device Mode</b>
+  *    <ul>
+  *     <li>
+  *      The GetDescriptor function (see StdDescriptors.h) now has a new prototype, with altered parameter names and
+  *      functions. Existing projects will need to update the GetDescriptor implementation to reflect the new API.
+  *      The previously split Type and Index parameters are now passed as the original wValue parameter to the
+  *      function, to make way for the USB specification wIndex parameter which is <i>not</i> the same as the
+  *      previous Index parameter.
+  *     </li>
+  *     <li>
+  *      The USB_UnhandledControlPacket event (see Events.h) now has new parameter names, to be in line with the
+  *      official USB specification. Existing code will need to be altered to use the new parameter names.
+  *     </li>
+  *     <li>
+  *      The USB_CreateEndpoints event (see Events.h) has been renamed to USB_ConfigurationChanged, which is more
+  *      appropriate. It fires in an identical manner to the previously named event, thus the only change to be made
+  *      is the event name itself in the user project.
+  *     </li>
+  *     <li>
+  *      Previous versions of the library demos had incorrectly encoded BCD version numbers in the descriptors. To
+  *      avoid such mistakes in the future, the VERSION_BCD macro has been added to StdDescriptors.h. Existing
+  *      projects should at least manually correct the BCD version numbers, or preferably update the descriptors to
+  *      encode the version number in BCD format using the new macro.
+  *     </li>
+  *     <li>
+  *      The USB_Descriptor_Language_t structure no longer exists in StdDescriptors.h, as this was a
+  *      psudo-descriptor modelled on the string descriptor. It is replaced by the true USB_Descriptor_String_t type
+  *      descriptor as indicated in the USB specification, thus all device code must be updated accordingly.
+  *     </li>
+  *     <li>
+  *      The mandatory GetReport class-specific request was accidentally ommitted from previous versions of the demos
+  *      based on the Human Interface Device (HID) class. This has been corrected, and any user projects based on the
+  *      HID demos should also be updated accordingly.
+  *     </li>
+  *     <li>
+  *      The names of several Endpoint macros have been changed to be more consistant with the rest of the library,
+  *      with no implementation changes. This means that existing code can be altered to use the new macro names
+  *      with no other considerations required. See Endpoint.h for the new macro names.
+  *     </li>
+  *     <li>
+  *      The previous version of the MassStorage demo had an incorrect value in the SCSI_Request_Sense_Response_t
+  *      strucuture named SenseData in SCSI.c which caused some problems with some hosts. User projects based on this
+  *      demo should correct the structure value to maintain compatibility across multiple OS platforms.
+  *     </li>
+  *     <li>
+  *      The CDC demos now correctly send an empty packet directly after a full packet, to end the transmission.
+  *      Failure to do this on projects which always or frequently send full packets will cause buffering issues on
+  *      the host OS. All CDC user projects are advised to update their transmission routines in the same manner as
+  *      the library CDC demos.
+  *     </li>
+  *     <li>
+  *      By default, the descriptor structures use the official USB specification names for the elements. Previous
+  *      versions of the library used non-standard (but more verbose) names, which are still usable in the current
+  *      and future releases when the correct compile time option is enabled. See the StdDescriptors.h file
+  *      documentation for more details.
+  *     </li>
+  *     <li>
+  *      The previous interrupt-driven Endpoint/Pipe demos did not properly save and restore the currently selected
+  *      Endpoint/Pipe when the ISR fired. This has been corrected - user projects based on the interrupt driven
+  *      demos should also update to properly save and restore the selected Endpoint/Pipe.
+  *     </li>
+  *    </ul>
+  *
+  *  <b>Host Mode</b>
+  *    <ul>
+  *     <li>
+  *      The USB_Host_Request_Header_t structure in HostChapter9.h (used for issuing control requests) has had its
+  *      members renamed to the official USB specification names for requests. Existing code will need to be updated
+  *      to use the new names.
+  *     </li>
+  *     <li>
+  *      The names of several Pipe macros have been changed to be more consistant with the rest of the library,
+  *      with no implementation changes. This means that existing code can be altered to use the new macro names
+  *      with no other considerations required. See Pipe.h for the new macro names.
+  *     </li>
+  *     <li>
+  *      By default, the descriptor structures use the official USB specification names for the elements. Previous
+  *      versions of the library used non-standard (but more verbose) names, which are still usable in the current
+  *      and future releases when the correct compile time option is enabled. See the StdDescriptors.h file
+  *      documentation for more details.
+  *     </li>
+  *     <li>
+  *      The names of the macros in Host.h for controlling the SOF generation have been renamed, see the Host.h
+  *      module documentation for the new macro names.
+  *     </li>
+  *   </ul>
+  *
+  *  <b>Dual Role Mode</b>
+  *    <ul>
+  *     <li>
+  *      The OTG.h header file has been corrected so that the macros now perform their stated functions. Any existing
+  *      projects using custom headers to fix the broken OTG header should now be altered to once again use the OTG
+  *      header inside the library.
+  *     </li>
+  *     <li>
+  *      The USB_DeviceEnumerationComplete event (see Events.h) now also fires in Device mode, when the host has
+  *      finished enumerating the device. Projects relying on the event only firing in Host mode should be updated
+  *      so that the event action only ocurrs when the USB_Mode global is set to USB_MODE_HOST.
+  *     </li>
+  */

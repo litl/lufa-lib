@@ -48,6 +48,10 @@ TASK_LIST
 	{ Task: USB_Keyboard_Report  , TaskStatus: TASK_STOP },
 };
 
+/* Global Variables */
+USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: 0};
+
+
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -109,6 +113,40 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 
 	/* Start Keyboard reporting task */
 	Scheduler_SetTaskMode(USB_Keyboard_Report, TASK_RUN);
+}
+
+HANDLES_EVENT(USB_UnhandledControlPacket)
+{
+	/* Handle HID Class specific requests */
+	switch (bRequest)
+	{
+		case REQ_GetReport:
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Ignore report type and ID number value */
+				Endpoint_Ignore_Word();
+				
+				/* Ignore unused Interface number value */
+				Endpoint_Ignore_Word();
+
+				/* Read in the number of bytes in the report to send to the host */
+				uint16_t wLength = Endpoint_Read_Word_LE();
+				
+				/* If trying to send more bytes than exist to the host, clamp the value at the report size */
+				if (wLength > sizeof(KeyboardReportData))
+				  wLength = sizeof(KeyboardReportData);
+
+				Endpoint_ClearSetupReceived();
+	
+				/* Write the report data to the control endpoint */
+				Endpoint_Write_Control_Stream_LE(&KeyboardReportData, wLength);
+				
+				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
+				Endpoint_ClearSetupOUT();
+			}
+		
+			break;
+	}
 }
 
 TASK(USB_Keyboard_Report)
@@ -173,8 +211,6 @@ TASK(USB_Keyboard_Report)
 
 void Keyboard_SendKeyReport(uint8_t KeyCode)
 {
-	USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: KeyCode};
-
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
 	{
@@ -187,6 +223,10 @@ void Keyboard_SendKeyReport(uint8_t KeyCode)
 			Endpoint_Write_Byte(KeyboardReportData.Modifier);
 			Endpoint_Write_Byte(0x00);
 			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
+						
+			/* Clear the report data afterwards */
+			KeyboardReportData.Modifier = 0;
+			KeyboardReportData.KeyCode  = 0;
 			
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_ClearCurrentBank();
