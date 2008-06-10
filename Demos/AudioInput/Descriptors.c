@@ -25,7 +25,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	ProductID:              0x2047,
 	ReleaseNumber:          0x0000,
 		
-	ManafacturerStrIndex:   0x01,
+	ManufacturerStrIndex:   0x01,
 	ProductStrIndex:        0x02,
 	SerialNumStrIndex:      0x03,
 		
@@ -202,7 +202,7 @@ USB_Descriptor_String_t LanguageString PROGMEM =
 	UnicodeString:          {LANGUAGE_ID_ENG}
 };
 
-USB_Descriptor_String_t ManafacturerString PROGMEM =
+USB_Descriptor_String_t ManufacturerString PROGMEM =
 {
 	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
 		
@@ -223,13 +223,13 @@ USB_Descriptor_String_t SerialNumberString PROGMEM =
 	UnicodeString:          L"000000000000"
 };
 
-bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
+bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
                        void** const DescriptorAddress, uint16_t* const DescriptorSize)
 {
 	void*    Address = NULL;
 	uint16_t Size    = 0;
 
-	switch (Type)
+	switch (wValue >> 8)
 	{
 		case DTYPE_Device:
 			Address = DESCRIPTOR_ADDRESS(DeviceDescriptor);
@@ -240,15 +240,15 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t L
 			Size    = sizeof(USB_Descriptor_Configuration_t);
 			break;
 		case DTYPE_String:
-			switch (Index)
+			switch (wValue & 0xFF)
 			{
 				case 0x00:
 					Address = DESCRIPTOR_ADDRESS(LanguageString);
 					Size    = pgm_read_byte(&LanguageString.Header.Size);
 					break;
 				case 0x01:
-					Address = DESCRIPTOR_ADDRESS(ManafacturerString);
-					Size    = pgm_read_byte(&ManafacturerString.Header.Size);
+					Address = DESCRIPTOR_ADDRESS(ManufacturerString);
+					Size    = pgm_read_byte(&ManufacturerString.Header.Size);
 					break;
 				case 0x02:
 					Address = DESCRIPTOR_ADDRESS(ProductString);

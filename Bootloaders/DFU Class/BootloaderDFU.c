@@ -27,6 +27,11 @@
 	functions are usable on startup without the prerequisite firmware
 	erase.
 	
+	Out of the box this bootloader builds for the USB1287, and should fit
+	into 4KB of bootloader space. If you wish to enlarge this space and/or
+	change the AVR model, you will need to edit the BOOT_START and MCU
+	values in the accompanying makefile.
+	
 	NOTE: This device spoofs Atmel's DFU Bootloader USB VID and PID.
 	      If you do not wish to use Atmel's ID codes, please manually
 		  change them in Descriptors.c and alter your driver's INF
@@ -121,7 +126,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	/* Indicate processing request */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3);
 
-	switch (Request)
+	switch (bRequest)
 	{
 		case DFU_DNLOAD:
 			Endpoint_ClearSetupReceived();

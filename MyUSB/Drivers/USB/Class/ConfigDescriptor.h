@@ -64,11 +64,19 @@
 			 *  This value's meaning depends on the descriptor's placement in the descriptor, but standard type
 			 *  values can be accessed in the DescriptorTypes_t enum located in USB/HighLevel/StdDescriptors.h.
 			 */
-			#define DESCRIPTOR_TYPE(DescriptorPtr)        DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Type
-
+			#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
+				#define DESCRIPTOR_TYPE(DescriptorPtr)    DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Type
+			#else
+				#define DESCRIPTOR_TYPE(DescriptorPtr)    DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).bDescriptorType			
+			#endif
+			
 			/** Returns the descriptor's size, expressed as the 8-bit value indicating the number of bytes. */
-			#define DESCRIPTOR_SIZE(DescriptorPtr)        DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Size
-
+			#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
+				#define DESCRIPTOR_SIZE(DescriptorPtr)    DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).Size
+			#else
+				#define DESCRIPTOR_SIZE(DescriptorPtr)    DESCRIPTOR_CAST(DescriptorPtr, USB_Descriptor_Header_t).bLength
+			#endif
+			
 			/** Creates a prototype or begins a descriptor comparitor routine. Descriptor comparitor routines are 
 			 *  small search routines which are passed a pointer to the current sub descriptor in the configuration
 			 *  descriptor, and which analyse the sub descriptor to determine whether or not it matches the routine's
@@ -159,7 +167,11 @@
 			static inline void USB_Host_GetNextDescriptor(uint16_t* const BytesRem,
 			                                              uint8_t** const CurrConfigLoc)
 			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
 				uint16_t CurrDescriptorSize = DESCRIPTOR_CAST(*CurrConfigLoc, USB_Descriptor_Header_t).Size;
+				#else
+				uint16_t CurrDescriptorSize = DESCRIPTOR_CAST(*CurrConfigLoc, USB_Descriptor_Header_t).bLength;				
+				#endif
 
 				*CurrConfigLoc += CurrDescriptorSize;
 				*BytesRem      -= CurrDescriptorSize;

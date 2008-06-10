@@ -57,11 +57,13 @@
 			#define DF_CMD_BLOCKERASE                       0x50
 			#define DF_CMD_SECTORERASE                      0x7C
 
+			#define DF_CMD_CHIPERASE                        ((char[]){0xC7, 0x94, 0x80, 0x9A})
 			#define DF_CMD_CHIPERASE_BYTE1                  0xC7
 			#define DF_CMD_CHIPERASE_BYTE2                  0x94
 			#define DF_CMD_CHIPERASE_BYTE3                  0x80
 			#define DF_CMD_CHIPERASE_BYTE4                  0x9A
 			
+			#define DF_CMD_SECTORPROTECTIONOFF              ((char[]){0x3D, 0x2A, 0x7F, 0x9A})
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE1        0x3D
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE2        0x2A
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE3        0x7F

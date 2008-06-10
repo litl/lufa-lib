@@ -15,10 +15,10 @@
 
 uint8_t USB_ControlEndpointSize = ENDPOINT_CONTROLEP_DEFAULT_SIZE;
 
-void Endpoint_ConfigureEndpoint_P(const uint8_t EndpointNum,
+void Endpoint_ConfigureEndpoint_P(const uint8_t  EndpointNum,
                                   const uint16_t EndpointSize,
-                                  const uint8_t UECFG0Xdata,
-                                  const uint8_t UECFG1Xdata)
+                                  const uint8_t  UECFG0Xdata,
+                                  const uint8_t  UECFG1Xdata)
 {
 	Endpoint_SelectEndpoint(EndpointNum);
 	Endpoint_EnableEndpoint();

@@ -130,11 +130,11 @@ TASK(USB_MassStore_Host)
 			/* Standard request to set the device configuration to configuration 1 */
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
-					RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),
-					RequestData: REQ_SetConfiguration,
-					Value:       1,
-					Index:       0,
-					DataLength:  0,
+					bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),
+					bRequest:      REQ_SetConfiguration,
+					wValue:        1,
+					wIndex:        0,
+					wLength:       0,
 				};
 				
 			/* Send the request, display error and wait for device detatch if request fails */
@@ -185,11 +185,11 @@ TASK(USB_MassStore_Host)
 			/* Request to prepare the disk for use */
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
-					RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
-					RequestData: MASS_STORAGE_RESET,
-					Value:       0,
-					Index:       0,
-					DataLength:  0,
+					bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
+					bRequest:      MASS_STORAGE_RESET,
+					wValue:        0,
+					wIndex:        0,
+					wLength:       0,
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */
@@ -209,11 +209,11 @@ TASK(USB_MassStore_Host)
 			/* Request to retrieve the maximum LUN index from the device */
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
-					RequestType: (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE),
-					RequestData: GET_MAX_LUN,
-					Value:       0,
-					Index:       0,
-					DataLength:  1,
+					bmRequestType: (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE),
+					bRequest:      GET_MAX_LUN,
+					wValue:        0,
+					wIndex:        0,
+					wLength:       1,
 				};
 
 			/* Send the request, display error and wait for device detatch if request fails */

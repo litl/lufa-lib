@@ -37,6 +37,11 @@
  *  The MyUSB library is currently released under the LGPL licence, version 3. Please see the license file
  *  included with the library before use.
  *
+ *  \section Sec_Compiling Compiling
+ *  To compile projects built from the MyUSB library, you will need a recent distribution of avr-libc (1.6.2+)
+ *  and AVR-GCC (4.2+).
+ *
+ *
  *  \section Sec_Demos Demos and Bootloaders
  *  The MyUSB library ships with several different host and device demos, located in the /Demos/ subdirectory.
  *  If this directory is missing, please re-download the project from the project homepage.
@@ -228,7 +233,7 @@
   *     0x204C
   *    </td>
   *    <td>
-  *     * UNUSED - FREE FOR HOBBYIST PROJECTS UNTIL ALLOCATED *
+  *     * UNUSED - FREE FOR PRIVATE HOBBYIST PROJECTS UNTIL ALLOCATED *
   *    </td>
   *   </tr>
   *
@@ -240,7 +245,7 @@
   *     0x204D
   *    </td>
   *    <td>
-  *     * UNUSED - FREE FOR HOBBYIST PROJECTS UNTIL ALLOCATED *
+  *     * UNUSED - FREE FOR PRIVATE HOBBYIST PROJECTS UNTIL ALLOCATED *
   *    </td>
   *   </tr>
   *
@@ -252,7 +257,7 @@
   *     0x204E
   *    </td>
   *    <td>
-  *     * UNUSED - FREE FOR HOBBYIST PROJECTS UNTIL ALLOCATED *
+  *     * UNUSED - FREE FOR PRIVATE HOBBYIST PROJECTS UNTIL ALLOCATED *
   *    </td>
   *   </tr>
   *
@@ -264,7 +269,7 @@
   *     0x204F
   *    </td>
   *    <td>
-  *     * UNUSED - FREE FOR HOBBYIST PROJECTS UNTIL ALLOCATED *
+  *     * UNUSED - FREE FOR PRIVATE HOBBYIST PROJECTS UNTIL ALLOCATED *
   *    </td>
   *   </tr>
   *

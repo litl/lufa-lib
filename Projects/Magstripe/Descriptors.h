@@ -21,7 +21,7 @@
 			uint16_t                              HIDSpec;
 			uint8_t                               CountryCode;
 		
-			uint8_t                               TotalHIDDescriptors;
+			uint8_t                               TotalHIDReports;
 
 			uint8_t                               HIDReportType;
 			uint16_t                              HIDReportLength;
@@ -50,8 +50,8 @@
 		#define DTYPE_Report                 0x22
 
 	/* Function Prototypes: */
-		bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
+		bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 		                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
-		                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(4, 5);
+		                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);
 
 #endif

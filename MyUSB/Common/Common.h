@@ -18,26 +18,16 @@
 #define __COMMON_H__
 
 	/* Includes: */
+		#include <avr/io.h>
 		#include <stdio.h>
 		#include <avr/version.h>
 		
 		#include "FunctionAttributes.h"
 		
-		#if (__AVR_LIBC_VERSION__ < 10501UL)		
-			#include "ISRMacro.h"
-			#include "Atomic.h"			
-		#else
-			#include <util/atomic.h>
-			#include <avr/interrupt.h>
-			#include <alloca.h>
-		#endif
+		#include <alloca.h>
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			#if !defined(alloca)
-				#define alloca(x)           __builtin_alloca(x)
-			#endif
-		
+		/* Macros: */		
 			/** Macro for encasing other multi-statment macros. This should be used along with an opening brace
 			 *  before the start of any multi-statement macro, so that the macros contents as a whole are treated
 			 *  as a discreete block and not as a list of seperate statements which may cause problems when used as
@@ -84,7 +74,7 @@
 			 */
 			static inline void SetSystemClockPrescaler(uint8_t PrescalerMask)
 			{
-					uint8_t tmp = _BV(CLKPCE);
+					uint8_t tmp = (1 << CLKPCE);
 					__asm__ __volatile__ (
 							"in __tmp_reg__,__SREG__" "\n\t"
 							"cli" "\n\t"

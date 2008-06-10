@@ -40,11 +40,11 @@
 			 */
 			typedef struct
 			{
-				uint8_t  RequestType; /**< Type of the request. */
-				uint8_t  RequestData; /**< Request command code. */
-				uint16_t Value; /**< wValue parameter of the request. */
-				uint16_t Index; /**< wIndex parameter of the request. */
-				uint16_t DataLength; /**< Length of the data to transfer in bytes. */
+				uint8_t  bmRequestType; /**< Type of the request. */
+				uint8_t  bRequest; /**< Request command code. */
+				uint16_t wValue; /**< wValue parameter of the request. */
+				uint16_t wIndex; /**< wIndex parameter of the request. */
+				uint16_t wLength; /**< Length of the data to transfer in bytes. */
 			} USB_Host_Request_Header_t;
 
 		/* Enums: */

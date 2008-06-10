@@ -52,7 +52,8 @@
 			
 			#define DF_CMD_PAGEERASE                        0x81
 			#define DF_CMD_BLOCKERASE                       0x50
-			
+
+			#define DF_CMD_SECTORPROTECTIONOFF              ((char[]){0x3D, 0x2A, 0x7F, 0xCF})
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE1        0x3D
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE2        0x2A
 			#define DF_CMD_SECTORPROTECTIONOFF_BYTE3        0x7F

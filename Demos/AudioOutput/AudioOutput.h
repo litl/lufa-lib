@@ -22,15 +22,6 @@
 		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
 		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
-
-	/* Preprocessor Checks: */
-		#if (!defined(AUDIO_OUT_MONO) && !defined(AUDIO_OUT_STEREO) && !defined(AUDIO_OUT_LEDS))
-			#error One of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
-		#elif ((defined(AUDIO_OUT_MONO)   && (defined(AUDIO_OUT_STEREO) || defined(AUDIO_OUT_LEDS))) || \
-		       (defined(AUDIO_OUT_STEREO) && (defined(AUDIO_OUT_MONO)   || defined(AUDIO_OUT_LEDS))) || \
-		       (defined(AUDIO_OUT_LEDS)   && (defined(AUDIO_OUT_MONO)   || defined(AUDIO_OUT_STEREO))))
-			#error Only one of AUDIO_OUT_MONO, AUDIO_OUT_STEREO or AUDIO_OUT_LEDS must be selected.
-		#endif
 	
 	/* Macros: */
 		#if defined(USB_FULL_CONTROLLER)

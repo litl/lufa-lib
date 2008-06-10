@@ -22,7 +22,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 	uint8_t* DataStream     = (uint8_t*)BufferPtr;
 	bool     BusSuspended   = USB_Host_IsBusSuspended();
 	uint8_t  ReturnStatus   = HOST_SENDCONTROL_Successful;
-	uint16_t DataLen        = USB_HostRequest.DataLength;
+	uint16_t DataLen        = USB_HostRequest.wLength;
 
 	USB_Host_ResumeBus();
 	
@@ -51,7 +51,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
 	  goto End_Of_Control_Send;
 
-	if ((USB_HostRequest.RequestType & CONTROL_REQTYPE_DIRECTION) == REQDIR_DEVICETOHOST)
+	if ((USB_HostRequest.bmRequestType & CONTROL_REQTYPE_DIRECTION) == REQDIR_DEVICETOHOST)
 	{
 		Pipe_SetToken(PIPE_TOKEN_IN);
 		

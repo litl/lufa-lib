@@ -13,8 +13,8 @@
 
 #include "StdDescriptors.h"
 
-bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
-			           void** const DescriptorAddress, uint16_t* const DescriptorSize)
+bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
+                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 {
 	RAISE_EVENT(USB_DeviceError, DEVICE_ERROR_GetDescriptorNotHooked);
 

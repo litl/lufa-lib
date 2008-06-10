@@ -131,8 +131,8 @@ EVENT_HANDLER(USB_DeviceError)
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	puts_P(PSTR(EVENT_PREFIX "Ctrl Request\r\n"));
-	printf_P(PSTR(" -- Req Data %d\r\n"), Request);
-	printf_P(PSTR(" -- Req Type %d\r\n"), RequestType);
+	printf_P(PSTR(" -- Req Data %d\r\n"), bRequest);
+	printf_P(PSTR(" -- Req Type %d\r\n"), bmRequestType);
 }
 
 EVENT_HANDLER(USB_ConfigurationChanged)

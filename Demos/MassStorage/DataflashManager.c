@@ -175,10 +175,10 @@ void VirtualMemory_ResetDataflashProtections(void)
 		Dataflash_ToggleSelectedChipCS();
 
 		/* Send the commands to disable sector protection */
-		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE1);
-		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE2);
-		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE3);
-		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE4);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF[0]);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF[1]);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF[2]);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF[3]);
 	}
 	
 	/* Select second dataflash chip (if present on selected board), send read status register command */
@@ -192,10 +192,10 @@ void VirtualMemory_ResetDataflashProtections(void)
 		Dataflash_ToggleSelectedChipCS();
 
 		/* Send the commands to disable sector protection */
-		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE1);
-		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE2);
-		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE3);
-		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF_BYTE4);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF[0]);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF[1]);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF[2]);
+		Dataflash_SendByte(DF_CMD_SECTORPROTECTIONOFF[3]);
 	}
 	#endif
 	

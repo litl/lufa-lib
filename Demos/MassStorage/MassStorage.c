@@ -124,10 +124,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Process UFI specific control requests */
-	switch (Request)
+	switch (bRequest)
 	{
 		case MASS_STORAGE_RESET:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 				Endpoint_ClearSetupIN();
@@ -135,7 +135,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 			break;
 		case GET_MAX_LUN:
-			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();			
 				Endpoint_Write_Byte(0x00);

@@ -48,12 +48,6 @@ void USB_InitTaskPointer(void)
 
 		USB_IsInitialized = true;
 	}
-	else
-	{
-		USB_IsInitialized = false;
-	}
-
-	USB_IsConnected = false;
 }
 #endif
 
@@ -136,14 +130,18 @@ static void USB_HostTask(void)
 		case HOST_STATE_Default:
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
-					RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
-					RequestData: REQ_GetDescriptor,
-					Value:       (DTYPE_Device << 8),
-					Index:       0,
-					DataLength:  PIPE_CONTROLPIPE_DEFAULT_SIZE,
+					bmRequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
+					bRequest:      REQ_GetDescriptor,
+					wValue:        (DTYPE_Device << 8),
+					wIndex:        0,
+					wLength:       PIPE_CONTROLPIPE_DEFAULT_SIZE,
 				};
 
+			#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
 			uint8_t* DataBuffer = alloca(offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1);
+			#else
+			uint8_t* DataBuffer = alloca(offsetof(USB_Descriptor_Device_t, bMaxPacketSize0) + 1);			
+			#endif
 			
 			if (USB_Host_SendControlRequest(DataBuffer) != HOST_SENDCONTROL_Successful)
 			{
@@ -151,7 +149,11 @@ static void USB_HostTask(void)
 				break;
 			}
 			
+			#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
 			USB_ControlPipeSize = DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size)];
+			#else
+			USB_ControlPipeSize = DataBuffer[offsetof(USB_Descriptor_Device_t, bMaxPacketSize0)];			
+			#endif
 			
 			USB_Host_ResetDevice();
 			
@@ -179,11 +181,11 @@ static void USB_HostTask(void)
 
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
-					RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),
-					RequestData: REQ_SetAddress,
-					Value:       USB_HOST_DEVICEADDRESS,
-					Index:       0,
-					DataLength:  0,
+					bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),
+					bRequest:      REQ_SetAddress,
+					wValue:        USB_HOST_DEVICEADDRESS,
+					wIndex:        0,
+					wLength:       0,
 				};
 
 			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)

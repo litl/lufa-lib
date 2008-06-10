@@ -20,11 +20,11 @@ uint8_t GetHIDReportData(void)
 	
 	USB_HostRequest = (USB_Host_Request_Header_t)
 		{
-			RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_INTERFACE),
-			RequestData: REQ_GetDescriptor,
-			Value:       (DTYPE_Report << 8),
-			Index:       0,
-			DataLength:  HIDReportSize,
+			bmRequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_INTERFACE),
+			bRequest:      REQ_GetDescriptor,
+			wValue:        (DTYPE_Report << 8),
+			wIndex:        0,
+			wLength:       HIDReportSize,
 		};
 
 	/* Send control request to retrieve the HID report from the attached device */

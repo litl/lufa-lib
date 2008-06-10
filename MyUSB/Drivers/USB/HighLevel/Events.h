@@ -247,8 +247,8 @@
 			 *  be a standard request that the library has no handler code for, or a class specific request
 			 *  issued to the device which must be handled appropriately.
 			 *
-			 *  \param Request      Request value, indicating what command the host has issued.
-			 *  \param RequestType  Mask indicating the request data direction (if any), type and recipient.
+			 *  \param bRequest       Request value, indicating what command the host has issued.
+			 *  \param bmRequestType  Mask indicating the request data direction (if any), type and recipient.
 			 *
 			 *  \note This event does not exist if the USB_HOST_ONLY token is supplied to the compiler (see
 			 *        LowLevel.h documentation).
@@ -261,7 +261,7 @@
 			 *        parameters (wValue, wIndex, wLength, and Data) remain in the control endpoint bank until
 			 *        read out by the user application for processing.
 			 */
-			void USB_UnhandledControlPacket(const uint8_t Request, const uint8_t RequestType);
+			void USB_UnhandledControlPacket(const uint8_t bRequest, const uint8_t bmRequestType);
 
 			/** Event for USB configuration number changed. This event fires when a the USB host changes the
 			 *  selected configuration number while in device mode. This event should be hooked in device
@@ -316,7 +316,7 @@
 			 *  \note This event does not exist if the USB_HOST_ONLY token is supplied to the compiler (see
 			 *        LowLevel.h documentation).
 			 */
-			void USB_DeviceError(const uint8_t ErrorCode);			
+			void USB_DeviceError(const uint8_t ErrorCode);
 		#endif
 		
 	/* Private Interface - For use in library only: */
@@ -347,7 +347,7 @@
 			#endif
 			
 			#if defined(USB_CAN_BE_DEVICE)
-				#define USB_UnhandledControlPacket_P    (const uint8_t Request, const uint8_t RequestType)
+				#define USB_UnhandledControlPacket_P    (const uint8_t bRequest, const uint8_t bmRequestType)
 				#define USB_ConfigurationChanged_P      (void)
 				#define USB_Suspend_P                   (void)
 				#define USB_WakeUp_P                    (void)

@@ -78,7 +78,6 @@ void USB_Init(
 	USB_InitTaskPointer();
 	#else
 	USB_IsInitialized = true;
-	USB_IsConnected   = false;
 	#endif
 
 	#if defined(USB_CAN_BE_HOST)
@@ -98,7 +97,6 @@ void USB_Init(
 		USB_INT_Enable(USB_INT_VBUS);
 		#else
 		USB_SetupInterface();
-		USB_IsConnected = true;
 		#endif
 	#elif defined(USB_HOST_ONLY)
 	USB_SetupInterface();
@@ -157,7 +155,10 @@ void USB_SetupInterface(void)
 	USB_INT_ClearAllInterrupts();
 
 	USB_IsConnected         = false;
+	
+	#if defined(USB_CAN_BE_BOTH)
 	USB_IsInitialized       = false;
+	#endif
 
 	#if defined(USB_CAN_BE_HOST)
 	USB_HostState           = HOST_STATE_Unattached;
@@ -220,7 +221,7 @@ void USB_SetupInterface(void)
 	USB_Descriptor_Device_t* DeviceDescriptorPtr;
 	uint16_t                 DeviceDescriptorSize;
 
-	if (USB_GetDescriptor(DTYPE_Device, 0, 0, (void*)&DeviceDescriptorPtr, &DeviceDescriptorSize) == true)
+	if (USB_GetDescriptor((DTYPE_Device << 8), 0, (void*)&DeviceDescriptorPtr, &DeviceDescriptorSize) == true)
 	{		  
 		#if defined(USE_RAM_DESCRIPTORS)
 			USB_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;
@@ -253,7 +254,5 @@ void USB_SetupInterface(void)
 	
 	#if defined(USB_CAN_BE_BOTH)
 	USB_InitTaskPointer();
-	#else
-	USB_IsInitialized = true;
 	#endif
 }

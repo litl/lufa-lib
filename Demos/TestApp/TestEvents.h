@@ -14,8 +14,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 
-		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
-		#include <MyUSB/Common/Common.h>                          // Function Attribute, Atomic, Debug and ISR Macros
+		#include <MyUSB/Common/Common.h>                          // Commonly used macros
 		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
 		#include <MyUSB/Drivers/Board/LEDs.h>                     // LED driver
 		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>       // USART Stream driver

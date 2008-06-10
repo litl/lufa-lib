@@ -29,9 +29,6 @@
 			/** Indicates the revision version number of the library as an integer. */
 			#define MYUSB_VERSION_REVISION 0
 
-			/** Indicates the complete version number of the library, in float form. */
-			#define MYUSB_VERSION          1.5.0f
-
 			/** Indicates the complete version number of the library, in string form. */
 			#define MYUSB_VERSION_STRING   "1.5.0"
 

@@ -109,7 +109,7 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 
-	/* Start audio task */
+	/* Start MIDI task */
 	Scheduler_SetTaskMode(USB_MIDI_Task, TASK_RUN);
 }
 
@@ -159,13 +159,11 @@ TASK(USB_MIDI_Task)
 
 void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff, const uint8_t CableID, const uint8_t Channel)
 {
-	uint8_t Command;
-
 	/* Wait until endpoint ready for more data */
 	while (!(Endpoint_ReadWriteAllowed()));
 
 	/* Check if the message should be a Note On or Note Off command */
-	Command = ((OnOff)? MIDI_COMMAND_NOTE_ON : MIDI_COMMAND_NOTE_OFF);
+	uint8_t Command = ((OnOff)? MIDI_COMMAND_NOTE_ON : MIDI_COMMAND_NOTE_OFF);
 
 	/* Write the Packet Header to the endpoint */
 	Endpoint_Write_Byte((CableID << 4) | (Command >> 4));

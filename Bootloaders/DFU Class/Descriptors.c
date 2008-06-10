@@ -25,7 +25,7 @@ USB_Descriptor_Device_t DeviceDescriptor =
 	ProductID:              PRODUCT_ID_CODE,
 	ReleaseNumber:          0x0000,
 		
-	ManafacturerStrIndex:   NO_DESCRIPTOR_STRING,
+	ManufacturerStrIndex:   NO_DESCRIPTOR_STRING,
 	ProductStrIndex:        0x01,
 	SerialNumStrIndex:      NO_DESCRIPTOR_STRING,
 		
@@ -92,13 +92,13 @@ USB_Descriptor_String_t ProductString =
 	UnicodeString:          L"MyUSB DFU Bootloader"
 };
 
-bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
-					   void** const DescriptorAddress, uint16_t* const DescriptorSize)
+bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
+                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 {
 	void*    Address = NULL;
 	uint16_t Size    = 0;
 
-	switch (Type)
+	switch (wValue >> 8)
 	{
 		case DTYPE_Device:
 			Address = DESCRIPTOR_ADDRESS(DeviceDescriptor);
@@ -109,16 +109,15 @@ bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t L
 			Size    = sizeof(USB_Descriptor_Configuration_t);
 			break;
 		case DTYPE_String:
-			switch (Index)
+			if (!(wValue))
 			{
-				case 0x00:
-					Address = DESCRIPTOR_ADDRESS(LanguageString);
-					Size    = LanguageString.Header.Size;
-					break;
-				case 0x01:
-					Address = DESCRIPTOR_ADDRESS(ProductString);
-					Size    = ProductString.Header.Size;
-					break;
+				Address = DESCRIPTOR_ADDRESS(LanguageString);
+				Size    = LanguageString.Header.Size;
+			}
+			else
+			{
+				Address = DESCRIPTOR_ADDRESS(ProductString);
+				Size    = ProductString.Header.Size;
 			}
 			
 			break;

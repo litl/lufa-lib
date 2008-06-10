@@ -131,10 +131,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	Endpoint_Ignore_Word();
 
 	/* Process CDC specific control requests */
-	switch (Request)
+	switch (bRequest)
 	{
 		case GET_LINE_CODING:
-			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 
@@ -150,7 +150,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			
 			break;
 		case SET_LINE_CODING:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 
@@ -169,7 +169,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	
 			break;
 		case SET_CONTROL_LINE_STATE:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 				

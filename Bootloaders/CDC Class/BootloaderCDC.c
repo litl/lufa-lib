@@ -10,11 +10,16 @@
 
 /*
 	MyUSB USB CDC Bootloader. This bootloader enumerates to the host
-	as a CDC Class device, allowing for AVR109 compatible programming
-	software to load firmware onto the AVR.
+	as a CDC Class device (virtual serial port), allowing for AVR109
+	compatible programming software to load firmware onto the AVR.	
 	
+	Out of the box this bootloader builds for the USB1287, and should fit
+	into 4KB of bootloader space. If you wish to enlarge this space and/or
+	change the AVR model, you will need to edit the BOOT_START and MCU
+	values in the accompanying makefile.
+
 	This bootloader is compatible with the open source application
-	AVRDUDE.
+	AVRDUDE, or Atmel's AVRPROG.
 */
 
 #define  INCLUDE_FROM_BOOTLOADERCDC_C
@@ -126,10 +131,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	Endpoint_Ignore_Word();
 
 	/* Process CDC specific control requests */
-	switch (Request)
+	switch (bRequest)
 	{
 		case GET_LINE_CODING:
-			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 
@@ -145,7 +150,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			
 			break;
 		case SET_LINE_CODING:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 
@@ -162,7 +167,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	
 			break;
 		case SET_CONTROL_LINE_STATE:
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 				

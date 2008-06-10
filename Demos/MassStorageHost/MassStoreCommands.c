@@ -183,11 +183,11 @@ uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum)
 {
 	USB_HostRequest = (USB_Host_Request_Header_t)
 		{
-			RequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_ENDPOINT),
-			RequestData: REQ_ClearFeature,
-			Value:       FEATURE_ENDPOINT,
-			Index:       PipeEndpointNum,
-			DataLength:  0,
+			bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_ENDPOINT),
+			bRequest:      REQ_ClearFeature,
+			wValue:        FEATURE_ENDPOINT,
+			wIndex:        PipeEndpointNum,
+			wLength:       0,
 		};
 	
 	return USB_Host_SendControlRequest(NULL);

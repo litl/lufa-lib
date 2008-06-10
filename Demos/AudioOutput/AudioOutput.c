@@ -37,11 +37,12 @@
 	Usable Speeds:      Full Speed Mode
 */
 
-/* ---  Project Configuration  --- */
+/* ---   Project Configuration (Choose ONE)   --- */
 #define AUDIO_OUT_MONO
 //#define AUDIO_OUT_STEREO
 //#define AUDIO_OUT_LEDS
-/* --- --- --- --- --- --- --- --- */
+//#define AUDIO_OUT_PORTC
+/* --- --- --- --- --- --- --- ---  ---  ---  --- */
 
 #include "AudioOutput.h"
 
@@ -102,6 +103,9 @@ EVENT_HANDLER(USB_Connect)
 #elif defined(AUDIO_OUT_STEREO)
 	/* Set speakers as outputs */
 	DDRC   |= ((1 << 6) | (1 << 5));
+#elif defined(AUDIO_OUT_PORTC)
+	/* Set PORTC as outputs */
+	DDRC   |= 0xFF;
 #endif
 
 #if (defined(AUDIO_OUT_MONO) || defined(AUDIO_OUT_STEREO))
@@ -126,6 +130,9 @@ EVENT_HANDLER(USB_Disconnect)
 #elif defined(AUDIO_OUT_STEREO)
 	/* Set speakers as inputs to reduce current draw */
 	DDRC   |= ((1 << 6) | (1 << 5));
+#elif defined(AUDIO_OUT_PORTC)
+	/* Set PORTC low */
+	PORTC  |= 0x00;
 #endif
 
 	/* Stop running audio and USB management tasks */
@@ -153,11 +160,11 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Process General and Audio specific control requests */
-	switch (Request)
+	switch (bRequest)
 	{
 		case REQ_SetInterface:
 			/* Set Interface is not handled by the library, as its function is application-specific */
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 				Endpoint_ClearSetupIN();
@@ -204,6 +211,11 @@ TASK(USB_Audio_Task)
 			/* Load the dual 8-bit samples into the PWM timer channels */
 			OCRxA = ((uint8_t)LeftSample_8Bit  ^ (1 << 7));
 			OCRxB = ((uint8_t)RightSample_8Bit ^ (1 << 7));
+#elif defined(AUDIO_OUT_PORTC)
+			/* Mix the two channels together to produce a mono, 8-bit sample */
+			int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
+
+			PORTC = MixedSample_8Bit;
 #else
 			uint8_t LEDMask = LEDS_NO_LEDS;
 

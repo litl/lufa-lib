@@ -127,11 +127,11 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Process General and Audio specific control requests */
-	switch (Request)
+	switch (bRequest)
 	{
 		case REQ_SetInterface:
 			/* Set Interface is not handled by the library, as its function is application-specific */
-			if (RequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
 				Endpoint_ClearSetupIN();

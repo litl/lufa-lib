@@ -111,10 +111,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 HANDLES_EVENT(USB_UnhandledControlPacket)
 {
 	/* Handle HID Class specific requests */
-	switch (Request)
+	switch (bRequest)
 	{
 		case REQ_GetReport:
-			if (RequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				/* Ignore report type and ID number value */
 				Endpoint_Ignore_Word();
@@ -123,16 +123,16 @@ HANDLES_EVENT(USB_UnhandledControlPacket)
 				Endpoint_Ignore_Word();
 
 				/* Read in the number of bytes in the report to send to the host */
-				uint16_t BytesToSend = Endpoint_Read_Word_LE();
+				uint16_t wLength = Endpoint_Read_Word_LE();
 				
 				/* If trying to send more bytes than exist to the host, clamp the value at the report size */
-				if (BytesToSend > sizeof(MouseReportData))
-				  BytesToSend = sizeof(MouseReportData);
+				if (wLength > sizeof(MouseReportData))
+				  wLength = sizeof(MouseReportData);
 
 				Endpoint_ClearSetupReceived();
 	
 				/* Write the report data to the control endpoint */
-				Endpoint_Write_Control_Stream_LE(&MouseReportData, BytesToSend);
+				Endpoint_Write_Control_Stream_LE(&MouseReportData, wLength);
 				
 				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
 				Endpoint_ClearSetupOUT();

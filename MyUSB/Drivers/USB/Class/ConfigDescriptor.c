@@ -16,25 +16,28 @@ uint8_t USB_Host_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr, void* 
 
 	USB_HostRequest = (USB_Host_Request_Header_t)
 		{
-			RequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
-			RequestData: REQ_GetDescriptor,
-			Value:       (DTYPE_Configuration << 8),
-			Index:       0,
-			DataLength:  0,
+			bmRequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
+			bRequest:      REQ_GetDescriptor,
+			wValue:        (DTYPE_Configuration << 8),
+			wIndex:        0,
+			wLength:       sizeof(USB_Descriptor_Configuration_Header_t),
 		};
 	
 	if (BufferPtr == NULL)
 	{
 		BufferPtr      = alloca(sizeof(USB_Descriptor_Configuration_Header_t));
 
-		USB_HostRequest.DataLength = sizeof(USB_Descriptor_Configuration_Header_t);					
 		ErrorCode      = USB_Host_SendControlRequest(BufferPtr);
 
+		#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
 		*ConfigSizePtr = DESCRIPTOR_CAST(BufferPtr, USB_Descriptor_Configuration_Header_t).TotalConfigurationSize;
+		#else
+		*ConfigSizePtr = DESCRIPTOR_CAST(BufferPtr, USB_Descriptor_Configuration_Header_t).wTotalLength;		
+		#endif
 	}
 	else
 	{
-		USB_HostRequest.DataLength = *ConfigSizePtr;
+		USB_HostRequest.wLength = *ConfigSizePtr;
 		
 		ErrorCode      = USB_Host_SendControlRequest(BufferPtr);				
 	}

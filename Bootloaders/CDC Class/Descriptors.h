@@ -52,8 +52,8 @@
 		} USB_Descriptor_Configuration_t;
 
 	/* Function Prototypes: */
-			bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
-			                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
-			                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(4, 5);
+		bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
+		                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
+		                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);
 
 #endif

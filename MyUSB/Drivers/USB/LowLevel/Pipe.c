@@ -15,10 +15,10 @@
 
 uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 
-void Pipe_ConfigurePipe_P(const uint8_t PipeNum,
+void Pipe_ConfigurePipe_P(const uint8_t  PipeNum,
                           const uint16_t PipeSize,
-                          const uint8_t UPCFG0Xdata,
-                          const uint8_t UPCFG1Xdata)
+                          const uint8_t  UPCFG0Xdata,
+                          const uint8_t  UPCFG1Xdata)
 {
 	Pipe_SelectPipe(PipeNum);
 	Pipe_EnablePipe();

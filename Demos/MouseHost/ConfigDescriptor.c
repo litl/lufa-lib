@@ -87,7 +87,9 @@ DESCRIPTOR_COMPARATOR(NextInterfaceMouseDataEndpoint)
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{
 		if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-		  return Descriptor_Search_Found;
+		{
+			return Descriptor_Search_Found;
+		}
 	}
 	else if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{

@@ -37,6 +37,7 @@
 	/* Includes: */
 	#include <avr/io.h>
 	#include <avr/interrupt.h>
+	#include <util/atomic.h>
 	#include <limits.h>
 
 	#include <MyUSB/Common/Common.h>

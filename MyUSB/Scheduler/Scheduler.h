@@ -51,6 +51,8 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <stdbool.h>
+		
+		#include <util/atomic.h>
 
 		#include "../Common/Common.h"
 

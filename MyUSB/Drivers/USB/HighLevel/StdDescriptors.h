@@ -12,6 +12,16 @@
  *
  *  Standard USB device descriptor defines and retrieval routines, for USB devices. This module contains
  *  strucutures and macros for the easy creation of standard USB descriptors in USB device projects.
+ *
+ *  All standard descriptors have their elements named in an identical manner to the official USB specification,
+ *  however slightly more verbose alternate (non-standard) names are also supplied if the macro
+ *  USE_NONSTANDARD_DESCRIPTOR_NAMES is defined in the user project makefile and passed to the compiler at
+ *  compilation time using the -D option.
+ *
+ *  The non-standard names are documented here - if USE_NONSTANDARD_DESCRIPTOR_NAMES is not defined, then all
+ *  descriptors will contain elements named identically to the official USB specification. The alternately
+ *  named descriptor elements are placed in the same order inside the descriptor structures as their officially
+ *  named counterparts, thus they can be correlated easily with the official USB specification.
  */
 
 #ifndef __USB_DESCRIPTORS_H__
@@ -169,22 +179,36 @@
 			};
 
 		/* Type Defines: */
-			/** Type define for all descriptor's header, indicating the descriptor's length and type. */
+			/** Type define for all descriptor's header, indicating the descriptor's length and type.
+			 *
+			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
+			 *        documentation for more information on the two descriptor naming schemes. If the
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        identical to those listed in the USB standard.
+			 */
 			typedef struct
 			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
 				uint8_t Size; /**< Size of the descriptor, in bytes. */
 				uint8_t Type; /**< Type of the descriptor, either a value in DescriptorTypes_t or a value
-				                   given by the specific class. */
+				               *   given by the specific class.
+				               */
+				#else
+				uint8_t bLength;
+				uint8_t bDescriptorType;
+				#endif
 			} USB_Descriptor_Header_t;
 			
 			/** Type define for a standard device descriptor.
 			 *
-			 *  \note The structure entities have more verbose names than those in the USB 2.0 specification,
-			 *        but are identical in size and function. They appear in the same order as in the specification,
-			 *        thus their exact function can be determined from the USB 2.0 specification directly.
+			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
+			 *        documentation for more information on the two descriptor naming schemes. If the
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        identical to those listed in the USB standard.
 			 */
 			typedef struct
 			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
 				uint16_t                USBSpecification; /**< BCD of the supported USB specification. */
@@ -198,34 +222,53 @@
 				uint16_t                ProductID; /**< Unique product ID for the USB product. */
 				uint16_t                ReleaseNumber; /**< Product release (version) number. */
 				
-				uint8_t                 ManafacturerStrIndex; /**< String index for the manafacturer's name. The
+				uint8_t                 ManufacturerStrIndex; /**< String index for the manufacturer's name. The
                                                                *   host will request this string via a seperate
 			                                                   *   control request for the string descriptor.
 				                                               *
-				                                               *   \note If no string supplied, use NO_DESCRIPTOR_STRING. */
+				                                               *   \note If no string supplied, use NO_DESCRIPTOR_STRING.
+				                                               */
 				uint8_t                 ProductStrIndex; /**< String index for the product name/details.
 				                                          *
-				                                          *  \see ManafacturerStrIndex structure entry.
+				                                          *  \see ManufacturerStrIndex structure entry.
 				                                          */
 				uint8_t                 SerialNumStrIndex; /**< String index for the product's globally unique hexadecimal
 				                                            *   serial number, in uppercase Unicoded ASCII.
 				                                            *
-				                                            *  \see ManafacturerStrIndex structure entry.
+				                                            *  \see ManufacturerStrIndex structure entry.
 				                                            */
 
 				uint8_t                 NumberOfConfigurations; /**< Total number of configurations supported by
 				                                                 *   the device.
 				                                                 */
+				#else
+				uint8_t                 bLength;
+				uint8_t                 bDescriptorType;
+				uint16_t                bcdUSB;
+				uint8_t                 bDeviceClass;
+				uint8_t                 bDeviceSubClass;
+				uint8_t                 bDeviceProtocol;
+				uint8_t                 bMaxPacketSize0;
+				uint16_t                idVendor;
+				uint16_t                idProduct;
+				uint16_t                bcdDevice;
+				uint8_t                 iManufacturer;
+				uint8_t                 iProduct;
+				uint8_t                 iSerialNumber;
+				uint8_t                 bNumConfigurations;
+				#endif
 			} USB_Descriptor_Device_t;
 
 			/** Type define for a standard configuration descriptor.
 			 *
-			 *  \note The structure entities have more verbose names than those in the USB 2.0 specification,
-			 *        but are identical in size and function. They appear in the same order as in the specification,
-			 *        thus their exact function can be determined from the USB 2.0 specification directly.
+			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
+			 *        documentation for more information on the two descriptor naming schemes. If the
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        identical to those listed in the USB standard.
 			 */
 			typedef struct
 			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 			
 				uint16_t                TotalConfigurationSize; /**< Size of the configuration descriptor header,
@@ -244,16 +287,29 @@
 				                                              *   current configuration, calculated by the USB_CONFIG_POWER_MA()
 				                                              *   macro.
 				                                              */
+				#else
+				uint8_t                 bLength;
+				uint8_t                 bDescriptorType;
+				uint16_t                wTotalLength;
+				uint8_t                 bNumInterfaces;
+				uint8_t                 bConfigurationValue;
+				uint8_t                 iConfiguration;
+				uint8_t                 bmAttributes;
+				uint8_t                 bMaxPower;
+				#endif
 			} USB_Descriptor_Configuration_Header_t;
 
 			/** Type define for a standard interface descriptor.
 			 *
-			 *  \note The structure entities have more verbose names than those in the USB 2.0 specification,
-			 *        but are identical in size and function. They appear in the same order as in the specification,
-			 *        thus their exact function can be determined from the USB 2.0 specification directly.
+			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
+			 *        documentation for more information on the two descriptor naming schemes. If the
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        identical to those listed in the USB standard.
 			 */
+
 			typedef struct
 			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
 				uint8_t                 InterfaceNumber; /**< Index of the interface in the current configuration. */
@@ -271,16 +327,29 @@
 				uint8_t                 InterfaceStrIndex; /**< Index of the string descriptor describing the
 				                                            *   interface.
 				                                            */
+				#else
+				uint8_t                 bLength;
+				uint8_t                 bDescriptorType;
+				uint8_t                 bInterfaceNumber;
+				uint8_t                 bAlternateSetting;
+				uint8_t                 bNumEndpoints;
+				uint8_t                 bInterfaceClass;
+				uint8_t                 bInterfaceSubClass;
+				uint8_t                 bInterfaceProtocol;
+				uint8_t                 iInterface;
+				#endif
 			} USB_Descriptor_Interface_t;
 
 			/** Type define for a standard endpoint descriptor.
 			 *
-			 *  \note The structure entities have more verbose names than those in the USB 2.0 specification,
-			 *        but are identical in size and function. They appear in the same order as in the specification,
-			 *        thus their exact function can be determined from the USB 2.0 specification directly.
-			 */
+			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
+			 *        documentation for more information on the two descriptor naming schemes. If the
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        identical to those listed in the USB standard.
+			*/
 			typedef struct
 			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
 				uint8_t                 EndpointAddress; /**< Logical address of the endpoint within the device
@@ -298,6 +367,14 @@
 				uint8_t                 PollingIntervalMS; /**< Polling interval in milliseconds for the endpont
 				                                            *   if it is an INTERRUPT or ISOCHRONOUS type.
 				                                            */
+				#else
+				uint8_t                 bLength;
+				uint8_t                 bDescriptorType;
+				uint8_t                 bEndpointAddress;
+				uint8_t                 bmAttributes;
+				uint16_t                wMaxPacketSize;
+				uint8_t                 bInterval;
+				#endif
 			} USB_Descriptor_Endpoint_t;
 
 			/** Type define for a standard string descriptor. Unlike other standard descriptors, the length
@@ -307,12 +384,14 @@
 			 *  This structure should also be used for string index 0, which contains the supported language IDs for
 			 *  the device as an array.
 			 *
-			 *  \note The structure entities have more verbose names than those in the USB 2.0 specification,
-			 *        but are identical in size and function. They appear in the same order as in the specification,
-			 *        thus their exact function can be determined from the USB 2.0 specification directly.
+			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
+			 *        documentation for more information on the two descriptor naming schemes. If the
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        identical to those listed in the USB standard.
 			 */
 			typedef struct
 			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 				
 				int16_t                 UnicodeString[]; /**< String data, as unicode characters (alternatively,
@@ -326,6 +405,11 @@
 				                                          *   Unicode strings, and may be used instead of an explicit
 				                                          *   array of ASCII characters.
 				                                          */
+				#else
+				uint8_t                 bLength;
+				uint8_t                 bDescriptorType;
+				int16_t                 bString[];
+				#endif
 			} USB_Descriptor_String_t;
 
 		/* Function Prototypes: */
@@ -334,14 +418,13 @@
 			 *  (added with full, identical prototype and name) so that the library can call it to retrieve
 			 *  descriptor data.
 			 *
-			 *  \param Type               The type of the descriptor to retrieve. This may be one of the standard types defined
+			 *  \param wValue             The type of the descriptor to retrieve in the upper byte, and the index in the 
+			 *                            lower byte (when more than one descriptor of the given type exists, such as the
+			 *                            case of string descriptors). The type may be one of the standard types defined
 			 *                            in the DescriptorTypes_t enum, or may be a class-specific descriptor type value.
-			 *  \param Index              Index of the descriptor to retrieve, when more than one of the given descriptor
-			 *                            types exist. For example, the descriptor type may be DTYPE_String, whereupon the
-			 *                            Index parameter will give the index number of the string to retreive.
-			 *  \param LanguageID         The language ID of the string to return. On devices supporting multiple languages,
-			 *                            this value selects the desired language of the string descriptor. For descriptors
-			 *                            other than string descriptors, this value is set to 0.
+			 *  \param wIndex             The language ID of the string to return if the wValue type indicates DTYPE_String,
+			 *                            otherwise zero for standard descriptors, or as defined in a class-specific
+			 *                            standards.
 			 *  \param DescriptorAddress  Pointer to the descriptor in memory. This should be set by the routine to
 			 *                            the location of the descriptor, found by the DESCRIPTOR_ADDRESS macro.
 			 *  \param DescriptorSize     Pointer to a variable storing the size of the requested descriptor. This
@@ -349,9 +432,9 @@
 			 *
 			 *  \return Boolean true if the requested descriptor exists, false otherwise
 			 */
-			bool USB_GetDescriptor(const uint8_t Type, const uint8_t Index, const uint16_t LanguageID,
-			                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
-			                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(4, 5);
+			bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
+								   void** const DescriptorAddress, uint16_t* const DescriptorSize)
+								   ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);
 
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
