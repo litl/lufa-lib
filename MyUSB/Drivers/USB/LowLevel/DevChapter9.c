@@ -157,9 +157,7 @@ static void USB_Device_GetDescriptor(void)
 	bool     SendZLP;
 	
 	if (!(USB_GetDescriptor(wValue, wIndex, &DescriptorPointer, &DescriptorSize)))
-	{
-		return;
-	}
+	  return;
 	
 	Endpoint_ClearSetupReceived();
 	
@@ -200,8 +198,8 @@ static void USB_Device_GetDescriptor(void)
 		Endpoint_ClearSetupIN();
 	}
 
-   while (!(Endpoint_IsSetupOUTReceived()));
-   Endpoint_ClearSetupOUT();
+	while (!(Endpoint_IsSetupOUTReceived()));
+	  Endpoint_ClearSetupOUT();
 }
 
 static void USB_Device_GetStatus(const uint8_t bmRequestType)
@@ -212,7 +210,7 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 	uint16_t                               ConfigDescriptorSize;
 	uint8_t                                ConfigAttributes;
 
-	Endpoint_Ignore_Word();
+	Endpoint_Discard_Word();
 
 	uint16_t wIndex = Endpoint_Read_Word_LE();
 	

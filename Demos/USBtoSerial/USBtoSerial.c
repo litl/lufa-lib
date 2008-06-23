@@ -53,6 +53,8 @@ CDC_Line_Coding_t LineCoding = { BaudRateBPS: 9600,
 RingBuff_t        Rx_Buffer;
 RingBuff_t        Tx_Buffer;
 
+volatile bool     Transmitting = false;
+
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -127,8 +129,6 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
-
-	Endpoint_Ignore_Word();
 
 	/* Process CDC specific control requests */
 	switch (bRequest)
@@ -208,8 +208,11 @@ TASK(CDC_Task)
 		if (Rx_Buffer.Elements)
 		{
 			/* Initiate the transmission of the buffer contents if USART idle */
-			if (UCSR1A & (1 << TXC1))
-			  Serial_TxByte(Buffer_GetElement(&Rx_Buffer));
+			if (!(Transmitting))
+			{
+				Transmitting = true;
+				Serial_TxByte(Buffer_GetElement(&Rx_Buffer));
+			}
 		}
 
 		/* Select the Serial Tx Endpoint */
@@ -249,6 +252,8 @@ ISR(USART1_TX_vect)
 	/* Send next character if avaliable */
 	if (Rx_Buffer.Elements)
 	  UDR1 = Buffer_GetElement(&Rx_Buffer);
+	else
+	  Transmitting = false;
 }
 
 ISR(USART1_RX_vect)

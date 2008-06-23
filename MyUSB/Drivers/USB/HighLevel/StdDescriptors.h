@@ -24,8 +24,8 @@
  *  named counterparts, thus they can be correlated easily with the official USB specification.
  */
 
-#ifndef __USB_DESCRIPTORS_H__
-#define __USB_DESCRIPTORS_H__
+#ifndef __USBDESCRIPTORS_H__
+#define __USBDESCRIPTORS_H__
 
 	/* Includes: */
 		#include <avr/pgmspace.h>
@@ -60,7 +60,7 @@
 			#define USB_STRING_LEN(x)                 (sizeof(USB_Descriptor_Header_t) + (x << 1))
 			
 			/** Macro to encode a given four digit floating point version number (e.g. 01.23) into Binary Coded
-			 *  Decimal, format for descriptor fields requiring BCD encoding such as the USB version number in the
+			 *  Decimal format for descriptor fields requiring BCD encoding, such as the USB version number in the
 			 *  standard device descriptor.
 			 */
 			#define VERSION_BCD(x)                    ((((VERSION_TENS(x) << 4) | VERSION_ONES(x)) << 8) | \
@@ -183,7 +183,7 @@
 			 *
 			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
 			 *        documentation for more information on the two descriptor naming schemes. If the
-			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is not set, this structure contains elements with names
 			 *        identical to those listed in the USB standard.
 			 */
 			typedef struct
@@ -203,7 +203,7 @@
 			 *
 			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
 			 *        documentation for more information on the two descriptor naming schemes. If the
-			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is not set, this structure contains elements with names
 			 *        identical to those listed in the USB standard.
 			 */
 			typedef struct
@@ -263,7 +263,7 @@
 			 *
 			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
 			 *        documentation for more information on the two descriptor naming schemes. If the
-			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is not set, this structure contains elements with names
 			 *        identical to those listed in the USB standard.
 			 */
 			typedef struct
@@ -303,7 +303,7 @@
 			 *
 			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
 			 *        documentation for more information on the two descriptor naming schemes. If the
-			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is not set, this structure contains elements with names
 			 *        identical to those listed in the USB standard.
 			 */
 
@@ -344,7 +344,7 @@
 			 *
 			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
 			 *        documentation for more information on the two descriptor naming schemes. If the
-			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is not set, this structure contains elements with names
 			 *        identical to those listed in the USB standard.
 			*/
 			typedef struct
@@ -386,7 +386,7 @@
 			 *
 			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
 			 *        documentation for more information on the two descriptor naming schemes. If the
-			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is set, this structure contains elements with names
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is not set, this structure contains elements with names
 			 *        identical to those listed in the USB standard.
 			 */
 			typedef struct
@@ -442,7 +442,7 @@
 			#define VERSION_TENS(x)                   (int)(x / 10)
 			#define VERSION_ONES(x)                   (int)(x - (10 * VERSION_TENS(x)))
 			#define VERSION_TENTHS(x)                 (int)((x - (int)x) * 10)
-			#define VERSION_HUNDREDTHS(x)             (int)(((x - (int)x) * 100) - (VERSION_TENTHS(x) * 10))
+			#define VERSION_HUNDREDTHS(x)             (int)(((x - (int)x) * 100) - (10 * VERSION_TENTHS(x)))
 	#endif
 	
 	/* Disable C linkage for C++ Compilers: */

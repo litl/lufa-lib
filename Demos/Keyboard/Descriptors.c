@@ -116,7 +116,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			CountryCode:            0x00,
 			TotalHIDReports:        0x01,
 			HIDReportType:          DTYPE_Report,
-			HIDReportLength:        sizeof(KeyboardReport)  
+			HIDReportLength:        sizeof(KeyboardReport)
 		},
 		
 	KeyboardEndpoint:

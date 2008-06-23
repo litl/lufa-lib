@@ -34,6 +34,7 @@
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_DeviceAttached);
 		HANDLES_EVENT(USB_DeviceUnattached);
+		HANDLES_EVENT(USB_DeviceEnumerationComplete);
 		HANDLES_EVENT(USB_HostError);
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 				

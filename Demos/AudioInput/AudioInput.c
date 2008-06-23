@@ -115,7 +115,7 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	/* Setup audio stream endpoint */
 	Endpoint_ConfigureEndpoint(AUDIO_STREAM_EPNUM, EP_TYPE_ISOCHRONOUS,
 		                       ENDPOINT_DIR_IN, AUDIO_STREAM_EPSIZE,
-	                           AUDIO_STREAM_BANKMODE);
+	                           ENDPOINT_BANK_DOUBLE);
 
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);

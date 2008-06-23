@@ -87,7 +87,7 @@
 			 *  the device. Different USB AVR models support different amounts of pipes, this value reflects
 			 *  the maximum number of pipes for the currently selected AVR model.
 			 */
-			#define PIPE_MAXPIPES                          7
+			#define PIPE_MAX_PIPES                         7
 
 			/** Size in bytes of the largest pipe bank size possible in the device. Not all banks on each AVR
 			 *  model supports the largest bank size possible on the device; different pipe numbers support
@@ -182,6 +182,9 @@
 			 *  determine the maximum bank size for each pipe.
 			 *
 			 *  The banking mode may be either PIPE_BANK_SINGLE or PIPE_BANK_DOUBLE.
+			 *
+			 *  The success of this routine can be determined via the Pipe_IsConfigured() macro. A newly configured
+			 *  pipe is frozen by default, and must be unfrozen before use via the Pipe_Unfreeze() macro.
 			 *
 			 *  \note This routine will select the specified pipe, and the pipe will remain selected once the
 			 *        routine completes regardless of if the pipe configuration succeeds.
@@ -305,7 +308,7 @@
 			}
 
 			/** Discards one byte from the currently selected pipe's bank, for OUT direction pipes. */
-			static inline void Pipe_Ignore_Byte(void)
+			static inline void Pipe_Discard_Byte(void)
 			{
 				uint8_t Dummy;
 				
@@ -497,6 +500,18 @@
 			uint8_t Pipe_Read_Stream_BE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 		
 		/* Function Aliases: */
+			/** Alias for Pipe_Discard_Byte().
+			 */
+			#define Pipe_Ignore_Byte()                 Pipe_Discard_Byte()
+
+			/** Alias for Pipe_Discard_Word().
+			 */
+			#define Pipe_Ignore_Word()                 Pipe_Discard_Word()		
+
+			/** Alias for Pipe_Discard_DWord().
+			 */
+			#define Pipe_Ignore_DWord()                Pipe_Discard_DWord()
+
 			/** Alias for Pipe_Read_Word_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
@@ -540,21 +555,20 @@
 			                                             ATTR_WARN_UNUSED_RESULT ATTR_CONST;
 			static inline uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
 			{
-				uint8_t SizeCheck = 8;
-				uint8_t SizeMask  = 0;
-				
 				Bytes &= PIPE_EPSIZE_MASK;
-
-				do
-				{
-					if (Bytes <= SizeCheck)
-					  return (SizeMask << EPSIZE0);
-					
-					SizeCheck <<= 1;
-					SizeMask++;
-				} while (SizeCheck != (PIPE_MAX_SIZE >> 1));
-				
-				return ((SizeMask + 1) << EPSIZE0);
+			
+				if (Bytes <= 8)
+				  return (0 << EPSIZE0);
+				else if (Bytes <= 16)
+				  return (1 << EPSIZE0);
+				else if (Bytes <= 32)
+				  return (2 << EPSIZE0);
+				else if (Bytes <= 64)
+				  return (3 << EPSIZE0);
+				else if (Bytes <= (8 << 4))
+				  return (4 << EPSIZE0);
+				else
+				  return (5 << EPSIZE0);
 			};
 		
 		/* Function Prototypes: */

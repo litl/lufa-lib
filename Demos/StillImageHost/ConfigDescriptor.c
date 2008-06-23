@@ -85,7 +85,6 @@ uint8_t ProcessConfigurationDescriptor(void)
 								   PIPE_BANK_DOUBLE);
 
 				Pipe_SetInfiniteINRequests();
-				Pipe_Freeze();
 
 				/* Set the flag indicating that the data IN pipe has been found */
 				FoundEndpoints |= (1 << SIMAGE_DATA_IN_PIPE);
@@ -96,8 +95,6 @@ uint8_t ProcessConfigurationDescriptor(void)
 				Pipe_ConfigurePipe(SIMAGE_DATA_OUT_PIPE, EP_TYPE_BULK, PIPE_TOKEN_OUT,
 								   EndpointData->EndpointAddress, EndpointData->EndpointSize,
 								   PIPE_BANK_DOUBLE);
-
-				Pipe_Freeze();
 
 				/* Set the flag indicating that the data OUT pipe has been found */
 				FoundEndpoints |= (1 << SIMAGE_DATA_OUT_PIPE);
@@ -111,7 +108,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 
 DESCRIPTOR_COMPARATOR(NextStillImageInterface)
 {
-	/* Descriptor Search Comparitor Function - find next Still Image class interface descriptor */
+	/* PURPOSE: Find next Still Image class interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
@@ -129,8 +126,7 @@ DESCRIPTOR_COMPARATOR(NextStillImageInterface)
 
 DESCRIPTOR_COMPARATOR(NextSImageInterfaceDataEndpoint)
 {
-	/* Descriptor Search Comparitor Function - find next interface BULK or INTERRUPT endpoint descriptor before
-	                                           next interface descriptor */
+	/* PURPOSE: Find next interface BULK or INTERRUPT endpoint descriptor before next interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{

@@ -76,15 +76,8 @@
 		#define EP_ACCEPTS_ONLY_FULL_PACKETS (1 << 7)
 		#define EP_ACCEPTS_SMALL_PACKETS     (0 << 7)
 
-		#define AUDIO_STREAM_EPNUM       1
-
-		#if defined(USB_FULL_CONTROLLER)
-			#define AUDIO_STREAM_EPSIZE      256
-			#define AUDIO_STREAM_BANKMODE    ENDPOINT_BANK_DOUBLE
-		#else
-			#define AUDIO_STREAM_EPSIZE      128
-			#define AUDIO_STREAM_BANKMODE    ENDPOINT_BANK_SINGLE
-		#endif
+		#define AUDIO_STREAM_EPNUM           1
+		#define AUDIO_STREAM_EPSIZE          ENDPOINT_MAX_SIZE
 		
 		#define AUDIO_SAMPLE_FREQUENCY       48000
 		

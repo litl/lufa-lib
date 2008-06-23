@@ -87,7 +87,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 
 DESCRIPTOR_COMPARATOR(NextMassStorageInterface)
 {
-	/* Descriptor Search Comparitor Function - find next mass storage class interface descriptor */
+	/* PURPOSE: Find next mass storage class interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
@@ -105,8 +105,7 @@ DESCRIPTOR_COMPARATOR(NextMassStorageInterface)
 
 DESCRIPTOR_COMPARATOR(NextInterfaceBulkDataEndpoint)
 {
-	/* Descriptor Search Comparitor Function - find next interface bulk endpoint descriptor before next
-	                                           interface descriptor */
+	/* PURPOSE: Find next interface bulk endpoint descriptor before next interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{

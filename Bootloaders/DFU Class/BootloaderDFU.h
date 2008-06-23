@@ -106,7 +106,7 @@
 		#if defined(INCLUDE_FROM_BOOTLOADER_C)
 			static void DiscardFillerBytes(uint8_t FillerBytes);
 			static void ProcessBootloaderCommand(void);
-			static void LoadStartEndAddresses(void) ATTR_NOINLINE;
+			static void LoadStartEndAddresses(void);
 			static void ProcessMemProgCommand(void);
 			static void ProcessMemReadCommand(void);
 			static void ProcessWriteCommand(void);

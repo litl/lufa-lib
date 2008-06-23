@@ -74,7 +74,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 
 DESCRIPTOR_COMPARATOR(NextKeyboardInterface)
 {
-	/* Descriptor Search Comparitor Function - find next keyboard class interface descriptor */
+	/* PURPOSE: Find next keyboard class interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
@@ -91,7 +91,7 @@ DESCRIPTOR_COMPARATOR(NextKeyboardInterface)
 
 DESCRIPTOR_COMPARATOR(NextInterfaceKeyboardDataEndpoint)
 {
-	/* Descriptor Search Comparitor Function - find next interface endpoint descriptor before next interface descriptor */
+	/* PURPOSE: Find next interface endpoint descriptor before next interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{
@@ -108,7 +108,7 @@ DESCRIPTOR_COMPARATOR(NextInterfaceKeyboardDataEndpoint)
 
 DESCRIPTOR_COMPARATOR(NextHID)
 {
-	/* Descriptor Search Comparitor Function - find next HID descriptor */
+	/* PURPOSE: Find next HID descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_HID)
 	  return Descriptor_Search_Found;

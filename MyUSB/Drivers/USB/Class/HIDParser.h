@@ -112,7 +112,7 @@
 			{
 				uint8_t                      Type;   /**< Collection type (for example "Generic Desktop"). */
 				uint16_t                     Usage;  /**< Collection usage. */
-				struct CollectionPath*       Parent; /** Reference to parent collection, or NULL if root collection. */
+				struct CollectionPath*       Parent; /**< Reference to parent collection, or NULL if root collection. */
 			} CollectionPath_t;
 		
 			/** Type define for an attribute with both minimum and maximum values (e.g. Logical Min/Max). */
@@ -166,6 +166,7 @@
 			{
 				uint8_t                      TotalReportItems; /**< Total number of report items stored in the
 				                                                *   ReportItems array. */
+
 				HID_ReportItem_t             ReportItems[HID_MAX_REPORTITEMS]; /**< Report items array, including
 			                                                                    *   all IN, OUT and FEATURE items. */
 
@@ -184,7 +185,7 @@
 			 *  \return A value in the HID_Parse_ErrorCodes_t enum
 			 */
 			uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_ReportInfo_t* const ParserData)
-									  ATTR_NON_NULL_PTR_ARG(1, 3);
+			                         ATTR_NON_NULL_PTR_ARG(1, 3);
 
 			/** Extracts the given report item's value out of the given HID report and places it into the Value
 			 *  member of the report item's HID_ReportItem_t structure.
@@ -193,7 +194,7 @@
 			 *  \param ReportItem  Pointer to the report item of interest in a HID_ReportInfo_t ReportItem array
 			 */
 			void    GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
-									  ATTR_NON_NULL_PTR_ARG(1, 2);
+			                          ATTR_NON_NULL_PTR_ARG(1, 2);
 
 			/** Retreives the given report item's value out of the Value member of the report item's
 			 *  HID_ReportItem_t structure and places it into the correct position in the HID report
@@ -204,7 +205,7 @@
 			 *  \param ReportItem  Pointer to the report item of interest in a HID_ReportInfo_t ReportItem array
 			 */
 			void    SetReportItemInfo(uint8_t* const ReportData, const HID_ReportItem_t* ReportItem)
-									  ATTR_NON_NULL_PTR_ARG(1, 2);
+			                          ATTR_NON_NULL_PTR_ARG(1, 2);
 
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)

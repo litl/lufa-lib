@@ -16,8 +16,8 @@
  *  \see Chapter 9 of the USB 2.0 specification.
  */
 
-#ifndef __DEVCHAP9_H__
-#define __DEVCHAP9_H__
+#ifndef __DEVCHAPTER9_H__
+#define __DEVCHAPTER9_H__
 
 	/* Includes: */
 		#include <avr/io.h>

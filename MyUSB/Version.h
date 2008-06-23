@@ -21,15 +21,15 @@
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			/** Indicates the major version number of the library as an integer. */
-			#define MYUSB_VERSION_MAJOR    1
+			#define MYUSB_VERSION_MAJOR       1
 
 			/** Indicates the minor version number of the library as an integer. */
-			#define MYUSB_VERSION_MINOR    5
+			#define MYUSB_VERSION_MINOR       5
 
 			/** Indicates the revision version number of the library as an integer. */
-			#define MYUSB_VERSION_REVISION 0
+			#define MYUSB_VERSION_REVISION    1
 
 			/** Indicates the complete version number of the library, in string form. */
-			#define MYUSB_VERSION_STRING   "1.5.0"
+			#define MYUSB_VERSION_STRING      "1.5.1"
 
 #endif

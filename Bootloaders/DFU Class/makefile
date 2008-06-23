@@ -175,7 +175,7 @@ CFLAGS += -ffunction-sections
 CFLAGS += -fdata-sections
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
-CFLAGS += -finline-limit=20
+CFLAGS += -fno-inline-small-functions
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wundef

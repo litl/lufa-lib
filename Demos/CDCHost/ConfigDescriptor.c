@@ -107,7 +107,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 
 DESCRIPTOR_COMPARATOR(NextCDCInterface)
 {
-	/* Descriptor Search Comparitor Function - find next keyboard class interface descriptor */
+	/* PURPOSE: Find next keyboard class interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
@@ -125,8 +125,7 @@ DESCRIPTOR_COMPARATOR(NextCDCInterface)
 
 DESCRIPTOR_COMPARATOR(NextInterfaceCDCDataEndpoint)
 {
-	/* Descriptor Search Comparitor Function - find next interface bulk or interrupt endpoint descriptor before
-	                                           next interface descriptor */
+	/* PURPOSE: Find next interface bulk or interrupt endpoint descriptor before next interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{

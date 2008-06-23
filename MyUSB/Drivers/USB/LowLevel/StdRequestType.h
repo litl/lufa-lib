@@ -14,8 +14,8 @@
  *  direction, request recipient, etc.) can be extracted via masking.
  */
  
-#ifndef __STDREQ_H__
-#define __STDREQ_H__
+#ifndef __STDREQTYPE_H__
+#define __STDREQTYPE_H__
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */

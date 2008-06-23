@@ -16,8 +16,8 @@
  *  \note These macros are only for AVRs which support the OTG protocol, and do not exist for device-only AVRs.
  */
 
-#ifndef __OTG_H__
-#define __OTG_H__
+#ifndef __USBOTG_H__
+#define __USBOTG_H__
 
 	/* Includes: */
 		#include <avr/io.h>

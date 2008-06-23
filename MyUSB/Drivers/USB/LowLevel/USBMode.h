@@ -8,8 +8,8 @@
  Released under the LGPL Licence, Version 3
 */
 
-#ifndef __USB_MODE_H__
-#define __USB_MODE_H__
+#ifndef __USBMODE_H__
+#define __USBMODE_H__
 
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)

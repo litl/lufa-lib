@@ -14,8 +14,8 @@
  *  the USB controller is initialized in host mode.
  */
 
-#ifndef __HOST_H__
-#define __HOST_H__
+#ifndef __USBHOST_H__
+#define __USBHOST_H__
 
 	/* Includes: */
 		#include <avr/io.h>

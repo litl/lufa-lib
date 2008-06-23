@@ -130,10 +130,10 @@ HANDLES_EVENT(USB_UnhandledControlPacket)
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				/* Ignore report type and ID number value */
-				Endpoint_Ignore_Word();
+				Endpoint_Discard_Word();
 				
 				/* Ignore unused Interface number value */
-				Endpoint_Ignore_Word();
+				Endpoint_Discard_Word();
 
 				/* Read in the number of bytes in the report to send to the host */
 				uint16_t wLength = Endpoint_Read_Word_LE();

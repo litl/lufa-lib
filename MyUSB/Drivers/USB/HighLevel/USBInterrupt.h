@@ -14,8 +14,8 @@
  *  events as VBUS interrupts (on supported USB AVR models), device connections and disconnections, etc.
  */
 
-#ifndef __USBINT_H__
-#define __USBINT_H__
+#ifndef __USBINTERRUPT_H__
+#define __USBINTERRUPT_H__
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -157,43 +157,6 @@
 			
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
-		/* Inline Functions: */
-			static inline void USB_INT_DisableAllInterrupts(void)
-			{
-				#if defined(USB_FULL_CONTROLLER)
-					#if !defined(__AVR_ATmega32U4__)
-						USBCON &= ~((1 << VBUSTE) | (1 << IDTE));					
-					#else					
-						USBCON &= ~(1 << VBUSTE);					
-					#endif
-				#endif
-				
-				#if defined(USB_CAN_BE_HOST)
-				UHIEN   = 0;
-				OTGIEN  = 0;
-				#endif
-				
-				#if defined(USB_CAN_BE_DEVICE)
-				UDIEN   = 0;
-				#endif
-			}
-
-			static inline void USB_INT_ClearAllInterrupts(void)
-			{
-				#if defined(USB_FULL_CONTROLLER)
-				USBINT  = 0;
-				#endif
-				
-				#if defined(USB_CAN_BE_HOST)
-				UHINT   = 0;
-				OTGINT  = 0;
-				#endif
-				
-				#if defined(USB_CAN_BE_DEVICE)
-				UDINT   = 0;
-				#endif
-			}
-
 		/* Macros: */
 			#define USB_INT_GET_EN_REG(a, b, c, d)           a
 			#define USB_INT_GET_EN_MASK(a, b, c, d)          b
@@ -213,6 +176,10 @@
 			#define USB_INT_HSOFI                            UHIEN,  (1 << HSOFE)  , UHINT , (1 << HSOFI)
 			#define USB_INT_RSTI                             UHIEN , (1 << RSTE)   , UHINT , (1 << RSTI)
 			#define USB_INT_SRPI                             OTGIEN, (1 << SRPE)   , OTGINT, (1 << SRPI)
+	
+		/* Function Prototypes: */
+			void USB_INT_ClearAllInterrupts(void);
+			void USB_INT_DisableAllInterrupts(void);
 	#endif
 	
 	/* Disable C linkage for C++ Compilers: */

@@ -161,7 +161,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 					       &CurrStateTable->Attributes,
 					       sizeof(HID_ReportItem_Attributes_t));
 
-					CurrReportItem->ItemFlags = ReportItemData;
+					CurrReportItem->ItemFlags      = ReportItemData;
 					CurrReportItem->CollectionPath = CurrCollectionPath;
 
 					if (UsageStackSize)
@@ -212,6 +212,8 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 					ParserData->TotalReportItems++;
 #endif
 				}
+				
+				UsageStackSize = 0;
 				
 				break;
 		}

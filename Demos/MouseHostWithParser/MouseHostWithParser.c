@@ -82,9 +82,8 @@ EVENT_HANDLER(USB_DeviceAttached)
 	puts_P(PSTR("Device Attached.\r\n"));
 	LEDs_SetAllLEDs(LEDS_NO_LEDS);
 
-	/* Start mouse and USB management task */
+	/* Start USB management task to enumerate the device */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
-	Scheduler_SetTaskMode(USB_Mouse_Host, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_DeviceUnattached)
@@ -95,6 +94,12 @@ EVENT_HANDLER(USB_DeviceUnattached)
 
 	puts_P(PSTR("Device Unattached.\r\n"));
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+}
+
+EVENT_HANDLER(USB_DeviceEnumerationComplete)
+{
+	/* Start Mouse Host task */
+	Scheduler_SetTaskMode(USB_Mouse_Host, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_HostError)
@@ -118,10 +123,6 @@ EVENT_HANDLER(USB_DeviceEnumerationFailed)
 TASK(USB_Mouse_Host)
 {
 	uint8_t ErrorCode;
-
-	/* Block task if device not connected */
-	if (!(USB_IsConnected))
-		return;
 
 	/* Switch to determine what user-application handled host state the host state machine is in */
 	switch (USB_HostState)

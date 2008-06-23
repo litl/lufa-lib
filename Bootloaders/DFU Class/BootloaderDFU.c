@@ -118,8 +118,8 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
-	Endpoint_Ignore_Word();
-	Endpoint_Ignore_Word();
+	Endpoint_Discard_Word();
+	Endpoint_Discard_Word();
 
 	SentCommand.DataSize = Endpoint_Read_Word_LE();
 
@@ -400,7 +400,7 @@ static void DiscardFillerBytes(uint8_t FillerBytes)
 			while (!(Endpoint_IsSetupOUTReceived()));
 		}
 
-		Endpoint_Ignore_Byte();						
+		Endpoint_Discard_Byte();						
 	}
 }
 

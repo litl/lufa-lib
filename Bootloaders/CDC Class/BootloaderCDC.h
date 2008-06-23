@@ -73,9 +73,9 @@
 
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_BOOTLOADERCDC_C)
-			static void    ProgramReadMemoryBlock(const uint8_t Command) ATTR_NOINLINE;
-			static uint8_t FetchNextCommandByte(void) ATTR_NOINLINE;
-			static void    WriteNextResponseByte(const uint8_t Response) ATTR_NOINLINE;
+			static void    ProgramReadMemoryBlock(const uint8_t Command);
+			static uint8_t FetchNextCommandByte(void);
+			static void    WriteNextResponseByte(const uint8_t Response);
 		#endif
 
 	/* Tasks: */

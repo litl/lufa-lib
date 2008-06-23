@@ -20,8 +20,8 @@
  *  Each event must only have one associated event handler, but can be raised by multiple sources.
  */
  
-#ifndef __USB_EVENTS_H__
-#define __USB_EVENTS_H__
+#ifndef __USBEVENTS_H__
+#define __USBEVENTS_H__
 
 	/* Includes: */
 		#include <avr/io.h>

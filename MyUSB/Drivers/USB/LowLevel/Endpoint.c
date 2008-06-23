@@ -33,7 +33,7 @@ void Endpoint_ClearEndpoints(void)
 {
 	UEINT = 0;
 
-	for (uint8_t EPNum = 0; EPNum < ENDPOINT_MAXENDPOINTS; EPNum++)
+	for (uint8_t EPNum = 0; EPNum < ENDPOINT_MAX_ENDPOINTS; EPNum++)
 	{
 		Endpoint_SelectEndpoint(EPNum);	
 		UEIENX = 0;

@@ -65,7 +65,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 
 DESCRIPTOR_COMPARATOR(NextMouseInterface)
 {
-	/* Descriptor Search Comparitor Function - find next mouse class interface descriptor */
+	/* PURPOSE: Find next mouse class interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
@@ -82,7 +82,7 @@ DESCRIPTOR_COMPARATOR(NextMouseInterface)
 
 DESCRIPTOR_COMPARATOR(NextInterfaceMouseDataEndpoint)
 {
-	/* Descriptor Search Comparitor Function - find next interface endpoint descriptor before next interface descriptor */
+	/* PURPOSE: Find next interface endpoint descriptor before next interface descriptor */
 
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{

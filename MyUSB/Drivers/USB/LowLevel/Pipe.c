@@ -34,7 +34,7 @@ void Pipe_ClearPipes(void)
 {
 	UPINT = 0;
 
-	for (uint8_t PNum = 0; PNum < PIPE_MAXPIPES; PNum++)
+	for (uint8_t PNum = 0; PNum < PIPE_MAX_PIPES; PNum++)
 	{
 		Pipe_ResetPipe(PNum);
 		Pipe_SelectPipe(PNum);

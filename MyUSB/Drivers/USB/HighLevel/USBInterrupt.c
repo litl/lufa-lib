@@ -11,6 +11,42 @@
 #include "../LowLevel/USBMode.h"
 #include "USBInterrupt.h"
 
+void USB_INT_DisableAllInterrupts(void)
+{
+	#if defined(USB_FULL_CONTROLLER)
+		#if !defined(__AVR_ATmega32U4__)
+			USBCON &= ~((1 << VBUSTE) | (1 << IDTE));					
+		#else					
+			USBCON &= ~(1 << VBUSTE);					
+		#endif
+	#endif
+	
+	#if defined(USB_CAN_BE_HOST)
+	UHIEN   = 0;
+	OTGIEN  = 0;
+	#endif
+	
+	#if defined(USB_CAN_BE_DEVICE)
+	UDIEN   = 0;
+	#endif
+}
+
+void USB_INT_ClearAllInterrupts(void)
+{
+	#if defined(USB_FULL_CONTROLLER)
+	USBINT  = 0;
+	#endif
+	
+	#if defined(USB_CAN_BE_HOST)
+	UHINT   = 0;
+	OTGINT  = 0;
+	#endif
+	
+	#if defined(USB_CAN_BE_DEVICE)
+	UDINT   = 0;
+	#endif
+}
+
 ISR(USB_GEN_vect)
 {
 	#if defined(USB_CAN_BE_DEVICE)

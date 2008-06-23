@@ -128,8 +128,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
 
-	Endpoint_Ignore_Word();
-
 	/* Process CDC specific control requests */
 	switch (bRequest)
 	{

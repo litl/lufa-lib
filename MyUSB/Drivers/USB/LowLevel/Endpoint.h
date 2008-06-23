@@ -74,17 +74,17 @@
 				 *  be used in the device. Different USB AVR models support different amounts of endpoints,
 				 *  this value reflects the maximum number of endpoints for the currently selected AVR model.
 				 */
-				#define ENDPOINT_MAXENDPOINTS                  7
+				#define ENDPOINT_MAX_ENDPOINTS                  7
 
 				/** Size in bytes of the largest endpoint bank size possible in the device. Not all banks on
 				 *  each AVR model supports the largest bank size possible on the device; different endpoint
 				 *  numbers support different maximum bank sizes. This value reflects the largest possible
 				 *  bank of any endpoint on the currently selected USB AVR model.
 				 */
-				#define ENDPOINT_MAX_SIZE                      256
+				#define ENDPOINT_MAX_SIZE                       256
 			#else
-				#define ENDPOINT_MAXENDPOINTS                  5			
-				#define ENDPOINT_MAX_SIZE                      64			
+				#define ENDPOINT_MAX_ENDPOINTS                  5			
+				#define ENDPOINT_MAX_SIZE                       64			
 			#endif
 
 			/** Interrupt definition for the endpoint SETUP interrupt (for CONTROL type endpoints). Should be
@@ -176,6 +176,8 @@
 			 *  datasheet to determine the maximum bank size for each endpoint.
 			 *
 			 *  The banking mode may be either ENDPOINT_BANK_SINGLE or ENDPOINT_BANK_DOUBLE.
+			 *
+			 *  The success of this routine can be determined via the Endpoint_IsConfigured() macro.
 			 *
 			 *  \note This routine will select the specified endpoint, and the endpoint will remain selected
 			 *        once the routine completes regardless of if the endpoint configuration succeeds.
@@ -284,7 +286,7 @@
 			}
 
 			/** Discards one byte from the currently selected endpoint's bank, for OUT direction endpoints. */
-			static inline void Endpoint_Ignore_Byte(void)
+			static inline void Endpoint_Discard_Byte(void)
 			{
 				uint8_t Dummy;
 				
@@ -338,7 +340,7 @@
 			}
 
 			/** Discards two bytes from the currently selected endpoint's bank, for OUT direction endpoints. */
-			static inline void Endpoint_Ignore_Word(void)
+			static inline void Endpoint_Discard_Word(void)
 			{
 				uint8_t Dummy;
 				
@@ -405,7 +407,7 @@
 			}
 
 			/** Discards four bytes from the currently selected endpoint's bank, for OUT direction endpoints. */
-			static inline void Endpoint_Ignore_DWord(void)
+			static inline void Endpoint_Discard_DWord(void)
 			{
 				uint8_t Dummy;
 				
@@ -539,15 +541,27 @@
 			uint8_t Endpoint_Read_Control_Stream_BE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 
 		/* Function Aliases: */
+			/** Alias for Endpoint_Discard_Byte().
+			 */
+			#define Endpoint_Ignore_Byte()                      Endpoint_Discard_Byte()
+
+			/** Alias for Endpoint_Discard_Word().
+			 */
+			#define Endpoint_Ignore_Word()                      Endpoint_Discard_Word()		
+
+			/** Alias for Endpoint_Discard_DWord().
+			 */
+			#define Endpoint_Ignore_DWord()                     Endpoint_Discard_DWord()
+		
 			/** Alias for Endpoint_Read_Word_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
-			#define Endpoint_Read_Word()                   Endpoint_Read_Word_LE()   
+			#define Endpoint_Read_Word()                        Endpoint_Read_Word_LE()   
 
 			/** Alias for Endpoint_Write_Word_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
-			#define Endpoint_Write_Word(Word)              Endpoint_Write_Word_LE(Word)
+			#define Endpoint_Write_Word(Word)                   Endpoint_Write_Word_LE(Word)
 
 			/** Alias for Endpoint_Read_DWord_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
@@ -569,15 +583,15 @@
 			 */
 			#define Endpoint_Write_Stream(Data, Length)         Endpoint_Write_Stream_LE(Data, Length)
 			
+			/** Alias for Endpoint_Read_Control_Stream_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Endpoint_Read_Control_Stream(Data, Length)  Endpoint_Read_Control_Stream_LE(Data, Length)
+
 			/** Alias for Endpoint_Write_Control_Stream_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
 			#define Endpoint_Write_Control_Stream(Data, Length) Endpoint_Write_Control_Stream_LE(Data, Length)			
-			
-			/** Alias for Endpoint_Read_Control_Stream_LE(). By default USB transfers use little endian format, thus
-			 *  the command with no endianness specifier indicates little endian mode.
-			 */
-			#define Endpoint_Read_Control_Stream(Data, Length) Endpoint_Read_Control_Stream_LE(Data, Length)	
 			
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
@@ -590,21 +604,25 @@
 			                                                 ATTR_WARN_UNUSED_RESULT ATTR_CONST;
 			static inline uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes)
 			{
-				uint8_t SizeCheck = 8;
-				uint8_t SizeMask  = 0;
-
 				Bytes &= ENDPOINT_EPSIZE_MASK;
-
-				do
-				{
-					if (Bytes <= SizeCheck)
-					  return (SizeMask << EPSIZE0);
-					
-					SizeCheck <<= 1;
-					SizeMask++;
-				} while (SizeCheck != (ENDPOINT_MAX_SIZE >> 1));
-				
-				return ((SizeMask + 1) << EPSIZE0);
+			
+				if (Bytes <= 8)
+				  return (0 << EPSIZE0);
+				else if (Bytes <= 16)
+				  return (1 << EPSIZE0);
+				else if (Bytes <= 32)
+				  return (2 << EPSIZE0);
+				#if defined(USB_LIMITED_CONTROLLER)
+				else
+				  return (3 << EPSIZE0);
+				#else
+				else if (Bytes <= 64)
+				  return (3 << EPSIZE0);
+				else if (Bytes <= (8 << 4))
+				  return (4 << EPSIZE0);
+				else
+				  return (5 << EPSIZE0);
+				#endif
 			};
 
 		/* Function Prototypes: */

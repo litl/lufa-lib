@@ -15,8 +15,8 @@
  *  and other descriptor data can be extracted and used as needed.
  */
 
-#ifndef __CONFIG_DESCRIPTOR_H__
-#define __CONFIG_DESCRIPTOR_H__
+#ifndef __CONFIGDESCRIPTOR_H__
+#define __CONFIGDESCRIPTOR_H__
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -184,22 +184,10 @@
 			 * \param CurrConfigLoc  Pointer to the current descriptor inside the configuration descriptor
 			 * \param Type  Descriptor type value to search for
 			 */
-			static inline void USB_Host_GetNextDescriptorOfType(uint16_t* const BytesRem,
-			                                                    uint8_t** const CurrConfigLoc,
-			                                                    const uint8_t Type)
-			                                                    ATTR_NON_NULL_PTR_ARG(1, 2);
-			static inline void USB_Host_GetNextDescriptorOfType(uint16_t* const BytesRem,
-			                                                    uint8_t** const CurrConfigLoc,
-			                                                    const uint8_t Type)
-			{
-				while (*BytesRem)
-				{
-					USB_Host_GetNextDescriptor(BytesRem, CurrConfigLoc);	  
-
-					if (DESCRIPTOR_TYPE(*CurrConfigLoc) == Type)
-					  return;
-				}
-			}
+			void USB_Host_GetNextDescriptorOfType(uint16_t* const BytesRem,
+			                                      uint8_t** const CurrConfigLoc,
+			                                      const uint8_t Type)
+			                                      ATTR_NON_NULL_PTR_ARG(1, 2);
 
 			/** Skips to the next sub-descriptor inside the configuration descriptor of the specified type value,
 			 *  which must come before a descriptor of the second given type value. If the BeforeType type
@@ -211,31 +199,11 @@
 			 * \param Type  Descriptor type value to search for
 			 * \param BeforeType  Descriptor type value which must not be reached before the given Type descriptor
 			 */
-			static inline void USB_Host_GetNextDescriptorOfTypeBefore(uint16_t* const BytesRem,
-			                                                          uint8_t** const CurrConfigLoc,
-			                                                          const uint8_t Type,
-			                                                          const uint8_t BeforeType)
-			                                                          ATTR_NON_NULL_PTR_ARG(1, 2);
-			static inline void USB_Host_GetNextDescriptorOfTypeBefore(uint16_t* const BytesRem,
-			                                                          uint8_t** const CurrConfigLoc,
-			                                                          const uint8_t Type,
-			                                                          const uint8_t BeforeType)
-			{
-				while (*BytesRem)
-				{
-					USB_Host_GetNextDescriptor(BytesRem, CurrConfigLoc);
-
-					if (DESCRIPTOR_TYPE(*CurrConfigLoc) == Type)
-					{
-						return;
-					}
-					else if (DESCRIPTOR_TYPE(*CurrConfigLoc) == BeforeType)
-					{
-						*BytesRem = 0;
-						return;
-					}
-				}
-			}
+			void USB_Host_GetNextDescriptorOfTypeBefore(uint16_t* const BytesRem,
+			                                            uint8_t** const CurrConfigLoc,
+			                                            const uint8_t Type,
+			                                            const uint8_t BeforeType)
+			                                            ATTR_NON_NULL_PTR_ARG(1, 2);
 
 			/** Skips to the next sub-descriptor inside the configuration descriptor of the specified type value,
 			 *  which must come after a descriptor of the second given type value. The bytes remaining value is
@@ -246,21 +214,11 @@
 			 * \param Type  Descriptor type value to search for
 			 * \param AfterType  Descriptor type value which must be reached before the given Type descriptor
 			 */
-			static inline void USB_Host_GetNextDescriptorOfTypeAfter(uint16_t* const BytesRem,
-			                                                         uint8_t** const CurrConfigLoc,
-			                                                         const uint8_t Type,
-																	 const uint8_t AfterType)
-			                                                         ATTR_NON_NULL_PTR_ARG(1, 2);
-			static inline void USB_Host_GetNextDescriptorOfTypeAfter(uint16_t* const BytesRem,
-			                                                         uint8_t** const CurrConfigLoc,
-			                                                         const uint8_t Type,
-			                                                         const uint8_t AfterType)
-			{
-				USB_Host_GetNextDescriptorOfType(BytesRem, CurrConfigLoc, AfterType);
-				
-				if (*BytesRem)
-				  USB_Host_GetNextDescriptorOfType(BytesRem, CurrConfigLoc, Type);
-			}
+			void USB_Host_GetNextDescriptorOfTypeAfter(uint16_t* const BytesRem,
+			                                           uint8_t** const CurrConfigLoc,
+			                                           const uint8_t Type,
+			                                           const uint8_t AfterType)
+			                                           ATTR_NON_NULL_PTR_ARG(1, 2);
 			
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)

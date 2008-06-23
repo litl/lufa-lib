@@ -103,7 +103,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 									 SubType: 0x06},
 			
 			Data:                   {0x00, 0x01}
-		},	
+		},
 
 	ManagementEndpoint:
 		{

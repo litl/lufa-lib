@@ -16,8 +16,8 @@
  *  \see Chapter 9 of the USB 2.0 specification.
  */
 
-#ifndef __HOSTCHAP9_H__
-#define __HOSTCHAP9_H__
+#ifndef __HOSTCHAPTER9_H__
+#define __HOSTCHAPTER9_H__
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -58,10 +58,10 @@
 				                                        *   request transfer.
 				                                        */
 				HOST_SENDCONTROL_PipeError        = 2, /**< An error occured in the pipe while sending the request. */
-				HOST_SENDCONTROL_SetupStalled     = 3, /** The attached device stalled the request, unusally
-				                                           indicating that the request is unsupported on the device.
+				HOST_SENDCONTROL_SetupStalled     = 3, /**< The attached device stalled the request, unusally
+				                                        *   indicating that the request is unsupported on the device.
 				                                        */
-				HOST_SENDCONTROL_SoftwareTimeOut  = 4, /** The request or data transfer timed out. */
+				HOST_SENDCONTROL_SoftwareTimeOut  = 4, /**< The request or data transfer timed out. */
 			};
 			
 		/* Global Variables: */

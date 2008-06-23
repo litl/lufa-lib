@@ -84,9 +84,8 @@ EVENT_HANDLER(USB_DeviceAttached)
 	puts_P(PSTR("Device Attached.\r\n"));
 	LEDs_SetAllLEDs(LEDS_NO_LEDS);
 
-	/* Start keyboard and USB management task */
+	/* Start USB management task to enumerate the device */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
-	Scheduler_SetTaskMode(USB_Keyboard_Host, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_DeviceUnattached)
@@ -97,6 +96,12 @@ EVENT_HANDLER(USB_DeviceUnattached)
 
 	puts_P(PSTR("\r\nDevice Unattached.\r\n"));
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+}
+
+EVENT_HANDLER(USB_DeviceEnumerationComplete)
+{
+	/* Start Keyboard Host task */
+	Scheduler_SetTaskMode(USB_Keyboard_Host, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_HostError)
@@ -120,10 +125,6 @@ EVENT_HANDLER(USB_DeviceEnumerationFailed)
 TASK(USB_Keyboard_Host)
 {
 	uint8_t ErrorCode;
-
-	/* Block task if device not connected */
-	if (!(USB_IsConnected))
-		return;
 
 	switch (USB_HostState)
 	{
@@ -202,7 +203,7 @@ ISR(ENDPOINT_PIPE_vect)
 
 			/* Read in keyboard report data */
 			KeyboardReport.Modifier = Pipe_Read_Byte();
-			Pipe_Ignore_Byte();
+			Pipe_Discard_Byte();
 			KeyboardReport.KeyCode  = Pipe_Read_Byte();
 						
 			LEDs_ChangeLEDs(LEDS_LED1, (KeyboardReport.Modifier) ? LEDS_LED1 : 0);
