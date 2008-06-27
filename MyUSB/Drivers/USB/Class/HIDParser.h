@@ -193,8 +193,8 @@
 			 *  \param ReportData  Buffer containing an IN or FEATURE report from an attached device
 			 *  \param ReportItem  Pointer to the report item of interest in a HID_ReportInfo_t ReportItem array
 			 */
-			void    GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
-			                          ATTR_NON_NULL_PTR_ARG(1, 2);
+			void GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
+			                       ATTR_NON_NULL_PTR_ARG(1, 2);
 
 			/** Retreives the given report item's value out of the Value member of the report item's
 			 *  HID_ReportItem_t structure and places it into the correct position in the HID report
@@ -204,8 +204,8 @@
 			 *  \param ReportData  Buffer holding the current OUT report data
 			 *  \param ReportItem  Pointer to the report item of interest in a HID_ReportInfo_t ReportItem array
 			 */
-			void    SetReportItemInfo(uint8_t* const ReportData, const HID_ReportItem_t* ReportItem)
-			                          ATTR_NON_NULL_PTR_ARG(1, 2);
+			void SetReportItemInfo(uint8_t* const ReportData, const HID_ReportItem_t* ReportItem)
+			                       ATTR_NON_NULL_PTR_ARG(1, 2);
 
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)

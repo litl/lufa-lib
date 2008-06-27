@@ -137,10 +137,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
-
-				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-				  Endpoint_Write_Byte(*(LineCodingData++));	
 				
+				Endpoint_Write_Control_Stream_LE(LineCodingData, sizeof(LineCoding));
+
 				Endpoint_ClearSetupIN();
 				while (!(Endpoint_IsSetupINReady()));
 				
@@ -156,8 +155,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 				while (!(Endpoint_IsSetupOUTReceived()));
 
-				for (uint8_t i = 0; i < sizeof(LineCoding); i++)
-				  *(LineCodingData++) = Endpoint_Read_Byte();
+				Endpoint_Read_Control_Stream_LE(LineCodingData, sizeof(LineCoding));
 
 				Endpoint_ClearSetupOUT();
 

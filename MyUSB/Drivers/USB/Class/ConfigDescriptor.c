@@ -90,8 +90,8 @@ void USB_Host_GetNextDescriptorOfTypeAfter(uint16_t* const BytesRem,
 	  USB_Host_GetNextDescriptorOfType(BytesRem, CurrConfigLoc, Type);
 }
 			
-uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
-                                         uint8_t (*SearchRoutine)(void*))
+uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc,
+                                         uint8_t (* const SearchRoutine)(void*))
 {
 	uint8_t ErrorCode;
 		

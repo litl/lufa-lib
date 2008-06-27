@@ -95,13 +95,12 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		
 	AudioStreamInterface_SPC:
 		{
-			Header:                   {Size: sizeof(USB_AudioInterface_AS_t), Type: DTYPE_AudioInterface},
+			Header:                   {Size: sizeof(USB_AudioInterface_MIDI_AS_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_General,
+
+			AudioSpecification:       VERSION_BCD(01.00),
 			
-			TerminalLink:             0x00,
-			
-			FrameDelay:               1,
-			AudioFormat:              0x0041
+			TotalLength:              (sizeof(USB_Descriptor_Configuration_t) - offsetof(USB_Descriptor_Configuration_t, AudioStreamInterface_SPC))
 		},
 
 	MIDI_In_Jack_Emb:

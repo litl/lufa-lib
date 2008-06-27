@@ -168,14 +168,15 @@
 			/** Enum for the possible standard descriptor types, as given in each descriptor's header. */
 			enum DescriptorTypes_t
 			{
-				DTYPE_Device            = 1, /**< Indicates that the descriptor is a device descriptor. */
-				DTYPE_Configuration     = 2, /**< Indicates that the descriptor is a configuration descriptor. */
-				DTYPE_String            = 3, /**< Indicates that the descriptor is a string descriptor. */
-				DTYPE_Interface         = 4, /**< Indicates that the descriptor is an interface descriptor. */
-				DTYPE_Endpoint          = 5, /**< Indicates that the descriptor is an endpoint descriptor. */
-				DTYPE_DeviceQualifier   = 6, /**< Indicates that the descriptor is a device qualifier descriptor. */
-				DTYPE_Other             = 7, /**< Indicates that the descriptor is of other type. */
-				DTYPE_InterfacePower    = 8, /**< Indicates that the descriptor is an interface power descriptor. */
+				DTYPE_Device               = 0x01, /**< Indicates that the descriptor is a device descriptor. */
+				DTYPE_Configuration        = 0x02, /**< Indicates that the descriptor is a configuration descriptor. */
+				DTYPE_String               = 0x03, /**< Indicates that the descriptor is a string descriptor. */
+				DTYPE_Interface            = 0x04, /**< Indicates that the descriptor is an interface descriptor. */
+				DTYPE_Endpoint             = 0x05, /**< Indicates that the descriptor is an endpoint descriptor. */
+				DTYPE_DeviceQualifier      = 0x06, /**< Indicates that the descriptor is a device qualifier descriptor. */
+				DTYPE_Other                = 0x07, /**< Indicates that the descriptor is of other type. */
+				DTYPE_InterfacePower       = 0x08, /**< Indicates that the descriptor is an interface power descriptor. */
+				DTYPE_InterfaceAssociation = 0x0B, /**< Indicates that the descriptor is an interface association descriptor. */
 			};
 
 		/* Type Defines: */
@@ -306,7 +307,6 @@
 			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is not set, this structure contains elements with names
 			 *        identical to those listed in the USB standard.
 			 */
-
 			typedef struct
 			{
 				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
@@ -339,6 +339,46 @@
 				uint8_t                 iInterface;
 				#endif
 			} USB_Descriptor_Interface_t;
+
+			/** Type define for a standard interface association descriptor.
+			 *
+			 *  This descriptor has been added as a suppliment to the USB2.0 standard, in the ECN located at
+			 *  <a>http://www.usb.org/developers/docs/InterfaceAssociationDescriptor_ecn.pdf</a>. It allows compound
+			 *  devices with multiple interfaces related to the same function to have the multiple interfaces bound
+			 *  together at the point of enumeration, loading one generic driver for all the interfaces in the single
+			 *  function. Read the ECN for more information.
+			 *
+			 *  \note The non-standard structure element names are documented here - see the StdDescriptors.h file
+			 *        documentation for more information on the two descriptor naming schemes. If the
+			 *        USE_NONSTANDARD_DESCRIPTOR_NAMES token is not set, this structure contains elements with names
+			 *        identical to those listed in the USB standard.
+			 */
+			typedef struct
+			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES) || defined(__DOXYGEN__)
+				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
+				
+				uint8_t                 FirstInterfaceIndex; /**< Index of the first associated interface. */
+				uint8_t                 TotalInterfaces; /** Total number of associated interfaces. */
+
+				uint8_t                 Class; /**< Interface class ID. */
+				uint8_t                 SubClass; /**< Interface subclass ID. */
+				uint8_t                 Protocol; /**< Interface protocol ID. */
+
+				uint8_t                 InterfaceAssStrIndex; /**< Index of the string descriptor describing the
+				                                               *   interface association.
+				                                               */
+				#else
+				uint8_t                 bLength;
+				uint8_t                 bDescriptorType;
+				uint8_t                 bFirstInterface;
+				uint8_t                 bInterfaceCount;
+				uint8_t                 bFunctionClass;
+				uint8_t                 bFunctionSubClass;
+				uint8_t                 bFunctionProtocol;
+				uint8_t                 iFunction;
+				#endif
+			} USB_Descriptor_Interface_Association_t;
 
 			/** Type define for a standard endpoint descriptor.
 			 *

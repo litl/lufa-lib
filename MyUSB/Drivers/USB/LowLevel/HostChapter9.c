@@ -133,7 +133,7 @@ End_Of_Control_Send:
 	return ReturnStatus;
 }
 
-static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType)
+static uint8_t USB_Host_Wait_For_Setup_IOS(const uint8_t WaitType)
 {
 	uint16_t TimeoutCounter = USB_HOST_TIMEOUT_MS;
 

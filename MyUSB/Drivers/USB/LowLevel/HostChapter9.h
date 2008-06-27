@@ -95,7 +95,7 @@
 	
 		/* Function Prototypes: */
 			#if defined(INCLUDE_FROM_HOSTCHAPTER9_C)
-				static uint8_t USB_Host_Wait_For_Setup_IOS(uint8_t WaitType);
+				static uint8_t USB_Host_Wait_For_Setup_IOS(const uint8_t WaitType);
 			#endif
 	#endif
 

@@ -51,11 +51,9 @@
 			USB_Descriptor_Header_t   Header;
 			uint8_t                   Subtype;
 			
-			uint8_t                   TerminalLink;
-			
-			uint8_t                   FrameDelay;
-			uint16_t                  AudioFormat;
-		} USB_AudioInterface_AS_t;
+			uint16_t                  AudioSpecification;
+			uint16_t                  TotalLength;
+		} USB_AudioInterface_MIDI_AS_t;
 		
 		typedef struct
 		{
@@ -106,7 +104,7 @@
 			USB_Descriptor_Interface_t            AudioControlInterface;
 			USB_AudioInterface_AC_t               AudioControlInterface_SPC;
 			USB_Descriptor_Interface_t            AudioStreamInterface;
-			USB_AudioInterface_AS_t               AudioStreamInterface_SPC;
+			USB_AudioInterface_MIDI_AS_t          AudioStreamInterface_SPC;
 			USB_MIDI_In_Jack_t                    MIDI_In_Jack_Emb;
 			USB_MIDI_In_Jack_t                    MIDI_In_Jack_Ext;
 			USB_MIDI_Out_Jack_t                   MIDI_Out_Jack_Emb;

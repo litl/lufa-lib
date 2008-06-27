@@ -86,7 +86,7 @@
 			 *  Comparitor routines are passed in a single pointer named CurrentDescriptor, and should return a value
 			 *  of a member of the DSEARCH_Return_ErrorCodes_t enum.
 			 */
-			#define DESCRIPTOR_COMPARATOR(name)           uint8_t DCOMP_##name (void* CurrentDescriptor)
+			#define DESCRIPTOR_COMPARATOR(name)           uint8_t DCOMP_##name (void* const CurrentDescriptor)
 
 			/** Searches for the next descriptor in the given configuration descriptor using a premade comparator
 			 *  function. The routine updates the position and remaining configuration descriptor bytes values
@@ -223,8 +223,8 @@
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Function Prototypes: */
-			uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
-                                                     uint8_t (*SearchRoutine)(void*));
+			uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc,
+                                                     uint8_t (* const SearchRoutine)(void* const));
 	#endif
 			
 	/* Disable C linkage for C++ Compilers: */
