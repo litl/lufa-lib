@@ -220,9 +220,8 @@ void Keyboard_SendKeyReport(uint8_t KeyCode)
 		/* Check if Keyboard Endpoint Ready for Read/Write */
 		if (Endpoint_ReadWriteAllowed())
 		{
-			Endpoint_Write_Byte(KeyboardReportData.Modifier);
-			Endpoint_Write_Byte(0x00);
-			Endpoint_Write_Byte(KeyboardReportData.KeyCode);
+			/* Write Keyboard Report Data */
+			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
 						
 			/* Clear the report data afterwards */
 			KeyboardReportData.Modifier = 0;

@@ -119,7 +119,7 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(USB_Keyboard_Report, TASK_RUN);
 }
 
-HANDLES_EVENT(USB_UnhandledControlPacket)
+EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Handle HID Class specific requests */
 	switch (bRequest)

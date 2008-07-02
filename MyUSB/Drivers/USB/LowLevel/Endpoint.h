@@ -491,6 +491,9 @@
 			 *
 			 *  \note This routine should only be used on CONTROL type endpoints.
 			 *
+			 *  \warning Unlike the standard stream read/write commands, the control stream commands cannot be chained
+			 *           together; i.e. the entire stream data must be read or written at the one time.
+			 *
 			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
 			 *
@@ -504,6 +507,9 @@
 			 *  finalize the transfer via the Endpoint_ClearSetupOUT() macro.
 			 *
 			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \warning Unlike the standard stream read/write commands, the control stream commands cannot be chained
+			 *           together; i.e. the entire stream data must be read or written at the one time.
 			 *
 			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
@@ -519,6 +525,9 @@
 			 *
 			 *  \note This routine should only be used on CONTROL type endpoints.
 			 *
+			 *  \warning Unlike the standard stream read/write commands, the control stream commands cannot be chained
+			 *           together; i.e. the entire stream data must be read or written at the one time.
+			 *
 			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected endpoint.
 			 *
@@ -532,6 +541,9 @@
 			 *  setup IN to finalize the transfer via the Endpoint_ClearSetupIN() macro.
 			 *
 			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \warning Unlike the standard stream read/write commands, the control stream commands cannot be chained
+			 *           together; i.e. the entire stream data must be read or written at the one time.
 			 *
 			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected endpoint.

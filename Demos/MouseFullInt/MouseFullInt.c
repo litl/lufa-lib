@@ -104,7 +104,7 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }
 
-HANDLES_EVENT(USB_UnhandledControlPacket)
+EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Handle HID Class specific requests */
 	switch (bRequest)

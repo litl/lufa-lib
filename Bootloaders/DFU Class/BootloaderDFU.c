@@ -242,7 +242,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 			/* Send ZLP to the host to acknowedge the request */
 			Endpoint_ClearSetupIN();
-			while (!(Endpoint_IsSetupINReady()));
 				
 			break;
 		case DFU_UPLOAD:
@@ -357,7 +356,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			DFU_Status = OK;
 			
 			Endpoint_ClearSetupIN();
-			while (!(Endpoint_IsSetupINReady()));
 
 			break;
 		case DFU_GETSTATE:
@@ -379,7 +377,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			DFU_State = dfuIDLE;
 			
 			Endpoint_ClearSetupIN();
-			while (!(Endpoint_IsSetupINReady()));
 
 			break;
 	}

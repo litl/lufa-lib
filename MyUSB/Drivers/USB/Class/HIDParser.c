@@ -127,7 +127,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				{
 					CurrCollectionPath->Usage = UsageStack[0];
 
-					for (uint8_t i = 1; i < UsageStackSize; i++)
+					for (uint8_t i = 1; i <= UsageStackSize; i++)
 					  UsageStack[i - 1] = UsageStack[i];
 					  
 					UsageStackSize--;

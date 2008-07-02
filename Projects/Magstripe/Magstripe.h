@@ -47,6 +47,7 @@
 		typedef struct
 		{
 			uint8_t Modifier;
+			uint8_t Reserved;
 			uint8_t KeyCode;
 		} USB_KeyboardReport_Data_t;
 			

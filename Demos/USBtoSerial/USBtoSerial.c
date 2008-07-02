@@ -135,15 +135,14 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	{
 		case GET_LINE_CODING:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
-			{
+			{	
+				/* Acknowedge the SETUP packet, ready for data transfer */
 				Endpoint_ClearSetupReceived();
-				
-				Endpoint_Write_Control_Stream_LE(LineCodingData, sizeof(LineCoding));
 
-				Endpoint_ClearSetupIN();
-				while (!(Endpoint_IsSetupINReady()));
+				/* Write the line coding data to the control endpoint */
+				Endpoint_Write_Control_Stream_LE(LineCodingData, sizeof(LineCoding));
 				
-				while (!(Endpoint_IsSetupOUTReceived()));
+				/* Send the line coding data to the host and clear the control endpoint */
 				Endpoint_ClearSetupOUT();
 			}
 			
@@ -151,28 +150,25 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case SET_LINE_CODING:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				/* Acknowedge the SETUP packet, ready for data transfer */
 				Endpoint_ClearSetupReceived();
 
-				while (!(Endpoint_IsSetupOUTReceived()));
-
+				/* Read the line coding data in from the host into the global struct */
 				Endpoint_Read_Control_Stream_LE(LineCodingData, sizeof(LineCoding));
 
-				Endpoint_ClearSetupOUT();
-
-				ReconfigureUSART();
-
+				/* Send the line coding data to the host and clear the control endpoint */
 				Endpoint_ClearSetupIN();
-				while (!(Endpoint_IsSetupINReady()));
 			}
 	
 			break;
 		case SET_CONTROL_LINE_STATE:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				/* Acknowedge the SETUP packet, ready for data transfer */
 				Endpoint_ClearSetupReceived();
 				
+				/* Send an empty packet to acknowedge the command (currently unused) */
 				Endpoint_ClearSetupIN();
-				while (!(Endpoint_IsSetupINReady()));
 			}
 	
 			break;

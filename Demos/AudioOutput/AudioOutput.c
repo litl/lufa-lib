@@ -126,13 +126,13 @@ EVENT_HANDLER(USB_Disconnect)
 
 #if defined(AUDIO_OUT_MONO)
 	/* Set speaker as input to reduce current draw */
-	DDRC   |= (1 << 6);
+	DDRC   &= ~(1 << 6);
 #elif defined(AUDIO_OUT_STEREO)
 	/* Set speakers as inputs to reduce current draw */
-	DDRC   |= ((1 << 6) | (1 << 5));
+	DDRC   &= ~((1 << 6) | (1 << 5));
 #elif defined(AUDIO_OUT_PORTC)
 	/* Set PORTC low */
-	PORTC  |= 0x00;
+	PORTC  = 0x00;
 #endif
 
 	/* Stop running audio and USB management tasks */
@@ -168,7 +168,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 				Endpoint_ClearSetupIN();
-				while (!(Endpoint_IsSetupINReady()));
 			}
 
 			break;

@@ -91,7 +91,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 				
 			Class:                  0x03,
 			SubClass:               0x00,
-			Protocol:               0x02,
+			Protocol:               0x00,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},

@@ -117,8 +117,8 @@
 			 *  in device mode) in order to manage USB communications. This task may be executed inside an RTOS,
 			 *  scheduler (e.g. the simple MyUSB Scheduler), fast timer ISR or the main user application loop.
 			 *
-			 *  The USB task must be serviced within 4.8 seconds in all modes, when needed. The task may be
-			 *  serviced at all times, or (for minimum CPU consumption):
+			 *  The USB task must be serviced within 50mS in all modes, when needed. The task may be serviced 
+			 *  at all times, or (for minimum CPU consumption):
 			 *
 			 *    > In device mode, it may be disabled at startup, enabled on the firing of the USB_Connect event
 			 *    and disabled again on the firing of the USB_Disconnect event.

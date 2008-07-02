@@ -135,7 +135,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 				Endpoint_ClearSetupIN();
-				while (!(Endpoint_IsSetupINReady()));
 			}
 
 			break;
