@@ -31,7 +31,7 @@ void USB_Device_ProcessControlPacket(void)
 			{
 				USB_Device_GetStatus(bmRequestType);
 				RequestHandled = true;
-			}			
+			}
 
 			break;
 		case REQ_ClearFeature:
@@ -199,7 +199,7 @@ static void USB_Device_GetDescriptor(void)
 	}
 
 	while (!(Endpoint_IsSetupOUTReceived()));
-	  Endpoint_ClearSetupOUT();
+	Endpoint_ClearSetupOUT();
 }
 
 static void USB_Device_GetStatus(const uint8_t bmRequestType)
