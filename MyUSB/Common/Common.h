@@ -70,7 +70,7 @@
 			/** Function for reliably setting the AVR's system clock prescaler, using inline assembly. This function
 			 *  is guaranteed to operate reliably regardless of optimization setting or other compile time options. 
 			 *
-			 * \param PrescalerMask   The mask of the new prescaler setting for CLKPR
+			 *  \param PrescalerMask   The mask of the new prescaler setting for CLKPR
 			 */
 			static inline void SetSystemClockPrescaler(uint8_t PrescalerMask)
 			{
@@ -86,6 +86,62 @@
 							  "M" (_SFR_MEM_ADDR(CLKPR)),
 							  "d" (PrescalerMask)
 							: "r0");
+			}
+
+			/** Function to reverse the individual bits in a byte - i.e. bit 7 is moved to bit 0, bit 6 to bit 1,
+			 *  etc.
+			 *
+			 *  \param Byte   Byte of data whose bits are to be reversed
+			 */
+			static inline uint8_t BitReverse(uint8_t Byte)
+			{
+				Byte = (((Byte & 0b11110000) >> 4) | ((Byte & 0b00001111) << 4));
+				Byte = (((Byte & 0b11001100) >> 2) | ((Byte & 0b00110011) << 2));
+				Byte = (((Byte & 0b10101010) >> 1) | ((Byte & 0b01010101) << 1));
+
+				return Byte;
+			}
+			
+			/** Function to reverse the byte ordering of the individual bytes in a 16 bit number.
+			 *
+			 *  \param Word   Word of data whose bytes are to be swapped
+			 */
+			static inline uint16_t SwapEndian_16(uint16_t Word)
+			{
+				uint8_t* Bytes = (uint8_t*)&Word;
+			
+				return (((uint16_t)Bytes[1] >> 8) | ((uint16_t)Bytes[0] << 8));
+			}
+
+			/** Function to reverse the byte ordering of the individual bytes in a 32 bit number.
+			 *
+			 *  \param DWord   Double word of data whose bytes are to be swapped
+			 */
+			static inline uint16_t SwapEndian_32(uint16_t DWord)
+			{
+				uint8_t* Bytes = (uint8_t*)&DWord;
+			
+				return (((uint32_t)Bytes[3] >> 24) | ((uint32_t)Bytes[2] >> 16) |
+				        ((uint32_t)Bytes[1] << 16) | ((uint32_t)Bytes[0] << 24));
+			}
+
+			/** Function to reverse the byte ordering of the individual bytes in a n byte number.
+			 *
+			 *  \param Data   Pointer to a number containing an even number of bytes to be reversed
+			 */
+			static inline void SwapEndian_n(uint8_t* Data, uint8_t Bytes)
+			{
+				uint8_t Temp;
+				
+				while (Bytes)
+				{
+					Temp = *Data;
+					*Data = *(Data + Bytes - 1);
+					*(Data + Bytes) = Temp;
+
+					Data++;
+					Bytes -= 2;
+				}
 			}
 
 #endif

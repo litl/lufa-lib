@@ -89,6 +89,7 @@ OBJDIR = .
 SRC = $(TARGET).c                                           \
       Descriptors.c                                         \
       RNDIS.c                                               \
+	  Ethernet.c                                            \
       ../../MyUSB/Scheduler/Scheduler.c                     \
       ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
       ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \

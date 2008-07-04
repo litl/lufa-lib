@@ -17,6 +17,7 @@
 
 		#include "Descriptors.h"
 		#include "RNDIS.h"
+		#include "Ethernet.h"
 
 		#include <MyUSB/Version.h>                        // Library Version Information
 		#include <MyUSB/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project
@@ -27,17 +28,11 @@
 
 		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>
 	
-	/* Macros: */
-		#define BUFFER_SIZE           2048
-	
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
-
-	/* External Variables: */
-		extern uint8_t Buffer[BUFFER_SIZE];
 
 	/* Type Defines: */
 		typedef struct
@@ -51,5 +46,6 @@
 		
 	/* Tasks: */
 		TASK(RNDIS_Task);
+		TASK(Ethernet_Task);
 		
 #endif
