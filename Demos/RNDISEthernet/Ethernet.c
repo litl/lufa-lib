@@ -11,38 +11,36 @@
 #include "Ethernet.h"
 
 /* Global Variables: */
-uint8_t  EthernetFrameIN[ETHERNET_FRAME_SIZE];
-uint8_t  EthernetFrameOUT[ETHERNET_FRAME_SIZE];
-
-uint16_t EthernetFrameINLength;
-uint16_t EthernetFrameOUTLength;
-
-bool     IsFrameIN  = false;
-bool     IsFrameOUT = false;
-
+Ethernet_Frame_Info_t FrameIN;
+Ethernet_Frame_Info_t FrameOUT;
 
 void Ethernet_ProcessPacket(void)
 {
-	Ethernet_Frame_Header_t* EthernetFrame = (Ethernet_Frame_Header_t*)EthernetFrameIN;
+	/* Cast the incomming Ethernet frame to the Ethernet header type */
+	Ethernet_Frame_Header_t* FrameINHeader = (Ethernet_Frame_Header_t*)&FrameIN.FrameData;
 
-	printf("Frame RX Size: %d\r\n", EthernetFrameINLength);
+	/* Print out the total length of the frame */
+	printf("Frame RX Size: %d\r\n", FrameIN.FrameLength);
 	
-	printf("Source: %02x:%02x:%02x:%02x:%02x:%02x\r\n", EthernetFrame->Source.Octets[0],
-	                                                    EthernetFrame->Source.Octets[1],
-	                                                    EthernetFrame->Source.Octets[2],
-	                                                    EthernetFrame->Source.Octets[3],
-	                                                    EthernetFrame->Source.Octets[4],
-	                                                    EthernetFrame->Source.Octets[5]);
+	/* Print out the formatted MAC source address of the frame */
+	printf("Source: %02x:%02x:%02x:%02x:%02x:%02x\r\n", FrameINHeader->Source.Octets[0],
+	                                                    FrameINHeader->Source.Octets[1],
+	                                                    FrameINHeader->Source.Octets[2],
+	                                                    FrameINHeader->Source.Octets[3],
+	                                                    FrameINHeader->Source.Octets[4],
+	                                                    FrameINHeader->Source.Octets[5]);
 
-	printf("Dest: %02x:%02x:%02x:%02x:%02x:%02x\r\n",   EthernetFrame->Destination.Octets[0],
-	                                                    EthernetFrame->Destination.Octets[1],
-	                                                    EthernetFrame->Destination.Octets[2],
-	                                                    EthernetFrame->Destination.Octets[3],
-	                                                    EthernetFrame->Destination.Octets[4],
-	                                                    EthernetFrame->Destination.Octets[5]);
+	/* Print out the formatted MAC destination address of the frame */
+	printf("Dest: %02x:%02x:%02x:%02x:%02x:%02x\r\n",   FrameINHeader->Destination.Octets[0],
+	                                                    FrameINHeader->Destination.Octets[1],
+	                                                    FrameINHeader->Destination.Octets[2],
+	                                                    FrameINHeader->Destination.Octets[3],
+	                                                    FrameINHeader->Destination.Octets[4],
+	                                                    FrameINHeader->Destination.Octets[5]);
 	
-	if (SwapEndian_16(EthernetFrame->Length) > ETHERNET_VER2_MINSIZE)
-	  printf("Protocol: 0x%04x\r\n", SwapEndian_16(EthernetFrame->EtherType));
+	/* If the frame is an Ethernet II frame, print out the Ethertype (protocol) field */
+	if (SwapEndian_16(FrameIN.FrameLength) > ETHERNET_VER2_MINSIZE)
+	  printf("Protocol: 0x%04x\r\n", SwapEndian_16(FrameINHeader->EtherType));
 	else
 	  printf("Protocol: UNKNOWN E1\r\n");
 			

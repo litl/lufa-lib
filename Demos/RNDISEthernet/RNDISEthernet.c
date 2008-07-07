@@ -219,7 +219,7 @@ TASK(RNDIS_Task)
 	{
 		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 		
-		if (Endpoint_ReadWriteAllowed() && !(IsFrameIN))
+		if (Endpoint_ReadWriteAllowed() && !(FrameIN.FrameInBuffer))
 		{
 			/* Read in the packet message header */
 			Endpoint_Read_Stream_LE(RNDISBuffer, sizeof(RNDIS_PACKET_MSG_t));
@@ -228,31 +228,31 @@ TASK(RNDIS_Task)
 			RNDIS_PACKET_MSG_t* RNDISPacketHeader = (RNDIS_PACKET_MSG_t*)&RNDISBuffer;
 	
 			/* Read in the Ethernet frame into the buffer */
-			Endpoint_Read_Stream_LE(EthernetFrameIN, (RNDISPacketHeader->MessageLength -
-			                                          sizeof(RNDIS_PACKET_MSG_t)));		
+			Endpoint_Read_Stream_LE(FrameIN.FrameData, (RNDISPacketHeader->MessageLength -
+			                                            sizeof(RNDIS_PACKET_MSG_t)));		
 
 			/* Clear the endpoint bank ready for next packet */
 			Endpoint_ClearCurrentBank();
 			
 			/* Store the size of the Ethernet frame */
-			EthernetFrameINLength = RNDISPacketHeader->DataLength;
+			FrameIN.FrameLength = RNDISPacketHeader->DataLength;
 
 			/* Indicate Ethernet IN buffer full */
-			IsFrameIN = true;
+			FrameIN.FrameInBuffer = true;
 		}
 		
 		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 		
-		if (Endpoint_ReadWriteAllowed() && IsFrameOUT)
+		if (Endpoint_ReadWriteAllowed() && FrameOUT.FrameInBuffer)
 		{
 			/* Create a packet message pointer to the buffer */
 			RNDIS_PACKET_MSG_t* RNDISPacketHeader = (RNDIS_PACKET_MSG_t*)&RNDISBuffer;
 			
 			/* Construct the packet header into the buffer */
 			RNDISPacketHeader->MessageType         = REMOTE_NDIS_PACKET_MSG;
-			RNDISPacketHeader->MessageLength       = (sizeof(RNDIS_PACKET_MSG_t) + EthernetFrameOUTLength);
+			RNDISPacketHeader->MessageLength       = (sizeof(RNDIS_PACKET_MSG_t) + FrameOUT.FrameLength);
 			RNDISPacketHeader->DataOffset          = (sizeof(RNDIS_PACKET_MSG_t) - sizeof(RNDIS_Message_Header_t));
-			RNDISPacketHeader->DataLength          = EthernetFrameOUTLength;
+			RNDISPacketHeader->DataLength          = FrameOUT.FrameLength;
 			RNDISPacketHeader->OOBDataOffset       = 0;
 			RNDISPacketHeader->OOBDataLength       = 0;
 			RNDISPacketHeader->NumOOBDataElements  = 0;
@@ -265,30 +265,30 @@ TASK(RNDIS_Task)
 			Endpoint_Write_Stream_LE(RNDISPacketHeader, sizeof(RNDISPacketHeader));
 			
 			/* Send the Ethernet frame data to the host */
-			Endpoint_Write_Stream_LE(EthernetFrameOUT, EthernetFrameOUTLength);
+			Endpoint_Write_Stream_LE(FrameOUT.FrameData, FrameOUT.FrameLength);
 
 			/* Clear the endpoint bank ready for the next packet */
 			Endpoint_ClearCurrentBank();
 			
 			/* Indicate Ethernet OUT buffer no longer full */
-			IsFrameOUT = false;
+			FrameOUT.FrameInBuffer = false;
 		}
 	}
 }
 
 TASK(Ethernet_Task)
 {
-	/* Task for Ethernet processing. An incomming Ethernet frames is available in EthernetFrameIN[] when
-	   IsFrameIN is set, with the frame length stored in EthernetFrameINLength. Outgoing frames should be
-	   placed in EthernetFrameOUT[] with their length in EthernetFrameOUTLength, and IsFrameOUT set high. */
+	/* Task for Ethernet processing. Incomming ethernet frames are loaded into the FrameIN structure, and
+	   outgoing frames should be loaded into the FrameOUT structure. Both structures can only hold a single
+	   Ethernet frame at a time, so the FrameInBuffer bool is used to indicate when the buffers contain data. */
 
 	/* Check if a frame has been written to the IN frame buffer */
-	if (IsFrameIN)
+	if (FrameIN.FrameInBuffer)
 	{
 		/* Print out the frame details */
 		Ethernet_ProcessPacket();
 
 		/* Clear the frame buffer */
-		IsFrameIN = false;
+		FrameIN.FrameInBuffer = false;
 	}
 }

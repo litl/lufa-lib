@@ -61,6 +61,8 @@ void ProcessRNDISControlMessage(void)
 	switch (MessageHeader->MessageType)
 	{
 		case REMOTE_NDIS_INITIALIZE_MSG:
+			/* Initialize the adapter - return information about the supported RNDIS version and buffer sizes */
+
 			ResponseReady = true;
 			
 			RNDIS_INITIALIZE_MSG_t*   INITIALIZE_Message  = (RNDIS_INITIALIZE_MSG_t*)&RNDISBuffer;
@@ -85,6 +87,8 @@ void ProcessRNDISControlMessage(void)
 		
 			break;
 		case REMOTE_NDIS_HALT_MSG:
+			/* Halt the adapter, reset the adapter state - note that no response should be returned when completed */
+
 			ResponseReady = false;
 			MessageHeader->MessageLength = 0;
 
@@ -92,8 +96,10 @@ void ProcessRNDISControlMessage(void)
 
 			break;
 		case REMOTE_NDIS_QUERY_MSG:
+			/* Request for information about a parameter about the adapter, specified as an OID token */
+
 			ResponseReady = true;
-			
+						
 			RNDIS_QUERY_MSG_t*   QUERY_Message  = (RNDIS_QUERY_MSG_t*)&RNDISBuffer;
 			RNDIS_QUERY_CMPLT_t* QUERY_Response = (RNDIS_QUERY_CMPLT_t*)&RNDISBuffer;
 			uint32_t             Query_Oid      = QUERY_Message->Oid;
@@ -127,6 +133,8 @@ void ProcessRNDISControlMessage(void)
 			
 			break;
 		case REMOTE_NDIS_SET_MSG:
+			/* Request to set a parameter of the adapter, specified as an OID token */
+		
 			ResponseReady = true;
 			
 			RNDIS_SET_MSG_t*   SET_Message  = (RNDIS_SET_MSG_t*)&RNDISBuffer;
@@ -153,6 +161,8 @@ void ProcessRNDISControlMessage(void)
 
 			break;
 		case REMOTE_NDIS_RESET_MSG:
+			/* Soft reset the adapter */
+		
 			ResponseReady = true;
 			
 			RNDIS_RESET_CMPLT_t* RESET_Response = (RNDIS_RESET_CMPLT_t*)&RNDISBuffer;
@@ -160,9 +170,12 @@ void ProcessRNDISControlMessage(void)
 			RESET_Response->MessageType         = REMOTE_NDIS_RESET_CMPLT;
 			RESET_Response->MessageLength       = sizeof(RNDIS_RESET_CMPLT_t);
 			RESET_Response->Status              = REMOTE_NDIS_STATUS_SUCCESS;
+			RESET_Response->AddressingReset     = 0;
 
 			break;
 		case REMOTE_NDIS_KEEPALIVE_MSG:
+			/* Keep alive message sent to the adapter every 5 seconds when idle to ensure it is still responding */
+		
 			ResponseReady = true;
 			
 			RNDIS_KEEPALIVE_MSG_t*   KEEPALIVE_Message  = (RNDIS_KEEPALIVE_MSG_t*)&RNDISBuffer;
@@ -180,6 +193,8 @@ void ProcessRNDISControlMessage(void)
 static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
                              void* ResponseData, uint16_t* ResponseSize)
 {
+	/* Handler for REMOTE_NDIS_QUERY_MSG messages */
+
 	switch (OId)
 	{
 		case OID_GEN_SUPPORTED_LIST:
@@ -278,6 +293,8 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 
 static bool ProcessNDISSet(uint32_t OId, void* SetData, uint16_t SetSize)
 {
+	/* Handler for REMOTE_NDIS_SET_MSG messages */
+
 	switch (OId)
 	{
 		case OID_GEN_CURRENT_PACKET_FILTER:

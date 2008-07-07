@@ -64,19 +64,18 @@
 				uint16_t  EtherType;
 				uint16_t  Length;
 			};
-			
-			uint8_t       Payload[];
 		} Ethernet_Frame_Header_t;
 		
+		typedef struct
+		{
+			uint8_t  FrameData[ETHERNET_FRAME_SIZE];
+			uint16_t FrameLength;
+			bool     FrameInBuffer;
+		} Ethernet_Frame_Info_t;
+		
 	/* External Variables: */
-		extern uint8_t  EthernetFrameIN[];
-		extern uint8_t  EthernetFrameOUT[];
-
-		extern uint16_t EthernetFrameINLength;
-		extern uint16_t EthernetFrameOUTLength;
-
-		extern bool     IsFrameIN;
-		extern bool     IsFrameOUT;
+		extern Ethernet_Frame_Info_t FrameIN;
+		extern Ethernet_Frame_Info_t FrameOUT;
 
 	/* Function Prototypes: */
 		void Ethernet_ProcessPacket(void);

@@ -302,6 +302,22 @@
   *      global "Transmitting" flag. The change has been reverted in this release. Projects built upon the demo
   *      so upgrade to the latest code.
   *     </li>
+  *     <li>
+  *      The HID class demos did not implement the mandatory GetReport HID class request. Projects built upon the HID
+  *      demos should upgrade to the latest code.
+  *     </li>
+  *     <li>
+  *      The HID class demos incorrectly reported themselves as boot-protocol enabled HID devices in their descriptors.
+  *      Projects built upon the HID demos should upgrade to the latest code.
+  *     </li>
+  *     <li>
+  *      The MIDI device demo had incorrect AudioStreaming interface descriptors. Projects built upon the MIDI demo
+  *      should upgrade to the latest code.
+  *     </li>
+  *     <li>
+  *      The AudioOut demo did not correctly tristate the speaker pins when USB was disconnected, wasting power.
+  *      Projects built upon the MIDI demo should upgrade to the latest code.
+  *     </li>
   *    </ul>
   */
   
