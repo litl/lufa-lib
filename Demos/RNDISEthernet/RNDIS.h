@@ -22,6 +22,8 @@
 		#include "Ethernet.h"
 
 	/* Macros: */
+		#define ADAPTER_MAC_ADDRESS                   {0x40, 0x01, 0x02, 0x03, 0x04, 0x05}
+	
 		#define REMOTE_NDIS_VERSION_MAJOR             0x01
 		#define REMOTE_NDIS_VERSION_MINOR             0x00
 	
@@ -104,7 +106,7 @@
 			NdisHardwareStatusNotReady
 		};
 
-	/* Type Defines: */	
+	/* Type Defines: */
 		typedef struct
 		{
 			uint32_t MessageType;
@@ -238,12 +240,11 @@
 		} RNDIS_Diagnostic_Info_t;
 		
 	/* External Variables: */
-		extern uint8_t                 RNDISBuffer[];
+		extern uint8_t                 RNDISMessageBuffer[];
 		extern RNDIS_Message_Header_t* MessageHeader;
 
 		extern bool                    ResponseReady;
 		extern uint8_t                 CurrRNDISState;
-	
 	/* Function Prototypes: */
 		void ProcessRNDISControlMessage(void);
 

@@ -120,7 +120,7 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length)
 				if (Endpoint_IsStalled())
 				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
 				else if (!(USB_IsConnected))
-				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;			
+				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;	
 			}
 		}
 		

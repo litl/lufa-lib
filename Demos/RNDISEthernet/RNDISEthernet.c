@@ -24,8 +24,9 @@
 
 	When enumerated, this demo will install as a new network
 	adapter which ethernet packets can be sent to and recieved
-	from. Incomming packet information is printed through the
-	AVR's serial port.
+	from. Running on top of the adapter is a very simple TCP/IP
+	stack and HTTP webserver which can be accessed through a
+	web browser at IP address 192.168.0.30.
 */
 
 /*
@@ -145,7 +146,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				Endpoint_ClearSetupReceived();
 				
 				/* Read in the RNDIS message into the message buffer */
-				Endpoint_Read_Control_Stream_LE(RNDISBuffer, wLength);
+				Endpoint_Read_Control_Stream_LE(RNDISMessageBuffer, wLength);
 
 				/* Clear the endpoint, ready for next control request */
 				Endpoint_ClearSetupIN();
@@ -169,7 +170,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				if (MessageHeader->MessageLength)
 				{
 					/* Write the message response data to the endpoint */
-					Endpoint_Write_Control_Stream_LE(RNDISBuffer, wLength);
+					Endpoint_Write_Control_Stream_LE(RNDISMessageBuffer, wLength);
 					
 					/* Reset the message header once again after transmission */
 					MessageHeader->MessageLength = 0;
@@ -190,8 +191,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 TASK(RNDIS_Task)
 {
+	/* Select the notification endpoint */
+	Endpoint_SelectEndpoint(CDC_NOTIFICATION_EPNUM);
+
 	/* Check if a message response is ready for the host */
-	if (ResponseReady)
+	if (Endpoint_ReadWriteAllowed() && ResponseReady)
 	{
 		USB_Notification_t Notification = (USB_Notification_t)
 			{
@@ -201,9 +205,6 @@ TASK(RNDIS_Task)
 				wIndex:        0,
 				wLength:       0,
 			};
-
-		/* Select the notification endpoint */
-		Endpoint_SelectEndpoint(CDC_NOTIFICATION_EPNUM);
 		
 		/* Indicate that a message response is ready for the host */
 		Endpoint_Write_Stream_LE(&Notification, sizeof(Notification));
@@ -217,59 +218,79 @@ TASK(RNDIS_Task)
 	/* Don't process the data endpoints until the system is in the data initialized state, and the buffer is free */
 	if ((CurrRNDISState == RNDIS_Data_Initialized) && !(MessageHeader->MessageLength))
 	{
+		/* Create a new packet header for reading/writing */
+		RNDIS_PACKET_MSG_t RNDISPacketHeader;
+
+		/* Select the data IN endpoint */
 		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 		
+		/* Check if the data IN endpoint contains data, and that the IN buffer is empty */
 		if (Endpoint_ReadWriteAllowed() && !(FrameIN.FrameInBuffer))
 		{
 			/* Read in the packet message header */
-			Endpoint_Read_Stream_LE(RNDISBuffer, sizeof(RNDIS_PACKET_MSG_t));
+			Endpoint_Read_Stream_LE(&RNDISPacketHeader, sizeof(RNDIS_PACKET_MSG_t));
+				
+			/* Ensure endpoint is ready for more data */
+			while (!(Endpoint_ReadWriteAllowed()));
+
+			/* Stall the request if the data is too large */
+			if (RNDISPacketHeader.MessageLength > ETHERNET_FRAME_SIZE_MAX)
+			{
+				Endpoint_StallTransaction();
+				return;
+			}
 			
-			/* Create a packet message pointer to the read in data */
-			RNDIS_PACKET_MSG_t* RNDISPacketHeader = (RNDIS_PACKET_MSG_t*)&RNDISBuffer;
-	
 			/* Read in the Ethernet frame into the buffer */
-			Endpoint_Read_Stream_LE(FrameIN.FrameData, (RNDISPacketHeader->MessageLength -
-			                                            sizeof(RNDIS_PACKET_MSG_t)));		
+			Endpoint_Read_Stream_LE(FrameIN.FrameData, RNDISPacketHeader.DataLength);		
 
 			/* Clear the endpoint bank ready for next packet */
 			Endpoint_ClearCurrentBank();
 			
 			/* Store the size of the Ethernet frame */
-			FrameIN.FrameLength = RNDISPacketHeader->DataLength;
+			FrameIN.FrameLength = RNDISPacketHeader.DataLength;
 
 			/* Indicate Ethernet IN buffer full */
 			FrameIN.FrameInBuffer = true;
 		}
 		
+		/* Select the data OUT endpoint */
 		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 		
+		/* Check if the data OUT endpoint is ready for more data, and that the OUT buffer is full */
 		if (Endpoint_ReadWriteAllowed() && FrameOUT.FrameInBuffer)
 		{
-			/* Create a packet message pointer to the buffer */
-			RNDIS_PACKET_MSG_t* RNDISPacketHeader = (RNDIS_PACKET_MSG_t*)&RNDISBuffer;
-			
-			/* Construct the packet header into the buffer */
-			RNDISPacketHeader->MessageType         = REMOTE_NDIS_PACKET_MSG;
-			RNDISPacketHeader->MessageLength       = (sizeof(RNDIS_PACKET_MSG_t) + FrameOUT.FrameLength);
-			RNDISPacketHeader->DataOffset          = (sizeof(RNDIS_PACKET_MSG_t) - sizeof(RNDIS_Message_Header_t));
-			RNDISPacketHeader->DataLength          = FrameOUT.FrameLength;
-			RNDISPacketHeader->OOBDataOffset       = 0;
-			RNDISPacketHeader->OOBDataLength       = 0;
-			RNDISPacketHeader->NumOOBDataElements  = 0;
-			RNDISPacketHeader->PerPacketInfoOffset = 0;
-			RNDISPacketHeader->PerPacketInfoLength = 0;
-			RNDISPacketHeader->VcHandle            = 0;
-			RNDISPacketHeader->Reserved            = 0;
-			
-			/* Send the packet header to the host */
-			Endpoint_Write_Stream_LE(RNDISPacketHeader, sizeof(RNDISPacketHeader));
-			
-			/* Send the Ethernet frame data to the host */
-			Endpoint_Write_Stream_LE(FrameOUT.FrameData, FrameOUT.FrameLength);
+			/* Ensure the packet is at least the minimum allowable size, pad with junk if needed */
+			if (FrameOUT.FrameLength < ETHERNET_FRAME_SIZE_MIN)
+			  FrameOUT.FrameLength = ETHERNET_FRAME_SIZE_MIN;
+		
+			/* Clear the packet header with all 0s so that the relevant fields can be filled */
+			memset(&RNDISPacketHeader, 0, sizeof(RNDIS_PACKET_MSG_t));
 
+			/* Construct the required packet header fields in the buffer */
+			RNDISPacketHeader.MessageType         = REMOTE_NDIS_PACKET_MSG;
+			RNDISPacketHeader.MessageLength       = (sizeof(RNDIS_PACKET_MSG_t) + FrameOUT.FrameLength);
+			RNDISPacketHeader.DataOffset          = (sizeof(RNDIS_PACKET_MSG_t) - sizeof(RNDIS_Message_Header_t));
+			RNDISPacketHeader.DataLength          = FrameOUT.FrameLength;
+			
+			printf("\r\nReply size: %ld\r\n", RNDISPacketHeader.MessageLength);
+
+			/* Send the packet header to the host */
+			Endpoint_Write_Stream_LE(&RNDISPacketHeader, sizeof(RNDIS_PACKET_MSG_t));
+			
+			/* Ensure endpoint is ready for more data */
+			while (!(Endpoint_ReadWriteAllowed()));
+
+			/* Send the Ethernet frame data to the host */
+			Endpoint_Write_Stream_LE(FrameOUT.FrameData, RNDISPacketHeader.DataLength);
+			
+			for (uint8_t i = 0; i < RNDISPacketHeader.DataLength; i++)
+			  printf("0x%02x ", FrameOUT.FrameData[i]);
+
+			printf("\r\n");
+			
 			/* Clear the endpoint bank ready for the next packet */
 			Endpoint_ClearCurrentBank();
-			
+
 			/* Indicate Ethernet OUT buffer no longer full */
 			FrameOUT.FrameInBuffer = false;
 		}
@@ -278,7 +299,7 @@ TASK(RNDIS_Task)
 
 TASK(Ethernet_Task)
 {
-	/* Task for Ethernet processing. Incomming ethernet frames are loaded into the FrameIN structure, and
+	/* Task for Ethernet processing. Incoming ethernet frames are loaded into the FrameIN structure, and
 	   outgoing frames should be loaded into the FrameOUT structure. Both structures can only hold a single
 	   Ethernet frame at a time, so the FrameInBuffer bool is used to indicate when the buffers contain data. */
 
