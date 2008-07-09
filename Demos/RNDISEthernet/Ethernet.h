@@ -20,8 +20,8 @@
 		#include "ProtocolDecoders.h"
 		
 	/* Macros: */
-		#define SERVER_MAC_ADDRESS               {0x40, 0x02, 0x04, 0x06, 0x08, 0x0A}
-		#define SERVER_IP_ADDRESS                {192, 168, 0, 30}
+		#define SERVER_MAC_ADDRESS               {0x00, 0x22, 0x5E, 0x06, 0x08, 0x0A}
+		#define SERVER_IP_ADDRESS                {10, 0, 0, 2}
 		
 		#define NULL_MAC_ADDRESS                 {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 		#define BROADCAST_MAC_ADDRESS            {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}

@@ -87,18 +87,19 @@ void Ethernet_ProcessPacket(void)
 static uint16_t Ethernet_Checksum16(void* Data, uint16_t Bytes)
 {
 	uint16_t* Words    = (uint16_t*)Data;
-	uint16_t  Checksum = 0;
-	uint8_t   CurrWord;
+	union
+	{
+		uint32_t  DWord;
+		uint16_t  Words[2];
+	} Checksum = {0};
+
 	
 	/* TCP/IP checksums are the addition of the one's compliment of each word, complimented */
 	
-	for (CurrWord = 0; CurrWord < (Bytes >> 1); CurrWord++)
-	  Checksum += ~SwapEndian_16(Words[CurrWord]);
+	for (uint8_t CurrWord = 0; CurrWord < (Bytes >> 1); CurrWord++)
+	  Checksum.DWord += Words[CurrWord];
 	  
-	if (Bytes & 0x01)
-	  Checksum += ~(SwapEndian_16(Words[CurrWord]) & 0xFF00);
-	  
-	return SwapEndian_16(~Checksum);
+	return ~(Checksum.Words[0] + Checksum.Words[1]);
 }
 
 static uint16_t Ethernet_ProcessARPPacket(void* InDataStart, void* OutDataStart)
@@ -114,15 +115,20 @@ static uint16_t Ethernet_ProcessARPPacket(void* InDataStart, void* OutDataStart)
 	if ((SwapEndian_16(ARPHeaderIN->ProtocolType) == ETHERTYPE_IPV4) &&
 	    (SwapEndian_16(ARPHeaderIN->Operation) == ARP_OPERATION_REQUEST))
 	{
-		/* Copy over the sent ARP packet header to the response */
-		memcpy(ARPHeaderOUT, ARPHeaderIN, sizeof(Ethernet_ARP_Header_t));
-	
-		/* Set the response ARP operation to reply */
-		ARPHeaderOUT->Operation = SwapEndian_16(ARP_OPERATION_REPLY);
+		/* Fill out the ARP response header */
+		ARPHeaderOUT->HardwareType = ARPHeaderIN->HardwareType;
+		ARPHeaderOUT->ProtocolType = ARPHeaderIN->ProtocolType;
+		ARPHeaderOUT->HLEN         = ARPHeaderIN->HLEN;
+		ARPHeaderOUT->PLEN         = ARPHeaderIN->PLEN;
+		ARPHeaderOUT->Operation    = SwapEndian_16(ARP_OPERATION_REPLY);
 
-		/* Copy over the target MAC/IP - MAC and IP addresses of the virtual webserver */
-		memcpy(&ARPHeaderOUT->THA, &ServerMACAddress, sizeof(MAC_Address_t));
-		memcpy(&ARPHeaderOUT->TPA, &ServerIPAddress, sizeof(IP_Address_t));		
+		/* Copy over the sender MAC/IP to the target fields for the response */
+		memcpy(&ARPHeaderOUT->THA, &ARPHeaderIN->SHA, sizeof(MAC_Address_t));
+		memcpy(&ARPHeaderOUT->TPA, &ARPHeaderIN->SPA, sizeof(IP_Address_t));
+
+		/* Copy over the new sender MAC/IP - MAC and IP addresses of the virtual webserver */
+		memcpy(&ARPHeaderOUT->SHA, &ServerMACAddress, sizeof(MAC_Address_t));
+		memcpy(&ARPHeaderOUT->SPA, &ServerIPAddress, sizeof(IP_Address_t));
 
 		/* Check if the ARP request is for an IP to MAC translation */
 		bool IsIPtoMAC = MAC_COMPARE(&ARPHeaderIN->THA, &NullMACAddress);
@@ -154,7 +160,7 @@ static uint16_t Ethernet_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 	FrameIN.FrameLength -= HeaderLengthBytes;
 
 	/* Check to ensure the IP packet is addressed to the virtual webserver's IP */
-	if (!(IP_COMPARE(&IPHeaderIN->SourceAddress, &ServerIPAddress)))
+	if (!(IP_COMPARE(&IPHeaderIN->DestinationAddress, &ServerIPAddress)))
 	  return NO_RESPONSE;
 	
 	/* Pass off the IP payload to the appropriate protocol processing routine */
@@ -182,14 +188,13 @@ static uint16_t Ethernet_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 		IPHeaderOUT->FragmentOffset     = 0;
 		IPHeaderOUT->Identification     = 0;
 		IPHeaderOUT->HeaderChecksum     = 0;
-		IPHeaderOUT->Protocol           = PROTOCOL_ICMP; // TODO - fixme with correct response protocol
+		IPHeaderOUT->Protocol           = IPHeaderIN->Protocol;
 		IPHeaderOUT->TTL                = DEFAULT_TTL;
-		
-		IPHeaderOUT->HeaderChecksum     = Ethernet_Checksum16(IPHeaderOUT, sizeof(Ethernet_IP_Header_t));
-				
 		IPHeaderOUT->SourceAddress      = IPHeaderIN->DestinationAddress;
 		IPHeaderOUT->DestinationAddress = IPHeaderIN->SourceAddress;
 		
+		IPHeaderOUT->HeaderChecksum     = Ethernet_Checksum16(IPHeaderOUT, sizeof(Ethernet_IP_Header_t));
+						
 		/* Return the size of the response so far */
 		return (sizeof(Ethernet_IP_Header_t) + RetSize);
 	}

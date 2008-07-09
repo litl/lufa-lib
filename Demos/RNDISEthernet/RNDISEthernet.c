@@ -267,18 +267,6 @@ TASK(RNDIS_Task)
 			RNDISPacketHeader.MessageLength = (sizeof(RNDIS_PACKET_MSG_t) + FrameOUT.FrameLength);
 			RNDISPacketHeader.DataOffset    = (sizeof(RNDIS_PACKET_MSG_t) - sizeof(RNDIS_Message_Header_t));
 			RNDISPacketHeader.DataLength    = FrameOUT.FrameLength;
-			
-			printf("\r\nReply size: %ld\r\n", RNDISPacketHeader.MessageLength);
-			
-			printf("HEADER:\r\n");
-			for (uint8_t i = 0; i < sizeof(RNDIS_PACKET_MSG_t); i++)
-			  printf("0x%02X ", ((uint8_t*)&RNDISPacketHeader)[i]);
-
-			printf("\r\nDATA:\r\n");
-			for (uint8_t i = 0; i < RNDISPacketHeader.DataLength; i++)
-			  printf("0x%02X ", FrameOUT.FrameData[i]);
-
-			printf("\r\n");
 
 			/* Send the packet header to the host */
 			Endpoint_Write_Stream_LE(&RNDISPacketHeader, sizeof(RNDIS_PACKET_MSG_t));

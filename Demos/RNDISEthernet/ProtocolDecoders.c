@@ -100,7 +100,7 @@ void DecodeIPHeader(void* InDataStart)
 
 	printf("   \\\r\n    IP\r\n");
 
-	if (!(IP_COMPARE(&IPHeader->SourceAddress, &ServerIPAddress)))
+	if (!(IP_COMPARE(&IPHeader->DestinationAddress, &ServerIPAddress)))
 	{
 		printf("    + NOT ADDRESSED TO DEVICE\r\n");
 		return;
