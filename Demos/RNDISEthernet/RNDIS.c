@@ -12,16 +12,9 @@
 #include "RNDIS.h"
 
 /* Global Variables: */
-uint8_t                 RNDISMessageBuffer[512];
-RNDIS_Message_Header_t* MessageHeader = (RNDIS_Message_Header_t*)&RNDISMessageBuffer;
-
-bool                    ResponseReady               = false;
-uint8_t                 CurrRNDISState              = RNDIS_Uninitialized;
-uint32_t                CurrPacketFilter            = 0;
-
-static MAC_Address_t    MACAddress          PROGMEM = {ADAPTER_MAC_ADDRESS};
-static char             VendorDescription[] PROGMEM = "MyUSB RNDIS Adapter";
-static uint32_t         SupportedOIDList[]  PROGMEM =
+static MAC_Address_t    AdapterMACAddress          PROGMEM = {ADAPTER_MAC_ADDRESS};
+static char             AdapterVendorDescription[] PROGMEM = "MyUSB RNDIS Adapter";
+static uint32_t         AdapterSupportedOIDList[]  PROGMEM =
 							{
 								OID_GEN_SUPPORTED_LIST,
 								OID_GEN_HARDWARE_STATUS,
@@ -50,7 +43,13 @@ static uint32_t         SupportedOIDList[]  PROGMEM =
 								OID_802_3_XMIT_ONE_COLLISION,
 								OID_802_3_XMIT_MORE_COLLISIONS,
 							};
-							
+
+uint8_t                 RNDISMessageBuffer[sizeof(AdapterSupportedOIDList) + sizeof(RNDIS_QUERY_CMPLT_t)];
+RNDIS_Message_Header_t* MessageHeader = (RNDIS_Message_Header_t*)&RNDISMessageBuffer;
+
+bool                    ResponseReady               = false;
+uint8_t                 CurrRNDISState              = RNDIS_Uninitialized;
+uint32_t                CurrPacketFilter            = 0;							
 
 void ProcessRNDISControlMessage(void)
 {
@@ -77,7 +76,7 @@ void ProcessRNDISControlMessage(void)
 			INITIALIZE_Response->DeviceFlags           = REMOTE_NDIS_DF_CONNECTIONLESS;
 			INITIALIZE_Response->Medium                = REMOTE_NDIS_MEDIUM_802_3;
 			INITIALIZE_Response->MaxPacketsPerTransfer = 1;
-			INITIALIZE_Response->MaxTransferSize       = (sizeof(RNDISMessageBuffer) + ETHERNET_FRAME_SIZE_MAX);
+			INITIALIZE_Response->MaxTransferSize       = (sizeof(RNDIS_PACKET_MSG_t) + ETHERNET_FRAME_SIZE_MAX);
 			INITIALIZE_Response->PacketAlignmentFactor = 0;
 			INITIALIZE_Response->AFListOffset          = 0;
 			INITIALIZE_Response->AFListSize            = 0;
@@ -197,9 +196,9 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 	switch (OId)
 	{
 		case OID_GEN_SUPPORTED_LIST:
-			*ResponseSize = sizeof(SupportedOIDList);
+			*ResponseSize = sizeof(AdapterSupportedOIDList);
 			
-			memcpy_P(ResponseData, SupportedOIDList, sizeof(SupportedOIDList));
+			memcpy_P(ResponseData, AdapterSupportedOIDList, sizeof(AdapterSupportedOIDList));
 			
 			return true;
 		case OID_GEN_HARDWARE_STATUS:
@@ -230,9 +229,9 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 			
 			return true;
 		case OID_GEN_VENDOR_DESCRIPTION:
-			*ResponseSize = sizeof(VendorDescription);
+			*ResponseSize = sizeof(AdapterVendorDescription);
 			
-			memcpy_P(ResponseData, VendorDescription, sizeof(VendorDescription));
+			memcpy_P(ResponseData, AdapterVendorDescription, sizeof(AdapterVendorDescription));
 			
 			return true;
 		case OID_GEN_MEDIA_CONNECT_STATUS:
@@ -249,9 +248,9 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 			return true;
 		case OID_802_3_PERMANENT_ADDRESS:
 		case OID_802_3_CURRENT_ADDRESS:
-			*ResponseSize = sizeof(MACAddress);
+			*ResponseSize = sizeof(MAC_Address_t);
 			
-			memcpy_P(ResponseData, &MACAddress, sizeof(MACAddress));
+			memcpy_P(ResponseData, &AdapterMACAddress, sizeof(MAC_Address_t));
 
 			return true;
 		case OID_802_3_MAXIMUM_LIST_SIZE:

@@ -16,12 +16,12 @@
    minimum protols needed to run a webserver on the device, namely:
    
    Ethernet
-     \
-	  + ARP (IP to MAC, MAC to IP)
-	  + IP
-	     \
-		  + ICMP (Echo Requests and Responses)
-		  + TCP
+    \
+     + ARP (IP to MAC, MAC to IP)
+     + IP
+      \
+       + ICMP (Echo Requests and Responses)
+       + TCP
 */
 
 /* Global Variables: */
@@ -73,7 +73,7 @@ void Ethernet_ProcessPacket(void)
 		if (RetSize != NO_RESPONSE)
 		{
 			/* Fill out the response Ethernet frame header */
-			FrameOUTHeader->Source          = FrameINHeader->Destination;
+			memcpy(&FrameOUTHeader->Source, &ServerMACAddress, sizeof(MAC_Address_t));
 			FrameOUTHeader->Destination     = FrameINHeader->Source;
 			FrameOUTHeader->EtherType       = FrameINHeader->EtherType;			
 			
@@ -90,7 +90,7 @@ static uint16_t Ethernet_Checksum16(void* Data, uint16_t Bytes)
 	uint16_t  Checksum = 0;
 	uint8_t   CurrWord;
 	
-	/* Networking checksums are the addition of the one's compliment of each word, complimented */
+	/* TCP/IP checksums are the addition of the one's compliment of each word, complimented */
 	
 	for (CurrWord = 0; CurrWord < (Bytes >> 1); CurrWord++)
 	  Checksum += ~SwapEndian_16(Words[CurrWord]);

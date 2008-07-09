@@ -26,19 +26,19 @@ void DecodeEthernetFrameHeader(void* InDataStart)
 		return;
 	}
 
-	printf("  + MAC Source : %02x:%02x:%02x:%02x:%02x:%02x\r\n", FrameHeader->Source.Octets[0],
-	                                                              FrameHeader->Source.Octets[1],
-	                                                              FrameHeader->Source.Octets[2],
-	                                                              FrameHeader->Source.Octets[3],
-	                                                              FrameHeader->Source.Octets[4],
-	                                                              FrameHeader->Source.Octets[5]);
+	printf("  + MAC Source : %02X:%02X:%02X:%02X:%02X:%02X\r\n", FrameHeader->Source.Octets[0],
+	                                                             FrameHeader->Source.Octets[1],
+	                                                             FrameHeader->Source.Octets[2],
+	                                                             FrameHeader->Source.Octets[3],
+	                                                             FrameHeader->Source.Octets[4],
+	                                                             FrameHeader->Source.Octets[5]);
 
-	printf("  + MAC Dest: %02x:%02x:%02x:%02x:%02x:%02x\r\n",    FrameHeader->Destination.Octets[0],
-	                                                              FrameHeader->Destination.Octets[1],
-	                                                              FrameHeader->Destination.Octets[2],
-	                                                              FrameHeader->Destination.Octets[3],
-	                                                              FrameHeader->Destination.Octets[4],
-	                                                              FrameHeader->Destination.Octets[5]);
+	printf("  + MAC Dest: %02X:%02X:%02X:%02X:%02X:%02X\r\n",    FrameHeader->Destination.Octets[0],
+	                                                             FrameHeader->Destination.Octets[1],
+	                                                             FrameHeader->Destination.Octets[2],
+	                                                             FrameHeader->Destination.Octets[3],
+	                                                             FrameHeader->Destination.Octets[4],
+	                                                             FrameHeader->Destination.Octets[5]);
 
 	if (SwapEndian_16(FrameIN.FrameLength) > ETHERNET_VER2_MINSIZE)
 	  printf("  + Protocol: 0x%04x\r\n", SwapEndian_16(FrameHeader->EtherType));
@@ -57,7 +57,7 @@ void DecodeARPHeader(void* InDataStart)
 	if ((IsIPtoMAC && !IP_COMPARE(&ARPHeader->TPA, &ServerIPAddress)) || 
 	   (!(IsIPtoMAC) && !MAC_COMPARE(&ARPHeader->THA, &ServerMACAddress)))
 	{
-		printf("  + NOT ADDRESSED TO DEVICE\r\n");
+		printf("    + NOT ADDRESSED TO DEVICE\r\n");
 		return;		
 	}
 
@@ -66,7 +66,7 @@ void DecodeARPHeader(void* InDataStart)
 	
 	if (SwapEndian_16(ARPHeader->ProtocolType) == ETHERTYPE_IPV4)
 	{
-		printf("    + SHA MAC: %02x:%02x:%02x:%02x:%02x:%02x\r\n", ARPHeader->SHA.Octets[0],
+		printf("    + SHA MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n", ARPHeader->SHA.Octets[0],
 		                                                           ARPHeader->SHA.Octets[1],
 		                                                           ARPHeader->SHA.Octets[2],
 		                                                           ARPHeader->SHA.Octets[3],
@@ -78,7 +78,7 @@ void DecodeARPHeader(void* InDataStart)
 		                                                           ARPHeader->SPA.Octets[2],
 		                                                           ARPHeader->SPA.Octets[3]);
 
-		printf("    + THA MAC: %02x:%02x:%02x:%02x:%02x:%02x\r\n", ARPHeader->THA.Octets[0],
+		printf("    + THA MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n", ARPHeader->THA.Octets[0],
 		                                                           ARPHeader->THA.Octets[1],
 		                                                           ARPHeader->THA.Octets[2],
 		                                                           ARPHeader->THA.Octets[3],
@@ -137,5 +137,4 @@ void DecodeICMPHeader(void* InDataStart)
 void DecodeTCPHeader(void* InDataStart)
 {
 	printf("    \\\r\n     TCP\r\n");
-
 }

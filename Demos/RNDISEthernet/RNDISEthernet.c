@@ -221,10 +221,10 @@ TASK(RNDIS_Task)
 		/* Create a new packet header for reading/writing */
 		RNDIS_PACKET_MSG_t RNDISPacketHeader;
 
-		/* Select the data IN endpoint */
+		/* Select the data OUT endpoint */
 		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 		
-		/* Check if the data IN endpoint contains data, and that the IN buffer is empty */
+		/* Check if the data OUT endpoint contains data, and that the IN buffer is empty */
 		if (Endpoint_ReadWriteAllowed() && !(FrameIN.FrameInBuffer))
 		{
 			/* Read in the packet message header */
@@ -241,7 +241,7 @@ TASK(RNDIS_Task)
 			}
 			
 			/* Read in the Ethernet frame into the buffer */
-			Endpoint_Read_Stream_LE(FrameIN.FrameData, RNDISPacketHeader.DataLength);		
+			Endpoint_Read_Stream_LE(FrameIN.FrameData, RNDISPacketHeader.DataLength);
 
 			/* Clear the endpoint bank ready for next packet */
 			Endpoint_ClearCurrentBank();
@@ -253,26 +253,32 @@ TASK(RNDIS_Task)
 			FrameIN.FrameInBuffer = true;
 		}
 		
-		/* Select the data OUT endpoint */
+		/* Select the data IN endpoint */
 		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 		
-		/* Check if the data OUT endpoint is ready for more data, and that the OUT buffer is full */
+		/* Check if the data IN endpoint is ready for more data, and that the IN buffer is full */
 		if (Endpoint_ReadWriteAllowed() && FrameOUT.FrameInBuffer)
 		{
-			/* Ensure the packet is at least the minimum allowable size, pad with junk if needed */
-			if (FrameOUT.FrameLength < ETHERNET_FRAME_SIZE_MIN)
-			  FrameOUT.FrameLength = ETHERNET_FRAME_SIZE_MIN;
-		
 			/* Clear the packet header with all 0s so that the relevant fields can be filled */
 			memset(&RNDISPacketHeader, 0, sizeof(RNDIS_PACKET_MSG_t));
 
 			/* Construct the required packet header fields in the buffer */
-			RNDISPacketHeader.MessageType         = REMOTE_NDIS_PACKET_MSG;
-			RNDISPacketHeader.MessageLength       = (sizeof(RNDIS_PACKET_MSG_t) + FrameOUT.FrameLength);
-			RNDISPacketHeader.DataOffset          = (sizeof(RNDIS_PACKET_MSG_t) - sizeof(RNDIS_Message_Header_t));
-			RNDISPacketHeader.DataLength          = FrameOUT.FrameLength;
+			RNDISPacketHeader.MessageType   = REMOTE_NDIS_PACKET_MSG;
+			RNDISPacketHeader.MessageLength = (sizeof(RNDIS_PACKET_MSG_t) + FrameOUT.FrameLength);
+			RNDISPacketHeader.DataOffset    = (sizeof(RNDIS_PACKET_MSG_t) - sizeof(RNDIS_Message_Header_t));
+			RNDISPacketHeader.DataLength    = FrameOUT.FrameLength;
 			
 			printf("\r\nReply size: %ld\r\n", RNDISPacketHeader.MessageLength);
+			
+			printf("HEADER:\r\n");
+			for (uint8_t i = 0; i < sizeof(RNDIS_PACKET_MSG_t); i++)
+			  printf("0x%02X ", ((uint8_t*)&RNDISPacketHeader)[i]);
+
+			printf("\r\nDATA:\r\n");
+			for (uint8_t i = 0; i < RNDISPacketHeader.DataLength; i++)
+			  printf("0x%02X ", FrameOUT.FrameData[i]);
+
+			printf("\r\n");
 
 			/* Send the packet header to the host */
 			Endpoint_Write_Stream_LE(&RNDISPacketHeader, sizeof(RNDIS_PACKET_MSG_t));
@@ -282,11 +288,6 @@ TASK(RNDIS_Task)
 
 			/* Send the Ethernet frame data to the host */
 			Endpoint_Write_Stream_LE(FrameOUT.FrameData, RNDISPacketHeader.DataLength);
-			
-			for (uint8_t i = 0; i < RNDISPacketHeader.DataLength; i++)
-			  printf("0x%02x ", FrameOUT.FrameData[i]);
-
-			printf("\r\n");
 			
 			/* Clear the endpoint bank ready for the next packet */
 			Endpoint_ClearCurrentBank();

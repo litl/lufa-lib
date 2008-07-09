@@ -26,7 +26,7 @@
 		#define NULL_MAC_ADDRESS                 {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 		#define BROADCAST_MAC_ADDRESS            {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 	
-		#define ETHERNET_FRAME_SIZE_MAX          1522
+		#define ETHERNET_FRAME_SIZE_MAX          1500
 		#define ETHERNET_FRAME_SIZE_MIN          64
 		
 		#define ETHERNET_VER2_MINSIZE            0x0600
