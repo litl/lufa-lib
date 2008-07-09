@@ -18,12 +18,12 @@
 		#include "RNDIS.h"
 		#include "EthernetProtocols.h"
 		#include "ProtocolDecoders.h"
+		#include "TCP.h"
 		
 	/* Macros: */
-		#define SERVER_MAC_ADDRESS               {0x00, 0x22, 0x5E, 0x06, 0x08, 0x0A}
+		#define SERVER_MAC_ADDRESS               {0x00, 0x01, 0x00, 0x01, 0x00, 0x01}
 		#define SERVER_IP_ADDRESS                {10, 0, 0, 2}
 		
-		#define NULL_MAC_ADDRESS                 {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 		#define BROADCAST_MAC_ADDRESS            {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 	
 		#define ETHERNET_FRAME_SIZE_MAX          1500
@@ -113,7 +113,19 @@
 		
 		typedef struct
 		{
-		
+			uint16_t      SourcePort;
+			uint16_t      DestinationPort;
+			
+			uint32_t      SequenceNumber;
+			uint32_t      AcknowledgmentNumber;
+			
+			unsigned int  Reserved : 4;
+			unsigned int  DataOffset : 4;
+			uint8_t       Flags;
+			uint16_t      WindowSize;
+			
+			uint16_t      Checksum;
+			uint16_t      UrgentPointer;
 		} Ethernet_TCP_Header_t;
 		
 	/* External Variables: */

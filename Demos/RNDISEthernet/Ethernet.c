@@ -8,21 +8,25 @@
  Released under the LGPL Licence, Version 3
 */
 
-#define   INCLUDE_FROM_ETHERNET_C
-#include "Ethernet.h"
-
 /* Simple Ethernet protocol processing stack. This module provides functions for decomposing an Ethernet
-   frame into its component protocols, and formulating reply frames. It is designed to provide the
-   minimum protols needed to run a webserver on the device, namely:
+   frame into its component protocols, as well as handlers for the more simple protocols, namely:
    
    Ethernet
     \
      + ARP (IP to MAC, MAC to IP)
      + IP
-      \
-       + ICMP (Echo Requests and Responses)
-       + TCP
+       \
+        + ICMP (Echo Requests and Responses)
+	    + TCP (In-order reliable packet traffic)
+	      \
+		   + HTTP (Webserver)
+
+	The TCP protocol is too complex to exist in this module, thus it has been moved to a module of
+	its own. The webserver, too, exists as a seperate module and runs upon the TCP protocol.
 */
+
+#define   INCLUDE_FROM_ETHERNET_C
+#include "Ethernet.h"
 
 /* Global Variables: */
 Ethernet_Frame_Info_t FrameIN;
@@ -30,7 +34,6 @@ Ethernet_Frame_Info_t FrameOUT;
 
 MAC_Address_t ServerMACAddress    = {SERVER_MAC_ADDRESS};
 IP_Address_t  ServerIPAddress     = {SERVER_IP_ADDRESS};
-MAC_Address_t NullMACAddress      = {NULL_MAC_ADDRESS};
 MAC_Address_t BroadcastMACAddress = {BROADCAST_MAC_ADDRESS};
 
 
@@ -130,12 +133,9 @@ static uint16_t Ethernet_ProcessARPPacket(void* InDataStart, void* OutDataStart)
 		memcpy(&ARPHeaderOUT->SHA, &ServerMACAddress, sizeof(MAC_Address_t));
 		memcpy(&ARPHeaderOUT->SPA, &ServerIPAddress, sizeof(IP_Address_t));
 
-		/* Check if the ARP request is for an IP to MAC translation */
-		bool IsIPtoMAC = MAC_COMPARE(&ARPHeaderIN->THA, &NullMACAddress);
-
-		/* If the ARP packet is requesting the MAC/IP of the virtual webserver, return the response */
-		if ((IsIPtoMAC && IP_COMPARE(&ARPHeaderIN->TPA, &ServerIPAddress)) || 
-		    (!(IsIPtoMAC) && MAC_COMPARE(&ARPHeaderIN->THA, &ServerMACAddress)))
+		/* If the ARP packet is requesting the MAC or IP of the virtual webserver, return the response */
+		if (IP_COMPARE(&ARPHeaderIN->TPA, &ServerIPAddress) || 
+		    MAC_COMPARE(&ARPHeaderIN->THA, &ServerMACAddress))
 		{
 			/* Return the size of the response so far */
 			return sizeof(Ethernet_ARP_Header_t);
@@ -237,19 +237,9 @@ static uint16_t Ethernet_ProcessICMPPacket(void* InDataStart, void* OutDataStart
 	return NO_RESPONSE;
 }
 
-static uint16_t Ethernet_ProcessTCPPacket(void* InDataStart, void* OutDataStart)
+uint16_t Ethernet_ProcessTCPPacket(void* InDataStart, void* OutDataStart)
 {
 	DecodeTCPHeader(InDataStart);
 
-	Ethernet_ICMP_Header_t* ICMPHeaderOUT = (Ethernet_ICMP_Header_t*)OutDataStart;
-
-	ICMPHeaderOUT->Type             = ICMP_TYPE_DESTINATIONUNREACHABLE;
-	ICMPHeaderOUT->Code             = ICMP_DESTUNREACHABLE_HOST;
-	ICMPHeaderOUT->Checksum         = 0;
-	ICMPHeaderOUT->Id               = 0;
-	ICMPHeaderOUT->Sequence         = 0;
-	
-	ICMPHeaderOUT->Checksum         = SwapEndian_16(Ethernet_Checksum16(&ICMPHeaderOUT, sizeof(Ethernet_ICMP_Header_t)));
-
-	return sizeof(Ethernet_ICMP_Header_t);
+	return TCP_ProcessTCPPacket(InDataStart, OutDataStart);
 }

@@ -16,8 +16,9 @@
 		
 		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>
 		
-		#include "Ethernet.h"
 		#include "EthernetProtocols.h"
+		#include "Ethernet.h"
+		#include "TCP.h"
 		
 	/* Function Prototypes: */
 		void DecodeEthernetFrameHeader(void* InDataStart);

@@ -67,6 +67,10 @@ int main(void)
 	LEDs_Init();
 	SerialStream_Init(9600);
 	
+	/* Webserver Initialization */
+	TCP_Init();
+	Webserver_Init();
+	
 	printf("\r\n\r\n****** RNDIS Demo running. ******\r\n");
 
 	/* Indicate USB not ready */

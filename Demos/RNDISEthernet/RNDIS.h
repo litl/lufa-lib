@@ -22,7 +22,7 @@
 		#include "Ethernet.h"
 
 	/* Macros: */
-		#define ADAPTER_MAC_ADDRESS                   {0x40, 0x01, 0x02, 0x03, 0x04, 0x05}
+		#define ADAPTER_MAC_ADDRESS                   {0x02, 0x00, 0x02, 0x00, 0x02, 0x00}
 	
 		#define REMOTE_NDIS_VERSION_MAJOR             0x01
 		#define REMOTE_NDIS_VERSION_MINOR             0x00

@@ -19,6 +19,8 @@
 		#include "Descriptors.h"
 		#include "RNDIS.h"
 		#include "Ethernet.h"
+		#include "TCP.h"
+		#include "Webserver.h"
 
 		#include <MyUSB/Version.h>                        // Library Version Information
 		#include <MyUSB/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project

@@ -8,16 +8,25 @@
  Released under the LGPL Licence, Version 3
 */
 
+/* Protocol decoders for Ethernet, TCP, IP, ICMP and ARP. Each of these routines
+   accepts a header to the appropriate protocol and prints out pertient information
+   on the packet through the serial port.
+   
+   To disable printing of a specific protocol, define the token NO_DECODE_{Protocol}
+   in the project makefile, and pass it to the compiler using the -D switch.
+*/
+
 #include "ProtocolDecoders.h"
 
 void DecodeEthernetFrameHeader(void* InDataStart)
 {
+	#if !defined(NO_DECODE_ETHERNET)
 	Ethernet_Frame_Header_t* FrameHeader = (Ethernet_Frame_Header_t*)InDataStart;
 	
 	printf("\r\n");
 	
 	printf("  ETHERNET\r\n");
-	printf("  + Frame Size: %d\r\n", FrameIN.FrameLength);
+	printf("  + Frame Size: %u\r\n", FrameIN.FrameLength);
 
 	if (!(MAC_COMPARE(&FrameHeader->Destination, &ServerMACAddress)) &&
 	    !(MAC_COMPARE(&FrameHeader->Destination, &BroadcastMACAddress)))
@@ -44,25 +53,25 @@ void DecodeEthernetFrameHeader(void* InDataStart)
 	  printf("  + Protocol: 0x%04x\r\n", SwapEndian_16(FrameHeader->EtherType));
 	else
 	  printf("  + Protocol: UNKNOWN E1\r\n");
+	#endif
 }
 
 void DecodeARPHeader(void* InDataStart)
 {
+	#if !defined(NO_DECODE_ARP)
 	Ethernet_ARP_Header_t* ARPHeader = (Ethernet_ARP_Header_t*)InDataStart;	
 
 	printf("   \\\r\n    ARP\r\n");
 
-	bool IsIPtoMAC = MAC_COMPARE(&ARPHeader->THA, &NullMACAddress);
-
-	if ((IsIPtoMAC && !IP_COMPARE(&ARPHeader->TPA, &ServerIPAddress)) || 
-	   (!(IsIPtoMAC) && !MAC_COMPARE(&ARPHeader->THA, &ServerMACAddress)))
+	if (!(IP_COMPARE(&ARPHeader->TPA, &ServerIPAddress)) &&
+	    !(MAC_COMPARE(&ARPHeader->THA, &ServerMACAddress)))
 	{
 		printf("    + NOT ADDRESSED TO DEVICE\r\n");
 		return;		
 	}
 
 	printf("    + Protocol: %x\r\n", SwapEndian_16(ARPHeader->ProtocolType));
-	printf("    + Operation: %d\r\n", SwapEndian_16(ARPHeader->Operation));
+	printf("    + Operation: %u\r\n", SwapEndian_16(ARPHeader->Operation));
 	
 	if (SwapEndian_16(ARPHeader->ProtocolType) == ETHERTYPE_IPV4)
 	{
@@ -73,7 +82,7 @@ void DecodeARPHeader(void* InDataStart)
 		                                                           ARPHeader->SHA.Octets[4],
 		                                                           ARPHeader->SHA.Octets[5]);
 
-		printf("    + SPA IP: %d.%d.%d.%d\r\n",                    ARPHeader->SPA.Octets[0],
+		printf("    + SPA IP: %u.%u.%u.%u\r\n",                    ARPHeader->SPA.Octets[0],
 		                                                           ARPHeader->SPA.Octets[1],
 		                                                           ARPHeader->SPA.Octets[2],
 		                                                           ARPHeader->SPA.Octets[3]);
@@ -85,15 +94,17 @@ void DecodeARPHeader(void* InDataStart)
 		                                                           ARPHeader->THA.Octets[4],
 		                                                           ARPHeader->THA.Octets[5]);
 
-		printf("    + TPA IP: %d.%d.%d.%d\r\n",                    ARPHeader->TPA.Octets[0],
+		printf("    + TPA IP: %u.%u.%u.%u\r\n",                    ARPHeader->TPA.Octets[0],
 		                                                           ARPHeader->TPA.Octets[1],
 		                                                           ARPHeader->TPA.Octets[2],
 		                                                           ARPHeader->TPA.Octets[3]);
 	}
+	#endif
 }
 
 void DecodeIPHeader(void* InDataStart)
 {
+	#if !defined(NO_DECODE_IP)
 	Ethernet_IP_Header_t* IPHeader  = (Ethernet_IP_Header_t*)InDataStart;
 
 	uint16_t              HeaderLengthBytes = (IPHeader->HeaderLength * sizeof(uint32_t));
@@ -106,35 +117,59 @@ void DecodeIPHeader(void* InDataStart)
 		return;
 	}
 
-	printf("    + Packet Version: %d\r\n", IPHeader->Version);
-	printf("    + Header Length: %d Bytes\r\n", HeaderLengthBytes);
-	printf("    + Total Length: %d\r\n", SwapEndian_16(IPHeader->TotalLength));
+	printf("    + Header Length: %u Bytes\r\n", HeaderLengthBytes);
+	printf("    + Packet Version: %u\r\n", IPHeader->Version);
+	printf("    + Total Length: %u\r\n", SwapEndian_16(IPHeader->TotalLength));
 	
-	printf("    + Protocol: %d\r\n", IPHeader->Protocol);
-	printf("    + TTL: %d\r\n", IPHeader->TTL);
+	printf("    + Protocol: %u\r\n", IPHeader->Protocol);
+	printf("    + TTL: %u\r\n", IPHeader->TTL);
 	
-	printf("    + IP Src: %d.%d.%d.%d\r\n", IPHeader->SourceAddress.Octets[0],
+	printf("    + IP Src: %u.%u.%u.%u\r\n", IPHeader->SourceAddress.Octets[0],
 	                                        IPHeader->SourceAddress.Octets[1],
 	                                        IPHeader->SourceAddress.Octets[2],
 	                                        IPHeader->SourceAddress.Octets[3]);	
 
-	printf("    + IP Dst: %d.%d.%d.%d\r\n", IPHeader->DestinationAddress.Octets[0],
+	printf("    + IP Dst: %u.%u.%u.%u\r\n", IPHeader->DestinationAddress.Octets[0],
 	                                        IPHeader->DestinationAddress.Octets[1],
 	                                        IPHeader->DestinationAddress.Octets[2],
-	                                        IPHeader->DestinationAddress.Octets[3]);	
+	                                        IPHeader->DestinationAddress.Octets[3]);
+	#endif
 }
 
 void DecodeICMPHeader(void* InDataStart)
 {
+	#if !defined(NO_DECODE_ICMP)
 	Ethernet_ICMP_Header_t* ICMPHeader  = (Ethernet_ICMP_Header_t*)InDataStart;
 
 	printf("    \\\r\n     ICMP\r\n");
 
-	printf("     + Type: %d\r\n", ICMPHeader->Type);
-	printf("     + Code: %d\r\n", ICMPHeader->Code);
+	printf("     + Type: %u\r\n", ICMPHeader->Type);
+	printf("     + Code: %u\r\n", ICMPHeader->Code);
+	#endif
 }
 
 void DecodeTCPHeader(void* InDataStart)
 {
+	#if !defined(NO_DECODE_TCP)
+	Ethernet_TCP_Header_t* TCPHeader  = (Ethernet_TCP_Header_t*)InDataStart;
+
+	uint16_t               HeaderLengthBytes = (TCPHeader->DataOffset * sizeof(uint32_t));
+
 	printf("    \\\r\n     TCP\r\n");
+
+	printf("     + Header Length: %u Bytes\r\n", HeaderLengthBytes);
+
+	printf("     + Source Port: %u\r\n", SwapEndian_16(TCPHeader->SourcePort));
+	printf("     + Destination Port: %u\r\n", SwapEndian_16(TCPHeader->DestinationPort));
+
+	printf("     + Sequence Number: %lu\r\n", SwapEndian_32(TCPHeader->SequenceNumber));
+	printf("     + Acknowledgment Number: %lu\r\n", SwapEndian_32(TCPHeader->AcknowledgmentNumber));
+	
+	printf("     + Flags: 0x%02X\r\n", TCPHeader->Flags);
+	
+	if (!(TCP_IsListening(TCPHeader->DestinationPort)))
+	  printf("     + NOT LISTENING ON DESTINATION PORT\r\n");
+	else
+	  printf("     + Destination Port State: %u\r\n", TCP_GetConnectionState(TCPHeader->DestinationPort));
+	#endif
 }

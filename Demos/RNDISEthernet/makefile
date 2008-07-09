@@ -91,6 +91,8 @@ SRC = $(TARGET).c                                           \
       RNDIS.c                                               \
 	  Ethernet.c                                            \
 	  ProtocolDecoders.c                                    \
+	  TCP.c                                                 \
+	  Webserver.c                                           \
       ../../MyUSB/Scheduler/Scheduler.c                     \
       ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
       ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
@@ -147,6 +149,7 @@ CSTANDARD = -std=gnu99
 # Place -D or -U options here for C sources
 CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD) -DUSE_NONSTANDARD_DESCRIPTOR_NAMES
 CDEFS += -DUSB_DEVICE_ONLY -DUSE_STATIC_OPTIONS="(USB_DEVICE_OPT_FULLSPEED | USB_OPT_REG_ENABLED)"
+CDEFS += -DNO_DECODE_ETHERNET -DNO_DECODE_ARP -DNO_DECODE_ICMP -DNO_DECODE_IP
 
 
 # Place -D or -U options here for ASM sources
