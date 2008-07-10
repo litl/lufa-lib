@@ -16,14 +16,22 @@
 		#include <string.h>
 		#include <stdbool.h>
 		
+		#include <MyUSB/Scheduler/Scheduler.h>
+		
 		#include "EthernetProtocols.h"
 		#include "Ethernet.h"
+		#include "ProtocolDecoders.h"
 		
 	/* Macros: */
-		#define MAX_OPEN_PORTS                  2
-		#define MAX_CONNECTIONS                 2
+		#define MAX_OPEN_TCP_PORTS              2
+		#define MAX_TCP_CONNECTIONS             2
+		#define TCP_WINDOW_SIZE                 1024
 		
+		#define TCP_PORT_TELNET                 SwapEndian_16(23)
 		#define TCP_PORT_HTTP                   SwapEndian_16(80)
+		
+		#define TCP_PACKETDIR_IN                false
+		#define TCP_PACKETDIR_OUT               true
 		
 		#define TCP_FLAG_CWR                    (1 << 7)
 		#define TCP_FLAG_ECE                    (1 << 6)
@@ -59,15 +67,33 @@
 	/* Type Defines: */
 		typedef struct
 		{
-			uint16_t     Port;
-			uint8_t      State;
+			uint16_t Length;
+			uint8_t  Data[TCP_WINDOW_SIZE];
+			bool     Direction;
+			bool     Ready;
+			bool     InUse;		
+		} TCP_ConnectionBuffer_t;
+
+		typedef struct
+		{
+			uint32_t               SequenceNumberIn;			
+			uint32_t               SequenceNumberOut;
+			TCP_ConnectionBuffer_t Buffer;
+		} TCP_ConnectionInfo_t;
+
+		typedef struct
+		{
+			uint16_t             Port;
+			uint8_t              State;
+			void (*ApplicationHandler) (TCP_ConnectionBuffer_t* Buffer);
 		} TCP_PortState_t;
 	
 		typedef struct
 		{
-			uint16_t     Port;
-			IP_Address_t RemoteAddress;
-			uint8_t      State;
+			uint16_t               Port;
+			IP_Address_t           RemoteAddress;
+			TCP_ConnectionInfo_t   Info;
+			uint8_t                State;
 		} TCP_ConnectionState_t;
 		
 		typedef struct
@@ -80,13 +106,34 @@
 			uint16_t      TCPLength;
 		} TCP_Checksum_PsudoHeader_t;
 
+		typedef struct
+		{
+			uint16_t      SourcePort;
+			uint16_t      DestinationPort;
+			
+			uint32_t      SequenceNumber;
+			uint32_t      AcknowledgmentNumber;
+			
+			unsigned int  Reserved : 4;
+			unsigned int  DataOffset : 4;
+			uint8_t       Flags;
+			uint16_t      WindowSize;
+			
+			uint16_t      Checksum;
+			uint16_t      UrgentPointer;
+		} TCP_Header_t;
+
+	/* Tasks: */
+		TASK(TCP_Task);
+
 	/* Function Prototypes: */
-		void     TCP_Init(void);
-		bool     TCP_SetPortState(uint16_t Port, uint8_t State);
-		uint8_t  TCP_GetPortState(uint16_t Port);
-		uint8_t  TCP_GetConnectionState(uint16_t Port, IP_Address_t RemoteAddress);
-		bool     TCP_SetConnectionState(uint16_t Port, IP_Address_t RemoteAddress, uint8_t State);
-		uint16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void* TCPHeaderOutStart);
+		void                  TCP_Init(void);
+		bool                  TCP_SetPortState(uint16_t Port, uint8_t State, void (*Handler)(TCP_ConnectionBuffer_t*));
+		uint8_t               TCP_GetPortState(uint16_t Port);
+		bool                  TCP_SetConnectionState(uint16_t Port, IP_Address_t RemoteAddress, uint8_t State);
+		uint8_t               TCP_GetConnectionState(uint16_t Port, IP_Address_t RemoteAddress);
+		TCP_ConnectionInfo_t* TCP_GetConnectionInfo(uint16_t Port, IP_Address_t RemoteAddress);
+		uint16_t              TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void* TCPHeaderOutStart);
 
 		#if defined(INCLUDE_FROM_TCP_C)
 			static uint16_t TCP_Checksum16(void* IPHeaderInStart, void* TCPHeaderOutStart, uint16_t TCPOutSize);

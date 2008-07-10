@@ -23,6 +23,7 @@
 		#include <avr/version.h>
 		
 		#include "FunctionAttributes.h"
+		#include "BoardTypes.h"
 		
 		#include <alloca.h>
 

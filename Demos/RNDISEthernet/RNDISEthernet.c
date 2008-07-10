@@ -51,6 +51,8 @@ TASK_LIST
 	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
 	{ Task: RNDIS_Task           , TaskStatus: TASK_STOP },
 	{ Task: Ethernet_Task        , TaskStatus: TASK_STOP },
+	{ Task: TCP_Task             , TaskStatus: TASK_STOP },
+	{ Task: ARP_Task             , TaskStatus: TASK_STOP },
 };
 
 int main(void)
@@ -70,6 +72,7 @@ int main(void)
 	/* Webserver Initialization */
 	TCP_Init();
 	Webserver_Init();
+	Telnet_Init();
 	
 	printf("\r\n\r\n****** RNDIS Demo running. ******\r\n");
 
@@ -97,9 +100,11 @@ EVENT_HANDLER(USB_Connect)
 
 EVENT_HANDLER(USB_Disconnect)
 {
-	/* Stop running RNDIS, Ethernet and USB management tasks */
+	/* Stop running TCP/IP and USB management tasks */
 	Scheduler_SetTaskMode(RNDIS_Task, TASK_STOP);
 	Scheduler_SetTaskMode(Ethernet_Task, TASK_STOP);
+	Scheduler_SetTaskMode(TCP_Task, TASK_STOP);
+	Scheduler_SetTaskMode(ARP_Task, TASK_STOP);
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
 	/* Indicate USB not ready */
@@ -124,9 +129,11 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 
-	/* Start RNDIS and Ethernet tasks */
+	/* Start TCP/IP tasks */
 	Scheduler_SetTaskMode(RNDIS_Task, TASK_RUN);
 	Scheduler_SetTaskMode(Ethernet_Task, TASK_RUN);
+	Scheduler_SetTaskMode(TCP_Task, TASK_RUN);
+	Scheduler_SetTaskMode(ARP_Task, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_UnhandledControlPacket)

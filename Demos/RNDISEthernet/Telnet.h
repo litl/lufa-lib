@@ -8,17 +8,19 @@
  Released under the LGPL Licence, Version 3
 */
 
-#ifndef _WEBSERVER_H_
-#define _WEBSERVER_H_
+#ifndef _TELNET_H_
+#define _TELNET_H_
 
 	/* Includes: */
 		#include <avr/io.h>
-		#include <avr/pgmspace.h>
+		#include <string.h>
+		
+		#include <MyUSB/Drivers/Board/LEDs.h>
 		
 		#include "TCP.h"
 	
 	/* Function Prototypes: */
-		void Webserver_Init(void);
-		void Webserver_HandleRequest(TCP_ConnectionBuffer_t* Buffer);
+		void Telnet_Init(void);
+		void Telnet_HandleRequest(TCP_ConnectionBuffer_t* Buffer);
 
 #endif

@@ -27,7 +27,6 @@
 
 		#include "../AT90USBXXX/ADC.h"
 		#include "../../Common/Common.h"
-		#include "../../Common/BoardTypes.h"
 	
 		#if !defined(BOARD)
 			#error BOARD must be set in makefile to BOARD_USBKEY, BOARD_STK525, BOARD_STK526, BOARD_RZUSBSTICK or BOARD_USER.	

@@ -91,8 +91,12 @@ SRC = $(TARGET).c                                           \
       RNDIS.c                                               \
 	  Ethernet.c                                            \
 	  ProtocolDecoders.c                                    \
+	  ICMP.c                                                \
 	  TCP.c                                                 \
+	  ARP.c                                                 \
+	  IP.c                                                  \
 	  Webserver.c                                           \
+	  Telnet.c                                              \
       ../../MyUSB/Scheduler/Scheduler.c                     \
       ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
       ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \

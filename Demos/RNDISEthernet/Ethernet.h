@@ -14,29 +14,26 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <string.h>
-		
-		#include "RNDIS.h"
+
 		#include "EthernetProtocols.h"
 		#include "ProtocolDecoders.h"
+		#include "ICMP.h"
 		#include "TCP.h"
+		#include "ARP.h"
+		#include "IP.h"
 		
 	/* Macros: */
-		#define SERVER_MAC_ADDRESS               {0x00, 0x01, 0x00, 0x01, 0x00, 0x01}
-		#define SERVER_IP_ADDRESS                {10, 0, 0, 2}
-		
+		#define SERVER_MAC_ADDRESS               {0x00, 0x01, 0x00, 0x01, 0x00, 0x01}		
 		#define BROADCAST_MAC_ADDRESS            {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 	
+		#define MAC_COMPARE(mac1, mac2)          (memcmp(mac1, mac2, sizeof(MAC_Address_t)) == 0)
+
 		#define ETHERNET_FRAME_SIZE_MAX          1500
 		#define ETHERNET_FRAME_SIZE_MIN          64
 		
 		#define ETHERNET_VER2_MINSIZE            0x0600
 		
-		#define NO_RESPONSE                      0
-		
-		#define DEFAULT_TTL                      128
-		
-		#define MAC_COMPARE(mac1, mac2)          (memcmp(mac1, mac2, sizeof(MAC_Address_t)) == 0)
-		#define IP_COMPARE(ip1, ip2)             (memcmp(ip1, ip2, sizeof(IP_Address_t)) == 0)
+		#define NO_RESPONSE                      0		
 
 	/* Type Defines: */
 		typedef struct
@@ -57,66 +54,6 @@
 				uint16_t  Length;
 			};
 		} Ethernet_Frame_Header_t;
-
-		typedef struct
-		{
-			unsigned int  HeaderLength   : 4;
-			unsigned int  Version        : 4;
-			unsigned int  TypeOfService  : 8;
-			unsigned int  TotalLength    : 16;
-
-			unsigned int  Identification : 16;
-			unsigned int  FragmentOffset : 13;
-			unsigned int  Flags          : 3;
-
-			unsigned int  TTL            : 8;
-			unsigned int  Protocol       : 8;
-			unsigned int  HeaderChecksum : 16;
-			
-			IP_Address_t  SourceAddress;
-			IP_Address_t  DestinationAddress;
-		} Ethernet_IP_Header_t;
-		
-		typedef struct
-		{
-			uint8_t       Type;
-			uint8_t       Code;
-			uint16_t      Checksum;
-			uint16_t      Id;
-			uint16_t      Sequence;
-		} Ethernet_ICMP_Header_t;
-		
-		typedef struct
-		{
-			uint16_t      HardwareType;
-			uint16_t      ProtocolType;
-			
-			uint8_t       HLEN;
-			uint8_t       PLEN;
-			uint16_t      Operation;
-			
-			MAC_Address_t SHA;
-			IP_Address_t  SPA;
-			MAC_Address_t THA;
-			IP_Address_t  TPA;
-		} Ethernet_ARP_Header_t;
-		
-		typedef struct
-		{
-			uint16_t      SourcePort;
-			uint16_t      DestinationPort;
-			
-			uint32_t      SequenceNumber;
-			uint32_t      AcknowledgmentNumber;
-			
-			unsigned int  Reserved : 4;
-			unsigned int  DataOffset : 4;
-			uint8_t       Flags;
-			uint16_t      WindowSize;
-			
-			uint16_t      Checksum;
-			uint16_t      UrgentPointer;
-		} Ethernet_TCP_Header_t;
 		
 	/* External Variables: */
 		extern Ethernet_Frame_Info_t FrameIN;
@@ -131,11 +68,4 @@
 		void     Ethernet_ProcessPacket(void);
 		uint16_t Ethernet_Checksum16(void* Data, uint16_t Bytes);
 		
-		#if defined(INCLUDE_FROM_ETHERNET_C)			
-			static uint16_t Ethernet_ProcessARPPacket(void* InDataStart, void* OutDataStart);
-			static uint16_t Ethernet_ProcessIPPacket(void* InDataStart, void* OutDataStart);
-			static uint16_t Ethernet_ProcessICMPPacket(void* IPHeaderInStart, void* InDataStart, void* OutDataStart);
-			static uint16_t Ethernet_ProcessTCPPacket(void* IPHeaderInStart, void* InDataStart, void* OutDataStart);
-		#endif
-
 #endif
