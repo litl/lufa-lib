@@ -167,9 +167,7 @@ void DecodeTCPHeader(void* InDataStart)
 	
 	printf("     + Flags: 0x%02X\r\n", TCPHeader->Flags);
 	
-	if (!(TCP_IsListening(TCPHeader->DestinationPort)))
+	if (TCP_GetPortState(TCPHeader->DestinationPort) == TCP_Port_Closed)
 	  printf("     + NOT LISTENING ON DESTINATION PORT\r\n");
-	else
-	  printf("     + Destination Port State: %u\r\n", TCP_GetConnectionState(TCPHeader->DestinationPort));
 	#endif
 }

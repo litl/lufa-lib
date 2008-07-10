@@ -48,11 +48,6 @@
 
 		typedef struct
 		{
-			uint8_t       Octets[6];
-		} MAC_Address_t;
-		
-		typedef struct
-		{
 			MAC_Address_t Destination;
 			MAC_Address_t Source;
 			
@@ -62,11 +57,6 @@
 				uint16_t  Length;
 			};
 		} Ethernet_Frame_Header_t;
-		
-		typedef struct
-		{
-			uint8_t       Octets[4];
-		} IP_Address_t;
 
 		typedef struct
 		{
@@ -138,14 +128,14 @@
 		extern MAC_Address_t BroadcastMACAddress;
 		
 	/* Function Prototypes: */
-		void Ethernet_ProcessPacket(void);
+		void     Ethernet_ProcessPacket(void);
+		uint16_t Ethernet_Checksum16(void* Data, uint16_t Bytes);
 		
-		#if defined(INCLUDE_FROM_ETHERNET_C)
-			static uint16_t Ethernet_Checksum16(void* Data, uint16_t Bytes);
+		#if defined(INCLUDE_FROM_ETHERNET_C)			
 			static uint16_t Ethernet_ProcessARPPacket(void* InDataStart, void* OutDataStart);
 			static uint16_t Ethernet_ProcessIPPacket(void* InDataStart, void* OutDataStart);
-			static uint16_t Ethernet_ProcessICMPPacket(void* InDataStart, void* OutDataStart);
-			static uint16_t Ethernet_ProcessTCPPacket(void* InDataStart, void* OutDataStart);
+			static uint16_t Ethernet_ProcessICMPPacket(void* IPHeaderInStart, void* InDataStart, void* OutDataStart);
+			static uint16_t Ethernet_ProcessTCPPacket(void* IPHeaderInStart, void* InDataStart, void* OutDataStart);
 		#endif
 
 #endif

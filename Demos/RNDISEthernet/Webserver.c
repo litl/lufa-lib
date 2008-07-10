@@ -12,5 +12,6 @@
 
 void Webserver_Init(void)
 {
-	TCP_StartListening(SwapEndian_16(TCP_PORT_HTTP));
+	/* Open the HTTP port in the TCP protocol so that HTTP connections to the device can be established */
+	TCP_SetPortState(TCP_PORT_HTTP, TCP_Port_Open);
 }

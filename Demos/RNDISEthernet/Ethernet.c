@@ -87,7 +87,7 @@ void Ethernet_ProcessPacket(void)
 	}
 }
 
-static uint16_t Ethernet_Checksum16(void* Data, uint16_t Bytes)
+uint16_t Ethernet_Checksum16(void* Data, uint16_t Bytes)
 {
 	uint16_t* Words    = (uint16_t*)Data;
 	union
@@ -167,11 +167,13 @@ static uint16_t Ethernet_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 	switch (IPHeaderIN->Protocol)
 	{
 		case PROTOCOL_ICMP:
-			RetSize = Ethernet_ProcessICMPPacket(&((uint8_t*)InDataStart)[HeaderLengthBytes],
+			RetSize = Ethernet_ProcessICMPPacket(InDataStart,
+			                                     &((uint8_t*)InDataStart)[HeaderLengthBytes],
 			                                     &((uint8_t*)OutDataStart)[sizeof(Ethernet_IP_Header_t)]);
 			break;
 		case PROTOCOL_TCP:
-			RetSize = Ethernet_ProcessTCPPacket(&((uint8_t*)InDataStart)[HeaderLengthBytes],
+			RetSize = Ethernet_ProcessTCPPacket(InDataStart,
+			                                    &((uint8_t*)InDataStart)[HeaderLengthBytes],
 			                                    &((uint8_t*)OutDataStart)[sizeof(Ethernet_IP_Header_t)]);		
 			break;
 	}
@@ -202,7 +204,7 @@ static uint16_t Ethernet_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 	return NO_RESPONSE;
 }
 
-static uint16_t Ethernet_ProcessICMPPacket(void* InDataStart, void* OutDataStart)
+static uint16_t Ethernet_ProcessICMPPacket(void* IPHeaderInStart, void* InDataStart, void* OutDataStart)
 {
 	DecodeICMPHeader(InDataStart);
 
@@ -237,9 +239,9 @@ static uint16_t Ethernet_ProcessICMPPacket(void* InDataStart, void* OutDataStart
 	return NO_RESPONSE;
 }
 
-uint16_t Ethernet_ProcessTCPPacket(void* InDataStart, void* OutDataStart)
+uint16_t Ethernet_ProcessTCPPacket(void* IPHeaderInStart, void* InDataStart, void* OutDataStart)
 {
 	DecodeTCPHeader(InDataStart);
 
-	return TCP_ProcessTCPPacket(InDataStart, OutDataStart);
+	return TCP_ProcessTCPPacket(IPHeaderInStart, InDataStart, OutDataStart);
 }

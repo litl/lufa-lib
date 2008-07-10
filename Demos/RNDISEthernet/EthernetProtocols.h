@@ -60,4 +60,15 @@
 		#define ARP_OPERATION_REQUEST            1
 		#define ARP_OPERATION_REPLY              2
 
+	/* Type Defines: */
+		typedef struct
+		{
+			uint8_t       Octets[6];
+		} MAC_Address_t;
+		
+		typedef struct
+		{
+			uint8_t       Octets[4];
+		} IP_Address_t;
+
 #endif
