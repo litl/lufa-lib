@@ -468,7 +468,7 @@ static uint16_t TCP_Checksum16(void* TCPHeaderOutStart, IP_Address_t SourceAddre
 	  Checksum += ((uint16_t*)TCPHeaderOutStart)[CurrWord];
 	
 	if (TCPOutSize & 0x01)
-	  Checksum += (((uint16_t*)TCPHeaderOutStart)[TCPOutSize >> 1] & 0xFF00);
+	  Checksum += (((uint16_t*)TCPHeaderOutStart)[TCPOutSize >> 1] & 0x00FF);
 	  
 	while (Checksum & 0xFFFF0000)
 	  Checksum = ((Checksum & 0xFFFF) + (Checksum >> 16));

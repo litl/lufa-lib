@@ -12,8 +12,16 @@
 
 char TelnetWelcome[] PROGMEM = "****************************\r\n"
                                "* Welcome to your USB AVR! *\r\n"
-							   "****************************\r\n\r\n";
+							   "****************************\r\n"
+							   "\r\n"
+							   "Type HELP for a list of commands.\r\n\r\n\r\n";
+
 char TelnetCommand[] PROGMEM = "Command > ";
+
+char TelnetHelp[]    PROGMEM = "\r\nCommand List:\r\n"
+                               " > HELP    - Displays this message\r\n"
+                               " > LEDONx  - Turns LED number \"x\" on\r\n"
+                               " > LEDOFFx - Turns LED number \"x\" off\r\n\r\n";
 
 void Telnet_Init(void)
 {
@@ -23,30 +31,64 @@ void Telnet_Init(void)
 
 void Telnet_HandleRequest(TCP_ConnectionBuffer_t* Buffer)
 {
-	bool IsCommand = (Buffer->Data[0] == 0xFF);
+	Buffer->Data[Buffer->Length] = 0x00;
 
-	if (strncmp((char*)Buffer->Data, "LED1", 4) == 0)
-	  LEDs_SetAllLEDs(LEDS_LED1);
-	else if (strncmp((char*)Buffer->Data, "LED2", 4) == 0)
-	  LEDs_SetAllLEDs(LEDS_LED2);
-	else if (strncmp((char*)Buffer->Data, "LED3", 4) == 0)
-	  LEDs_SetAllLEDs(LEDS_LED3);
-	else if (strncmp((char*)Buffer->Data, "LED4", 4) == 0)
-	  LEDs_SetAllLEDs(LEDS_LED4);
-	
-	if (IsCommand)
+	if (Buffer->Data[0] == 0xFF)
 	{
 		strcpy_P((char*)Buffer->Data, TelnetWelcome);
-		strcpy_P((char*)&Buffer->Data[strlen((char*)Buffer->Data)], TelnetCommand);
-		Buffer->Length = strlen((char*)Buffer->Data);
+		strcpy_P((char*)&Buffer->Data[strlen_P(TelnetWelcome)], TelnetCommand);
+		Buffer->Ready = true;
 	}
-	else if (strncmp((char*)Buffer->Data, "\r\n", 2) == 0)
+	else if (strcmp((char*)Buffer->Data, "\r\n") == 0)
 	{
 		strcpy_P((char*)Buffer->Data, TelnetCommand);
-		Buffer->Length = strlen((char*)Buffer->Data);
+		Buffer->Ready = true;
 	}
-	else
+	else if (strcmp((char*)Buffer->Data, "HELP") == 0)
 	{
+		strcpy_P((char*)Buffer->Data, TelnetHelp);
+		Buffer->Ready = true;
+	}
+	else if (strncmp((char*)Buffer->Data, "LEDON", (sizeof("LEDON") - 1)) == 0)
+	{
+		switch (Buffer->Data[sizeof("LEDON") - 1])
+		{
+			case '1':
+				LEDs_TurnOnLEDs(LEDS_LED1);
+				break;
+			case '2':
+				LEDs_TurnOnLEDs(LEDS_LED2);
+				break;
+			case '3':
+				LEDs_TurnOnLEDs(LEDS_LED3);
+				break;
+			case '4':
+				LEDs_TurnOnLEDs(LEDS_LED4);
+				break;
+		}
+
 		Buffer->Ready = false;
 	}
+	else if (strncmp((char*)Buffer->Data, "LEDOFF", (sizeof("LEDOFF") - 1)) == 0)
+	{
+		switch (Buffer->Data[sizeof("LEDOFF") - 1])
+		{
+			case '1':
+				LEDs_TurnOffLEDs(LEDS_LED1);
+				break;
+			case '2':
+				LEDs_TurnOffLEDs(LEDS_LED2);
+				break;
+			case '3':
+				LEDs_TurnOffLEDs(LEDS_LED3);
+				break;
+			case '4':
+				LEDs_TurnOffLEDs(LEDS_LED4);
+				break;
+		}
+
+		Buffer->Ready = false;
+	}
+
+	Buffer->Length = strlen((char*)Buffer->Data);
 }

@@ -45,8 +45,8 @@
 	/* Enums: */
 		enum TCP_PortStates_t
 		{
-			TCP_Port_Open              = 0,
-			TCP_Port_Closed            = 1,
+			TCP_Port_Closed            = 0,
+			TCP_Port_Open              = 1,
 		};
 	
 		enum TCP_ConnectionStates_t
@@ -67,11 +67,11 @@
 	/* Type Defines: */
 		typedef struct
 		{
-			uint16_t Length;
-			uint8_t  Data[TCP_WINDOW_SIZE];
-			bool     Direction;
-			bool     Ready;
-			bool     InUse;		
+			uint16_t               Length;
+			uint8_t                Data[TCP_WINDOW_SIZE];
+			bool                   Direction;
+			bool                   Ready;
+			bool                   InUse;		
 		} TCP_ConnectionBuffer_t;
 
 		typedef struct
@@ -83,8 +83,8 @@
 
 		typedef struct
 		{
-			uint16_t             Port;
-			uint8_t              State;
+			uint16_t               Port;
+			uint8_t                State;
 			void (*ApplicationHandler) (TCP_ConnectionBuffer_t* Buffer);
 		} TCP_PortState_t;
 	
@@ -116,6 +116,9 @@
 
 	/* Tasks: */
 		TASK(TCP_Task);
+		
+	/* External Variables: */
+		TCP_PortState_t   PortStateTable[MAX_OPEN_TCP_PORTS];
 
 	/* Function Prototypes: */
 		void                  TCP_Init(void);

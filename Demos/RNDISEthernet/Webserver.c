@@ -10,8 +10,8 @@
 
 #include "Webserver.h"
 
-char HTTPHeader[] PROGMEM = "HTTP/1.1 200 OK\r\n\r\n";
-char HTTPPage[]   PROGMEM = "<html><body>Hello from the USBKEY! </body></html>";
+char HTTPHeader[] PROGMEM = "HTTP/1.1 200 OK\r\nServer: MyUSB RNDIS\r\nContent-type: text/html\r\nConnection: close\r\n\r\n";
+char HTTPPage[]   PROGMEM = "<html><head><title>MyUSB Webserver Test</title></head><body>Hello from the USBKEY!</body></html>\n";
 
 
 void Webserver_Init(void)
@@ -25,6 +25,5 @@ void Webserver_HandleRequest(TCP_ConnectionBuffer_t* Buffer)
 	strcpy_P((char*)Buffer->Data, HTTPHeader);
 	strcpy_P((char*)&Buffer->Data[sizeof(HTTPHeader)], HTTPPage);
 	
-	Buffer->Length    = (sizeof(HTTPHeader) + strlen((char*)Buffer->Data));
-	Buffer->Direction = TCP_PACKETDIR_OUT;
+	Buffer->Length = (sizeof(HTTPHeader) + sizeof(HTTPPage) - 1);
 }
