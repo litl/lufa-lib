@@ -10,7 +10,7 @@
 
 #include "IP.h"
 
-uint16_t IP_ProcessIPPacket(void* InDataStart, void* OutDataStart)
+int16_t IP_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 {
 	DecodeIPHeader(InDataStart);
 
@@ -20,7 +20,7 @@ uint16_t IP_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 	/* Header length is specified in number of longs in the packet header, convert to bytes */
 	uint16_t     HeaderLengthBytes = (IPHeaderIN->HeaderLength * sizeof(uint32_t));
 
-	uint16_t     RetSize     = NO_RESPONSE;
+	int16_t      RetSize     = NO_RESPONSE;
 
 	FrameIN.FrameLength -= HeaderLengthBytes;
 
@@ -43,7 +43,7 @@ uint16_t IP_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 	}
 	
 	/* Check to see if the protocol processing routine has filled out a response */
-	if (RetSize != NO_RESPONSE)
+	if (RetSize > 0)
 	{
 		/* Fill out the response IP packet header */
 		IPHeaderOUT->TotalLength        = SwapEndian_16(sizeof(IP_Header_t) + RetSize);
@@ -65,5 +65,5 @@ uint16_t IP_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 		return (sizeof(IP_Header_t) + RetSize);
 	}
 	
-	return NO_RESPONSE;
+	return RetSize;
 }

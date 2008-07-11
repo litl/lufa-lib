@@ -27,20 +27,15 @@ void Ethernet_ProcessPacket(void)
 	Ethernet_Frame_Header_t* FrameINHeader  = (Ethernet_Frame_Header_t*)&FrameIN.FrameData;
 	Ethernet_Frame_Header_t* FrameOUTHeader = (Ethernet_Frame_Header_t*)&FrameOUT.FrameData;
 	
-	uint16_t                 RetSize        = NO_RESPONSE;
+	int16_t                  RetSize        = NO_RESPONSE;
 	
 	FrameIN.FrameLength -= sizeof(Ethernet_Frame_Header_t);
 
-	/* Ensure frame is addressed to either all (broadcast) or the virtual webserver */
-	if (!(MAC_COMPARE(&FrameINHeader->Destination, &ServerMACAddress)) &&
-	    !(MAC_COMPARE(&FrameINHeader->Destination, &BroadcastMACAddress)))
+	/* Ensure frame is addressed to either all (broadcast) or the virtual webserver, and is a type II frame */
+	if ((MAC_COMPARE(&FrameINHeader->Destination, &ServerMACAddress) ||
+	     MAC_COMPARE(&FrameINHeader->Destination, &BroadcastMACAddress)) &&
+		(SwapEndian_16(FrameIN.FrameLength) > ETHERNET_VER2_MINSIZE))
 	{
-		return;
-	}
-
-	/* If the packet is of the Ethernet II type, process it */
-	if (SwapEndian_16(FrameIN.FrameLength) > ETHERNET_VER2_MINSIZE)
-	{	
 		/* Process the packet depending on its protocol */
 		switch (SwapEndian_16(FrameINHeader->EtherType))
 		{
@@ -55,10 +50,10 @@ void Ethernet_ProcessPacket(void)
 		}
 		
 		/* Protcol processing routine has filled a response, complete the ethernet frame header */
-		if (RetSize != NO_RESPONSE)
+		if (RetSize > 0)
 		{
 			/* Fill out the response Ethernet frame header */
-			memcpy(&FrameOUTHeader->Source, &ServerMACAddress, sizeof(MAC_Address_t));
+			FrameOUTHeader->Source          = ServerMACAddress;
 			FrameOUTHeader->Destination     = FrameINHeader->Source;
 			FrameOUTHeader->EtherType       = FrameINHeader->EtherType;			
 			
@@ -67,22 +62,32 @@ void Ethernet_ProcessPacket(void)
 			FrameOUT.FrameInBuffer          = true;
 		}
 	}
+
+	if (RetSize != NO_PROCESS)
+	{
+		/* Clear the frame buffer */
+		FrameIN.FrameInBuffer = false;
+	}
+	else
+	{
+		/* Packet deferred */
+		printf("Deferred processing of packet.\r\n");
+	}
 }
 
 uint16_t Ethernet_Checksum16(void* Data, uint16_t Bytes)
 {
 	uint16_t* Words    = (uint16_t*)Data;
-	union
-	{
-		uint32_t  DWord;
-		uint16_t  Words[2];
-	} Checksum = {0};
+	uint32_t  Checksum = 0;
 
 	
 	/* TCP/IP checksums are the addition of the one's compliment of each word, complimented */
 	
 	for (uint8_t CurrWord = 0; CurrWord < (Bytes >> 1); CurrWord++)
-	  Checksum.DWord += Words[CurrWord];
+	  Checksum += Words[CurrWord];
 	  
-	return ~(Checksum.Words[0] + Checksum.Words[1]);
+	while (Checksum & 0xFFFF0000)
+	  Checksum = ((Checksum & 0xFFFF) + (Checksum >> 16));
+	
+	return ~Checksum;
 }

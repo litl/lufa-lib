@@ -49,10 +49,9 @@ BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
 TASK_LIST
 {
 	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
-	{ Task: RNDIS_Task           , TaskStatus: TASK_STOP },
 	{ Task: Ethernet_Task        , TaskStatus: TASK_STOP },
 	{ Task: TCP_Task             , TaskStatus: TASK_STOP },
-	{ Task: ARP_Task             , TaskStatus: TASK_STOP },
+	{ Task: RNDIS_Task           , TaskStatus: TASK_STOP },
 };
 
 int main(void)
@@ -73,7 +72,7 @@ int main(void)
 	TCP_Init();
 	Webserver_Init();
 	Telnet_Init();
-	
+
 	printf("\r\n\r\n****** RNDIS Demo running. ******\r\n");
 
 	/* Indicate USB not ready */
@@ -104,7 +103,6 @@ EVENT_HANDLER(USB_Disconnect)
 	Scheduler_SetTaskMode(RNDIS_Task, TASK_STOP);
 	Scheduler_SetTaskMode(Ethernet_Task, TASK_STOP);
 	Scheduler_SetTaskMode(TCP_Task, TASK_STOP);
-	Scheduler_SetTaskMode(ARP_Task, TASK_STOP);
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
 	/* Indicate USB not ready */
@@ -133,7 +131,6 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(RNDIS_Task, TASK_RUN);
 	Scheduler_SetTaskMode(Ethernet_Task, TASK_RUN);
 	Scheduler_SetTaskMode(TCP_Task, TASK_RUN);
-	Scheduler_SetTaskMode(ARP_Task, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
@@ -308,8 +305,5 @@ TASK(Ethernet_Task)
 	{
 		/* Print out the frame details */
 		Ethernet_ProcessPacket();
-
-		/* Clear the frame buffer */
-		FrameIN.FrameInBuffer = false;
 	}
 }

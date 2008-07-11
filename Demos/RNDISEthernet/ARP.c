@@ -10,19 +10,7 @@
 
 #include "ARP.h"
 
-
-TASK(ARP_Task)
-{
-	/* Task to refresh ARP table when entries expire. */
-
-	/* Block until a frame can be sent out if needed */
-	if (FrameOUT.FrameInBuffer)
-	  return;
-	  
-	
-}
-
-uint16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart)
+int16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart)
 {
 	DecodeARPHeader(InDataStart);
 
@@ -43,12 +31,12 @@ uint16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart)
 		ARPHeaderOUT->Operation    = SwapEndian_16(ARP_OPERATION_REPLY);
 
 		/* Copy over the sender MAC/IP to the target fields for the response */
-		memcpy(&ARPHeaderOUT->THA, &ARPHeaderIN->SHA, sizeof(MAC_Address_t));
-		memcpy(&ARPHeaderOUT->TPA, &ARPHeaderIN->SPA, sizeof(IP_Address_t));
+		ARPHeaderOUT->THA = ARPHeaderIN->SHA;
+		ARPHeaderOUT->TPA = ARPHeaderIN->SPA;
 
 		/* Copy over the new sender MAC/IP - MAC and IP addresses of the virtual webserver */
-		memcpy(&ARPHeaderOUT->SHA, &ServerMACAddress, sizeof(MAC_Address_t));
-		memcpy(&ARPHeaderOUT->SPA, &ServerIPAddress, sizeof(IP_Address_t));
+		ARPHeaderOUT->SHA = ServerMACAddress;
+		ARPHeaderOUT->SPA = ServerIPAddress;
 
 		/* If the ARP packet is requesting the MAC or IP of the virtual webserver, return the response */
 		if (IP_COMPARE(&ARPHeaderIN->TPA, &ServerIPAddress) || 

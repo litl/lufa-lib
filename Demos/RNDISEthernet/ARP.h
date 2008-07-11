@@ -36,11 +36,8 @@
 			MAC_Address_t THA;
 			IP_Address_t  TPA;
 		} ARP_Header_t;
-	
-	/* Tasks: */
-		TASK(ARP_Task);
 		
 	/* Function Prototypes: */
-		uint16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart);
+		int16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart);
 
 #endif

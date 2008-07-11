@@ -34,6 +34,7 @@
 		#define ETHERNET_VER2_MINSIZE            0x0600
 		
 		#define NO_RESPONSE                      0		
+		#define NO_PROCESS                       -1
 
 	/* Type Defines: */
 		typedef struct

@@ -11,7 +11,7 @@
 #include "Webserver.h"
 
 char HTTPHeader[] PROGMEM = "HTTP/1.1 200 OK\r\n\r\n";
-char HTTPPage[]   PROGMEM = "<html><body>Hello from the USBKEY!</body></html>";
+char HTTPPage[]   PROGMEM = "<html><body>Hello from the USBKEY! </body></html>";
 
 
 void Webserver_Init(void)
@@ -22,11 +22,9 @@ void Webserver_Init(void)
 
 void Webserver_HandleRequest(TCP_ConnectionBuffer_t* Buffer)
 {
-	memcpy_P(Buffer->Data, HTTPHeader, sizeof(HTTPHeader));
-	memcpy_P(&Buffer->Data[sizeof(HTTPHeader)], HTTPPage, sizeof(HTTPPage));
+	strcpy_P((char*)Buffer->Data, HTTPHeader);
+	strcpy_P((char*)&Buffer->Data[sizeof(HTTPHeader)], HTTPPage);
 	
-	Buffer->Length = (sizeof(HTTPHeader) + sizeof(HTTPPage));
-
+	Buffer->Length    = (sizeof(HTTPHeader) + strlen((char*)Buffer->Data));
 	Buffer->Direction = TCP_PACKETDIR_OUT;
-	Buffer->Ready = true;
 }

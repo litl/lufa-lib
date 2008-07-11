@@ -10,7 +10,7 @@
 
 #include "ICMP.h"
 
-uint16_t ICMP_ProcessICMPPacket(void* InDataStart, void* OutDataStart)
+int16_t ICMP_ProcessICMPPacket(void* InDataStart, void* OutDataStart)
 {
 	ICMP_Header_t* ICMPHeaderIN  = (ICMP_Header_t*)InDataStart;
 	ICMP_Header_t* ICMPHeaderOUT = (ICMP_Header_t*)OutDataStart;
