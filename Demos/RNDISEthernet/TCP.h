@@ -41,6 +41,15 @@
 		#define TCP_FLAG_RST                    (1 << 2)
 		#define TCP_FLAG_SYN                    (1 << 1)
 		#define TCP_FLAG_FIN                    (1 << 0)
+		
+		#define TCP_APP_HAS_RECEIVED_PACKET(Buffer)  (Buffer->Ready && (Buffer->Direction == TCP_PACKETDIR_IN))
+		#define TCP_APP_HAVE_CAPTURED_BUFFER(Buffer) (!(Buffer->Ready) && Buffer->InUse && \
+		                                              (Buffer->Direction == TCP_PACKETDIR_OUT))
+		#define TCP_APP_CAN_CAPTURE_BUFFER(Buffer)   Buffer->InUse
+		#define TCP_APP_SEND_BUFFER(Buffer, Len)     Buffer->Direction = TCP_PACKETDIR_OUT; Buffer->Length = Len; Buffer->Ready = true
+		#define TCP_APP_CLEAR_BUFFER(Buffer)         Buffer->Ready = false; Buffer->Length = 0
+		#define TCP_APP_CAPTURE_BUFFER(Buffer)       Buffer->Direction = TCP_PACKETDIR_OUT; Buffer->InUse = true
+		#define TCP_APP_RELEASE_BUFFER(Buffer)       Buffer->InUse = false
 
 	/* Enums: */
 		enum TCP_PortStates_t
@@ -85,7 +94,7 @@
 		{
 			uint16_t               Port;
 			uint8_t                State;
-			void (*ApplicationHandler) (TCP_ConnectionBuffer_t* Buffer);
+			void                   (*ApplicationHandler) (TCP_ConnectionBuffer_t* Buffer);
 		} TCP_PortState_t;
 	
 		typedef struct

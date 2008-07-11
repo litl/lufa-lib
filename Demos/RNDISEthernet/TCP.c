@@ -22,24 +22,14 @@ TASK(TCP_Task)
 	  
 	for (uint8_t CSTableEntry = 0; CSTableEntry < MAX_TCP_CONNECTIONS; CSTableEntry++)
 	{
-		/* For each completely received packet, pass it along to the listening application */
-		if ((ConnectionStateTable[CSTableEntry].Info.Buffer.Direction == TCP_PACKETDIR_IN) &&
-		    (ConnectionStateTable[CSTableEntry].Info.Buffer.Ready))
+		/* Find the corresponding port entry in the port table */
+		for (uint8_t PTableEntry = 0; PTableEntry < MAX_TCP_CONNECTIONS; PTableEntry++)
 		{
-			printf("Packet ready for port %u.\r\n", SwapEndian_16(ConnectionStateTable[CSTableEntry].Port));
-		
-			/* Find the corresponding port entry in the port table */
-			for (uint8_t PTableEntry = 0; PTableEntry < MAX_TCP_CONNECTIONS; PTableEntry++)
+			/* Run the application handler for the port */
+			if ((PortStateTable[PTableEntry].Port  == ConnectionStateTable[CSTableEntry].Port) && 
+			    (PortStateTable[PTableEntry].State == TCP_Port_Open))
 			{
-				/* Run the application handler for the port on the received packet */
-				if ((PortStateTable[PTableEntry].Port  == ConnectionStateTable[CSTableEntry].Port) && 
-				    (PortStateTable[PTableEntry].State == TCP_Port_Open))
-				{
-					printf("Running app handler for port %u.\r\n", SwapEndian_16(PortStateTable[PTableEntry].Port));
-					ConnectionStateTable[CSTableEntry].Info.Buffer.Direction = TCP_PACKETDIR_OUT;
-					PortStateTable[PTableEntry].ApplicationHandler(&ConnectionStateTable[CSTableEntry].Info.Buffer);
-					printf("Handler Complete.\r\n");
-				}
+				PortStateTable[PTableEntry].ApplicationHandler(&ConnectionStateTable[CSTableEntry].Info.Buffer);
 			}
 		}
 	}
@@ -117,8 +107,6 @@ TASK(TCP_Task)
 			FrameOUT.FrameInBuffer          = true;
 			
 			ConnectionStateTable[CSTableEntry].Info.Buffer.Ready = false;
-			
-			printf("RESPONSE SEND\r\n");
 			
 			break;
 		}

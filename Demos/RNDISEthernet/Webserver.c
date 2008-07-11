@@ -11,19 +11,78 @@
 #include "Webserver.h"
 
 char HTTPHeader[] PROGMEM = "HTTP/1.1 200 OK\r\nServer: MyUSB RNDIS\r\nContent-type: text/html\r\nConnection: close\r\n\r\n";
-char HTTPPage[]   PROGMEM = "<html><head><title>MyUSB Webserver Test</title></head><body>Hello from the USB AVR!</body></html>\n";
-
+char HTTPPage[]   PROGMEM = 
+		"<html>"
+		"	<head>"
+		"		<title>"
+		"			MyUSB Webserver Demo"
+		"		</title>"
+		"	</head>"
+		"	<body>"
+		"		<h1>Hello from your USB AVR!</h1>"
+		"		<p>"
+		"			Hello <b>%REMOTEIP%</b>! Welcome to the MyUSB RNDIS Demo Webserver test page, running on port <b>%LOCALPORT%</b>. This demonstrates the HTTP webserver, TCP/IP stack and RNDIS demo all running atop the MyUSB USB stack."
+		"			<br /><br />"
+		"			<small>Project Information: <a href=\"http://www.fourwalledcubicle.com/MyUSB.php\">http://www.fourwalledcubicle.com/MyUSB.php</a>.</small>"
+		"			<hr />"
+		"			<i>MyUSB Version:</i>" MYUSB_VERSION_STRING
+		"		</p>"
+		"	</body>"
+		"</html>";
 
 void Webserver_Init(void)
 {
 	/* Open the HTTP port in the TCP protocol so that HTTP connections to the device can be established */
-	TCP_SetPortState(TCP_PORT_HTTP, TCP_Port_Open, Webserver_HandleRequest);
+	TCP_SetPortState(TCP_PORT_HTTP, TCP_Port_Open, Webserver_ApplicationCallback);
 }
 
-void Webserver_HandleRequest(TCP_ConnectionBuffer_t* Buffer)
+static bool IsHTTPCommand(uint8_t* RequestHeader, char* Command)
 {
-	strcpy_P((char*)Buffer->Data, HTTPHeader);
-	strcpy_P((char*)&Buffer->Data[sizeof(HTTPHeader)], HTTPPage);
+	return (strncmp((char*)RequestHeader, Command, strlen(Command)) == 0);
+}
+
+void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
+{
+	char*          BufferDataStr = (char*)Buffer->Data;
+	static uint8_t PageBlock     = 0;
 	
-	Buffer->Length = (sizeof(HTTPHeader) + sizeof(HTTPPage) - 1);
+	if (TCP_APP_HAS_RECEIVED_PACKET(Buffer))
+	{
+		if (IsHTTPCommand(Buffer->Data, "GET") && TCP_APP_CAN_CAPTURE_BUFFER(Buffer))
+		{
+			PageBlock = 0;
+
+			strcpy_P(BufferDataStr, HTTPHeader);
+			
+			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
+			TCP_APP_CAPTURE_BUFFER(Buffer);
+		}
+		else if (IsHTTPCommand(Buffer->Data, "HEAD"))
+		{
+			strcpy_P(BufferDataStr, HTTPHeader);
+
+			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
+		}
+		else if (IsHTTPCommand(Buffer->Data, "TRACE"))
+		{
+			TCP_APP_SEND_BUFFER(Buffer, Buffer->Length);
+		}
+		else
+		{
+			TCP_APP_CLEAR_BUFFER(Buffer);
+		}
+	}
+	else if (TCP_APP_HAVE_CAPTURED_BUFFER(Buffer))
+	{
+		uint16_t Length = 0;
+	
+		for (uint8_t z = 0; z < 128; z++)
+		{
+			Buffer->Data[z] = pgm_read_byte(&HTTPPage[z]);
+			Length++;
+		}
+		
+		TCP_APP_SEND_BUFFER(Buffer, Length);
+		TCP_APP_RELEASE_BUFFER(Buffer);
+	}
 }

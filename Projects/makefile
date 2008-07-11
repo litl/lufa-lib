@@ -16,11 +16,11 @@
 # code.
 
 all:
-	make -C MagStripe clean
-	make -C MagStripe all
+	make -C Magstripe clean
+	make -C Magstripe all
 
 clean:
-	make -C MagStripe clean
+	make -C Magstripe clean
 	
 clean_list:
-	make -C MagStripe clean_list
+	make -C Magstripe clean_list

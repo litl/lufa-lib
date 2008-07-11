@@ -15,10 +15,12 @@
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 		
+		#include <MyUSB/Version.h>
+		
 		#include "TCP.h"
 	
 	/* Function Prototypes: */
 		void Webserver_Init(void);
-		void Webserver_HandleRequest(TCP_ConnectionBuffer_t* Buffer);
+		void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer);
 
 #endif

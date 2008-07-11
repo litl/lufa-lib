@@ -21,6 +21,6 @@
 	
 	/* Function Prototypes: */
 		void Telnet_Init(void);
-		void Telnet_HandleRequest(TCP_ConnectionBuffer_t* Buffer);
+		void Telnet_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer);
 
 #endif
