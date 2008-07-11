@@ -99,26 +99,26 @@
 
 		typedef struct
 		{
-			uint16_t      SourcePort;
-			uint16_t      DestinationPort;
+			uint16_t               SourcePort;
+			uint16_t               DestinationPort;
 			
-			uint32_t      SequenceNumber;
-			uint32_t      AcknowledgmentNumber;
+			uint32_t               SequenceNumber;
+			uint32_t               AcknowledgmentNumber;
 			
-			unsigned int  Reserved : 4;
-			unsigned int  DataOffset : 4;
-			uint8_t       Flags;
-			uint16_t      WindowSize;
+			unsigned int           Reserved : 4;
+			unsigned int           DataOffset : 4;
+			uint8_t                Flags;
+			uint16_t               WindowSize;
 			
-			uint16_t      Checksum;
-			uint16_t      UrgentPointer;
+			uint16_t               Checksum;
+			uint16_t               UrgentPointer;
 		} TCP_Header_t;
 
 	/* Tasks: */
 		TASK(TCP_Task);
 		
 	/* External Variables: */
-		TCP_PortState_t   PortStateTable[MAX_OPEN_TCP_PORTS];
+		TCP_PortState_t PortStateTable[MAX_OPEN_TCP_PORTS];
 
 	/* Function Prototypes: */
 		void                  TCP_Init(void);

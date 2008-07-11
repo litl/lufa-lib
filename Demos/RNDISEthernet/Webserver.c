@@ -11,7 +11,7 @@
 #include "Webserver.h"
 
 char HTTPHeader[] PROGMEM = "HTTP/1.1 200 OK\r\nServer: MyUSB RNDIS\r\nContent-type: text/html\r\nConnection: close\r\n\r\n";
-char HTTPPage[]   PROGMEM = "<html><head><title>MyUSB Webserver Test</title></head><body>Hello from the USBKEY!</body></html>\n";
+char HTTPPage[]   PROGMEM = "<html><head><title>MyUSB Webserver Test</title></head><body>Hello from the USB AVR!</body></html>\n";
 
 
 void Webserver_Init(void)

@@ -46,6 +46,8 @@
 bool          IsSecure      = SECURE_MODE;
 bool          RunBootloader = true;
 
+bool          WaitForExit   = false;
+
 uint8_t       DFU_State     = dfuIDLE;
 uint8_t       DFU_Status    = OK;
 
@@ -84,6 +86,10 @@ int main (void)
 	while (RunBootloader)
 	  USB_USBTask();
 	
+	_delay_ms(5);
+	
+	USB_USBTask();	
+	
 	/* Shut down the USB subsystem */
 	USB_ShutDown();
 	
@@ -118,7 +124,10 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
+	/* Discard unused wIndex value */
 	Endpoint_Discard_Word();
+	
+	/* Discard unused wValue value */
 	Endpoint_Discard_Word();
 
 	SentCommand.DataSize = Endpoint_Read_Word_LE();
@@ -131,6 +140,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case DFU_DNLOAD:
 			Endpoint_ClearSetupReceived();
 			
+			if (WaitForExit)
+			  ProcessBootloaderCommand();
+			  
 			/* If the request has a data stage, load it into the command struct */
 			if (SentCommand.DataSize)
 			{
@@ -462,8 +474,7 @@ static void LoadStartEndAddresses(void)
 
 static void ProcessMemProgCommand(void)
 {
-	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00) ||                          // Write FLASH command
-		IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                            // Write EEPROM command
+	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))                            // Write FLASH command
 	{
 		/* Load in the start and ending read addresses */
 		LoadStartEndAddresses();
@@ -476,8 +487,16 @@ static void ProcessMemProgCommand(void)
 		
 		/* Erase the current page's temp buffer */
 		boot_page_erase(CurrFlashAddress.Long);
-		boot_spm_busy_wait();		
+		boot_spm_busy_wait();
 		
+		/* Set the state so that the next DNLOAD requests reads in the firmware */
+		DFU_State = dfuDNLOAD_IDLE;
+	}
+	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Write EEPROM command
+	{
+		/* Load in the start and ending read addresses */
+		LoadStartEndAddresses();	
+
 		/* Set the state so that the next DNLOAD requests reads in the firmware */
 		DFU_State = dfuDNLOAD_IDLE;
 	}
@@ -523,15 +542,17 @@ static void ProcessWriteCommand(void)
 {
 	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x03))                            // Start application
 	{
+		/* Indicate that the bootloader is terminating */
+		WaitForExit = true;
+
 		/* Check if empty request data array - an empty request after a filled request retains the
 		   previous valid request data, but initializes the reset */
 		if (!(SentCommand.DataSize))
 		{
 			if (SentCommand.Data[1] == 0x00)                                   // Start via watchdog
 			{
-				/* Start the watchdog, enter infinite loop to reset the AVR */
+				/* Start the watchdog to reset the AVR once the communications are finalized */
 				wdt_enable(WDTO_250MS);
-				for (;;);
 			}
 			else                                                                // Start via jump
 			{
@@ -545,7 +566,7 @@ static void ProcessWriteCommand(void)
 				AppStartPtr = Address.FuncPtr;
 				
 				/* Set the flag to terminate the bootloader at next opportunity */
-				RunBootloader = false;			
+				RunBootloader = false;
 			}
 		}
 	}
