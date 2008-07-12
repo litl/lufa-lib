@@ -25,7 +25,7 @@ char HTTPPage[]   PROGMEM =
 		"			<br /><br />"
 		"			<small>Project Information: <a href=\"http://www.fourwalledcubicle.com/MyUSB.php\">http://www.fourwalledcubicle.com/MyUSB.php</a>.</small>"
 		"			<hr />"
-		"			<i>MyUSB Version:</i>" MYUSB_VERSION_STRING
+		"			<i>MyUSB Version: </i>" MYUSB_VERSION_STRING
 		"		</p>"
 		"	</body>"
 		"</html>";
@@ -48,11 +48,13 @@ void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 	
 	if (TCP_APP_HAS_RECEIVED_PACKET(Buffer))
 	{
-		if (IsHTTPCommand(Buffer->Data, "GET") && TCP_APP_CAN_CAPTURE_BUFFER(Buffer))
+		if (IsHTTPCommand(Buffer->Data, "GET"))
 		{
 			PageBlock = 0;
 
 			strcpy_P(BufferDataStr, HTTPHeader);
+			
+			printf("Buffer captured.\r\n");
 			
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
 			TCP_APP_CAPTURE_BUFFER(Buffer);
@@ -74,15 +76,17 @@ void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 	}
 	else if (TCP_APP_HAVE_CAPTURED_BUFFER(Buffer))
 	{
-		uint16_t Length = 0;
+		uint16_t Length;
+		uint16_t RemLength = strlen_P(&HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE]);
 	
-		for (uint8_t z = 0; z < 128; z++)
-		{
-			Buffer->Data[z] = pgm_read_byte(&HTTPPage[z]);
-			Length++;
-		}
+		printf("Next segment.\r\n");
+
+		strncpy_P(BufferDataStr, &HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE], HTTP_REPLY_BLOCK_SIZE);
+		Length = ((RemLength > HTTP_REPLY_BLOCK_SIZE) ? HTTP_REPLY_BLOCK_SIZE : RemLength);
+		
+		if (PageBlock++ == (sizeof(HTTPPage) / HTTP_REPLY_BLOCK_SIZE))
+		  TCP_APP_RELEASE_BUFFER(Buffer);
 		
 		TCP_APP_SEND_BUFFER(Buffer, Length);
-		TCP_APP_RELEASE_BUFFER(Buffer);
 	}
 }

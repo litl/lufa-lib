@@ -46,10 +46,10 @@
 		#define TCP_APP_HAVE_CAPTURED_BUFFER(Buffer) (!(Buffer->Ready) && Buffer->InUse && \
 		                                              (Buffer->Direction == TCP_PACKETDIR_OUT))
 		#define TCP_APP_CAN_CAPTURE_BUFFER(Buffer)   Buffer->InUse
-		#define TCP_APP_SEND_BUFFER(Buffer, Len)     Buffer->Direction = TCP_PACKETDIR_OUT; Buffer->Length = Len; Buffer->Ready = true
-		#define TCP_APP_CLEAR_BUFFER(Buffer)         Buffer->Ready = false; Buffer->Length = 0
-		#define TCP_APP_CAPTURE_BUFFER(Buffer)       Buffer->Direction = TCP_PACKETDIR_OUT; Buffer->InUse = true
-		#define TCP_APP_RELEASE_BUFFER(Buffer)       Buffer->InUse = false
+		#define TCP_APP_SEND_BUFFER(Buffer, Len)     MACROS{ Buffer->Direction = TCP_PACKETDIR_OUT; Buffer->Length = Len; Buffer->Ready = true; }MACROE
+		#define TCP_APP_CLEAR_BUFFER(Buffer)         MACROS{ Buffer->Ready = false; Buffer->Length = 0; }MACROE
+		#define TCP_APP_CAPTURE_BUFFER(Buffer)       MACROS{ Buffer->Direction = TCP_PACKETDIR_OUT; Buffer->InUse = true; }MACROE
+		#define TCP_APP_RELEASE_BUFFER(Buffer)       MACROS{ Buffer->InUse = false; }MACROE
 
 	/* Enums: */
 		enum TCP_PortStates_t

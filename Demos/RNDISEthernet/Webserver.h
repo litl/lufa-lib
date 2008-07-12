@@ -19,6 +19,9 @@
 		
 		#include "TCP.h"
 	
+	/* Macros: */
+		#define  HTTP_REPLY_BLOCK_SIZE     128
+	
 	/* Function Prototypes: */
 		void Webserver_Init(void);
 		void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer);
