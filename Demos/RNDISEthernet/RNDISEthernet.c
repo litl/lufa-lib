@@ -28,6 +28,11 @@
 	stack with a HTTP webserver and TELNET host which can be
 	accessed through a web browser at IP address 10.0.0.2:80 or
 	through a TELNET client at 10.0.0.2:25.
+	
+	NOTE: The TCP/IP stack in this demo has a number of limitations
+	and should serve as an example only. For complete projects, it
+	is recommended that it be replaced with an external open source
+	TCP/IP stack that is feature complete, such as the uIP stack.
 */
 
 /*

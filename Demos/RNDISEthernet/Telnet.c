@@ -34,6 +34,7 @@ void Telnet_Init(void)
 
 static bool IsTELNETCommand(uint8_t* Data, char* Command)
 {
+	/* Returns true if the non null terminated string in Data matches the null terminated string Command */
 	return (strncmp((char*)Data, Command, strlen(Command)) == 0);
 }
 
@@ -41,28 +42,40 @@ void Telnet_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 {
 	char* BufferDataStr = (char*)Buffer->Data;
 
+	/* Check to see if a packet has been received on the TELNET port from a remote host */
 	if (TCP_APP_HAS_RECEIVED_PACKET(Buffer))
 	{
+		/* If first byte is 0xFF it is a control message, send back the welcome text and command prompt */
 		if (Buffer->Data[0] == 0xFF)
 		{
+			/* Copy welcome and command line text to the packet buffer */
 			strcpy_P(BufferDataStr, TelnetWelcome);
 			strcpy_P(&BufferDataStr[strlen_P(TelnetWelcome)], TelnetCommand);
+			
+			/* Send the packet contents back to the host */
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
 		}
 		else if (IsTELNETCommand(Buffer->Data, "\r\n"))
 		{
+			/* Copy the command line text to the packet buffer */
 			strcpy_P(BufferDataStr, TelnetCommand);
+			
+			/* Send the packet contents back to the host */
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
 		}
 		else if (IsTELNETCommand(Buffer->Data, "HELP"))
 		{
+			/* Copy the help text to the packet buffer */
 			strcpy_P(BufferDataStr, TelnetHelp);
+
+			/* Send the packet contents back to the host */
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
 		}
 		else if (IsTELNETCommand(Buffer->Data, "LEDON"))
 		{
 			bool CommandOK = true;
 
+			/* Turn on the LED number given in the command */
 			switch (Buffer->Data[strlen("LEDON")])
 			{
 				case '1':
@@ -87,12 +100,14 @@ void Telnet_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 			else
 			  strcpy_P(BufferDataStr, TelnetCommandFail);
 			
+			/* Send the packet contents back to the host */
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
 		}
 		else if (IsTELNETCommand(Buffer->Data, "LEDOFF"))
 		{
 			bool CommandOK = true;
 		
+			/* Turn off the LED number given in the command */
 			switch (Buffer->Data[strlen("LEDOFF")])
 			{
 				case '1':
@@ -117,11 +132,15 @@ void Telnet_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 			else
 			  strcpy_P(BufferDataStr, TelnetCommandFail);
 			
+			/* Send the packet contents back to the host */
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
 		}
 		else
 		{
+			/* Copy the unknown command response into the packet buffer */
 			strcpy_P(BufferDataStr, TelnetCommandUnk);
+
+			/* Send the packet contents back to the host */
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
 		}
 	}

@@ -21,7 +21,7 @@ char HTTPPage[]   PROGMEM =
 		"	<body>"
 		"		<h1>Hello from your USB AVR!</h1>"
 		"		<p>"
-		"			Hello <b>%REMOTEIP%</b>! Welcome to the MyUSB RNDIS Demo Webserver test page, running on port <b>%LOCALPORT%</b>. This demonstrates the HTTP webserver, TCP/IP stack and RNDIS demo all running atop the MyUSB USB stack."
+		"			Hello! Welcome to the MyUSB RNDIS Demo Webserver test page, running on your USB AVR via the MyUSB library. This demonstrates the HTTP webserver, TCP/IP stack and RNDIS demo all running atop the MyUSB USB stack."
 		"			<br /><br />"
 		"			<small>Project Information: <a href=\"http://www.fourwalledcubicle.com/MyUSB.php\">http://www.fourwalledcubicle.com/MyUSB.php</a>.</small>"
 		"			<hr />"
@@ -38,6 +38,7 @@ void Webserver_Init(void)
 
 static bool IsHTTPCommand(uint8_t* RequestHeader, char* Command)
 {
+	/* Returns true if the non null terminated string in RequestHeader matches the null terminated string Command */
 	return (strncmp((char*)RequestHeader, Command, strlen(Command)) == 0);
 }
 
@@ -46,31 +47,38 @@ void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 	char*          BufferDataStr = (char*)Buffer->Data;
 	static uint8_t PageBlock     = 0;
 	
+	/* Check to see if a packet has been received on the TELNET port from a remote host */
 	if (TCP_APP_HAS_RECEIVED_PACKET(Buffer))
 	{
 		if (IsHTTPCommand(Buffer->Data, "GET"))
 		{
 			PageBlock = 0;
 
+			/* Copy the HTTP response header into the packet buffer */
 			strcpy_P(BufferDataStr, HTTPHeader);
 			
-			printf("Buffer captured.\r\n");
-			
+			/* Send the buffer contents to the host */
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
+
+			/* Lock the buffer to Device->Host transmissions only while we send the page contents */
 			TCP_APP_CAPTURE_BUFFER(Buffer);
 		}
 		else if (IsHTTPCommand(Buffer->Data, "HEAD"))
 		{
+			/* Copy the HTTP response header into the packet buffer */
 			strcpy_P(BufferDataStr, HTTPHeader);
 
+			/* Send the buffer contents to the host */
 			TCP_APP_SEND_BUFFER(Buffer, strlen(BufferDataStr));
 		}
 		else if (IsHTTPCommand(Buffer->Data, "TRACE"))
 		{
+			/* Echo the host's query back to the host */
 			TCP_APP_SEND_BUFFER(Buffer, Buffer->Length);
 		}
 		else
 		{
+			/* Unknown request, just clear the buffer (drop the packet) */
 			TCP_APP_CLEAR_BUFFER(Buffer);
 		}
 	}
@@ -79,14 +87,19 @@ void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 		uint16_t Length;
 		uint16_t RemLength = strlen_P(&HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE]);
 	
-		printf("Next segment.\r\n");
-
+		/* Copy the next buffer sized block of the page to the packet buffer */
 		strncpy_P(BufferDataStr, &HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE], HTTP_REPLY_BLOCK_SIZE);
+		
+		/* Determine the length of the loaded block */
 		Length = ((RemLength > HTTP_REPLY_BLOCK_SIZE) ? HTTP_REPLY_BLOCK_SIZE : RemLength);
 		
+		/* Check to see if the entire page has been sent, if so unlock the buffer so that packets can be
+		   received from the host again
+		*/
 		if (PageBlock++ == (sizeof(HTTPPage) / HTTP_REPLY_BLOCK_SIZE))
 		  TCP_APP_RELEASE_BUFFER(Buffer);
 		
+		/* Send the buffer contents to the host */
 		TCP_APP_SEND_BUFFER(Buffer, Length);
 	}
 }
