@@ -225,7 +225,7 @@ void USB_SetupInterface(void)
 	{		  
 		#if defined(USE_RAM_DESCRIPTORS)
 			USB_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;
-		#elif defined (USE_EEPROM_DESCRIPTORS)
+		#elif defined(USE_EEPROM_DESCRIPTORS)
 			USB_ControlEndpointSize = eeprom_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 		#else
 			USB_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);

@@ -23,25 +23,25 @@ int16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart)
 	if ((SwapEndian_16(ARPHeaderIN->ProtocolType) == ETHERTYPE_IPV4) &&
 	    (SwapEndian_16(ARPHeaderIN->Operation) == ARP_OPERATION_REQUEST))
 	{
-		/* Fill out the ARP response header */
-		ARPHeaderOUT->HardwareType = ARPHeaderIN->HardwareType;
-		ARPHeaderOUT->ProtocolType = ARPHeaderIN->ProtocolType;
-		ARPHeaderOUT->HLEN         = ARPHeaderIN->HLEN;
-		ARPHeaderOUT->PLEN         = ARPHeaderIN->PLEN;
-		ARPHeaderOUT->Operation    = SwapEndian_16(ARP_OPERATION_REPLY);
-
-		/* Copy over the sender MAC/IP to the target fields for the response */
-		ARPHeaderOUT->THA = ARPHeaderIN->SHA;
-		ARPHeaderOUT->TPA = ARPHeaderIN->SPA;
-
-		/* Copy over the new sender MAC/IP - MAC and IP addresses of the virtual webserver */
-		ARPHeaderOUT->SHA = ServerMACAddress;
-		ARPHeaderOUT->SPA = ServerIPAddress;
-
 		/* If the ARP packet is requesting the MAC or IP of the virtual webserver, return the response */
 		if (IP_COMPARE(&ARPHeaderIN->TPA, &ServerIPAddress) || 
 		    MAC_COMPARE(&ARPHeaderIN->THA, &ServerMACAddress))
 		{
+			/* Fill out the ARP response header */
+			ARPHeaderOUT->HardwareType = ARPHeaderIN->HardwareType;
+			ARPHeaderOUT->ProtocolType = ARPHeaderIN->ProtocolType;
+			ARPHeaderOUT->HLEN         = ARPHeaderIN->HLEN;
+			ARPHeaderOUT->PLEN         = ARPHeaderIN->PLEN;
+			ARPHeaderOUT->Operation    = SwapEndian_16(ARP_OPERATION_REPLY);
+
+			/* Copy over the sender MAC/IP to the target fields for the response */
+			ARPHeaderOUT->THA = ARPHeaderIN->SHA;
+			ARPHeaderOUT->TPA = ARPHeaderIN->SPA;
+
+			/* Copy over the new sender MAC/IP - MAC and IP addresses of the virtual webserver */
+			ARPHeaderOUT->SHA = ServerMACAddress;
+			ARPHeaderOUT->SPA = ServerIPAddress;
+
 			/* Return the size of the response so far */
 			return sizeof(ARP_Header_t);
 		}

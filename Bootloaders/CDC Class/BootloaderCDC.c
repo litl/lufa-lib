@@ -142,7 +142,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				  Endpoint_Write_Byte(*(LineCodingData++));	
 				
 				Endpoint_ClearSetupIN();
-				while (!(Endpoint_IsSetupINReady()));
 				
 				while (!(Endpoint_IsSetupOUTReceived()));
 				Endpoint_ClearSetupOUT();
@@ -161,6 +160,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 				Endpoint_ClearSetupOUT();
 
+				while (!(Endpoint_IsSetupINReady()));
 				Endpoint_ClearSetupIN();
 			}
 	
@@ -170,6 +170,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			{
 				Endpoint_ClearSetupReceived();
 				
+				while (!(Endpoint_IsSetupINReady()));
 				Endpoint_ClearSetupIN();
 			}
 	
@@ -533,4 +534,3 @@ TASK(CDC_Task)
 		Endpoint_ClearCurrentBank();
 	}
 }
-

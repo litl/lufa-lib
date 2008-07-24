@@ -266,7 +266,7 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 static void USB_Device_ClearSetFeature(const uint8_t bRequest, const uint8_t bmRequestType)
 {
 	uint16_t wValue = Endpoint_Read_Word_LE();
-	uint16_t wIndex = Endpoint_Read_Word_LE();
+	uint16_t wIndex = (Endpoint_Read_Word_LE() & ENDPOINT_EPNUM_MASK);
 
 	switch (bmRequestType & CONTROL_REQTYPE_RECIPIENT)
 	{

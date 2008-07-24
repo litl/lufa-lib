@@ -461,7 +461,7 @@
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Writes the given number of bytes to the pipe from the given buffer in big endian,
 			 *  sending full packets to the device as needed. The last packet filled is not automatically sent;
@@ -473,7 +473,7 @@
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 			
 			/** Reads the given number of bytes from the pipe from the given buffer in little endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically

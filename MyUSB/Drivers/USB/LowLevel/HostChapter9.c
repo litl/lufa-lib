@@ -102,7 +102,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 					for (uint16_t PipeByte = 0; PipeByte < USB_ControlPipeSize; PipeByte++)
 					  Pipe_Write_Byte(*(DataStream++));
 
-					DataLen -= USB_ControlPipeSize;			
+					DataLen -= USB_ControlPipeSize;
 				}
 				
 				if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(Wait_For_Out_Ready)))

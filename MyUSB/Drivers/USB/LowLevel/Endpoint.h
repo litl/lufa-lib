@@ -440,7 +440,7 @@
 			 *
 			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Endpoint_Write_Stream_LE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Writes the given number of bytes to the endpoint from the given buffer in big endian,
 			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
@@ -454,7 +454,7 @@
 			 *
 			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Endpoint_Write_Stream_BE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Reads the given number of bytes from the endpoint from the given buffer in little endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
@@ -499,7 +499,7 @@
 			 *
 			 *  \return A value from the Endpoint_ControlStream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Endpoint_Write_Control_Stream_LE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Endpoint_Write_Control_Stream_LE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Writes the given number of bytes to the CONTROL type endpoint from the given buffer in big endian,
 			 *  sending full packets to the host as needed. The host OUT acknowedgement is not automatically cleared
@@ -516,7 +516,7 @@
 			 *
 			 *  \return A value from the Endpoint_ControlStream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Endpoint_Write_Control_Stream_BE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Endpoint_Write_Control_Stream_BE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Reads the given number of bytes from the CONTROL endpoint from the given buffer in little endian,
 			 *  discarding fully read packets from the host as needed. The device IN acknowedgement is not

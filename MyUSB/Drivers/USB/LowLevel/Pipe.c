@@ -78,7 +78,7 @@ uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length)
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
-uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length)
+uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Data + Length - 1);
 	
@@ -109,7 +109,7 @@ uint8_t Pipe_Write_Stream_BE(void* Data, uint16_t Length)
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
-uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)
+uint8_t Pipe_Read_Stream_LE(const void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)Buffer;
 	

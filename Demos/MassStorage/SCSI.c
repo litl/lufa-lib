@@ -35,8 +35,8 @@ SCSI_Inquiry_Response_t InquiryData =
 		WideBus32Bit:        false,
 		RelAddr:             false,
 		
-		VendorID:            {'M','y','U','S','B',' ',' ',' '},
-		ProductID:           {'D','a','t','a','f','l','a','s','h',' ','D','i','s','k',' ',' '},
+		VendorID:            "MyUSB",
+		ProductID:           "Dataflash Disk",
 		RevisionID:          {'0','.','0','0'},
 	};
 

@@ -84,18 +84,17 @@ void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 	}
 	else if (TCP_APP_HAVE_CAPTURED_BUFFER(Buffer))
 	{
-		uint16_t Length;
 		uint16_t RemLength = strlen_P(&HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE]);
+		uint16_t Length;
 	
-		/* Copy the next buffer sized block of the page to the packet buffer */
-		strncpy_P(BufferDataStr, &HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE], HTTP_REPLY_BLOCK_SIZE);
-		
 		/* Determine the length of the loaded block */
 		Length = ((RemLength > HTTP_REPLY_BLOCK_SIZE) ? HTTP_REPLY_BLOCK_SIZE : RemLength);
+
+		/* Copy the next buffer sized block of the page to the packet buffer */
+		strncpy_P(BufferDataStr, &HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE], Length);
 		
 		/* Check to see if the entire page has been sent, if so unlock the buffer so that packets can be
-		   received from the host again
-		*/
+		   received from the host again */
 		if (PageBlock++ == (sizeof(HTTPPage) / HTTP_REPLY_BLOCK_SIZE))
 		  TCP_APP_RELEASE_BUFFER(Buffer);
 		

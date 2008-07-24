@@ -16,10 +16,10 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 	HID_StateTable_t* CurrStateTable               = &StateTable[0];
 	uint16_t          UsageStack[HID_USAGE_STACK_DEPTH];
 	uint8_t           UsageStackSize               = 0;
-	uint16_t          BitOffsetIn                  = 0x00;
-	uint16_t          BitOffsetOut                 = 0x00;
+	uint16_t          BitOffsetIn                  = 0;
+	uint16_t          BitOffsetOut                 = 0;
 #if defined(HID_ENABLE_FEATURE_PROCESSING)
-	uint16_t          BitOffsetFeature             = 0x00;
+	uint16_t          BitOffsetFeature             = 0;
 #endif
 	CollectionPath_t* CurrCollectionPath           = NULL;
 

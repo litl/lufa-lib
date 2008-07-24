@@ -11,8 +11,9 @@
 /*
 	Communications Device Class demonstration application.
 	This gives a simple reference application for implementing
-	a USB to Serial converter. Sent and recieved data on the
-	serial port is communicated to the USB host.
+	a USB to Serial converter using the CDC class. Sent and
+	recieved data on the serial port is communicated to the USB
+	host.
 	
 	Before running, you will need to install the INF file that
 	is located in the CDC project directory. This will enable
