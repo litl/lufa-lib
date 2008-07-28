@@ -5,8 +5,6 @@
 #  dean [at] fourwalledcubicle [dot] com
 #      www.fourwalledcubicle.com
 #
-# Released under the GPL Licence, Version 3
-#
 
 # Makefile to build all the MyUSB USB Bootloaders. Call with "make all" to
 # rebuild all bootloaders.

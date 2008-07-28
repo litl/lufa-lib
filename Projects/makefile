@@ -5,8 +5,6 @@
 #  dean [at] fourwalledcubicle [dot] com
 #      www.fourwalledcubicle.com
 #
-# Released under the LGPL Licence, Version 3
-#
 
 # Makefile to build all the MyUSB Projects. Call with "make all" to
 # rebuild all projects.

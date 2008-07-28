@@ -1,4 +1,26 @@
 /*
+  Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+
+  Permission to use, copy, modify, and distribute this software
+  and its documentation for any purpose and without fee is hereby
+  granted, provided that the above copyright notice appear in all
+  copies and that both that the copyright notice and this
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
+  software without specific, written prior permission.
+
+  The author disclaim all warranties with regard to this
+  software, including all implied warranties of merchantability
+  and fitness.  In no event shall the author be liable for any
+  special, indirect or consequential damages or any damages
+  whatsoever resulting from loss of use, data or profits, whether
+  in an action of contract, negligence or other tortious action,
+  arising out of or in connection with the use or performance of
+  this software.
+*/
+
+/*
 	Firmware for a USB AVR powered USB TTL magnetic stripe reader (using a card
 	reader such as the Omron V3B-4K) by Denver Gingerich. This project is designed
 	to be used with the open source Stripe Snoop project at http://stripesnoop.sourceforge.net/.
@@ -18,10 +40,10 @@
 */
 
 /*
-	This demo uses a keyboard HID driver to communicate the data collected
+	This application uses a keyboard HID driver to communicate the data collected
 	a TTL magnetic stripe reader to the connected computer. The raw bitstream
 	obtained from the magnetic stripe reader is "typed" through the keyboard
-	driver as 0's and 1's. After every card swipe, the demo will send a Return key.
+	driver as 0's and 1's. After every card swipe, the demo will send a return key.
 */
 
 /*

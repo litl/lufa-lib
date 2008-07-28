@@ -4,10 +4,29 @@
               
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
-
- Released under the LGPL Licence, Version 3
 */
 
+/*
+  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+
+  Permission to use, copy, modify, and distribute this software
+  and its documentation for any purpose and without fee is hereby
+  granted, provided that the above copyright notice appear in all
+  copies and that both that the copyright notice and this
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
+  software without specific, written prior permission.
+
+  The author disclaim all warranties with regard to this
+  software, including all implied warranties of merchantability
+  and fitness.  In no event shall the author be liable for any
+  special, indirect or consequential damages or any damages
+  whatsoever resulting from loss of use, data or profits, whether
+  in an action of contract, negligence or other tortious action,
+  arising out of or in connection with the use or performance of
+  this software.
+*/
 #include "USBMode.h"
 #if defined(USB_CAN_BE_HOST)
 
@@ -47,7 +66,7 @@ void Pipe_ClearPipes(void)
 	}
 }
 
-uint8_t Pipe_Write_Stream_LE(void* Data, uint16_t Length)
+uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)Data;
 	
@@ -109,7 +128,7 @@ uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length)
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
-uint8_t Pipe_Read_Stream_LE(const void* Buffer, uint16_t Length)
+uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)Buffer;
 	
