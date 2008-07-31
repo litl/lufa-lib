@@ -344,7 +344,7 @@
 		/* Macros: */
 			#define ALIAS_STUB(e)                       EVENT_HANDLER(e) ATTR_WEAK ATTR_ALIAS(__stub)
 		
-			#if defined(USB_FULL_CONTROLLER)
+			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 				#define USB_VBUSChange_P                (void)
 				#define USB_VBUSConnect_P               (void)
 				#define USB_VBUSDisconnect_P            (void)
@@ -379,7 +379,7 @@
 			#if defined(INCLUDE_FROM_EVENTS_C)
 				static void __stub (void) ATTR_CONST;
 
-				#if defined(USB_FULL_CONTROLLER)
+				#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 				ALIAS_STUB(USB_VBUSChange);
 				ALIAS_STUB(USB_VBUSConnect);
 				ALIAS_STUB(USB_VBUSDisconnect);

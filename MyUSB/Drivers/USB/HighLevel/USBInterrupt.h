@@ -94,7 +94,7 @@
 			 */
 			RAISES_EVENT(USB_Disconnect);
 
-			#if defined(USB_FULL_CONTROLLER) || defined(__DOXYGEN__)
+			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER) || defined(__DOXYGEN__)
 				/** This module raises the VBUS Change event when the current VBUS status (present or not present) has
 				 *  changed.
 				 *

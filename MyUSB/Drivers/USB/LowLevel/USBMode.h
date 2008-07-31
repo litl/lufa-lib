@@ -36,12 +36,14 @@
 		/* Macros: */
 			#if ((defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) ||   \
 			      defined(__AVR_AT90USB162__)  || defined(__AVR_AT90USB82__)  ||   \
-				  defined(__AVR_ATmega32U4__)) && !defined(USB_DEVICE_ONLY))
+				  defined(__AVR_ATmega16U4__)  || defined(__AVR_ATmega32U4__)) && !defined(USB_DEVICE_ONLY))
 				#define USB_DEVICE_ONLY
 			#endif
 			
 			#if (defined(__AVR_AT90USB162__)  || defined(__AVR_AT90USB82__))
 				#define USB_LIMITED_CONTROLLER
+			#elif (defined(__AVR_ATmega16U4__) || defined(__AVR_ATmega32U4__))
+				#define USB_MODIFIED_FULL_CONTROLLER
 			#else
 				#define USB_FULL_CONTROLLER
 			#endif			

@@ -49,7 +49,7 @@
 		#if (!(defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB647__) ||  \
 		       defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) ||  \
 			   defined(__AVR_AT90USB162__)  || defined(__AVR_AT90USB82__)  ||  \
-			   defined(__AVR_ATmega32U4__)))
+			   defined(__AVR_ATmega16U4__)  || defined(__AVR_ATmega32U4__)))
 			#error The currently selected AVR model is not supported under the USB component of the MyUSB library.
 		#endif
 		

@@ -72,7 +72,7 @@
 			#elif (defined(__AVR_AT90USB646__)  || defined(__AVR_AT90USB647__) || \
 			       defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__))
 				#define USB_PLL_PSC                ((1 << PLLP1) | (1 << PLLP0))
-			#elif (defined(__AVR_ATmega32U4__))
+			#elif (defined(__AVR_ATmega16U4__) || defined(__AVR_ATmega32U4__))
 				#define USB_PLL_PSC                0
 			#endif
 		#elif (F_CPU == 16000000)
@@ -82,7 +82,7 @@
 				#define USB_PLL_PSC                ((1 << PLLP2) | (1 << PLLP0))
 			#elif (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
 				#define USB_PLL_PSC                (1 << PLLP0)
-			#elif (defined(__AVR_ATmega32U4__))
+			#elif (defined(__AVR_ATmega16U4__) || defined(__AVR_ATmega32U4__))
 				#define USB_PLL_PSC                (1 << PINDIV)
 			#endif
 		#endif
@@ -189,6 +189,9 @@
 			 *  allow for device connection to a host when in device mode, or for device enumeration while in
 			 *  host mode.
 			 *
+			 *  As the USB library relies on USB interrupts for some of its functionality, this routine will
+			 *  enable global interrupts.
+			 *
 			 *  \param Mode     This is a mask indicating what mode the USB interface is to be initialized to.
 			 *                  Valid mode masks are USB_MODE_DEVICE, USB_MODE_HOST or USB_MODE_UID.
 			 *
@@ -293,7 +296,7 @@
 			#define USB_PLL_Off()              MACROS{ PLLCSR   =  0;                           }MACROE
 			#define USB_PLL_IsReady()                ((PLLCSR  &   (1 << PLOCK)) ? true : false)
 
-			#if defined(USB_FULL_CONTROLLER)		
+			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)		
 				#define USB_REG_On()           MACROS{ UHWCON  |=  (1 << UVREGE);               }MACROE
 				#define USB_REG_Off()          MACROS{ UHWCON  &= ~(1 << UVREGE);               }MACROE
 			#else

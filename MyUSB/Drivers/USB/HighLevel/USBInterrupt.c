@@ -34,11 +34,9 @@
 void USB_INT_DisableAllInterrupts(void)
 {
 	#if defined(USB_FULL_CONTROLLER)
-		#if !defined(__AVR_ATmega32U4__)
-			USBCON &= ~((1 << VBUSTE) | (1 << IDTE));					
-		#else					
-			USBCON &= ~(1 << VBUSTE);					
-		#endif
+	USBCON &= ~((1 << VBUSTE) | (1 << IDTE));				
+	#elif defined(USB_MODIFIED_FULL_CONTROLLER)
+	USBCON &= ~(1 << VBUSTE);					
 	#endif
 	
 	#if defined(USB_CAN_BE_HOST)
@@ -53,7 +51,7 @@ void USB_INT_DisableAllInterrupts(void)
 
 void USB_INT_ClearAllInterrupts(void)
 {
-	#if defined(USB_FULL_CONTROLLER)
+	#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 	USBINT  = 0;
 	#endif
 	
@@ -70,7 +68,7 @@ void USB_INT_ClearAllInterrupts(void)
 ISR(USB_GEN_vect)
 {
 	#if defined(USB_CAN_BE_DEVICE)
-	#if defined(USB_FULL_CONTROLLER)
+	#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 	if (USB_INT_HasOccurred(USB_INT_VBUS) && USB_INT_IsEnabled(USB_INT_VBUS))
 	{
 		USB_INT_Clear(USB_INT_VBUS);

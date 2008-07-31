@@ -44,7 +44,7 @@
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 	
 	/* Macros: */
-		#if defined(USB_FULL_CONTROLLER)
+		#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 			#define TCCRxA          TCCR3A
 			#define TCCRxB          TCCR3B
 			#define OCRxA           OCR3A

@@ -11,6 +11,8 @@ Changelog for MyUSB:
 		* Fixed DFU bootloader exit causing programming software to complain about failed writes
 		* Fixed DFU bootloader EEPROM programming mode wiping first flash page
 		* Fixed Clear/Set Feature device standard request processing code (fixing MassStorage demo in the process)
+		* Added support for the ATMEGA16U4 AVR microcontroller
+		* Library licence changed from LGPLv3 to MIT license
 
 	Version 1.5.1 - Released 8th July, 2008:
 	--------------------------------------------

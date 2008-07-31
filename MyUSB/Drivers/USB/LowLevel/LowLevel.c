@@ -64,7 +64,7 @@ void USB_Init(
 	#endif
 	
 	#if defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER) && !defined(__AVR_ATmega32U4__)
+		#if defined(USB_FULL_CONTROLLER)
 		UHWCON |= (1 << UIMOD);
 		#endif
 	#elif defined(USB_HOST_ONLY)
@@ -104,7 +104,7 @@ void USB_Init(
 	USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 	#endif
 	
-	#if defined(USB_FULL_CONTROLLER)
+	#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 	USB_OTGPAD_On();
 	#endif
 	
@@ -113,7 +113,7 @@ void USB_Init(
 	#endif
 
 	#if defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER)
+		#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 		USB_INT_Enable(USB_INT_VBUS);
 		#else
 		USB_SetupInterface();
@@ -160,7 +160,7 @@ void USB_ShutDown(void)
 	USB_Interface_Disable();
 	USB_PLL_Off();
 	
-	#if defined(USB_FULL_CONTROLLER)
+	#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 	USB_OTGPAD_Off();
 	#endif
 
@@ -188,7 +188,7 @@ void USB_SetupInterface(void)
 	USB_ConfigurationNumber = 0;
 	#endif
 	
-	#if defined(__AVR_ATmega32U4__) && !defined(MANUAL_PLL_CONTROL)
+	#if defined(USB_MODIFIED_FULL_CONTROLLER) && !defined(MANUAL_PLL_CONTROL)
 	PLLFRQ = ((1 << PLLUSB) | (1 << PDIV3) | (1 << PDIV1));
 	#endif
 	
@@ -208,7 +208,7 @@ void USB_SetupInterface(void)
 		USB_CurrentMode = USB_GetUSBModeFromUID();
 	}
 	#elif defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER)
+		#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 		USB_INT_Enable(USB_INT_VBUS);
 		#endif
 	#endif
@@ -218,7 +218,7 @@ void USB_SetupInterface(void)
 	
 	USB_CLK_Unfreeze();
 
-	#if (defined(USB_CAN_BE_DEVICE) && defined(USB_FULL_CONTROLLER))
+	#if (defined(USB_CAN_BE_DEVICE) && (defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)))
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
 		if (USB_Options & USB_DEVICE_OPT_LOWSPEED)

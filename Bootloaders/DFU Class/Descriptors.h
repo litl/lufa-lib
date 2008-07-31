@@ -56,6 +56,8 @@
 			#define PRODUCT_ID_CODE               0x2FF7
 		#elif defined(__AVR_ATmega32U4__)
 			#define PRODUCT_ID_CODE               0x2FF4
+		#elif defined(__AVR_ATmega16U4__)
+			#define PRODUCT_ID_CODE               0x2FF4
 		#endif
 		
 		#if !defined(PRODUCT_ID_CODE)

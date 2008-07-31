@@ -47,7 +47,7 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#if defined(USB_FULL_CONTROLLER) || defined(__DOXYGEN__)
+			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER) || defined(__DOXYGEN__)
 				/** Mask for the Options parameter of the USB_Init() function. This indicates that the
 				 *  USB interface should be initialized in low speed (1.5Mb/s) mode.
 				 *

@@ -89,7 +89,7 @@
 			 */
 			#define ENDPOINT_EPSIZE_MASK                       0x7FF
 			
-			#if defined(USB_FULL_CONTROLLER) || defined(__DOXYGEN__)
+			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER) || defined(__DOXYGEN__)
 				/** Total number of endpoints (including the default control endpoint at address 0) which may
 				 *  be used in the device. Different USB AVR models support different amounts of endpoints,
 				 *  this value reflects the maximum number of endpoints for the currently selected AVR model.
@@ -133,7 +133,7 @@
 			 */
 			#define ENDPOINT_INT_OUT                           UEIENX, (1 << RXOUTE), UEINTX, (1 << RXOUTI)
 			
-			#if defined(USB_FULL_CONTROLLER) || defined(__DOXYGEN__)
+			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER) || defined(__DOXYGEN__)
 				/** Indicates the number of bytes currently stored in the current endpoint's selected bank. */
 				#define Endpoint_BytesInEndpoint()             UEBCX
 			#else
