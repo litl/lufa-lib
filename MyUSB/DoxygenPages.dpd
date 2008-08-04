@@ -308,6 +308,15 @@
   *  that are required for each project (which should be recorded along with the library).
   */
 
+ /** \page Page_Migration151 Migrating from V1.5.1 to 1.5.2
+  *
+  *  Below is migration information for updating existing projects based on the MyUSB library version 1.5.0 to
+  *  the 1.5.1 API. It does not indicate all new additions to the library, only areas relevant to making older
+  *  projects compatible with the new API.
+  *
+  *  <b>No migration issues.</b>
+  */
+
  /** \page Page_Migration150 Migrating from V1.5.0 to 1.5.1
   *
   *  Below is migration information for updating existing projects based on the MyUSB library version 1.5.0 to

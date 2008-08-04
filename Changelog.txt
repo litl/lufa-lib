@@ -1,7 +1,11 @@
 Changelog for MyUSB:
 =======================================
 
-	Version 1.5.2 - UNRELEASED:
+	Version 1.5.3 - UNRELEASED:
+	--------------------------------------------
+		* Removed unused Wheel usage from the mouse demos
+
+	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------
 		* Fixed SwapEndian_32() function in Common.h so that it now works correctly (wrong parameter types)
 		* Updated RNDIS demo - notification endpoint is no longer blocking so that it works with faulty Linux RNDIS

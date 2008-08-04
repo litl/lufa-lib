@@ -92,7 +92,11 @@ void SCSI_DecodeSCSICommand(void)
 			CommandSuccess = SCSI_Command_ReadWrite_10(DATA_READ);
 			break;
 		case SCSI_CMD_TEST_UNIT_READY:
+		case SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL:
+		case SCSI_CMD_VERIFY_10:
+			/* These commands should just succeed, no handling required */
 			CommandSuccess = true;
+			CommandBlock.Header.DataTransferLength = 0;
 			break;
 		default:
 			/* Update the SENSE key to reflect the invalid command */
