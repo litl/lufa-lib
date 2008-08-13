@@ -66,8 +66,8 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 		
 	USBSpecification:       VERSION_BCD(01.10),
 	Class:                  0x00,
-	SubClass:               0x01,
-	Protocol:               0x02,
+	SubClass:               0x00,
+	Protocol:               0x00,
 				
 	Endpoint0Size:          8,
 		
@@ -109,8 +109,8 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			TotalEndpoints:         1,
 				
 			Class:                  0x03,
-			SubClass:               0x00,
-			Protocol:               0x00,
+			SubClass:               0x01,
+			Protocol:               0x02,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},

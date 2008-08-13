@@ -73,7 +73,7 @@ TASK_LIST
 
 /* Global Variables */
 USB_KeyboardReport_Data_t KeyboardReportData  = {Modifier: 0, KeyCode: {0, 0, 0, 0, 0, 0}};
-bool                      UsingReportProtocol = false;
+bool                      UsingReportProtocol = true;
 
 
 int main(void)

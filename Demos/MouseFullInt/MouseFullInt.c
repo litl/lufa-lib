@@ -60,7 +60,7 @@ BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
 
 /* Global Variables */
 USB_MouseReport_Data_t MouseReportData     = {Button: 0, X: 0, Y: 0};
-bool                   UsingReportProtocol = false;
+bool                   UsingReportProtocol = true;
 
 
 int main(void)
