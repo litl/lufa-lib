@@ -30,7 +30,7 @@
 
 /** \file
  *
- *  SPI subsystem driver for the supported USB AVRs models.
+ *  Hardware SPI subsystem driver for the supported USB AVRs models.
  */
 
 #ifndef __SPI_H__

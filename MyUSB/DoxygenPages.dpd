@@ -23,10 +23,20 @@
  *  library API more streamlined and robust. You can download AVR-GCC for free in a convenient windows package, 
  *  from the the WinAVR website.
  *
+ *  \section Sec_Support Support
+ *
+ *  MyUSB support is in two forms - either an email sent to myself (the project developer) or, preferrably, a post
+ *  to the public support Google Group. This group allows for public discussion of all aspects of MyUSB, from bug
+ *  reports to questions, comments or anything else MyUSB related.
+ *
+ *  Email Me: dean [at] fourwalledcubicle [dot] com
+ *  Support:  See Library Links section
+ *
  *  \section Sec_Links Library Links
  *  Project Homepage: http://www.fourwalledcubicle.com/MyUSB.php \n
  *  Development Blog: http://www.fourwalledcubicle.com/blog \n
  *  Author's Website: http://www.fourwalledcubicle.com \n
+ *  Project Support:  http://groups.google.com/group/myusb-support-list
  *
  *  WinAVR Website: http://winavr.sourceforge.net \n
  *  avr-libc Website: http://www.nongnu.org/avr-libc/ \n

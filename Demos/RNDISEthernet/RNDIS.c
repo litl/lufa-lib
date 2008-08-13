@@ -218,12 +218,14 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 		case OID_GEN_SUPPORTED_LIST:
 			*ResponseSize = sizeof(AdapterSupportedOIDList);
 			
+			/* Copy the list of supported NDIS OID tokens to the response buffer */
 			memcpy_P(ResponseData, AdapterSupportedOIDList, sizeof(AdapterSupportedOIDList));
 			
 			return true;
 		case OID_GEN_HARDWARE_STATUS:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Always indicate hardware ready */
 			*((uint32_t*)ResponseData) = NdisHardwareStatusReady;
 			
 			return true;
@@ -231,12 +233,14 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 		case OID_GEN_MEDIA_IN_USE:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Indicate 802.3 (Ethernet) supported by the adapter */
 			*((uint32_t*)ResponseData) = REMOTE_NDIS_MEDIUM_802_3;
 			
 			return true;
 		case OID_GEN_VENDOR_ID:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Vendor ID 0x0xFFFFFF is reserved for vendors who have not purchased a NDIS VID */
 			*((uint32_t*)ResponseData) = 0x00FFFFFF;
 			
 			return true;
@@ -245,24 +249,28 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 		case OID_GEN_RECEIVE_BLOCK_SIZE:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Indicate that the maximum frame size is the size of the ethernet frame buffer */
 			*((uint32_t*)ResponseData) = ETHERNET_FRAME_SIZE_MAX;
 			
 			return true;
 		case OID_GEN_VENDOR_DESCRIPTION:
 			*ResponseSize = sizeof(AdapterVendorDescription);
 			
+			/* Copy vendor description string to the response buffer */
 			memcpy_P(ResponseData, AdapterVendorDescription, sizeof(AdapterVendorDescription));
 			
 			return true;
 		case OID_GEN_MEDIA_CONNECT_STATUS:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Always indicate that the adapter is connected to a network */
 			*((uint32_t*)ResponseData) = REMOTE_NDIS_MEDIA_STATE_CONNECTED;
 			
 			return true;
 		case OID_GEN_LINK_SPEED:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Indicate 10Mb/s link speed */
 			*((uint32_t*)ResponseData) = 100000;
 
 			return true;
@@ -270,18 +278,21 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 		case OID_802_3_CURRENT_ADDRESS:
 			*ResponseSize = sizeof(MAC_Address_t);
 			
+			/* Copy over the fixed adapter MAC to the response buffer */
 			memcpy_P(ResponseData, &AdapterMACAddress, sizeof(MAC_Address_t));
 
 			return true;
 		case OID_802_3_MAXIMUM_LIST_SIZE:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Indicate only one multicast address supported */
 			*((uint32_t*)ResponseData) = 1;
 		
 			return true;
 		case OID_GEN_CURRENT_PACKET_FILTER:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Indicate the current packet filter mask */
 			*((uint32_t*)ResponseData) = CurrPacketFilter;
 		
 			return true;			
@@ -295,12 +306,14 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 		case OID_802_3_XMIT_MORE_COLLISIONS:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Unused statistic OIDs - always return 0 for each */
 			*((uint32_t*)ResponseData) = 0;
 		
 			return true;
 		case OID_GEN_MAXIMUM_TOTAL_SIZE:
 			*ResponseSize = sizeof(uint32_t);
 			
+			/* Indicate maximum overall buffer (Ethernet frame and RNDIS header) the adapter can handle */
 			*((uint32_t*)ResponseData) = (sizeof(RNDISMessageBuffer) + ETHERNET_FRAME_SIZE_MAX);
 		
 			return true;
@@ -316,12 +329,16 @@ static bool ProcessNDISSet(uint32_t OId, void* SetData, uint16_t SetSize)
 	switch (OId)
 	{
 		case OID_GEN_CURRENT_PACKET_FILTER:
+			/* Save the packet filter mask in case the host queries it again later */
 			CurrPacketFilter = *((uint32_t*)SetData);
 		
+			/* Set the RNDIS state to initialized if the packet filter is non-zero */
 			CurrRNDISState = ((CurrPacketFilter) ? RNDIS_Data_Initialized : RNDIS_Data_Initialized);
 			
 			return true;
 		case OID_802_3_MULTICAST_LIST:
+			/* Do nothing - throw away the value from the host as it is unused */
+		
 			return true;
 		default:
 			return false;

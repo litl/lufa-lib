@@ -63,17 +63,17 @@
 			/** Token mask for Pipe_ConfigurePipe(). This sets the pipe as a SETUP token (for CONTROL type pipes),
 			 *  which will trigger a control request on the attached device when data is written to the pipe.
 			 */
-			#define PIPE_TOKEN_SETUP                       (0b00 << PTOKEN0)
+			#define PIPE_TOKEN_SETUP                       (0 << PTOKEN0)
 
 			/** Token mask for Pipe_ConfigurePipe(). This sets the pipe as a IN token (for non-CONTROL type pipes),
 			 *  indicating that the pipe data will flow from device to host.
 			 */
-			#define PIPE_TOKEN_IN                          (0b01 << PTOKEN0)
+			#define PIPE_TOKEN_IN                          (1 << PTOKEN0)
 
 			/** Token mask for Pipe_ConfigurePipe(). This sets the pipe as a IN token (for non-CONTROL type pipes),
 			 *  indicating that the pipe data will flow from host to device.
 			 */
-			#define PIPE_TOKEN_OUT                         (0b10 << PTOKEN0)
+			#define PIPE_TOKEN_OUT                         (2 << PTOKEN0)
 
 			/** Mask for the bank mode selection for the Pipe_ConfigurePipe() macro. This indicates that the pipe
 			 *  should have one single bank, which requires less USB FIFO memory but results in slower transfers as
@@ -101,7 +101,7 @@
 			/** Pipe number mask, for masking against pipe addresses to retrieve the pipe's numerical address
 			 *  in the device.
 			 */
-			#define PIPE_PIPENUM_MASK                      0b111
+			#define PIPE_PIPENUM_MASK                      0x07
 
 			/** Total number of pipes (including the default control pipe at address 0) which may be used in
 			 *  the device. Different USB AVR models support different amounts of pipes, this value reflects
@@ -119,7 +119,7 @@
 			/** Endpoint number mask, for masking against endpoint addresses to retrieve the endpoint's
 			 *  numerical address in the attached device.
 			 */
-			#define PIPE_EPNUM_MASK                        0b111
+			#define PIPE_EPNUM_MASK                        0x07
 
 			/** Endpoint bank size mask, for masking against endpoint addresses to retrieve the endpoint's
 			 *  bank size in the attached device.
@@ -565,7 +565,7 @@
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Macros: */
-			#define PIPE_TOKEN_MASK                    (0b11 << PTOKEN0)
+			#define PIPE_TOKEN_MASK                    (0x03 << PTOKEN0)
 
 			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X |=  (1 << ALLOC);                               }MACROE
 			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X &= ~(1 << ALLOC);                               }MACROE

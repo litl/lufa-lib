@@ -44,14 +44,14 @@
 			 *
 			 *  \see REQDIR_* macros for masks indicating the request data direction.
 			 */
-			#define CONTROL_REQTYPE_DIRECTION  0b10000000
+			#define CONTROL_REQTYPE_DIRECTION  0x80
 
 			/** Mask for the request type parameter, to indicate the type of request (Device, Class or Vendor
 			 *  Specific). The result of this mask should then be compared to the request type masks.
 			 *
 			 *  \see REQTYPE_* macros for masks indicating the request type.
 			 */
-			#define CONTROL_REQTYPE_TYPE       0b01100000
+			#define CONTROL_REQTYPE_TYPE       0x60
 
 			/** Mask for the request type parameter, to indicate the recipient of the request (Standard, Class
 			 *  or Vendor Specific). The result of this mask should then be compared to the request recipient
@@ -59,7 +59,7 @@
 			 *
 			 *  \see REQREC_* macros for masks indicating the request recipient.
 			 */
-			#define CONTROL_REQTYPE_RECIPIENT  0b00011111
+			#define CONTROL_REQTYPE_RECIPIENT  0x1F
 
 			/** Request data direction mask, indicating that the request data will flow from host to device.
 			 *
@@ -170,9 +170,9 @@
 /* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Macros: */
-			#define FEATURE_ENDPOINT           0b00000000
-			#define FEATURE_REMOTE_WAKEUP      0b00000001		
-			#define FEATURE_SELFPOWERED        0b00000010
+			#define FEATURE_ENDPOINT           0x00
+			#define FEATURE_REMOTE_WAKEUP      0x01		
+			#define FEATURE_SELFPOWERED        0x02
 	#endif
 	
 #endif

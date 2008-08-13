@@ -116,9 +116,9 @@
 			 */
 			static inline uint8_t BitReverse(uint8_t Byte)
 			{
-				Byte = (((Byte & 0b11110000) >> 4) | ((Byte & 0b00001111) << 4));
-				Byte = (((Byte & 0b11001100) >> 2) | ((Byte & 0b00110011) << 2));
-				Byte = (((Byte & 0b10101010) >> 1) | ((Byte & 0b01010101) << 1));
+				Byte = (((Byte & 0xF0) >> 4) | ((Byte & 0x0F) << 4));
+				Byte = (((Byte & 0xCC) >> 2) | ((Byte & 0x33) << 2));
+				Byte = (((Byte & 0xAA) >> 1) | ((Byte & 0x55) << 1));
 
 				return Byte;
 			}
