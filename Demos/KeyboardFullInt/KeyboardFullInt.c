@@ -66,7 +66,8 @@ BUTTLOADTAG(BuildDate,    __DATE__);
 BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
 
 /* Global Variables */
-USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: 0};
+USB_KeyboardReport_Data_t KeyboardReportData  = {Modifier: 0, KeyCode: {0, 0, 0, 0, 0, 0}};
+bool                      UsingReportProtocol = false;
 
 
 int main(void)
@@ -169,6 +170,35 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 		
 			break;
+		case REQ_GetProtocol:
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
+				
+				/* Write the current protocol flag to the host */
+				Endpoint_Write_Byte(UsingReportProtocol);
+				
+				/* Send the flag to the host */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
+		case REQ_SetProtocol:
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Read in the wValue parameter containing the new protocol mode */
+				uint16_t wValue = Endpoint_Read_Word_LE();
+				
+				/* Set or clear the flag depending on what the host indicates that the current Protocol should be */
+				UsingReportProtocol = (wValue != 0x0000);
+				
+				Endpoint_ClearSetupReceived();
+				
+				/* Send an empty packet to acknowedge the command */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
 	}
 }
 
@@ -193,17 +223,17 @@ ISR(ENDPOINT_PIPE_vect)
 		uint8_t JoyStatus_LCL = Joystick_GetStatus();
 
 		if (JoyStatus_LCL & JOY_UP)
-		  KeyboardReportData.KeyCode = 0x04; // A
+		  KeyboardReportData.KeyCode[0] = 0x04; // A
 		else if (JoyStatus_LCL & JOY_DOWN)
-		  KeyboardReportData.KeyCode = 0x05; // B
+		  KeyboardReportData.KeyCode[0] = 0x05; // B
 
 		if (JoyStatus_LCL & JOY_LEFT)
-		  KeyboardReportData.KeyCode = 0x06; // C
+		  KeyboardReportData.KeyCode[0] = 0x06; // C
 		else if (JoyStatus_LCL & JOY_RIGHT)
-		  KeyboardReportData.KeyCode = 0x07; // D
+		  KeyboardReportData.KeyCode[0] = 0x07; // D
 
 		if (JoyStatus_LCL & JOY_PRESS)
-		  KeyboardReportData.KeyCode = 0x08; // E
+		  KeyboardReportData.KeyCode[0] = 0x08; // E
 
 		/* Clear the Keyboard Report endpoint interrupt and select the endpoint */
 		Endpoint_ClearEndpointInterrupt(KEYBOARD_EPNUM);
@@ -216,8 +246,7 @@ ISR(ENDPOINT_PIPE_vect)
 		Endpoint_ClearCurrentBank();
 			
 		/* Clear the report data afterwards */
-		KeyboardReportData.Modifier = 0;
-		KeyboardReportData.KeyCode  = 0;
+		memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
 		
 		/* Clear the endpoint IN interrupt flag */
 		USB_INT_Clear(ENDPOINT_INT_IN);

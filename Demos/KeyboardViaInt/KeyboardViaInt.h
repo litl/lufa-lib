@@ -41,7 +41,9 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
-
+		#include <stdbool.h>
+		#include <string.h>
+		
 		#include "Descriptors.h"
 
 		#include <MyUSB/Version.h>                    // Library Version Information
@@ -52,14 +54,16 @@
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
 	/* Macros: */
-		#define REQ_GetReport   0x01
+		#define REQ_GetReport      0x01
+		#define REQ_GetProtocol    0x03
+		#define REQ_SetProtocol    0x0B
 
 	/* Type Defines: */
 		typedef struct
 		{
 			uint8_t Modifier;
 			uint8_t Reserved;
-			uint8_t KeyCode;
+			uint8_t KeyCode[6];
 		} USB_KeyboardReport_Data_t;
 			
 	/* Event Handlers: */

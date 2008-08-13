@@ -65,7 +65,8 @@ TASK_LIST
 };
 
 /* Global Variables */
-USB_MouseReport_Data_t MouseReportData = {Button: 0, X: 0, Y: 0};
+USB_MouseReport_Data_t MouseReportData     = {Button: 0, X: 0, Y: 0};
+bool                   UsingReportProtocol = false;
 
 
 int main(void)
@@ -157,6 +158,35 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				Endpoint_ClearSetupOUT();
 			}
 		
+			break;
+		case REQ_GetProtocol:
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
+				
+				/* Write the current protocol flag to the host */
+				Endpoint_Write_Byte(UsingReportProtocol);
+				
+				/* Send the flag to the host */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
+		case REQ_SetProtocol:
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Read in the wValue parameter containing the new protocol mode */
+				uint16_t wValue = Endpoint_Read_Word_LE();
+				
+				/* Set or clear the flag depending on what the host indicates that the current Protocol should be */
+				UsingReportProtocol = (wValue != 0x0000);
+				
+				Endpoint_ClearSetupReceived();
+				
+				/* Send an empty packet to acknowedge the command */
+				Endpoint_ClearSetupIN();
+			}
+			
 			break;
 	}
 }

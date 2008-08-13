@@ -34,6 +34,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <stdbool.h>
 
 		#include "Descriptors.h"
 
@@ -49,7 +50,9 @@
 		TASK(USB_Mouse_Report);
 
 	/* Macros: */
-		#define REQ_GetReport   0x01
+		#define REQ_GetReport      0x01
+		#define REQ_GetProtocol    0x03
+		#define REQ_SetProtocol    0x0B
 
 	/* Type Defines: */
 		typedef struct
