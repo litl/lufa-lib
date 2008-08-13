@@ -3,8 +3,8 @@ Changelog for MyUSB:
 
 	Version 1.5.3 - UNRELEASED:
 	--------------------------------------------
-		* Removed unused Wheel usage from the mouse demos
 		* Fixed CDC bootloader using pgmspace macros for some descriptors inappropriately
+		* Updated all Mouse and Keyboard device demos to include boot protocol support (now works in BIOS)
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

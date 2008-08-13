@@ -136,32 +136,32 @@
 			 *
 			 *  \note See Endpoint.h and Pipe.h headers for endpoint/pipe functions.
 			 */
-			#define EP_TYPE_CONTROL                    0
+			#define EP_TYPE_CONTROL                    0b00
 
 			/** Mask for an ISOCHRONOUS type endpoint or pipe.
 			 *
 			 *  \note See Endpoint.h and Pipe.h headers for endpoint/pipe functions.
 			 */
-			#define EP_TYPE_ISOCHRONOUS                1
+			#define EP_TYPE_ISOCHRONOUS                0b01
 
 			/** Mask for a BULK type endpoint or pipe.
 			 *
 			 *  \note See Endpoint.h and Pipe.h headers for endpoint/pipe functions.
 			 */
-			#define EP_TYPE_BULK                       2
+			#define EP_TYPE_BULK                       0b10
 
 			/** Mask for an INTERRUPT type endpoint or pipe.
 			 *
 			 *  \note See Endpoint.h and Pipe.h headers for endpoint/pipe functions.
 			 */
-			#define EP_TYPE_INTERRUPT                  3
+			#define EP_TYPE_INTERRUPT                  0b11
 
 			/** Mask for determining the type of an endpoint or pipe. This should then be compared with the
 			 *  EP_TYPE_* macros elsewhere in this module to determine the exact type of the endpoint or pipe.
 			 *
 			 *  \note See Endpoint.h and Pipe.h headers for endpoint/pipe functions.
 			 */
-			#define EP_TYPE_MASK                       4
+			#define EP_TYPE_MASK                       0b11
 
 			/** Returns boolean true if the VBUS line is currently high (i.e. the USB host is supplying power),
 			 *  otherwise returns false.
