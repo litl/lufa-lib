@@ -173,6 +173,41 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 		
 			break;
+		case REQ_SetReport:
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
+				
+				/* Wait until the LED report has been sent by the host */
+				while (!(Endpoint_IsSetupOUTReceived()));
+
+				/* Read in the LED report from the host */
+				uint8_t LEDStatus = Endpoint_Read_Byte();
+				uint8_t LEDMask   = LEDS_LED2;
+				
+				if (LEDStatus & 0x01) // NUM Lock
+				  LEDMask |= LEDS_LED1;
+				
+				if (LEDStatus & 0x02) // CAPS Lock
+				  LEDMask |= LEDS_LED3;
+
+				if (LEDStatus & 0x04) // SCROLL Lock
+				  LEDMask |= LEDS_LED4;
+
+				/* Set the status LEDs to the current Keyboard LED status */
+				LEDs_SetAllLEDs(LEDMask);
+
+				/* Finalize the OUT transfer from the host */
+				Endpoint_ClearSetupOUT();
+
+				/* Wait until the host is ready to receive the request confirmation */
+				while (!(Endpoint_IsSetupINReady()));
+				
+				/* Handshake the request by sending an empty IN packet */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
 		case REQ_GetProtocol:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
