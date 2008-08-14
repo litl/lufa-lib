@@ -87,7 +87,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 		
 	DFUFunctional:
 		{
-			Header:                 {Size: sizeof(USB_Descriptor_Header_t), Type: DTYPE_DFUFunctional},
+			Header:                 {Size: sizeof(USB_DFU_Functional_Descriptor_t), Type: DTYPE_DFUFunctional},
 			
 			Attributes:             (ATTR_CAN_UPLOAD | ATTR_CAN_DOWNLOAD),
 
