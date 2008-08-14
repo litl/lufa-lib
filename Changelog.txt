@@ -5,6 +5,7 @@ Changelog for MyUSB:
 	--------------------------------------------
 		* Fixed CDC bootloader using pgmspace macros for some descriptors inappropriately
 		* Updated all Mouse and Keyboard device demos to include boot protocol support (now works in BIOS)
+		* Renamed bootloader directories to remove spaces, which were causing build problems on several OSes
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

@@ -14,16 +14,16 @@
 # code.
 
 all:
-	make -C 'DFU Class/' clean
-	make -C 'DFU Class/' all
+	make -C 'DFU/' clean
+	make -C 'DFU/' all
 
-	make -C 'CDC Class/' clean
-	make -C 'CDC Class/' all
+	make -C 'CDC/' clean
+	make -C 'CDC/' all
 
 clean:
-	make -C 'DFU Class/' clean
-	make -C 'CDC Class/' clean
+	make -C 'DFU/' clean
+	make -C 'CDC/' clean
 
 clean_list:
-	make -C 'DFU Class/' clean_list
-	make -C 'CDC Class/' clean_list
+	make -C 'DFU/' clean_list
+	make -C 'CDC/' clean_list
