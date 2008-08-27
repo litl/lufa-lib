@@ -476,7 +476,7 @@
 			 *  the user is responsible for manually sending the last written packet to the host via the
 			 *  Pipe_ClearCurrentBank() macro.
 			 *
-			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
+			 *  \param Data    Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected pipe into the buffer.
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
@@ -488,7 +488,7 @@
 			 *  the user is responsible for manually sending the last written packet to the host via the
 			 *  Pipe_ClearCurrentBank() macro.
 			 *
-			 *  \param Buffer  Pointer to the buffer to write the received bytes to.
+			 *  \param Data    Pointer to the buffer to write the received bytes to.
 			 *  \param Length  Number of bytes to read for the currently selected pipe into the buffer.
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
@@ -500,7 +500,7 @@
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
 			 *  discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
 			 *
-			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
+			 *  \param Data    Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected pipe.
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
@@ -512,7 +512,7 @@
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
 			 *  discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
 			 *
-			 *  \param Buffer  Pointer to the buffer to read the bytes to send from.
+			 *  \param Data    Pointer to the buffer to read the bytes to send from.
 			 *  \param Length  Number of bytes to send via the currently selected pipe.
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
