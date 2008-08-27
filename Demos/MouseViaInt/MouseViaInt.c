@@ -154,6 +154,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&MouseReportData, wLength);
 				
+				/* Clear the report data afterwards */
+				memset(&MouseReportData, 0, sizeof(MouseReportData));
+
 				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
 				Endpoint_ClearSetupOUT();
 			}
@@ -217,23 +220,27 @@ ISR(ENDPOINT_PIPE_vect)
 		if (HWB_GetStatus())
 		  MouseReportData.Button |= (1 << 1);
 
+		/* Select the mouse IN report endpoint */
+		Endpoint_SelectEndpoint(MOUSE_EPNUM);
+
 		/* Clear the endpoint IN interrupt flag */
 		USB_INT_Clear(ENDPOINT_INT_IN);
 
-		/* Clear the Mouse Report endpoint interrupt and select the endpoint */
-		Endpoint_ClearEndpointInterrupt(MOUSE_EPNUM);
-		Endpoint_SelectEndpoint(MOUSE_EPNUM);
+		/* Only send a report if Report Protocol mode is currently selected */
+		if (UsingReportProtocol)
+		{
+			/* Clear the Mouse Report endpoint interrupt and select the endpoint */
+			Endpoint_ClearEndpointInterrupt(MOUSE_EPNUM);
 
-		/* Write Mouse Report Data */
-		Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData));
+			/* Write Mouse Report Data */
+			Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData));
+				
+			/* Handshake the IN Endpoint - send the data to the host */
+			Endpoint_ClearCurrentBank();
 			
-		/* Handshake the IN Endpoint - send the data to the host */
-		Endpoint_ClearCurrentBank();
-		
-		/* Clear the report data afterwards */
-		MouseReportData.Button = 0;
-		MouseReportData.X = 0;			
-		MouseReportData.Y = 0;
+			/* Clear the report data afterwards */
+			memset(&MouseReportData, 0, sizeof(MouseReportData));
+		}
 	}
 
 	/* Restore previously selected endpoint */

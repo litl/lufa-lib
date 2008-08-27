@@ -47,7 +47,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 		
 	ManufacturerStrIndex:   0x01,
 	ProductStrIndex:        0x02,
-	SerialNumStrIndex:      0x03,
+	SerialNumStrIndex:      NO_DESCRIPTOR_STRING,
 		
 	NumberOfConfigurations: 1
 };
@@ -236,13 +236,6 @@ USB_Descriptor_String_t ProductString PROGMEM =
 	UnicodeString:          L"MyUSB Audio In Demo"
 };
 
-USB_Descriptor_String_t SerialNumberString PROGMEM =
-{
-	Header:                 {Size: USB_STRING_LEN(12), Type: DTYPE_String},
-		
-	UnicodeString:          L"000000000000"
-};
-
 bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
                        void** const DescriptorAddress, uint16_t* const DescriptorSize)
 {
@@ -273,10 +266,6 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 				case 0x02:
 					Address = DESCRIPTOR_ADDRESS(ProductString);
 					Size    = pgm_read_byte(&ProductString.Header.Size);
-					break;
-				case 0x03:
-					Address = DESCRIPTOR_ADDRESS(SerialNumberString);
-					Size    = pgm_read_byte(&SerialNumberString.Header.Size);
 					break;
 			}
 			

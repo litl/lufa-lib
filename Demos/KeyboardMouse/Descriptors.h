@@ -7,7 +7,7 @@
 */
 
 /*
-  Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -26,13 +26,6 @@
   in an action of contract, negligence or other tortious action,
   arising out of or in connection with the use or performance of
   this software.
-*/
-
-/*
-	Keyboard demonstration application by Denver Gingerich.
-
-	This example is based on the MyUSB Mouse demonstration application,
-	written by Dean Camera.
 */
 
 #ifndef _DESCRIPTORS_H_
@@ -62,21 +55,26 @@
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;
-			USB_Descriptor_Interface_t            Interface;
+			USB_Descriptor_Interface_t            KeyboardInterface;
 			USB_Descriptor_HID_t                  KeyboardHID;
-	        USB_Descriptor_Endpoint_t             KeyboardEndpoint;
-	        USB_Descriptor_Endpoint_t             KeyboardLEDsEndpoint;
+	        USB_Descriptor_Endpoint_t             KeyboardInEndpoint;
+	        USB_Descriptor_Endpoint_t             KeyboardOutEndpoint;
+			USB_Descriptor_Interface_t            MouseInterface;
+			USB_Descriptor_HID_t                  MouseHID;
+	        USB_Descriptor_Endpoint_t             MouseInEndpoint;
 		} USB_Descriptor_Configuration_t;
-
+					
 	/* Macros: */
-		#define KEYBOARD_EPNUM               1
-		#define KEYBOARD_LEDS_EPNUM          2
-		#define KEYBOARD_EPSIZE              8
+		#define KEYBOARD_IN_EPNUM              1
+		#define KEYBOARD_OUT_EPNUM             2
+		#define MOUSE_IN_EPNUM                 3
+		#define HID_EPSIZE                     8
 
-		#define DTYPE_HID                    0x21
-		#define DTYPE_Report                 0x22
+		#define DTYPE_HID                      0x21
+		#define DTYPE_Report                   0x22
 
 	/* External Variables: */
+		extern USB_Descriptor_HIDReport_Datatype_t MouseReport[];
 		extern USB_Descriptor_HIDReport_Datatype_t KeyboardReport[];
 		extern USB_Descriptor_Configuration_t      ConfigurationDescriptor;
 

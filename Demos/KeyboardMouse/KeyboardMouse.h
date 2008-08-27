@@ -28,16 +28,15 @@
   this software.
 */
 
-#ifndef _MOUSE_H_
-#define _MOUSE_H_
+#ifndef _KEYBOARD_H_
+#define _KEYBOARD_H_
 
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
-		#include <avr/interrupt.h>
 		#include <stdbool.h>
 		#include <string.h>
-		
+
 		#include "Descriptors.h"
 
 		#include <MyUSB/Version.h>                    // Library Version Information
@@ -47,13 +46,25 @@
 		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
 		#include <MyUSB/Drivers/Board/HWB.h>          // Hardware Button driver
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
+		
+	/* Task Definitions: */
+		TASK(USB_Keyboard);
+		TASK(USB_Mouse);
 
 	/* Macros: */
 		#define REQ_GetReport      0x01
+		#define REQ_SetReport      0x09
 		#define REQ_GetProtocol    0x03
 		#define REQ_SetProtocol    0x0B
-
+		
 	/* Type Defines: */
+		typedef struct
+		{
+			uint8_t Modifier;
+			uint8_t Reserved;
+			uint8_t KeyCode[6];
+		} USB_KeyboardReport_Data_t;
+
 		typedef struct
 		{
 			uint8_t Button;
@@ -66,5 +77,5 @@
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
-		
+
 #endif

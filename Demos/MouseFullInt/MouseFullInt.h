@@ -35,7 +35,8 @@
 		#include <avr/io.h>
 		#include <avr/wdt.h>
 		#include <stdbool.h>
-
+		#include <string.h>
+		
 		#include "Descriptors.h"
 
 		#include <MyUSB/Version.h>                    // Library Version Information

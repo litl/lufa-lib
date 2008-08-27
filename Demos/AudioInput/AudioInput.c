@@ -139,9 +139,6 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
-
-	/* Start audio task */
-	Scheduler_SetTaskMode(USB_Audio_Task, TASK_RUN);
 }
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
@@ -153,7 +150,23 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			/* Set Interface is not handled by the library, as its function is application-specific */
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_INTERFACE))
 			{
+				uint16_t wValue = Endpoint_Read_Word_LE();
+				
 				Endpoint_ClearSetupReceived();
+				
+				/* Check if the host is enabling the audio interface (setting AlternateSetting to 1) */
+				if (wValue)
+				{
+					/* Start audio task */
+					Scheduler_SetTaskMode(USB_Audio_Task, TASK_RUN);
+				}
+				else
+				{
+					/* Stop audio task */
+					Scheduler_SetTaskMode(USB_Audio_Task, TASK_STOP);				
+				}
+				
+				/* Handshake the request */
 				Endpoint_ClearSetupIN();
 			}
 

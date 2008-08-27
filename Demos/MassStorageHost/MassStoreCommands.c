@@ -381,7 +381,7 @@ void MassStore_TestUnitReady(const uint8_t LUNIndex)
 		};
 	
 	/* Send SCSI command to the attached device */
-	MassStore_SendCommand();	
+	MassStore_SendCommand();
 
 	/* Read in the returned CSW from the device */
 	MassStore_GetReturnedStatus();

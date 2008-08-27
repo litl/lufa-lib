@@ -165,6 +165,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&KeyboardReportData, wLength);
 				
+				/* Clear the report data afterwards */
+				memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
+
 				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
 				Endpoint_ClearSetupOUT();
 			}
@@ -270,21 +273,27 @@ ISR(ENDPOINT_PIPE_vect)
 		if (JoyStatus_LCL & JOY_PRESS)
 		  KeyboardReportData.KeyCode[0] = 0x08; // E
 
-		/* Clear the Keyboard Report endpoint interrupt and select the endpoint */
-		Endpoint_ClearEndpointInterrupt(KEYBOARD_EPNUM);
+		/* Select the keyboard IN report endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
-		/* Write Keyboard Report Data */
-		Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
-
-		/* Handshake the IN Endpoint - send the data to the host */
-		Endpoint_ClearCurrentBank();
-			
-		/* Clear the report data afterwards */
-		memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
-		
 		/* Clear the endpoint IN interrupt flag */
 		USB_INT_Clear(ENDPOINT_INT_IN);
+
+		/* Only send a report if Report Protocol mode is currently selected */
+		if (UsingReportProtocol)
+		{
+			/* Clear the Keyboard Report endpoint interrupt */
+			Endpoint_ClearEndpointInterrupt(KEYBOARD_EPNUM);
+
+			/* Write Keyboard Report Data */
+			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
+
+			/* Handshake the IN Endpoint - send the data to the host */
+			Endpoint_ClearCurrentBank();
+				
+			/* Clear the report data afterwards */
+			memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
+		}
 	}
 
 	/* Check if Keyboard LED status Endpoint has interrupted */

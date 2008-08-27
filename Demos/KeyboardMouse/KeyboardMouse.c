@@ -7,7 +7,7 @@
 */
 
 /*
-  Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -29,38 +29,41 @@
 */
 
 /*
-	Keyboard demonstration application by Denver Gingerich.
-
-	This example is based on the MyUSB Mouse demonstration application,
-	written by Dean Camera.
+	Portions of this example is based on the MyUSB Keyboard demonstration
+	application, written by Denver Gingerich.
 */
 
 /*
-	Keyboard demonstration application, using endpoint interrupts. This
-	gives a simple reference application for implementing a USB Keyboard
-	using the basic USB HID drivers in all modern OSes (i.e. no special
-	drivers required).
+	Keyboard/Mouse demonstration application. This gives a simple reference
+	application for implementing a composite device containing both USB Keyboard
+	and USB Mouse functionality using the basic USB HID drivers in all modern OSes
+	(i.e. no special drivers required). This example uses two seperate HID
+	interfaces for each function.
 	
 	On startup the system will automatically enumerate and function
-	as a keyboard when the USB connection to a host is present. To use
-	the keyboard example, manipulate the joystick to send the letters
+	as a keyboard when the USB connection to a host is present and the HWB is not
+	pressed. When enabled, manipulate the joystick to send the letters
 	a, b, c, d and e. See the USB HID documentation for more information
 	on sending keyboard event and keypresses.
+	
+	When the HWB is pressed, the mouse mode is enabled. When enabled, move the
+	joystick to move the pointer, and push the joystick inwards to simulate a
+	left-button click.
 */
 
 /*
 	USB Mode:           Device
 	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Keyboard
+	USB Subclass:       HID
 	Relevant Standards: USBIF HID Standard
 	                    USBIF HID Usage Tables 
 	Usable Speeds:      Low Speed Mode, Full Speed Mode
 */
 
-#include "KeyboardViaInt.h"
+#include "KeyboardMouse.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB KeyboardI App");
+BUTTLOADTAG(ProjName,     "MyUSB MouseKBD App");
 BUTTLOADTAG(BuildTime,    __TIME__);
 BUTTLOADTAG(BuildDate,    __DATE__);
 BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
@@ -68,12 +71,14 @@ BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
 /* Scheduler Task List */
 TASK_LIST
 {
-	{ Task: USB_USBTask          , TaskStatus: TASK_STOP },
+	{ Task: USB_USBTask               , TaskStatus: TASK_STOP },
+	{ Task: USB_Mouse                 , TaskStatus: TASK_RUN },
+	{ Task: USB_Keyboard              , TaskStatus: TASK_RUN },
 };
 
 /* Global Variables */
-USB_KeyboardReport_Data_t KeyboardReportData  = {Modifier: 0, KeyCode: {0, 0, 0, 0, 0, 0}};
-bool                      UsingReportProtocol = true;
+USB_KeyboardReport_Data_t KeyboardReportData;
+USB_MouseReport_Data_t    MouseReportData;
 
 
 int main(void)
@@ -113,7 +118,7 @@ EVENT_HANDLER(USB_Connect)
 
 EVENT_HANDLER(USB_Disconnect)
 {
-	/* Stop running keyboard reporting and USB management tasks */
+	/* Stop running HID reporting and USB management tasks */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
 	/* Indicate USB not ready */
@@ -122,21 +127,20 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
-	/* Setup Keyboard Keycode Report Endpoint */
-	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, EP_TYPE_INTERRUPT,
-		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
-	                           ENDPOINT_BANK_SINGLE);
-
-	/* Enable the endpoint IN interrupt ISR for the report endpoint */
-	USB_INT_Enable(ENDPOINT_INT_IN);
+	/* Setup Keyboard Report Endpoint */
+	Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPNUM, EP_TYPE_INTERRUPT,
+		                       ENDPOINT_DIR_IN, HID_EPSIZE,
+	                           ENDPOINT_BANK_DOUBLE);
 
 	/* Setup Keyboard LED Report Endpoint */
-	Endpoint_ConfigureEndpoint(KEYBOARD_LEDS_EPNUM, EP_TYPE_INTERRUPT,
-		                       ENDPOINT_DIR_OUT, KEYBOARD_EPSIZE,
-	                           ENDPOINT_BANK_SINGLE);
+	Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPNUM, EP_TYPE_INTERRUPT,
+		                       ENDPOINT_DIR_OUT, HID_EPSIZE,
+	                           ENDPOINT_BANK_DOUBLE);
 
-	/* Enable the endpoint OUT interrupt ISR for the LED report endpoint */
-	USB_INT_Enable(ENDPOINT_INT_OUT);
+	/* Setup Mouse Report Endpoint */
+	Endpoint_ConfigureEndpoint(MOUSE_IN_EPNUM, EP_TYPE_INTERRUPT,
+		                       ENDPOINT_DIR_IN, HID_EPSIZE,
+	                           ENDPOINT_BANK_DOUBLE);
 
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
@@ -144,14 +148,30 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
+	uint8_t* ReportData;
+	uint8_t  ReportSize;
+
 	/* Handle HID Class specific requests */
 	switch (bRequest)
 	{
 		case REQ_GetReport:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
-				/* Ignore report type and ID number value */
-				Endpoint_Discard_Word();
+				Endpoint_Ignore_Word();
+			
+				uint16_t wIndex = Endpoint_Read_Word_LE();
+				
+				/* Determine if it is the mouse or the keyboard data that is being requested */
+				if (!(wIndex))
+				{
+					ReportData = (uint8_t*)&KeyboardReportData;
+					ReportSize = sizeof(KeyboardReportData);
+				}
+				else
+				{
+					ReportData = (uint8_t*)&MouseReportData;
+					ReportSize = sizeof(MouseReportData);
+				}
 				
 				/* Ignore unused Interface number value */
 				Endpoint_Discard_Word();
@@ -160,17 +180,17 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				uint16_t wLength = Endpoint_Read_Word_LE();
 				
 				/* If trying to send more bytes than exist to the host, clamp the value at the report size */
-				if (wLength > sizeof(KeyboardReportData))
-				  wLength = sizeof(KeyboardReportData);
+				if (wLength > ReportSize)
+				  wLength = ReportSize;
 
 				Endpoint_ClearSetupReceived();
 	
 				/* Write the report data to the control endpoint */
-				Endpoint_Write_Control_Stream_LE(&KeyboardReportData, wLength);
-				
-				/* Clear the report data afterwards */
-				memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
+				Endpoint_Write_Control_Stream_LE(ReportData, wLength);
 
+				/* Clear the report data afterwards */
+				memset(ReportData, 0, ReportSize);
+				
 				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
 				Endpoint_ClearSetupOUT();
 			}
@@ -197,10 +217,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				if (LEDStatus & 0x04) // SCROLL Lock
 				  LEDMask |= LEDS_LED4;
 
-				/* Set the status LEDs to the current Keyboard LED status */
+				/* Set the status LEDs to the current HID LED status */
 				LEDs_SetAllLEDs(LEDMask);
 
-				/* Finalize the OUT transfer from the host */
+				/* Clear the endpoint data */
 				Endpoint_ClearSetupOUT();
 
 				/* Wait until the host is ready to receive the request confirmation */
@@ -211,48 +231,16 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			
 			break;
-		case REQ_GetProtocol:
-			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
-			{
-				Endpoint_ClearSetupReceived();
-				
-				/* Write the current protocol flag to the host */
-				Endpoint_Write_Byte(UsingReportProtocol);
-				
-				/* Send the flag to the host */
-				Endpoint_ClearSetupIN();
-			}
-			
-			break;
-		case REQ_SetProtocol:
-			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
-			{
-				/* Read in the wValue parameter containing the new protocol mode */
-				uint16_t wValue = Endpoint_Read_Word_LE();
-				
-				/* Set or clear the flag depending on what the host indicates that the current Protocol should be */
-				UsingReportProtocol = (wValue != 0x0000);
-				
-				Endpoint_ClearSetupReceived();
-				
-				/* Send an empty packet to acknowedge the command */
-				Endpoint_ClearSetupIN();
-			}
-			
-			break;
 	}
 }
 
-ISR(ENDPOINT_PIPE_vect)
+TASK(USB_Keyboard)
 {
-	/* Save previously selected endpoint before selecting a new endpoint */
-	uint8_t PrevSelectedEndpoint = Endpoint_GetCurrentEndpoint();
+	uint8_t JoyStatus_LCL = Joystick_GetStatus();
 
-	/* Check if keyboard endpoint has interrupted */
-	if (Endpoint_HasEndpointInterrupted(KEYBOARD_EPNUM))
+	/* Check if HWB is not pressed, if so mouse mode enabled */
+	if (!(HWB_GetStatus()))
 	{
-		uint8_t JoyStatus_LCL = Joystick_GetStatus();
-
 		if (JoyStatus_LCL & JOY_UP)
 		  KeyboardReportData.KeyCode[0] = 0x04; // A
 		else if (JoyStatus_LCL & JOY_DOWN)
@@ -265,61 +253,96 @@ ISR(ENDPOINT_PIPE_vect)
 
 		if (JoyStatus_LCL & JOY_PRESS)
 		  KeyboardReportData.KeyCode[0] = 0x08; // E
+	}
+	
+	/* Check if the USB System is connected to a Host */
+	if (USB_IsConnected)
+	{
+		/* Select the Keyboard Report Endpoint */
+		Endpoint_SelectEndpoint(KEYBOARD_IN_EPNUM);
 
-		/* Select the keyboard IN report endpoint */
-		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
-
-		/* Clear the endpoint IN interrupt flag */
-		USB_INT_Clear(ENDPOINT_INT_IN);
-
-		/* Only send a report if Report Protocol mode is currently selected */
-		if (UsingReportProtocol)
+		/* Check if Keyboard Endpoint Ready for Read/Write */
+		if (Endpoint_ReadWriteAllowed())
 		{
-			/* Clear the Keyboard Report endpoint interrupt */
-			Endpoint_ClearEndpointInterrupt(KEYBOARD_EPNUM);
-
 			/* Write Keyboard Report Data */
 			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
 
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_ClearCurrentBank();
-			
+
 			/* Clear the report data afterwards */
 			memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
 		}
-	}
 
-	/* Check if Keyboard LED status Endpoint has interrupted */
-	if (Endpoint_HasEndpointInterrupted(KEYBOARD_LEDS_EPNUM))
-	{
-		/* Clear the endpoint OUT interrupt flag */
-		USB_INT_Clear(ENDPOINT_INT_OUT);
+		/* Select the Keyboard LED Report Endpoint */
+		Endpoint_SelectEndpoint(KEYBOARD_OUT_EPNUM);
 
-		/* Clear the Keyboard LED Report endpoint interrupt and select the endpoint */
-		Endpoint_ClearEndpointInterrupt(KEYBOARD_LEDS_EPNUM);
-		Endpoint_SelectEndpoint(KEYBOARD_LEDS_EPNUM);
-
-		/* Read in the LED report from the host */
-		uint8_t LEDStatus = Endpoint_Read_Byte();
-		uint8_t LEDMask   = LEDS_LED2;
+		/* Check if Keyboard LED Endpoint Ready for Read/Write */
+		if (Endpoint_ReadWriteAllowed())
+		{
+			/* Ignore report ID from the host */
+			Endpoint_Ignore_Byte();
 		
-		if (LEDStatus & 0x01) // NUM Lock
-		  LEDMask |= LEDS_LED1;
-		
-		if (LEDStatus & 0x02) // CAPS Lock
-		  LEDMask |= LEDS_LED3;
+			/* Read in the LED report from the host */
+			uint8_t LEDStatus = Endpoint_Read_Byte();
+			uint8_t LEDMask   = LEDS_LED2;
+			
+			if (LEDStatus & 0x01) // NUM Lock
+			  LEDMask |= LEDS_LED1;
+			
+			if (LEDStatus & 0x02) // CAPS Lock
+			  LEDMask |= LEDS_LED3;
 
-		if (LEDStatus & 0x04) // SCROLL Lock
-		  LEDMask |= LEDS_LED4;
+			if (LEDStatus & 0x04) // SCROLL Lock
+			  LEDMask |= LEDS_LED4;
 
-		/* Set the status LEDs to the current Keyboard LED status */
-		LEDs_SetAllLEDs(LEDMask);
+			/* Set the status LEDs to the current Keyboard LED status */
+			LEDs_SetAllLEDs(LEDMask);
 
-		/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
-		Endpoint_ClearCurrentBank();
+			/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
+			Endpoint_ClearCurrentBank();
+		}
 	}
-	
-	/* Restore previously selected endpoint */
-	Endpoint_SelectEndpoint(PrevSelectedEndpoint);
 }
 
+TASK(USB_Mouse)
+{
+	uint8_t JoyStatus_LCL = Joystick_GetStatus();
+
+	/* Check if HWB is pressed, if so mouse mode enabled */
+	if (HWB_GetStatus())
+	{
+		if (JoyStatus_LCL & JOY_UP)
+		  MouseReportData.Y =  1;
+		else if (JoyStatus_LCL & JOY_DOWN)
+		  MouseReportData.Y = -1;
+
+		if (JoyStatus_LCL & JOY_RIGHT)
+		  MouseReportData.X =  1;
+		else if (JoyStatus_LCL & JOY_LEFT)
+		  MouseReportData.X = -1;
+
+		if (JoyStatus_LCL & JOY_PRESS)
+		  MouseReportData.Button  = (1 << 0);
+	}
+
+	/* Check if the USB System is connected to a Host */
+	if (USB_IsConnected)
+	{
+		/* Select the Mouse Report Endpoint */
+		Endpoint_SelectEndpoint(MOUSE_IN_EPNUM);
+
+		/* Check if Mouse Endpoint Ready for Read/Write */
+		if (Endpoint_ReadWriteAllowed())
+		{
+			/* Write Mouse Report Data */
+			Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData));
+
+			/* Handshake the IN Endpoint - send the data to the host */
+			Endpoint_ClearCurrentBank();
+
+			/* Clear the report data afterwards */
+			memset(&MouseReportData, 0, sizeof(MouseReportData));
+		}
+	}
+}

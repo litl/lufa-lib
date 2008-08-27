@@ -6,6 +6,11 @@ Changelog for MyUSB:
 		* Fixed CDC bootloader using pgmspace macros for some descriptors inappropriately
 		* Updated all Mouse and Keyboard device demos to include boot protocol support (now works in BIOS)
 		* Renamed bootloader directories to remove spaces, which were causing build problems on several OSes
+		* Removed serial number strings from all but the MassStore demo where it is required - users were not
+		  modifing the code to either ommit the descriptor or use a unique serial per device causing problems
+		  when multiple units of the same device were plugged in at the same time
+		* AudioOutput and AudioInput demos now correctly silence endpoints when not enabled by the host
+		* Added KeyboardMouse demo (Keyboard and Mouse functionality combined into a single demo)
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

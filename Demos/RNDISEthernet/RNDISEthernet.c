@@ -33,14 +33,18 @@
 	This gives a simple reference application for implementing
 	a CDC RNDIS device acting as a simple network interface for
 	ethernet packet exchange. RNDIS is a proprietary Microsoft
-	standard; this demo will only work on Win2000 (patched with
-	a RNDIS hotfix) and above, or on the latest Linux kernels.
+	standard; this demo will only work on Windows 2000 (manually
+	patched with the Microsoft RNDIS hotfix) and above (with no
+	manual patches), or on the latest Linux kernels.
 	
 	Before running, you will need to install the INF file that
 	is located in the RNDISEthernet project directory. This will
 	enable Windows to use its inbuilt RNDIS drivers, negating the
 	need for special Windows drivers for the device. To install,
-	right-click the .INF file and choose the Install option.
+	right-click the .INF file and choose the Install option. If
+	Windows 2000 is used, the Microsoft INF file in the hotfix
+	will need to be altered to use the VID/PID of the demo and
+	then chosen instead of the MyUSB RNDIS INF file when prompted.
 
 	When enumerated, this demo will install as a new network
 	adapter which ethernet packets can be sent to and recieved
@@ -49,9 +53,9 @@
 	accessed through a web browser at IP address 10.0.0.2:80 or
 	through a TELNET client at 10.0.0.2:25. In order to access
 	this device, you will need to manually configure the network
-	adapter it enumerates in the OS to use a fixed IP of 10.0.0.1,
-	rather than using a dynamic allocation, as the device does not
-	implement a DHCP server capable of handing out IP addresses.
+	adapter it enumerates in the OS to use a fixed IP of 10.0.0.1
+	rather than using dynamic address allocation, as the device does
+	not implement a DHCP server capable of handing out IP addresses.
 	
 	**NOTE:** The TCP/IP stack in this demo has a number of limitations
 	and should serve as an example only. For complete projects, it is 

@@ -7,7 +7,7 @@
 */
 
 /*
-  Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -28,14 +28,37 @@
   this software.
 */
 
-/*
-	Keyboard demonstration application by Denver Gingerich.
-
-	This example is based on the MyUSB Mouse demonstration application,
-	written by Dean Camera.
-*/
-
 #include "Descriptors.h"
+
+USB_Descriptor_HIDReport_Datatype_t MouseReport[] PROGMEM =
+{
+	0x05, 0x01,          /* Usage Page (Generic Desktop)                    */
+	0x09, 0x02,          /* Usage (Mouse)                                   */
+	0xA1, 0x01,          /* Collection (Application)                        */
+	0x09, 0x01,          /*   Usage (Pointer)                               */
+	0xA1, 0x00,          /*   Collection (Physical)                         */
+	0x95, 0x03,          /*     Report Count (3)                            */
+	0x75, 0x01,          /*     Report Size (1)                             */
+	0x05, 0x09,          /*     Usage Page (Button)                         */
+	0x19, 0x01,          /*     Usage Minimum (Button 1)                    */
+	0x29, 0x03,          /*     Usage Maximum (Button 3)                    */
+	0x15, 0x00,          /*     Logical Minimum (0)                         */
+	0x25, 0x01,          /*     Logical Maximum (1)                         */
+	0x81, 0x02,          /*     Input (Data, Variable, Absolute)            */
+	0x95, 0x01,          /*     Report Count (1)                            */
+	0x75, 0x05,          /*     Report Size (5)                             */
+	0x81, 0x01,          /*     Input (Constant)                            */
+	0x75, 0x08,          /*     Report Size (8)                             */
+	0x95, 0x02,          /*     Report Count (2)                            */
+	0x05, 0x01,          /*     Usage Page (Generic Desktop Control)        */
+	0x09, 0x30,          /*     Usage X                                     */
+	0x09, 0x31,          /*     Usage Y                                     */
+	0x15, 0x81,          /*     Logical Minimum (-127)                      */
+	0x25, 0x7F,          /*     Logical Maximum (127)                       */
+	0x81, 0x06,          /*     Input (Data, Variable, Relative)            */
+	0xC0,                /*   End Collection                                */
+	0xC0,                /* End Collection                                  */
+};
 
 USB_Descriptor_HIDReport_Datatype_t KeyboardReport[] PROGMEM =
 {
@@ -70,7 +93,7 @@ USB_Descriptor_HIDReport_Datatype_t KeyboardReport[] PROGMEM =
 	0x19, 0x00,          /*   Usage Minimum (Reserved (no event indicated)) */
 	0x29, 0x65,          /*   Usage Maximum (Keyboard Application)          */
 	0x81, 0x00,          /*   Input (Data, Array, Absolute)                 */
-	0xc0                 /* End Collection                                  */
+	0xC0                 /* End Collection                                  */
 };
 
 USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
@@ -79,13 +102,13 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 		
 	USBSpecification:       VERSION_BCD(01.10),
 	Class:                  0x00,
-	SubClass:               0x00,	
+	SubClass:               0x00,
 	Protocol:               0x00,
 				
 	Endpoint0Size:          8,
 		
 	VendorID:               0x03EB,
-	ProductID:              0x2042,
+	ProductID:              0x204D,
 	ReleaseNumber:          0x0000,
 		
 	ManufacturerStrIndex:   0x01,
@@ -102,7 +125,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                 {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
 			TotalConfigurationSize: sizeof(USB_Descriptor_Configuration_t),
-			TotalInterfaces:        1,
+			TotalInterfaces:        2,
 				
 			ConfigurationNumber:    1,
 			ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
@@ -112,7 +135,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			MaxPowerConsumption:    USB_CONFIG_POWER_MA(100)
 		},
 		
-	Interface:
+	KeyboardInterface:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
@@ -123,7 +146,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 				
 			Class:                  0x03,
 			SubClass:               0x01,
-			Protocol:               0x01,
+			Protocol:               0x00,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
@@ -136,26 +159,63 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			CountryCode:            0x00,
 			TotalHIDReports:        0x01,
 			HIDReportType:          DTYPE_Report,
-			HIDReportLength:        sizeof(KeyboardReport)  
+			HIDReportLength:        sizeof(KeyboardReport)
 		},
 		
-	KeyboardEndpoint:
+	KeyboardInEndpoint:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 
-			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | KEYBOARD_EPNUM),
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | KEYBOARD_IN_EPNUM),
 			Attributes:             EP_TYPE_INTERRUPT,
-			EndpointSize:           KEYBOARD_EPSIZE,
+			EndpointSize:           HID_EPSIZE,
 			PollingIntervalMS:      0x02
 		},
 
-	KeyboardLEDsEndpoint:
+	KeyboardOutEndpoint:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
 
-			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | KEYBOARD_LEDS_EPNUM),
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | KEYBOARD_OUT_EPNUM),
 			Attributes:             EP_TYPE_INTERRUPT,
-			EndpointSize:           KEYBOARD_EPSIZE,
+			EndpointSize:           HID_EPSIZE,
+			PollingIntervalMS:      0x02
+		},
+
+	MouseInterface:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
+
+			InterfaceNumber:        0x01,
+			AlternateSetting:       0x00,
+			
+			TotalEndpoints:         1,
+				
+			Class:                  0x03,
+			SubClass:               0x02,
+			Protocol:               0x00,
+				
+			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
+		},
+
+	MouseHID:
+		{  
+			Header:                 {Size: sizeof(USB_Descriptor_HID_t), Type: DTYPE_HID},
+			
+			HIDSpec:                VERSION_BCD(01.11),
+			CountryCode:            0x00,
+			TotalHIDReports:        0x01,
+			HIDReportType:          DTYPE_Report,
+			HIDReportLength:        sizeof(MouseReport)
+		},
+		
+	MouseInEndpoint:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | MOUSE_IN_EPNUM),
+			Attributes:             EP_TYPE_INTERRUPT,
+			EndpointSize:           HID_EPSIZE,
 			PollingIntervalMS:      0x02
 		}
 };
@@ -169,16 +229,16 @@ USB_Descriptor_String_t LanguageString PROGMEM =
 
 USB_Descriptor_String_t ManufacturerString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
 		
-	UnicodeString:          L"Denver Gingerich"
+	UnicodeString:          L"Dean Camera"
 };
 
 USB_Descriptor_String_t ProductString PROGMEM =
 {
-	Header:                 {Size: USB_STRING_LEN(19), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(29), Type: DTYPE_String},
 		
-	UnicodeString:          L"MyUSB Keyboard Demo"
+	UnicodeString:          L"MyUSB Mouse and Keyboard Demo"
 };
 
 bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
@@ -216,12 +276,29 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 			
 			break;
 		case DTYPE_HID:
-			Address = DESCRIPTOR_ADDRESS(ConfigurationDescriptor.KeyboardHID);
-			Size    = sizeof(USB_Descriptor_HID_t);
+			if (!(wIndex))
+			{
+				Address = DESCRIPTOR_ADDRESS(ConfigurationDescriptor.KeyboardHID);
+				Size    = sizeof(USB_Descriptor_HID_t);
+			}
+			else
+			{
+				Address = DESCRIPTOR_ADDRESS(ConfigurationDescriptor.MouseHID);
+				Size    = sizeof(USB_Descriptor_HID_t);			
+			}
 			break;
 		case DTYPE_Report:
-			Address = DESCRIPTOR_ADDRESS(KeyboardReport);
-			Size    = sizeof(KeyboardReport);
+			if (!(wIndex))
+			{
+				Address = DESCRIPTOR_ADDRESS(KeyboardReport);
+				Size    = sizeof(KeyboardReport);
+			}
+			else
+			{			
+				Address = DESCRIPTOR_ADDRESS(MouseReport);
+				Size    = sizeof(MouseReport);
+			}
+			
 			break;
 	}
 	

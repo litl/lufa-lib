@@ -155,6 +155,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&MouseReportData, wLength);
 				
+				/* Clear the report data afterwards */
+				memset(&MouseReportData, 0, sizeof(MouseReportData));
+
 				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
 				Endpoint_ClearSetupOUT();
 			}
@@ -212,6 +215,10 @@ TASK(USB_Mouse_Report)
 	if (HWB_GetStatus())
 	  MouseReportData.Button |= (1 << 1);
 
+	/* Block remainer of task if Boot Protocol is currently in use */
+	if (!(UsingReportProtocol))
+	  return;
+
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
 	{
@@ -228,9 +235,7 @@ TASK(USB_Mouse_Report)
 			Endpoint_ClearCurrentBank();
 			
 			/* Clear the report data afterwards */
-			MouseReportData.Button = 0;
-			MouseReportData.X = 0;			
-			MouseReportData.Y = 0;
+			memset(&MouseReportData, 0, sizeof(MouseReportData));
 		}
 	}
 }
