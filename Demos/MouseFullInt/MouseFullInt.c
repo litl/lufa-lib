@@ -233,20 +233,16 @@ ISR(ENDPOINT_PIPE_vect)
 		/* Clear the endpoint IN interrupt flag */
 		USB_INT_Clear(ENDPOINT_INT_IN);
 
-		/* Only send a report if Report Protocol mode is currently selected */
-		if (UsingReportProtocol)
-		{
-			/* Clear the Mouse Report endpoint interrupt */
-			Endpoint_ClearEndpointInterrupt(MOUSE_EPNUM);
+		/* Clear the Mouse Report endpoint interrupt */
+		Endpoint_ClearEndpointInterrupt(MOUSE_EPNUM);
 
-			/* Write Mouse Report Data */
-			Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData));
+		/* Write Mouse Report Data */
+		Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData));
 				
-			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_ClearCurrentBank();
+		/* Handshake the IN Endpoint - send the data to the host */
+		Endpoint_ClearCurrentBank();
 			
-			/* Clear the report data afterwards */
-			memset(&MouseReportData, 0, sizeof(MouseReportData));
-		}
+		/* Clear the report data afterwards */
+		memset(&MouseReportData, 0, sizeof(MouseReportData));
 	}
 }

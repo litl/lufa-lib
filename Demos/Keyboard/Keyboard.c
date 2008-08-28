@@ -165,12 +165,12 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&KeyboardReportData, wLength);
-
-				/* Clear the report data afterwards */
-				memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
 				
 				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
 				Endpoint_ClearSetupOUT();
+
+				/* Clear the report data afterwards */
+				memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
 			}
 		
 			break;
@@ -257,10 +257,6 @@ TASK(USB_Keyboard_Report)
 
 	if (JoyStatus_LCL & JOY_PRESS)
 	  KeyboardReportData.KeyCode[0] = 0x08; // E
-
-	/* Block remainer of task if Boot Protocol is currently in use */
-	if (!(UsingReportProtocol))
-	  return;
 
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)

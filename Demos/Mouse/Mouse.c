@@ -215,10 +215,6 @@ TASK(USB_Mouse_Report)
 	if (HWB_GetStatus())
 	  MouseReportData.Button |= (1 << 1);
 
-	/* Block remainer of task if Boot Protocol is currently in use */
-	if (!(UsingReportProtocol))
-	  return;
-
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
 	{
