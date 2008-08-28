@@ -11,6 +11,9 @@ Changelog for MyUSB:
 		  when multiple units of the same device were plugged in at the same time
 		* AudioOutput and AudioInput demos now correctly silence endpoints when not enabled by the host
 		* Added KeyboardMouse demo (Keyboard and Mouse functionality combined into a single demo)
+		* Added DriverStubs directory to house board level driver templates, to make MyUSB compatible custom board
+		  driver creation easier
+		* Extended MassStorage demo to support multiple LUNs
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

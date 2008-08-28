@@ -151,9 +151,9 @@
  *  This means that while a build inside a particular demo directory will build only that particular demo, a build stated
  *  from the /Demos/ directory will build all MyUSB demo projects sequentially.
  *
- *  To build a project from the source, the command "<b>make all</b>" should be executed from the command line in the directory
+ *  To build a project from the source, the command <b>"make all"</b> should be executed from the command line in the directory
  *  of interest. To remove compiled files (including the binary output, all intermediatary files and all diagnostic output
- *  files), execute "<b>make clean</b>". Once a "make all" has been run and no errors were encountered, the resulting binary will
+ *  files), execute <b>"make clean"</b>. Once a "make all" has been run and no errors were encountered, the resulting binary will
  *  be located in the generated ".HEX" file. If your project makes use of pre-initialized EEPROM variables, the generated ".EEP"
  *  file will contain the project's EEPROM data.
  *
@@ -408,7 +408,7 @@
  *     0x204D
  *    </td>
  *    <td>
- *     * UNUSED - FREE FOR PRIVATE HOBBYIST PROJECTS UNTIL ALLOCATED *
+ *     Keyboard and Mouse Combination Demo Application
  *    </td>
  *   </tr>
  *
@@ -455,6 +455,20 @@
  *  demonstrated in the library demos and applications. This is the preferred method, as the library is recompiled
  *  each time to ensure that all static options for a particular application are applied.
  */
+ 
+/** \page Page_Migration151 Migrating from V1.5.1 to 1.5.2
+ *
+ *  Below is migration information for updating existing projects based on the MyUSB library version 1.5.1 to
+ *  the 1.5.2 API. It does not indicate all new additions to the library, only areas relevant to making older
+ *  projects compatible with the new API.
+ *
+ *  <b>Library Demos</b>
+ *    - The RNDIS demo application has been updated so that it is functional on Linux under earlier implementations
+ *      of the RNDIS specification, which had non-standard behaviour. Projects built upon the demo should upgrade
+ *      to the latest code.
+ *    - The DFU class bootloader has had several bugs corrected in this release. It is recommended that where
+ *      possible any existing devices upgrade to the latest bootloader code.
+ */
 
 /** \page Page_Migration150 Migrating from V1.5.0 to 1.5.1
  *
@@ -465,7 +479,7 @@
  *  <b>Library Demos</b>
  *    - The USBtoSerial demo was broken in the 1.5.0 release, due to incorrect register polling in place of the
  *      global "Transmitting" flag. The change has been reverted in this release. Projects built upon the demo
- *      so upgrade to the latest code.
+ *      should upgrade to the latest code.
  *    - The HID class demos did not implement the mandatory GetReport HID class request. Projects built upon the HID
  *      demos should upgrade to the latest code.
  *    - The HID class demos incorrectly reported themselves as boot-protocol enabled HID devices in their descriptors.

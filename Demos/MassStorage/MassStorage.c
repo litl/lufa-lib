@@ -29,19 +29,23 @@
 */
 
 /*
-	Mass Storage demonstration application. This gives a simple reference
-	application for implementing a USB Mass Storage device using the basic
-	USB UFI drivers in all modern OSes (i.e. no special drivers required).
+	Dual LUN Mass Storage demonstration application. This gives a simple
+	reference application for implementing a multiple LUN USB Mass Storage
+	device using the basic USB UFI drivers in all modern OSes (i.e. no
+	special drivers required).
 	
 	On startup the system will automatically enumerate and function as an
-	external mass storage device which may be formatted and used in the
-	same manner as commercial USB Mass Storage devices.
-	
-	Only one Logical Unit (LUN) is currently supported by this example,
-	allowing for one external storage device to be enumerated by the host.
-	
-	You will need to format the mass storage device upon first run of this
+	external mass storage device with two LUNs (seperate disks) which may
+	be formatted and used in the same manner as commercial USB Mass Storage
+	devices.
+		
+	You will need to format the mass storage drives upon first run of this
 	demonstration.
+	
+	This demo is not restricted to only two LUNs; by changing the TOTAL_LUNS
+	value in MassStorageDualLUN.h, any number of LUNs can be used (from 1 to
+	255), with each LUN being allocated an equal portion of the available
+	Dataflash memory.
 */
 
 /*
@@ -55,7 +59,7 @@
 	Usable Speeds:      Full Speed Mode
 */
 
-#define INCLUDE_FROM_MASSSTORAGE_C
+#define INCLUDE_FROM_MASSSTORAGEDUALLUN_C
 #include "MassStorage.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -158,7 +162,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();			
-				Endpoint_Write_Byte(0x00);
+				Endpoint_Write_Byte(TOTAL_LUNS - 1);
 				Endpoint_ClearSetupIN();
 			}
 			
@@ -225,7 +229,7 @@ static bool ReadInCommandBlock(void)
 
 	/* Verify the command block - abort if invalid */
 	if ((CommandBlock.Header.Signature != CBW_SIGNATURE) ||
-	    (CommandBlock.Header.LUN != 0x00) ||
+	    (CommandBlock.Header.LUN >= TOTAL_LUNS) ||
 		(CommandBlock.Header.SCSICommandLength > MAX_SCSI_COMMAND_LENGTH))
 	{
 		/* Stall both data pipes until reset by host */

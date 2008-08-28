@@ -52,6 +52,9 @@
 
 		#define MAX_SCSI_COMMAND_LENGTH    16
 		
+		#define TOTAL_LUNS                 2
+		#define LUN_MEDIA_SIZE             (VIRTUAL_MEMORY_BLOCKS / TOTAL_LUNS)    
+		
 		#define CBW_SIGNATURE              0x43425355UL
 		#define CSW_SIGNATURE              0x53425355UL
 		
@@ -107,7 +110,7 @@
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Function Prototypes: */
-		#if defined(INCLUDE_FROM_MASSSTORAGE_C)
+		#if defined(INCLUDE_FROM_MASSSTORAGEDUALLUN_C)
 			static bool ReadInCommandBlock(void);
 			static void ReturnCommandStatus(void);
 		#endif
