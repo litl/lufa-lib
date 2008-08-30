@@ -279,10 +279,7 @@ TASK(USB_Keyboard)
 
 		/* Check if Keyboard LED Endpoint Ready for Read/Write */
 		if (Endpoint_ReadWriteAllowed())
-		{
-			/* Ignore report ID from the host */
-			Endpoint_Ignore_Byte();
-		
+		{		
 			/* Read in the LED report from the host */
 			uint8_t LEDStatus = Endpoint_Read_Byte();
 			uint8_t LEDMask   = LEDS_LED2;

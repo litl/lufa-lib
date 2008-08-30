@@ -420,7 +420,7 @@
  *     0x204E
  *    </td>
  *    <td>
- *     * UNUSED - FREE FOR PRIVATE HOBBYIST PROJECTS UNTIL ALLOCATED *
+ *     Dual CDC Demo Application
  *    </td>
  *   </tr>
  *
@@ -454,6 +454,22 @@
  *  Normal library use has the library components compiled in at the same point as the application code, as
  *  demonstrated in the library demos and applications. This is the preferred method, as the library is recompiled
  *  each time to ensure that all static options for a particular application are applied.
+ */
+ 
+ /** \page Page_Migration152 Migrating from V1.5.2 to 1.5.3
+ *
+ *  Below is migration information for updating existing projects based on the MyUSB library version 1.5.2 to
+ *  the 1.5.3 API. It does not indicate all new additions to the library, only areas relevant to making older
+ *  projects compatible with the new API.
+ *
+ *  <b>Library Demos</b>
+ *    - Previously, all demos contained a serial number string descriptor, filled with all zeros. A serial number
+ *      string is required in Mass Storage devices, or devices which are to retain settings when moved between
+ *      ports on a machine. As people were not changing the serial number value, this was causing conflicts and so
+ *      the serial number descriptor has been removed from all but the Mass Storage demo, which requires it.
+ *    - The AudioOut and AudioIn demos did not previously silence their endpoints when the host has deactivated
+ *      them. Projects built upon either demo should upgrade to the latest code.
+ *    - The FEATURE_ENDPOINT macro has been renamed FEATURE_ENDPOINT_HALT, and is now correctly documented.
  */
  
 /** \page Page_Migration151 Migrating from V1.5.1 to 1.5.2

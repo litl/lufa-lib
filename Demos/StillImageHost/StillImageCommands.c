@@ -227,7 +227,7 @@ uint8_t SImage_ClearPipeStall(const uint8_t PipeEndpointNum)
 		{
 			bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_ENDPOINT),
 			bRequest:      REQ_ClearFeature,
-			wValue:        FEATURE_ENDPOINT,
+			wValue:        FEATURE_ENDPOINT_HALT,
 			wIndex:        PipeEndpointNum,
 			wLength:       0,
 		};

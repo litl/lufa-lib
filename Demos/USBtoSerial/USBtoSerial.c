@@ -36,10 +36,9 @@
 	host.
 	
 	Before running, you will need to install the INF file that
-	is located in the CDC project directory. This will enable
+	is located in the USBtoSerial project directory. This will enable
 	Windows to use its inbuilt CDC drivers, negating the need
-	for special Windows drivers for the device. To install,
-	right-click the .INF file and choose the Install option.
+	for special Windows drivers for the device.
 */
 
 /*

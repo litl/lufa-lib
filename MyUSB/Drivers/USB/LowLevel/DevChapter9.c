@@ -35,6 +35,8 @@
 #include "DevChapter9.h"
 
 uint8_t USB_ConfigurationNumber;
+bool    USB_RemoteWakeupEnabled;
+bool    USB_CurrentlySelfPowered;
 
 void USB_Device_ProcessControlPacket(void)
 {
@@ -251,11 +253,11 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 			ConfigAttributes = pgm_read_byte(&ConfigDescriptorPtr->ConfigAttributes);
 #endif
 
-			if (ConfigAttributes & USB_CONFIG_ATTR_SELFPOWERED)
-			  CurrentStatus |= FEATURE_SELFPOWERED;
+			if (USB_CurrentlySelfPowered)
+			  CurrentStatus |= FEATURE_SELFPOWERED_ENABLED;
 			
-			if (ConfigAttributes & USB_CONFIG_ATTR_REMOTEWAKEUP)
-			  CurrentStatus |= FEATURE_REMOTE_WAKEUP;
+			if (USB_RemoteWakeupEnabled)
+			  CurrentStatus |= FEATURE_REMOTE_WAKEUP_ENABLED;
 			
 			break;
 		case REQREC_INTERFACE:
@@ -265,7 +267,7 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 		case REQREC_ENDPOINT:
 			Endpoint_SelectEndpoint(wIndex);
 
-			CurrentStatus = !(Endpoint_IsEnabled());
+			CurrentStatus = Endpoint_IsStalled();
 
 			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			  
 			break;
@@ -291,7 +293,7 @@ static void USB_Device_ClearSetFeature(const uint8_t bRequest, const uint8_t bmR
 	switch (bmRequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
 		case REQREC_ENDPOINT:
-			if (wValue == FEATURE_ENDPOINT)
+			if (wValue == FEATURE_ENDPOINT_HALT)
 			{
 				uint8_t EndpointIndex = (wIndex & ENDPOINT_EPNUM_MASK);
 				

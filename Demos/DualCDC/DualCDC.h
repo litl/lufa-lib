@@ -83,6 +83,7 @@
 		};
 
 	/* Tasks: */
-		TASK(CDC_Task);
+		TASK(CDC1_Task);
+		TASK(CDC2_Task);
 
 #endif

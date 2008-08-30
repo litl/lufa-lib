@@ -16,6 +16,9 @@ Changelog for MyUSB:
 		* Extended MassStorage demo to support multiple LUNs
 		* Fixed incorrect device address mask, preventing the device from enumerating with addresses larger than 63
 		* Fixed incorrect data direction mask in the GetStatus standard request, preventing it from being handled
+		* Fixed incorrect GetStatus standard request for endpoints, now returns the endpoint STALL status correctly
+		* Added in new USB_RemoteWakeupEnabled and USB_CurrentlySelfPowered flags rather than using fixed values
+		* Added DualCDC demo to demonstrate the use of Interface Association Descriptors
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------
