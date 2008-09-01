@@ -251,8 +251,11 @@ TASK(USB_MassStore_Host)
 				break;
 			}
 			
+			/* Device indicates the maximum LUN index, the 1-indexed number of LUNs is one more that this */
+			NumberOfLUNs++;
+			
 			/* Print number of LUNs detected in the attached device */
-			printf_P(PSTR("Total LUNs: %d.\r\n"), (MassStore_NumberOfLUNs + 1));
+			printf_P(PSTR("Total LUNs: %d.\r\n"), MassStore_NumberOfLUNs);
 			
 			/* Get sense data from the device - it will not respond to requests until this is done */
 			SCSI_Request_Sense_Response_t SenseData;
