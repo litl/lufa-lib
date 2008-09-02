@@ -129,9 +129,12 @@
 		extern CommandStatusWrapper_t SCSICommandStatus;
 		
 	/* Function Prototypes: */
-		void    MassStore_SendCommand(void);
-		uint8_t MassStore_WaitForDataRecieved(void);
-		uint8_t MassStore_SendReceiveData(void* BufferPtr) ATTR_NON_NULL_PTR_ARG(1);
+		#if defined(INCLUDE_FROM_MASSSTORE_COMMANDS_C)
+			static void    MassStore_SendCommand(void);
+			static uint8_t MassStore_WaitForDataReceived(void);
+			static uint8_t MassStore_SendReceiveData(void* BufferPtr) ATTR_NON_NULL_PTR_ARG(1);
+		#endif
+		
 		void    MassStore_GetReturnedStatus(void);
 		uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum);
 

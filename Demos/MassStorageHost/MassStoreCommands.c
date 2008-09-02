@@ -28,6 +28,7 @@
   this software.
 */
 
+#define INCLUDE_FROM_MASSSTORE_COMMANDS_C
 #include "MassStoreCommands.h"
 
 /* Globals: */
@@ -35,14 +36,11 @@ CommandBlockWrapper_t  SCSICommandBlock;
 CommandStatusWrapper_t SCSICommandStatus;
 uint32_t               MassStore_Tag = 1;
 
-void MassStore_SendCommand(void)
+static void MassStore_SendCommand(void)
 {
 	/* Each transmission should have a unique tag value */
 	if (MassStore_Tag++ == 0xFFFFFFFE)
 	  MassStore_Tag = 1;
-
-	/* Wait 3 frames before issuing a command to ensure device is ready */
-	USB_Host_WaitMS(3);
 
 	/* Select the OUT data pipe for CBW transmission */
 	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
@@ -53,17 +51,15 @@ void MassStore_SendCommand(void)
 
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_ClearCurrentBank();
-	
+
+	USB_Host_WaitMS(1);
+
 	/* Freeze pipe after use */
 	Pipe_Freeze();
-	
-	/* Wait 3 frames before continuing to ensure device is ready */
-	USB_Host_WaitMS(3);
 }
 
-uint8_t MassStore_WaitForDataReceived(void)
+static uint8_t MassStore_WaitForDataReceived(void)
 {
-	uint8_t  ErrorCode    = NoError;
 	uint16_t TimeoutMSRem = COMMAND_DATA_TIMEOUT_MS;
 
 	/* Unfreeze the OUT pipe so that it can be checked */
@@ -86,11 +82,7 @@ uint8_t MassStore_WaitForDataReceived(void)
 
 			/* Check to see if the timeout period for the command has elapsed */
 			if (!(TimeoutMSRem))
-			{
-				/* Set error code and break out of the loop */
-				ErrorCode = CommandTimeout;
-				break;
-			}
+			  return CommandTimeout;
 		}
 	
 		Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
@@ -101,9 +93,7 @@ uint8_t MassStore_WaitForDataReceived(void)
 			/* Clear the stall condition on the OUT pipe */
 			MassStore_ClearPipeStall(MASS_STORE_DATA_OUT_PIPE);
 
-			/* Set error code and break out of the loop */
-			ErrorCode = OutPipeStalled;
-			break;
+			return OutPipeStalled;
 		}
 
 		Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
@@ -114,30 +104,18 @@ uint8_t MassStore_WaitForDataReceived(void)
 			/* Clear the stall condition on the IN pipe */
 			MassStore_ClearPipeStall(MASS_STORE_DATA_IN_PIPE);
 
-			/* Set error code and break out of the loop */
-			ErrorCode = InPipeStalled;
-			break;
+			return InPipeStalled;
 		}
 		  
 		/* Check to see if the device was disconnected, if so exit function */
 		if (!(USB_IsConnected))
-		{
-			/* Set error code and break out of the loop */
-			ErrorCode = DeviceDisconnected;
-			break;
-		}
+		  return DeviceDisconnected;
 	};
-	
-	/* Freeze IN and OUT pipes after use */
-	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
-	Pipe_Freeze();
-	Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
-	Pipe_Freeze();
-	
-	return ErrorCode;
+
+	return NoError;
 }
 
-uint8_t MassStore_SendRecieveData(void* BufferPtr)
+static uint8_t MassStore_SendReceiveData(void* BufferPtr)
 {
 	uint16_t BytesRem = SCSICommandBlock.Header.DataTransferLength;
 
@@ -165,6 +143,8 @@ uint8_t MassStore_SendRecieveData(void* BufferPtr)
 	
 	/* Acknowedge the packet */
 	Pipe_ClearCurrentBank();
+	
+	USB_Host_WaitMS(1);
 
 	/* Freeze used pipe after use */
 	Pipe_Freeze();
@@ -177,23 +157,14 @@ void MassStore_GetReturnedStatus(void)
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
-
-	/* Wait until pipe is ready to be read from (contains data) */
-	while (!(Pipe_ReadWriteAllowed()))
-	{
-		/* If USB device is disconnected during transfer, exit function */
-		if (!(USB_IsConnected))
-		{
-			Pipe_Freeze();
-			return;
-		}
-	}
 	
 	/* Load in the CSW from the attached device */
 	Pipe_Read_Stream_LE(&SCSICommandStatus, sizeof(CommandStatusWrapper_t));
 	
 	/* Clear the data ready for next reception */
 	Pipe_ClearCurrentBank();
+
+	USB_Host_WaitMS(1);
 
 	/* Freeze the IN pipe after use */
 	Pipe_Freeze();
@@ -249,7 +220,7 @@ uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_
 	  return ReturnCode;
 
 	/* Read the returned sense data into the buffer */
-	if ((ReturnCode = MassStore_SendRecieveData((uint8_t*)SensePtr)) != NoError)
+	if ((ReturnCode = MassStore_SendReceiveData((uint8_t*)SensePtr)) != NoError)
 	  return ReturnCode;	
 	
 	/* Read in the returned CSW from the device */
@@ -299,7 +270,7 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 	  return ReturnCode;
 
 	/* Read the returned block data into the buffer */
-	if ((ReturnCode = MassStore_SendRecieveData(BufferPtr)) != NoError)
+	if ((ReturnCode = MassStore_SendReceiveData(BufferPtr)) != NoError)
 	  return ReturnCode;	
 	
 	/* Read in the returned CSW from the device */
@@ -345,7 +316,7 @@ uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockA
 	MassStore_SendCommand();
 
 	/* Write the data to the device from the buffer */
-	if ((ReturnCode = MassStore_SendRecieveData(BufferPtr)) != NoError)
+	if ((ReturnCode = MassStore_SendReceiveData(BufferPtr)) != NoError)
 	  return ReturnCode;	
 	
 	/* Read in the returned CSW from the device */
@@ -425,10 +396,17 @@ uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* const Ca
 	/* Wait until data recieved from the device */
 	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
+	  
+	/* Create a tempoary buffer to hold the received data */
+	uint8_t CapacityDataBuffer[8];
 
 	/* Read the returned capacity data into the buffer */
-	if ((ReturnCode = MassStore_SendRecieveData((uint8_t*)CapacityPtr)) != NoError)
-	  return ReturnCode;	
+	if ((ReturnCode = MassStore_SendReceiveData(&CapacityDataBuffer)) != NoError)
+	  return ReturnCode;
+	  
+	/* Fill the capacity structure with the endian-corrected buffer data */
+	CapacityPtr->Blocks    = SwapEndian_32(((uint32_t*)&CapacityDataBuffer)[0]);
+	CapacityPtr->BlockSize = SwapEndian_32(((uint32_t*)&CapacityDataBuffer)[1]);
 	
 	/* Read in the returned CSW from the device */
 	MassStore_GetReturnedStatus();

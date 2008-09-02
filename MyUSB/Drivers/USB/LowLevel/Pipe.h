@@ -129,9 +129,14 @@
 			/** Interrupt definition for the pipe IN interrupt (for INTERRUPT type pipes). Should be used with
 			 *  the USB_INT_* macros located in USBInterrupt.h.
 			 *
-			 *  This interrupt will fire if enabled on an INTERRUPT type pipe if a the pipe interrupt period has
+			 *  This interrupt will fire if enabled on an INTERRUPT type pipe if the pipe interrupt period has
 			 *  elapsed and the pipe is ready for the next packet from the attached device to be read out from its
 			 *  FIFO buffer (if received).
+			 *
+			 *  This interrupt must be enabled on *each* pipe which requires it (after the pipe is selected), and
+			 *  will fire the common pipe interrupt vector.
+			 *
+			 *  \see ENDPOINT_PIPE_vect for more information on the common pipe and endpoint interrupt vector.
 			 */
 			#define PIPE_INT_IN                            UPIENX, (1 << RXINE) , UPINTX, (1 << RXINI)
 
@@ -141,8 +146,42 @@
 			 *  This interrupt will fire if enabled on an INTERRUPT type endpoint if a the pipe interrupt period
 			 *  has elapsed and the pipe is ready for a packet to be written to the pipe's FIFO buffer and sent
 			 *  to the attached device (if required).
-			 */
+			 *  
+			 *  This interrupt must be enabled on *each* pipe which requires it (after the pipe is selected), and
+			 *  will fire the common pipe interrupt vector.
+			 *
+			 *  \see ENDPOINT_PIPE_vect for more information on the common pipe and endpoint interrupt vector.			 */
 			#define PIPE_INT_OUT                           UPIENX, (1 << TXOUTE), UPINTX, (1 << TXOUTI)
+
+			/** Interrupt definition for the pipe error interrupt. Should be used with the USB_INT_* macros
+			 *  located in USBInterrupt.h.
+			 *
+			 *  This interrupt will fire if enabled on a particular pipe if an error occurs on that pipe, such
+			 *  as a CRC mismatch error.
+			 *
+			 *  This interrupt must be enabled on *each* pipe which requires it (after the pipe is selected), and
+			 *  will fire the common pipe interrupt vector.
+			 *
+			 *  \see ENDPOINT_PIPE_vect for more information on the common pipe and endpoint interrupt vector.
+			 *
+			 *  \see Pipe_GetErrorFlags() for more information on the pipe errors.
+			 */
+			#define PIPE_INT_ERROR                         UPIENX, (1 << PERRE), UPINTX, (1 << PERRI)
+
+			/** Interrupt definition for the pipe NAK received interrupt. Should be used with the USB_INT_* macros
+			 *  located in USBInterrupt.h.
+			 *
+			 *  This interrupt will fire if enabled on a particular pipe if an attached device returns a NAK in
+			 *  response to a sent packet.
+			 *
+			 *  This interrupt must be enabled on *each* pipe which requires it (after the pipe is selected), and
+			 *  will fire the common pipe interrupt vector.
+			 *
+			 *  \see ENDPOINT_PIPE_vect for more information on the common pipe and endpoint interrupt vector.
+			 *
+			 *  \see Pipe_IsNAKReceived() for more information on pipe NAKs.
+			 */
+			#define PIPE_INT_NAK                         UPIENX, (1 << NAKEDE), UPINTX, (1 << NAKEDI)
 
 			/** Indicates the number of bytes currently stored in the current pipe's selected bank. */
 			#define Pipe_BytesInPipe()                     UPBCX
@@ -286,11 +325,13 @@
 			#define Pipe_ClearStall()              MACROS{ UPINTX  &= ~(1 << RXSTALLI);                            }MACROE             
 
 			/** Returns true if an IN request has been received on the currently selected CONTROL type pipe, false
-			 *  otherwise. */
+			 *  otherwise.
+			 */
 			#define Pipe_IsSetupINReceived()             ((UPINTX  &   (1 << RXINI)) ? true : false)
 
 			/** Returns true if the currently selected CONTROL type pipe is ready to send an OUT request, false
-			 *  otherwise. */
+			 *  otherwise.
+			 */
 			#define Pipe_IsSetupOUTReady()               ((UPINTX  &   (1 << TXOUTI)) ? true : false)
 
 			/** Acknowedges the reception of a setup IN request from the attached device on the currently selected
@@ -301,6 +342,20 @@
 
 			/** Sends the currently selected CONTROL type pipe's contents to the device as a setup OUT packet. */
 			#define Pipe_ClearSetupOUT()           MACROS{ UPINTX  &= ~(1 << TXOUTI); UPINTX &= ~(1 << FIFOCON);   }MACROE
+			
+			/** Returns true if the device sent a NAK (Negative Acknowedge) in response to the last sent packet on
+			 *  the currently selected pipe. This ocurrs when the host sends a packet to the device, but the device
+			 *  is not currently ready to handle the packet (i.e. its endpoint banks are full). Once a NAK has been
+			 *  received, it must be cleard using Pipe_ClearNAKReceived() before the previous (or any other) packet
+			 *  can be re-sent.
+			 */
+			#define Pipe_IsNAKReceived()                 ((UPINTX & (1 << NAKEDI)) ? true : false)
+
+			/** Clears the NAK condition on the currently selected pipe.
+			 *
+			 *  \see Pipe_IsNAKReceived() for more details.
+			 */
+			#define Pipe_ClearNAKReceived()        MACROS{ UPINTX &= ~(1 << NAKEDI);                              }MACROE
 
 		/* Enums: */
 			/** Enum for the possible error return codes of the Pipe_*_Stream_* functions. */

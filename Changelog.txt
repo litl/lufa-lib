@@ -19,6 +19,8 @@ Changelog for MyUSB:
 		* Fixed incorrect GetStatus standard request for endpoints, now returns the endpoint STALL status correctly
 		* Added in new USB_RemoteWakeupEnabled and USB_CurrentlySelfPowered flags rather than using fixed values
 		* Added DualCDC demo to demonstrate the use of Interface Association Descriptors
+		* Added pipe NAK detection and clearing API
+		* Added pipe NAK and error interrupt API
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

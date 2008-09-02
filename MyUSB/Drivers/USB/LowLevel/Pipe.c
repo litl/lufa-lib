@@ -69,6 +69,7 @@ void Pipe_ClearPipes(void)
 uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)Data;
+	uint16_t PacketLen = 0;
 	
 	while (Length)
 	{
@@ -83,6 +84,8 @@ uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length)
 				else if (Pipe_IsStalled())
 				  return PIPE_RWSTREAM_ERROR_PipeStalled;
 			}
+			
+			PacketLen = 0;
 		}
 
 		Pipe_Write_Byte(*(DataStream++));
@@ -93,7 +96,7 @@ uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length)
 		else if (Pipe_IsStalled())
 		  return PIPE_RWSTREAM_ERROR_PipeStalled;
 	}
-	
+
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
@@ -124,7 +127,7 @@ uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length)
 		else if (Pipe_IsStalled())
 		  return PIPE_RWSTREAM_ERROR_PipeStalled;
 	}
-	
+
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
@@ -155,7 +158,7 @@ uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)
 		else if (Pipe_IsStalled())
 		  return PIPE_RWSTREAM_ERROR_PipeStalled;
 	}
-	
+
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 

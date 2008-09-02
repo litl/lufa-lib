@@ -147,6 +147,7 @@
 			/** Function to reverse the byte ordering of the individual bytes in a n byte number.
 			 *
 			 *  \param Data   Pointer to a number containing an even number of bytes to be reversed
+			 *  \param Bytes  Length of the data in bytes
 			 */
 			static inline void SwapEndian_n(uint8_t* Data, uint8_t Bytes)
 			{
