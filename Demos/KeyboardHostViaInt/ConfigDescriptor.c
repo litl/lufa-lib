@@ -34,7 +34,6 @@ uint8_t ProcessConfigurationDescriptor(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
-	uint8_t  ErrorCode;
 	
 	/* Get Configuration Descriptor size from the device */
 	if (USB_Host_GetDeviceConfigDescriptor(&ConfigDescriptorSize, NULL) != HOST_SENDCONTROL_Successful)
@@ -52,18 +51,18 @@ uint8_t ProcessConfigurationDescriptor(void)
 	
 	/* Validate returned data - ensure first entry is a configuration header descriptor */
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
-	  return ControlError;
+	  return InvalidConfigDataReturned;
 	
 	/* Get the keyboard interface from the configuration descriptor */
-	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextKeyboardInterface)))
+	if (USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextKeyboardInterface))
 	{
 		/* Descriptor not found, error out */
 		return NoHIDInterfaceFound;
 	}
 
 	/* Get the keyboard interface's data endpoint descriptor */
-	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
-	                                                NextInterfaceKeyboardDataEndpoint)))
+	if (USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+	                                                NextInterfaceKeyboardDataEndpoint))
 	{
 		/* Descriptor not found, error out */
 		return NoEndpointFound;

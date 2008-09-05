@@ -63,31 +63,48 @@ void Endpoint_ClearEndpoints(void)
 	}
 }
 
+uint8_t Endpoint_WaitUntilReady(void)
+{
+	uint8_t TimeoutMSRem = USB_STREAM_TIMEOUT_MS;
+
+	USB_INT_Clear(USB_INT_SOFI);
+
+	while (!(Endpoint_ReadWriteAllowed()))
+	{
+		if (!(USB_IsConnected))
+		  return ENDPOINT_READYWAIT_DeviceDisconnected;
+			  
+		if (USB_INT_HasOccurred(USB_INT_SOFI))
+		{
+			USB_INT_Clear(USB_INT_SOFI);
+
+			if (!(TimeoutMSRem--))
+			  return ENDPOINT_READYWAIT_Timeout;
+		}
+	}
+	
+	return ENDPOINT_READYWAIT_NoError;
+}
+
 uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length)
 {
-	uint8_t* DataStream = (uint8_t*)Buffer;
+	uint8_t* DataStream   = (uint8_t*)Buffer;
+	uint8_t  ErrorCode;
 	
 	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
 			Endpoint_ClearCurrentBank();
-
-			while (!(Endpoint_ReadWriteAllowed()))
-			{
-				if (Endpoint_IsStalled())
-				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
-				else if (!(USB_IsConnected))
-				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;			
-			}
+			
+			if ((ErrorCode = Endpoint_WaitUntilReady()))
+			  return ErrorCode;
 		}
 
 		Endpoint_Write_Byte(*(DataStream++));
 		Length--;
 		
-		if (Endpoint_IsStalled())
-		  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
-		else if (!(USB_IsConnected))
+		if (!(USB_IsConnected))
 		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	
@@ -97,6 +114,7 @@ uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length)
 uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
+	uint8_t  ErrorCode;
 	
 	while (Length)
 	{
@@ -104,21 +122,14 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length)
 		{
 			Endpoint_ClearCurrentBank();
 
-			while (!(Endpoint_ReadWriteAllowed()))
-			{
-				if (Endpoint_IsStalled())
-				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
-				else if (!(USB_IsConnected))
-				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;			
-			}
+			if ((ErrorCode = Endpoint_WaitUntilReady()))
+			  return ErrorCode;
 		}
 		
 		Endpoint_Write_Byte(*(DataStream--));
 		Length--;
 		
-		if (Endpoint_IsStalled())
-		  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
-		else if (!(USB_IsConnected))
+		if (!(USB_IsConnected))
 		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	
@@ -128,6 +139,7 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length)
 uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)Buffer;
+	uint8_t  ErrorCode;
 	
 	while (Length)
 	{
@@ -135,21 +147,14 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length)
 		{
 			Endpoint_ClearCurrentBank();
 
-			while (!(Endpoint_ReadWriteAllowed()))
-			{
-				if (Endpoint_IsStalled())
-				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
-				else if (!(USB_IsConnected))
-				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;	
-			}
+			if ((ErrorCode = Endpoint_WaitUntilReady()))
+			  return ErrorCode;
 		}
 		
 		*(DataStream++) = Endpoint_Read_Byte();
 		Length--;
 		
-		if (Endpoint_IsStalled())
-		  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
-		else if (!(USB_IsConnected))
+		if (!(USB_IsConnected))
 		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	
@@ -159,6 +164,7 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length)
 uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
+	uint8_t  ErrorCode;
 	
 	while (Length)
 	{
@@ -166,21 +172,14 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)
 		{
 			Endpoint_ClearCurrentBank();
 
-			while (!(Endpoint_ReadWriteAllowed()))
-			{
-				if (Endpoint_IsStalled())
-				  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
-				else if (!(USB_IsConnected))
-				  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;			
-			}
+			if ((ErrorCode = Endpoint_WaitUntilReady()))
+			  return ErrorCode;
 		}
 		
 		*(DataStream--) = Endpoint_Read_Byte();
 		Length--;
 		
-		if (Endpoint_IsStalled())
-		  return ENDPOINT_RWSTREAM_ERROR_EndpointStalled;
-		else if (!(USB_IsConnected))
+		if (!(USB_IsConnected))
 		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	

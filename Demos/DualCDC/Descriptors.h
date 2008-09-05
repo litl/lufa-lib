@@ -55,20 +55,7 @@
 		#define CDC_NOTIFICATION_EPSIZE        8
 		#define CDC_TXRX_EPSIZE                16	
 
-	/* Type Defines: */
-		typedef struct
-		{
-			USB_Descriptor_Header_t                  Header;
-			uint8_t                                  FirstInterfaceNumber;
-			uint8_t                                  TotalInterfaces;
-
-			uint8_t                                  Class;
-			uint8_t                                  SubClass;
-			uint8_t                                  Protocol;
-
-			uint8_t                                  IADStringIndex;
-		} USB_Descriptor_IAD_t;
-	
+	/* Type Defines: */	
 		typedef struct
 		{
 			USB_Descriptor_Header_t                  Header;
@@ -78,7 +65,7 @@
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t    Config;
-			USB_Descriptor_IAD_t                     IAD1;
+			USB_Descriptor_Interface_Association_t   IAD1;
 			USB_Descriptor_Interface_t               CDC1_CCI_Interface;
 			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC1_Functional_IntHeader;
 			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC1_Functional_CallManagement;
@@ -88,7 +75,7 @@
 			USB_Descriptor_Interface_t               CDC1_DCI_Interface;
 			USB_Descriptor_Endpoint_t                CDC1_DataOutEndpoint;
 			USB_Descriptor_Endpoint_t                CDC1_DataInEndpoint;
-			USB_Descriptor_IAD_t                     IAD2;
+			USB_Descriptor_Interface_Association_t   IAD2;
 			USB_Descriptor_Interface_t               CDC2_CCI_Interface;
 			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC2_Functional_IntHeader;
 			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC2_Functional_CallManagement;

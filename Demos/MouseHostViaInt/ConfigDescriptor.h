@@ -41,16 +41,17 @@
 		#define MOUSE_CLASS                 0x03
 		#define MOUSE_PROTOCOL              0x02
 
-		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
+		#define MAX_CONFIG_DESCRIPTOR_SIZE  512
 	
 	/* Enums: */
 		enum GetConfigDescriptorDataCodes_t
 		{
-			ControlError         = 0,
-			DescriptorTooLarge   = 1,
-			NoHIDInterfaceFound  = 2,
-			NoEndpointFound      = 3,
-			SuccessfulConfigRead = 4,
+			SuccessfulConfigRead            = 0,
+			ControlError                    = 1,
+			DescriptorTooLarge              = 2,
+			InvalidConfigDataReturned       = 3,
+			NoHIDInterfaceFound             = 4,
+			NoEndpointFound                 = 5,
 		};
 	
 	/* Configuration Descriptor Comparison Functions: */

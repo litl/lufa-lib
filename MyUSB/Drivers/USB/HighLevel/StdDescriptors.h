@@ -385,9 +385,9 @@
 				uint8_t                 SubClass; /**< Interface subclass ID. */
 				uint8_t                 Protocol; /**< Interface protocol ID. */
 
-				uint8_t                 InterfaceAssStrIndex; /**< Index of the string descriptor describing the
-				                                               *   interface association.
-				                                               */
+				uint8_t                 IADStrIndex; /**< Index of the string descriptor describing the
+				                                      *   interface association.
+				                                      */
 				#else
 				uint8_t                 bLength;
 				uint8_t                 bDescriptorType;

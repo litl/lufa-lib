@@ -28,8 +28,8 @@
   this software.
 */
 
-#ifndef _CDC_H_
-#define _CDC_H_
+#ifndef _DUAL_CDC_H_
+#define _DUAL_CDC_H_
 
 	/* Includes: */
 		#include <avr/io.h>

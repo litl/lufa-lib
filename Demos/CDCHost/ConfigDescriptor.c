@@ -34,7 +34,6 @@ uint8_t ProcessConfigurationDescriptor(void)
 {
 	uint8_t* ConfigDescriptorData;
 	uint16_t ConfigDescriptorSize;
-	uint8_t  ErrorCode;
 	uint8_t  FoundEndpoints = 0;
 	
 	/* Get Configuration Descriptor size from the device */
@@ -53,10 +52,10 @@ uint8_t ProcessConfigurationDescriptor(void)
 	
 	/* Validate returned data - ensure first entry is a configuration header descriptor */
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
-	  return ControlError;
+	  return InvalidConfigDataReturned;
 	
 	/* Get the CDC interface from the configuration descriptor */
-	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextCDCInterface)))
+	if (USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, NextCDCInterface))
 	{
 		/* Descriptor not found, error out */
 		return NoCDCInterfaceFound;
@@ -66,8 +65,8 @@ uint8_t ProcessConfigurationDescriptor(void)
 	while (FoundEndpoints != ((1 << CDC_NOTIFICATIONPIPE) | (1 << CDC_DATAPIPE_IN) | (1 << CDC_DATAPIPE_OUT)))
 	{
 		/* Fetch the next bulk endpoint from the current mass storage interface */
-		if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
-		                                                NextInterfaceCDCDataEndpoint)))
+		if (USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+		                                   NextInterfaceCDCDataEndpoint))
 		{
 			/* Descriptor not found, error out */
 			return NoEndpointFound;

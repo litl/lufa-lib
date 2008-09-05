@@ -51,8 +51,8 @@
 		
 		#define COMMAND_DATA_TIMEOUT_MS          5000
 
-		#define MASS_STORE_DATA_IN_PIPE          0x01
-		#define MASS_STORE_DATA_OUT_PIPE         0x02
+		#define MASS_STORE_DATA_IN_PIPE          1
+		#define MASS_STORE_DATA_OUT_PIPE         2
 		
 		#define DEVICE_BLOCK_SIZE                512
 

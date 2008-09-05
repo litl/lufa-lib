@@ -47,11 +47,12 @@
 	/* Enums: */
 		enum GetConfigDescriptorDataCodes_t
 		{
-			ControlError         = 0,
-			DescriptorTooLarge   = 1,
-			NoCDCInterfaceFound  = 2,
-			NoEndpointFound      = 3,
-			SuccessfulConfigRead = 4,
+			SuccessfulConfigRead               = 0,
+			ControlError                       = 1,
+			DescriptorTooLarge                 = 2,
+			InvalidConfigDataReturned          = 3,
+			NoCDCInterfaceFound                = 4,
+			NoEndpointFound                    = 5,
 		};
 
 	/* Configuration Descriptor Comparison Functions: */

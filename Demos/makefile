@@ -20,6 +20,9 @@ all:
 	make -C AudioOutput clean
 	make -C AudioOutput all
 
+	make -C BluetoothHost clean
+	make -C BluetoothHost all
+
 	make -C CDC clean
 	make -C CDC all
 
@@ -95,6 +98,7 @@ all:
 clean:
 	make -C AudioInput clean
 	make -C AudioOutput clean
+	make -C BluetoothHost clean
 	make -C CDC clean
 	make -C CDCHost clean
 	make -C DualCDC clean
@@ -123,6 +127,7 @@ clean:
 clean_list:
 	make -C AudioInput clean_list
 	make -C AudioOutput clean_list
+	make -C BluetoothHost clean_list
 	make -C CDC clean_list
 	make -C CDCHost clean_list
 	make -C DualCDC clean_list

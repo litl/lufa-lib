@@ -50,12 +50,13 @@
 	/* Enums: */
 		enum GetConfigDescriptorDataCodes_t
 		{
-			ControlError         = 0,
-			DescriptorTooLarge   = 1,
-			NoHIDInterfaceFound  = 2,
-			NoHIDDescriptorFound = 3,
-			NoEndpointFound      = 4,
-			SuccessfulConfigRead = 5,
+			SuccessfulConfigRead               = 0,
+			ControlError                       = 1,
+			DescriptorTooLarge                 = 2,
+			InvalidConfigDataReturned          = 3,
+			NoHIDInterfaceFound                = 4,
+			NoHIDDescriptorFound               = 5,
+			NoEndpointFound                    = 6,
 		};
 	
 	/* Configuration Descriptor Comparison Functions: */

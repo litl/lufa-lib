@@ -53,7 +53,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 	
 	/* Validate returned data - ensure first entry is a configuration header descriptor */
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
-	  return ControlError;
+	  return InvalidConfigDataReturned;
 	
 	/* Get the mass storage interface from the configuration descriptor */
 	if ((ErrorCode = USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,

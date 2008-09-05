@@ -71,16 +71,16 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		
 	IAD1:
 		{
-			Header:                 {Size: sizeof(USB_Descriptor_IAD_t), Type: DTYPE_InterfaceAssociation},
+			Header:                 {Size: sizeof(USB_Descriptor_Interface_Association_t), Type: DTYPE_InterfaceAssociation},
 
-			FirstInterfaceNumber:   0,
+			FirstInterfaceIndex:   0,
 			TotalInterfaces:        2,
 
 			Class:                  0x02,
 			SubClass:               0x02,
 			Protocol:               0x01,
 
-			IADStringIndex:         NO_DESCRIPTOR_STRING
+			IADStrIndex:            NO_DESCRIPTOR_STRING
 		},
 
 	CDC1_CCI_Interface:
@@ -187,16 +187,16 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 
 	IAD2:
 		{
-			Header:                 {Size: sizeof(USB_Descriptor_IAD_t), Type: DTYPE_InterfaceAssociation},
+			Header:                 {Size: sizeof(USB_Descriptor_Interface_Association_t), Type: DTYPE_InterfaceAssociation},
 
-			FirstInterfaceNumber:   2,
+			FirstInterfaceIndex:    2,
 			TotalInterfaces:        2,
 
 			Class:                  0x02,
 			SubClass:               0x02,
 			Protocol:               0x01,
 
-			IADStringIndex:         NO_DESCRIPTOR_STRING
+			IADStrIndex:            NO_DESCRIPTOR_STRING
 		},
 
 	CDC2_CCI_Interface:

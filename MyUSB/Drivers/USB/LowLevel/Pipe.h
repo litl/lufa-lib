@@ -153,6 +153,19 @@
 			 *  \see ENDPOINT_PIPE_vect for more information on the common pipe and endpoint interrupt vector.			 */
 			#define PIPE_INT_OUT                           UPIENX, (1 << TXOUTE), UPINTX, (1 << TXOUTI)
 
+			/** Interrupt definition for the pipe SETUP bank ready interrupt (for CONTROL type pipes). Should be
+			 *  used with the USB_INT_* macros located in USBInterrupt.h.
+			 *
+			 *  This interrupt will fire if enabled on an CONTROL type pipe when the pipe is ready for a new
+			 *  control request.
+			 *
+			 *  This interrupt must be enabled on *each* pipe which requires it (after the pipe is selected), and
+			 *  will fire the common pipe interrupt vector.
+			 *
+			 *  \see ENDPOINT_PIPE_vect for more information on the common pipe and endpoint interrupt vector.
+			 */
+			#define PIPE_INT_SETUP                         UPIENX, (1 << TXSTPE) , UPINTX, (1 << TXSTPI)
+
 			/** Interrupt definition for the pipe error interrupt. Should be used with the USB_INT_* macros
 			 *  located in USBInterrupt.h.
 			 *
@@ -182,6 +195,19 @@
 			 *  \see Pipe_IsNAKReceived() for more information on pipe NAKs.
 			 */
 			#define PIPE_INT_NAK                         UPIENX, (1 << NAKEDE), UPINTX, (1 << NAKEDI)
+
+			/** Interrupt definition for the pipe STALL received interrupt. Should be used with the USB_INT_* macros
+			 *  located in USBInterrupt.h.
+			 *
+			 *  This interrupt will fire if enabled on a particular pipe if an attached device returns a STALL on the
+			 *  currently selected pipe. This will also fire if the pipe is an isochronous pipe and a CRC error occurs.
+			 *
+			 *  This interrupt must be enabled on *each* pipe which requires it (after the pipe is selected), and
+			 *  will fire the common pipe interrupt vector.
+			 *
+			 *  \see ENDPOINT_PIPE_vect for more information on the common pipe and endpoint interrupt vector.
+			 */
+			#define PIPE_INT_STALL                       UPIENX, (1 << RXSTALLE), UPINTX, (1 << RXSTALLI)
 
 			/** Indicates the number of bytes currently stored in the current pipe's selected bank. */
 			#define Pipe_BytesInPipe()                     UPBCX
@@ -358,6 +384,18 @@
 			#define Pipe_ClearNAKReceived()        MACROS{ UPINTX &= ~(1 << NAKEDI);                              }MACROE
 
 		/* Enums: */
+			/** Enum for the possible error return codes of the Pipe_WaitUntilReady function */
+			enum Pipe_WaitUntilReady_ErrorCodes_t
+			{
+				PIPE_READYWAIT_NoError                 = 0, /**< Pipe ready for next packet, no error */
+				PIPE_READYWAIT_PipeStalled             = 1,	/**< The device stalled the pipe while waiting. */			
+				PIPE_READYWAIT_DeviceDisconnected      = 2,	/**< Device was disconnected from the host while waiting. */
+				PIPE_READYWAIT_Timeout                 = 3, /**< The device failed to accept or send the next packet
+				                                             *   within the software timeout period set by the
+				                                             *   USB_STREAM_TIMEOUT_MS macro.
+				                                             */
+			};
+
 			/** Enum for the possible error return codes of the Pipe_*_Stream_* functions. */
 			enum Pipe_Stream_RW_ErrorCodes_t
 			{
@@ -365,7 +403,11 @@
 				PIPE_RWSTREAM_ERROR_PipeStalled        = 1, /**< The device stalled the pipe during the transfer. */		
 				PIPE_RWSTREAM_ERROR_DeviceDisconnected = 2, /**< Device was disconnected from the host during
 			                                                 *   the transfer.
-			                                                 */
+			                                                 */		
+				PIPE_RWSTREAM_ERROR_Timeout            = 3, /**< The device failed to accept or send the next packet
+				                                             *   within the software timeout period set by the
+				                                             *   USB_STREAM_TIMEOUT_MS macro.
+				                                             */
 			};
 
 		/* Inline Functions: */
@@ -526,6 +568,15 @@
 			extern uint8_t USB_ControlPipeSize;
 
 		/* Function Prototypes: */
+			/** Spinloops until the currently selected non-control pipe is ready for the next packed of data
+			 *  to be read or written to it.
+			 *
+			 *  \note This routine should not be called on CONTROL type pipes.
+			 *
+			 *  \return A value from the Pipe_WaitUntilReady_ErrorCodes_t enum.
+			 */
+			uint8_t Pipe_WaitUntilReady(void);		
+		
 			/** Writes the given number of bytes to the pipe from the given buffer in little endian,
 			 *  sending full packets to the device as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the

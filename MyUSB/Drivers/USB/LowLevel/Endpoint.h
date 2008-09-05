@@ -274,13 +274,29 @@
 			#define Endpoint_ResetDataToggle()         MACROS{ UECONX  |=  (1 << RSTDT);                 }MACROE
 
 		/* Enums: */
+			/** Enum for the possible error return codes of the Endpoint_WaitUntilReady function */
+			enum Endpoint_WaitUntilReady_ErrorCodes_t
+			{
+				ENDPOINT_READYWAIT_NoError                 = 0, /**< Endpoint is ready for next packet, no error. */
+				ENDPOINT_READYWAIT_DeviceDisconnected      = 1,	/**< Device was disconnected from the host while
+				                                                 *   waiting for the endpoint to become ready.
+				                                                 */	
+				ENDPOINT_READYWAIT_Timeout                 = 2, /**< The host failed to accept or send the next packet
+				                                                 *   within the software timeout period set by the
+				                                                 *   USB_STREAM_TIMEOUT_MS macro.
+				                                                 */
+			};
+		
 			/** Enum for the possible error return codes of the Endpoint_*_Stream_* functions. */
 			enum Endpoint_Stream_RW_ErrorCodes_t
 			{
 				ENDPOINT_RWSTREAM_ERROR_NoError            = 0, /**< Command completed successfully, no error. */
-				ENDPOINT_RWSTREAM_ERROR_EndpointStalled    = 1,	/**< The host stalled the pipe during the transfer. */
-				ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected = 2, /**< Device was disconnected from the host during
+				ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected = 1, /**< Device was disconnected from the host during
 				                                                 *   the transfer.
+				                                                 */
+				ENDPOINT_RWSTREAM_ERROR_Timeout            = 2, /**< The host failed to accept or send the next packet
+				                                                 *   within the software timeout period set by the
+				                                                 *   USB_STREAM_TIMEOUT_MS macro.
 				                                                 */
 			};
 			
@@ -448,6 +464,15 @@
 			extern uint8_t USB_ControlEndpointSize;
 
 		/* Function Prototypes: */
+			/** Spinloops until the currently selected non-control endpoint is ready for the next packed of data
+			 *  to be read or written to it.
+			 *
+			 *  \note This routine should not be called on CONTROL type endpoints.
+			 *
+			 *  \return A value from the Endpoint_WaitUntilReady_ErrorCodes_t enum.
+			 */
+			uint8_t Endpoint_WaitUntilReady(void);
+		
 			/** Writes the given number of bytes to the endpoint from the given buffer in little endian,
 			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the
