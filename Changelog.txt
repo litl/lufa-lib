@@ -1,6 +1,8 @@
 Changelog for MyUSB:
 =======================================
 
+	1) Investigate endpoint error checking/retrieval macros and masks
+
 	Version 1.5.3 - UNRELEASED:
 	--------------------------------------------
 		* Fixed CDC bootloader using pgmspace macros for some descriptors inappropriately

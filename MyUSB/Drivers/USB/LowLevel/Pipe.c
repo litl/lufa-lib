@@ -72,9 +72,9 @@ uint8_t Pipe_WaitUntilReady(void)
 
 	USB_INT_Clear(USB_INT_HSOFI);
 
-	while (!(Endpoint_ReadWriteAllowed()))
+	while (!(Pipe_ReadWriteAllowed()))
 	{
-		if (Endpoint_IsStalled())
+		if (Pipe_IsStalled())
 		  return PIPE_READYWAIT_PipeStalled;
 		else if (!(USB_IsConnected))
 		  return PIPE_READYWAIT_DeviceDisconnected;
@@ -88,7 +88,7 @@ uint8_t Pipe_WaitUntilReady(void)
 		}
 	}
 	
-	return ENDPOINT_READYWAIT_NoError;
+	return PIPE_READYWAIT_NoError;
 }
 
 uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length)

@@ -52,10 +52,11 @@ static void MassStore_SendCommand(void)
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_ClearCurrentBank();
 
-	USB_Host_WaitMS(1);
-
 	/* Freeze pipe after use */
 	Pipe_Freeze();
+	
+	/* Some buggy devices *require* a delay before trying to fetch any response, otherwise they lock up */
+	USB_Host_WaitMS(1);
 }
 
 static uint8_t MassStore_WaitForDataReceived(void)
@@ -143,8 +144,6 @@ static uint8_t MassStore_SendReceiveData(void* BufferPtr)
 	
 	/* Acknowedge the packet */
 	Pipe_ClearCurrentBank();
-	
-	USB_Host_WaitMS(1);
 
 	/* Freeze used pipe after use */
 	Pipe_Freeze();
@@ -153,7 +152,7 @@ static uint8_t MassStore_SendReceiveData(void* BufferPtr)
 }
 
 void MassStore_GetReturnedStatus(void)
-{
+{	
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
@@ -163,8 +162,6 @@ void MassStore_GetReturnedStatus(void)
 	
 	/* Clear the data ready for next reception */
 	Pipe_ClearCurrentBank();
-
-	USB_Host_WaitMS(1);
 
 	/* Freeze the IN pipe after use */
 	Pipe_Freeze();

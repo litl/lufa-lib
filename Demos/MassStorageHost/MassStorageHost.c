@@ -307,7 +307,7 @@ TASK(USB_MassStore_Host)
 				ShowDiskReadError(ErrorCode);
 				break;
 			}
-		
+			
 			puts_P(PSTR("Contents of first block:\r\n"));
 			
 			/* Print the block bytes out through the serial USART */
@@ -330,7 +330,7 @@ TASK(USB_MassStore_Host)
 					printf_P(PSTR("%c"), '.');				
 				}
 			}
-			
+
 			/* Indicate device no longer busy */
 			LEDs_SetAllLEDs(LEDS_LED4);
 			
