@@ -109,6 +109,9 @@ EVENT_HANDLER(USB_Connect)
 
 	/* Indicate USB enumerating */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+	
+	/* Default to report protocol on connect */
+	UsingReportProtocol = true;
 }
 
 EVENT_HANDLER(USB_Disconnect)

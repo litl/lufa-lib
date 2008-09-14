@@ -73,6 +73,8 @@ uint8_t Endpoint_WaitUntilReady(void)
 	{
 		if (!(USB_IsConnected))
 		  return ENDPOINT_READYWAIT_DeviceDisconnected;
+		else if (Endpoint_IsStalled())
+		  return ENDPOINT_READYWAIT_EndpointStalled;
 			  
 		if (USB_INT_HasOccurred(USB_INT_SOFI))
 		{
@@ -111,6 +113,33 @@ uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length)
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
 }
 
+uint8_t Endpoint_Write_CStream_LE(const void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+{
+	uint8_t* DataStream   = (uint8_t*)Buffer;
+	uint8_t  ErrorCode;
+	
+	while (Length)
+	{
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			Endpoint_ClearCurrentBank();
+			
+			if (Callback() == STREAMCALLBACK_Abort)
+			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			else if ((ErrorCode = Endpoint_WaitUntilReady()))
+			  return ErrorCode;
+		}
+
+		Endpoint_Write_Byte(*(DataStream++));
+		Length--;
+		
+		if (!(USB_IsConnected))
+		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
+	}
+	
+	return ENDPOINT_RWSTREAM_ERROR_NoError;
+}
+
 uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
@@ -123,6 +152,33 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length)
 			Endpoint_ClearCurrentBank();
 
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
+			  return ErrorCode;
+		}
+		
+		Endpoint_Write_Byte(*(DataStream--));
+		Length--;
+		
+		if (!(USB_IsConnected))
+		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
+	}
+	
+	return ENDPOINT_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Endpoint_Write_CStream_BE(const void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+{
+	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
+	uint8_t  ErrorCode;
+	
+	while (Length)
+	{
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			Endpoint_ClearCurrentBank();
+
+			if (Callback() == STREAMCALLBACK_Abort)
+			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			else if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
 		}
 		
@@ -161,6 +217,33 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length)
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
 }
 
+uint8_t Endpoint_Read_CStream_LE(void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+{
+	uint8_t* DataStream = (uint8_t*)Buffer;
+	uint8_t  ErrorCode;
+	
+	while (Length)
+	{
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			Endpoint_ClearCurrentBank();
+
+			if (Callback() == STREAMCALLBACK_Abort)
+			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			else if ((ErrorCode = Endpoint_WaitUntilReady()))
+			  return ErrorCode;
+		}
+		
+		*(DataStream++) = Endpoint_Read_Byte();
+		Length--;
+		
+		if (!(USB_IsConnected))
+		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
+	}
+	
+	return ENDPOINT_RWSTREAM_ERROR_NoError;
+}
+
 uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
@@ -173,6 +256,33 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)
 			Endpoint_ClearCurrentBank();
 
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
+			  return ErrorCode;
+		}
+		
+		*(DataStream--) = Endpoint_Read_Byte();
+		Length--;
+		
+		if (!(USB_IsConnected))
+		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
+	}
+	
+	return ENDPOINT_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Endpoint_Read_CStream_BE(void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+{
+	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
+	uint8_t  ErrorCode;
+	
+	while (Length)
+	{
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			Endpoint_ClearCurrentBank();
+
+			if (Callback() == STREAMCALLBACK_Abort)
+			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			else if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
 		}
 		

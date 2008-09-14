@@ -28,6 +28,13 @@
   this software.
 */
 
+/** \file
+ *
+ *  Functions, macros and enums related to pipe management when in USB Host mode. This
+ *  module contains the pipe management macros, as well as pipe interrupt and data
+ *  send/recieve functions for various datatypes.
+ */
+ 
 #ifndef __PIPE_H__
 #define __PIPE_H__
 
@@ -37,6 +44,7 @@
 
 		#include "../../../Common/Common.h"
 		#include "../HighLevel/USBTask.h"
+		#include "StreamCallbacks.h"
 
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
@@ -408,6 +416,10 @@
 				                                             *   within the software timeout period set by the
 				                                             *   USB_STREAM_TIMEOUT_MS macro.
 				                                             */
+				PIPE_RWSTREAM_ERROR_CallbackAborted    = 4, /**< Only applicable for the callback versions of the
+				                                             *   stream functions. Indicates that the stream's
+				                                             *   callback function aborted the transfer early.
+				                                             */
 			};
 
 		/* Inline Functions: */
@@ -582,49 +594,108 @@
 			 *  the user is responsible for manually sending the last written packet to the host via the
 			 *  Pipe_ClearCurrentBank() macro.
 			 *
-			 *  \param Data    Pointer to the buffer to write the received bytes to.
+			 *  \param Buffer  Pointer to the source data buffer to read from.
 			 *  \param Length  Number of bytes to read for the currently selected pipe into the buffer.
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Pipe_Write_Stream_LE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Identical to Pipe_Write_Stream_LE, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
+			 *
+			 *  \see STREAM_CALLBACK() documentation for usage details.
+			 *
+			 *  \param Buffer   Pointer to the source data buffer to read from.
+			 *  \param Length   Number of bytes to read for the currently selected endpoint into the buffer.
+			 *  \param Callback Name of a stream callback function to call between sucessive USB packet transfers
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Pipe_Write_CStream_LE(const void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+			                             ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Writes the given number of bytes to the pipe from the given buffer in big endian,
 			 *  sending full packets to the device as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the
 			 *  Pipe_ClearCurrentBank() macro.
 			 *
-			 *  \param Data    Pointer to the buffer to write the received bytes to.
+			 *  \param Buffer  Pointer to the source data buffer to read from.
 			 *  \param Length  Number of bytes to read for the currently selected pipe into the buffer.
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
-			
+			uint8_t Pipe_Write_Stream_BE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Identical to Pipe_Write_Stream_BE, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
+			 *
+			 *  \see STREAM_CALLBACK() documentation for usage details.
+			 *
+			 *  \param Buffer   Pointer to the source data buffer to read from.
+			 *  \param Length   Number of bytes to read for the currently selected endpoint into the buffer.
+			 *  \param Callback Name of a stream callback function to call between sucessive USB packet transfers
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Pipe_Write_CStream_BE(const void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+			                             ATTR_NON_NULL_PTR_ARG(1);
+
 			/** Reads the given number of bytes from the pipe from the given buffer in little endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
 			 *  discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
 			 *
-			 *  \param Data    Pointer to the buffer to read the bytes to send from.
+			 *  \param Buffer  Pointer to the destination data buffer to write to.
 			 *  \param Length  Number of bytes to send via the currently selected pipe.
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Pipe_Read_Stream_LE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
+			uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 
+			/** Identical to Pipe_Read_Stream_LE, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
+			 *
+			 *  \see STREAM_CALLBACK() documentation for usage details.
+			 *
+			 *  \param Buffer  Pointer to the destination data buffer to write to.
+			 *  \param Length   Number of bytes to read for the currently selected endpoint into the buffer.
+			 *  \param Callback Name of a stream callback function to call between sucessive USB packet transfers
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Pipe_Read_CStream_LE(void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+			                             ATTR_NON_NULL_PTR_ARG(1);
+										 
 			/** Reads the given number of bytes from the pipe from the given buffer in big endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
 			 *  discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
 			 *
-			 *  \param Data    Pointer to the buffer to read the bytes to send from.
+			 *  \param Buffer  Pointer to the destination data buffer to write to.
 			 *  \param Length  Number of bytes to send via the currently selected pipe.
 			 *
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
-			uint8_t Pipe_Read_Stream_BE(void* Data, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
-		
+			uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
+
+			/** Identical to Pipe_Read_Stream_BE, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
+			 *
+			 *  \see STREAM_CALLBACK() documentation for usage details.
+			 *
+			 *  \param Buffer  Pointer to the destination data buffer to write to.
+			 *  \param Length   Number of bytes to read for the currently selected endpoint into the buffer.
+			 *  \param Callback Name of a stream callback function to call between sucessive USB packet transfers
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Pipe_Read_CStream_BE(void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+			                             ATTR_NON_NULL_PTR_ARG(1);		
 		/* Function Aliases: */
 			/** Alias for Pipe_Discard_Byte().
 			 */
@@ -663,11 +734,21 @@
 			 */
 			#define Pipe_Read_Stream(Buffer, Length)   Pipe_Read_Stream_LE(Buffer, Length)
 
+			/** Alias for Pipe_Read_CStream_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Pipe_Read_CStream(Buffer, Length, Callback) Pipe_Read_CStream_LE(Buffer, Length, Callback)
+			
 			/** Alias for Pipe_Write_Stream_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
 			#define Pipe_Write_Stream(Data, Length)    Pipe_Write_Stream_LE(Data, Length)
 
+			/** Alias for Pipe_Write_CStream_LE(). By default USB transfers use little endian format, thus
+			 *  the command with no endianness specifier indicates little endian mode.
+			 */
+			#define Pipe_Write_CStream(Data, Length, Callback) Pipe_Write_CStream_LE(Data, Length, Callback)
+			
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Macros: */

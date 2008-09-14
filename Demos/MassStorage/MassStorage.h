@@ -102,6 +102,9 @@
 
 	/* Task Definitions: */
 		TASK(USB_MassStorage);
+		
+	/* Stream Callbacks: */
+		STREAM_CALLBACK(AbortOnMassStoreReset);
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);

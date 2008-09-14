@@ -30,7 +30,7 @@
 
 /** \file
  *
- *  ADC driver for the AT90USB1287, AT90USB1286, AT90USB647, AT90USB646 and ATMEGA32U4 AVRs.
+ *  ADC driver for the AT90USB1287, AT90USB1286, AT90USB647, AT90USB646, ATMEGA16U4 and ATMEGA32U4 AVRs.
  *
  *  \note This file should not be included directly. It is automatically included as needed by the ADC driver
  *        dispatch header located in MyUSB/Drivers/AT90USBXXX/ADC.h.

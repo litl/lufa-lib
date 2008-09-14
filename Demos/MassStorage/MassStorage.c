@@ -79,6 +79,8 @@ TASK_LIST
 CommandBlockWrapper_t  CommandBlock;
 CommandStatusWrapper_t CommandStatus = { Header: {Signature: CSW_SIGNATURE } };
 
+bool                   IsMassStoreReset = false;
+
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -153,6 +155,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case MASS_STORAGE_RESET:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				/* Indicate that the current transfer should be aborted */
+				IsMassStoreReset = true;
+			
 				Endpoint_ClearSetupReceived();
 				Endpoint_ClearSetupIN();
 			}
@@ -206,6 +211,9 @@ TASK(USB_MassStorage)
 
 				/* Return command status block to the host */
 				ReturnCommandStatus();
+				
+				/* Clear the abort transfer flag */
+				IsMassStoreReset = false;
 
 				/* Indicate ready */
 				LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
@@ -225,7 +233,8 @@ static bool ReadInCommandBlock(void)
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 
 	/* Read in command block header */
-	Endpoint_Read_Stream_LE(&CommandBlock.Header, sizeof(CommandBlock.Header));
+	Endpoint_Read_CStream_LE(&CommandBlock.Header, sizeof(CommandBlock.Header),
+	                         AbortOnMassStoreReset);
 
 	/* Verify the command block - abort if invalid */
 	if ((CommandBlock.Header.Signature != CBW_SIGNATURE) ||
@@ -241,7 +250,9 @@ static bool ReadInCommandBlock(void)
 	}
 
 	/* Read in command block command data */
-	Endpoint_Read_Stream_LE(&CommandBlock.SCSICommandData, CommandBlock.Header.SCSICommandLength);
+	Endpoint_Read_CStream_LE(&CommandBlock.SCSICommandData,
+	                         CommandBlock.Header.SCSICommandLength,
+	                         AbortOnMassStoreReset);
 	  
 	/* Clear the endpoint */
 	Endpoint_ClearCurrentBank();
@@ -259,6 +270,10 @@ static void ReturnCommandStatus(void)
 	{
 		/* Run the USB task manually to process any received control requests */
 		USB_USBTask();
+		
+		/* Check if the current command is being aborted by the host */
+		if (IsMassStoreReset)
+		  return;
 	}
 
 	/* Select the Data In endpoint */
@@ -269,14 +284,32 @@ static void ReturnCommandStatus(void)
 	{
 		/* Run the USB task manually to process any received control requests */
 		USB_USBTask();
+
+		/* Check if the current command is being aborted by the host */
+		if (IsMassStoreReset)
+		  return;
 	}
 	
 	/* Wait until read/write to IN data endpoint allowed */
 	while (!(Endpoint_ReadWriteAllowed()));
 
 	/* Write the CSW to the endpoint */
-	Endpoint_Write_Stream_LE(&CommandStatus, sizeof(CommandStatus));
+	Endpoint_Write_CStream_LE(&CommandStatus, sizeof(CommandStatus),
+	                          AbortOnMassStoreReset);
 	
 	/* Send the CSW */
 	Endpoint_ClearCurrentBank();
+}
+
+STREAM_CALLBACK(AbortOnMassStoreReset)
+{
+	/* Process any outstanding USB control requests */
+	USB_USBTask();
+	
+	/* Abort if a Mass Storage reset command was received */
+	if (IsMassStoreReset)
+	  return STREAMCALLBACK_Abort;
+	
+	/* Continue with the current stream operation */
+	return STREAMCALLBACK_Continue;
 }

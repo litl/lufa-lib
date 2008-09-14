@@ -118,6 +118,35 @@ uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length)
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
+uint8_t Pipe_Write_CStream_LE(const void* Data, uint16_t Length, uint8_t (* const Callback)(void))
+{
+	uint8_t* DataStream = (uint8_t*)Data;
+	uint8_t  ErrorCode;
+	
+	while (Length)
+	{
+		if (!(Pipe_ReadWriteAllowed()))
+		{
+			Pipe_ClearCurrentBank();
+				
+			if (Callback() == STREAMCALLBACK_Abort)
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
+			else if ((ErrorCode = Pipe_WaitUntilReady()))
+			  return ErrorCode;
+		}
+
+		Pipe_Write_Byte(*(DataStream++));
+		Length--;
+		
+		if (!(USB_IsConnected))
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+		else if (Pipe_IsStalled())
+		  return PIPE_RWSTREAM_ERROR_PipeStalled;
+	}
+
+	return PIPE_RWSTREAM_ERROR_NoError;
+}
+
 uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Data + Length - 1);
@@ -130,6 +159,35 @@ uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length)
 			Pipe_ClearCurrentBank();
 				
 			if ((ErrorCode = Pipe_WaitUntilReady()))
+			  return ErrorCode;
+		}
+
+		Pipe_Write_Byte(*(DataStream--));
+		Length--;
+		
+		if (!(USB_IsConnected))
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+		else if (Pipe_IsStalled())
+		  return PIPE_RWSTREAM_ERROR_PipeStalled;
+	}
+
+	return PIPE_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Pipe_Write_CStream_BE(const void* Data, uint16_t Length, uint8_t (* const Callback)(void))
+{
+	uint8_t* DataStream = (uint8_t*)(Data + Length - 1);
+	uint8_t  ErrorCode;
+	
+	while (Length)
+	{
+		if (!(Pipe_ReadWriteAllowed()))
+		{
+			Pipe_ClearCurrentBank();
+				
+			if (Callback() == STREAMCALLBACK_Abort)
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
+			else if ((ErrorCode = Pipe_WaitUntilReady()))
 			  return ErrorCode;
 		}
 
@@ -172,6 +230,35 @@ uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length)
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
+uint8_t Pipe_Read_CStream_LE(void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+{
+	uint8_t* DataStream = (uint8_t*)Buffer;
+	uint8_t  ErrorCode;
+	
+	while (Length)
+	{
+		if (!(Pipe_ReadWriteAllowed()))
+		{
+			Pipe_ClearCurrentBank();
+				
+			if (Callback() == STREAMCALLBACK_Abort)
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
+			else if ((ErrorCode = Pipe_WaitUntilReady()))
+			  return ErrorCode;
+		}
+
+		*(DataStream++) = Pipe_Read_Byte();
+		Length--;
+		
+		if (!(USB_IsConnected))
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+		else if (Pipe_IsStalled())
+		  return PIPE_RWSTREAM_ERROR_PipeStalled;
+	}
+
+	return PIPE_RWSTREAM_ERROR_NoError;
+}
+
 uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
@@ -184,6 +271,35 @@ uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length)
 			Pipe_ClearCurrentBank();
 				
 			if ((ErrorCode = Pipe_WaitUntilReady()))
+			  return ErrorCode;
+		}
+
+		*(DataStream--) = Pipe_Read_Byte();
+		Length--;
+		
+		if (!(USB_IsConnected))
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
+		else if (Pipe_IsStalled())
+		  return PIPE_RWSTREAM_ERROR_PipeStalled;
+	}
+	
+	return PIPE_RWSTREAM_ERROR_NoError;
+}
+
+uint8_t Pipe_Read_CStream_BE(void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
+{
+	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
+	uint8_t  ErrorCode;
+	
+	while (Length)
+	{
+		if (!(Pipe_ReadWriteAllowed()))
+		{
+			Pipe_ClearCurrentBank();
+				
+			if (Callback() == STREAMCALLBACK_Abort)
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
+			else if ((ErrorCode = Pipe_WaitUntilReady()))
 			  return ErrorCode;
 		}
 

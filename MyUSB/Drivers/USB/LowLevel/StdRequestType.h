@@ -139,7 +139,7 @@
 			 *
 			 *  \see Chapter 9 of the USB 2.0 Specification.
 			 */
-			enum Control_Request_t
+			enum USB_Control_Request_t
 			{
 				REQ_GetStatus           = 0, /**< Implemented in the library for device, endpoint and interface
 				                              *   recipients. Passed to the user application for other recipients

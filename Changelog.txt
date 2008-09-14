@@ -1,8 +1,6 @@
 Changelog for MyUSB:
 =======================================
 
-	1) Investigate endpoint error checking/retrieval macros and masks
-
 	Version 1.5.3 - UNRELEASED:
 	--------------------------------------------
 		* Fixed CDC bootloader using pgmspace macros for some descriptors inappropriately
@@ -26,8 +24,10 @@ Changelog for MyUSB:
 		* Fixed MassStorageHost demo so that it no longer freezes randomly when issuing several commands in a row
 		* Host demos' configuration descriptor routines now return a unique error code when the returned data does
 		  not have a valid configuration descriptor header
-		* Added Endpoint_WaitUntilReady() and Pipe_WaitUntilReady functions
+		* Added Endpoint_WaitUntilReady() and Pipe_WaitUntilReady() functions
 		* Stream functions now have software timeouts, timeout period can be set by the USB_STREAM_TIMEOUT_MS token
+		* Added callback versions of the stream read and write functions (Endpoint_*_CStream_* and Pipe_*_CStream_*)
+		* All demos now pass the USB.org automated device compliant tests (Chapter 9, HID, Mass Storage)
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

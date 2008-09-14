@@ -186,7 +186,7 @@
 			
 		/* Enums: */
 			/** Enum for the possible standard descriptor types, as given in each descriptor's header. */
-			enum DescriptorTypes_t
+			enum USB_DescriptorTypes_t
 			{
 				DTYPE_Device               = 0x01, /**< Indicates that the descriptor is a device descriptor. */
 				DTYPE_Configuration        = 0x02, /**< Indicates that the descriptor is a configuration descriptor. */
