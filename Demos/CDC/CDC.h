@@ -73,7 +73,7 @@
 			TwoStopBits         = 2,
 		};
 		
-		enum CDC_Line_Codeing_Parity_t
+		enum CDC_Line_Coding_Parity_t
 		{
 			Parity_None         = 0,
 			Parity_Odd          = 1,

@@ -28,62 +28,36 @@
   this software.
 */
 
-#ifndef _DUAL_CDC_H_
-#define _DUAL_CDC_H_
+#ifndef _SIDESHOW_H_
+#define _SIDESHOW_H_
 
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
-		#include <string.h>
 
 		#include "Descriptors.h"
+		#include "SideshowCommands.h"
 
-		#include <MyUSB/Version.h>                        // Library Version Information
-		#include <MyUSB/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project
-		#include <MyUSB/Drivers/USB/USB.h>                // USB Functionality
-		#include <MyUSB/Drivers/Board/Joystick.h>         // Joystick driver
-		#include <MyUSB/Drivers/Board/LEDs.h>             // LEDs driver
-		#include <MyUSB/Scheduler/Scheduler.h>            // Simple scheduler for task management
+		#include <MyUSB/Version.h>                    // Library Version Information
+		#include <MyUSB/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
+		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
+		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
+		#include <MyUSB/Drivers/Board/Dataflash.h>    // Dataflash chip driver
+		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
+		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>       // Serial stream driver
 
 	/* Macros: */
-		#define GET_LINE_CODING              0x21
-		#define SET_LINE_CODING              0x20
-		#define SET_CONTROL_LINE_STATE       0x22
+		#define REQ_GetOSFeatureDescriptor        0x01
+		
+		#define EXTENDED_COMPAT_ID_DESCRIPTOR     0x0004
 
+	/* Task Definitions: */
+		TASK(USB_Sideshow);
+		
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
-		
-	/* Type Defines: */
-		typedef struct
-		{
-			uint32_t BaudRateBPS;
-			uint8_t  CharFormat;
-			uint8_t  ParityType;
-			uint8_t  DataBits;
-		} CDC_Line_Coding_t;
-		
-	/* Enums: */
-		enum CDC_Line_Coding_Format_t
-		{
-			OneStopBit          = 0,
-			OneAndAHalfStopBits = 1,
-			TwoStopBits         = 2,
-		};
-		
-		enum CDC_Line_Coding_Parity_t
-		{
-			Parity_None         = 0,
-			Parity_Odd          = 1,
-			Parity_Even         = 2,
-			Parity_Mark         = 3,
-			Parity_Space        = 4,
-		};
-
-	/* Tasks: */
-		TASK(CDC1_Task);
-		TASK(CDC2_Task);
 
 #endif
