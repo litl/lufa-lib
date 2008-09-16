@@ -39,7 +39,15 @@
 		#include "SideshowCommon.h"
 
 	/* Macros: */
-		#define MAX_CONTENT    5
+		#define MAX_CONTENT    30
+	
+	/* Enums: */
+		enum SideShowContentTypes_t
+		{
+			SideShow_Menu      = 0,
+			SideShow_Content   = 1,
+			SideShow_Dialog    = 2,
+		};
 	
 	/* Type Defines: */
 		typedef struct
@@ -47,16 +55,25 @@
 			bool               InUse;
 			GUID_t             ApplicationID;
 			uint32_t           ContentID;
+			uint8_t            ContentData[100];
 		} SideShow_Content_t;
+
+		typedef struct
+		{
+			uint16_t OID;
+			char     Title[50];
+			uint16_t MenuID;
+		} SideShow_Object_Content_t;
 		
 	/* External Variables: */
 		extern SideShow_Content_t Content[MAX_CONTENT];
 
 	/* Function Prototypes: */
-		bool SideShow_AddSimpleContent(GUID_t* ApplicationID);
+		bool SideShow_AddSimpleContent(SideShow_PacketHeader_t* PacketHeader, GUID_t* ApplicationID);
 		
 		#if defined(INCLUDE_FROM_SIDESHOWCONTENT_C)
 			static SideShow_Content_t* SideShow_GetFreeContent(void);
+			static SideShow_Content_t* SideShow_GetContentByID(GUID_t* ApplicationID, uint32_t ContentID);
 		#endif
 
 #endif

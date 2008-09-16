@@ -34,60 +34,55 @@
 SideShow_Content_t Content[MAX_CONTENT];
 
 
-bool SideShow_AddSimpleContent(GUID_t* ApplicationID)
+bool SideShow_AddSimpleContent(SideShow_PacketHeader_t* PacketHeader, GUID_t* ApplicationID)
 {
-	SideShow_Content_t* Content = SideShow_GetFreeContent();
+	SideShow_Content_t* AppContent;
 	uint32_t            ContentSize;
 	uint32_t            ContentID;
-	
+		
 	Endpoint_Read_Stream_LE(&ContentID, sizeof(uint32_t));
 
-	if (Content == NULL)
+	AppContent = SideShow_GetContentByID(ApplicationID, ContentID);
+
+	if (AppContent == NULL)
+	  AppContent = SideShow_GetFreeContent();
+	else
+	  printf(" <Updated>");
+	
+	if (AppContent == NULL)
 	{
-		SideShow_Discard_Byte_Stream();
+		PacketHeader->Length -= sizeof(SideShow_PacketHeader_t) + (2 * sizeof(GUID_t)) + sizeof(uint32_t);
+		
+		printf(" CONTENT FULL");
+
+		Endpoint_Discard_Stream(PacketHeader->Length);
 		return false;
 	}
 	
 	Endpoint_Read_Stream_LE(&ContentSize, sizeof(uint32_t));
-
-	printf("  Size: %lu\r\n", ContentSize);
+	Endpoint_Read_Stream_LE(&AppContent->ContentData, sizeof("<body>") - 1);
 	
-	if (ContentSize >= sizeof("<body>"))
+	if (!(memcmp(&AppContent->ContentData, "<body>", (sizeof("<body>") - 1))))
 	{
-		char FirstChars[sizeof("<body>") - 1];
-		
-		Endpoint_Read_Stream_LE(&FirstChars, (sizeof("<body>") - 1));
+		printf(" XML");
+
+		AppContent->ApplicationID = *ApplicationID;
+		AppContent->ContentID     = ContentID;
+		AppContent->InUse         = true;
+
+		// PROCESS	
+
 		ContentSize -= (sizeof("<body>") - 1);
-		
-		if (memcmp(FirstChars, "<body>", (sizeof("<body>") - 1)) == 0)
-		{
-			printf("<body>");
-		
-			while (ContentSize--)
-			{
-				if (!(Endpoint_ReadWriteAllowed()))
-				{
-					Endpoint_ClearCurrentBank();
-
-					while (!(Endpoint_ReadWriteAllowed()));
-				}
-
-				printf("%c", Endpoint_Read_Byte());
-			}
-		}
-		else
-		{
-			Endpoint_Discard_Stream(ContentSize);		
-		}
+		Endpoint_Discard_Stream(ContentSize);	
 	}
 	else
 	{
+		printf(" BINARY");
+
+		ContentSize -= (sizeof("<body>") - 1);
 		Endpoint_Discard_Stream(ContentSize);
 	}
 	
-	// TODO: Create content ID object, read in content data
-	//       Associate application to content
-
 	return true;
 }
 
@@ -97,6 +92,21 @@ static SideShow_Content_t* SideShow_GetFreeContent(void)
 	{
 		if (!(Content[ContentItem].InUse))
 		  return &Content[ContentItem];
+	}
+	
+	return NULL;
+}
+
+static SideShow_Content_t* SideShow_GetContentByID(GUID_t* ApplicationID, uint32_t ContentID)
+{
+	for (int ContentItem = 0; ContentItem < MAX_CONTENT; ContentItem++)
+	{
+		if (Content[ContentItem].InUse &&
+		   (Content[ContentItem].ContentID == ContentID) &&
+		   (!(memcmp(&Content[ContentItem].ApplicationID, ApplicationID, sizeof(GUID_t)))))
+		{
+			return &Content[ContentItem];
+		}
 	}
 	
 	return NULL;

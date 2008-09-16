@@ -56,7 +56,7 @@
 		{
 			USB_Descriptor_Header_t                Header;
 			
-			int16_t                                Signature[7];
+			int                                    Signature[7];
 			uint16_t                               VendorCode;
 		} USB_OSDescriptor_t;
 		

@@ -183,7 +183,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				Endpoint_ClearSetupOUT();				
 			}
 
-			break;			
+			break;
 	}
 }
 	

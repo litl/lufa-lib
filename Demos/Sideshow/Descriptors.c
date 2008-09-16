@@ -136,7 +136,7 @@ USB_Descriptor_String_t SerialNumberString PROGMEM =
 
 USB_OSDescriptor_t OSDescriptorString PROGMEM =
 {
-	Header:                 {Size: 0x12, Type: DTYPE_String},
+	Header:                 {Size: sizeof(USB_OSDescriptor_t), Type: DTYPE_String},
 	
 	Signature:              L"MSFT100",
 	VendorCode:             REQ_GetOSFeatureDescriptor

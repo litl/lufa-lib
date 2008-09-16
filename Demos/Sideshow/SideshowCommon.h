@@ -63,6 +63,27 @@
 			int              UnicodeString[];
 		} Unicode_String_t;	
 
+		typedef union
+		{
+			uint32_t TypeLong;
+
+			struct
+			{
+				uint8_t TypeBytes[3];
+
+				int ErrorCode     : 6;
+				int NAK           : 1;
+				int Response      : 1;				
+			};
+		} SideShowPacketType_t;
+	
+		typedef struct
+		{
+			uint32_t               Length;
+			SideShowPacketType_t   Type;
+			uint16_t               Number;
+		} SideShow_PacketHeader_t;
+
 	/* Function Prototypes: */
 		uint16_t SideShow_Read_Unicode_String(void* UnicodeString, uint16_t MaxBytes);
 		void     SideShow_Write_Unicode_String(void* UnicodeString);

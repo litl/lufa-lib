@@ -39,7 +39,7 @@
 		#include "SideshowCommon.h"
 
 	/* Macros: */
-		#define MAX_APPLICATIONS         10
+		#define MAX_APPLICATIONS         20
 
 	/* Type Defines: */
 		typedef struct

@@ -270,6 +270,12 @@ static void SideShow_DeleteApplication(SideShow_PacketHeader_t* PacketHeader)
 		}
 	} while (AppToDelete != NULL);
 
+	for (int ContentItem = 0; ContentItem < MAX_CONTENT; ContentItem++)
+	{
+		if (memcmp(&Content[ContentItem].ApplicationID, &ApplicationGUID, sizeof(GUID_t)))
+		  Content[ContentItem].InUse = false;
+	}  
+
 	if (!(FoundApp))
 	  PacketHeader->Type.NAK = true;
 
@@ -287,9 +293,12 @@ static void SideShow_DeleteAllApplications(SideShow_PacketHeader_t* PacketHeader
 	for (uint8_t App = 0; App < MAX_APPLICATIONS; App++)
 	  InstalledApplications[App].InUse = false;
 
+	for (int ContentItem = 0; ContentItem < MAX_CONTENT; ContentItem++)
+	  Content[ContentItem].InUse = false;
+	
 	Endpoint_SelectEndpoint(SIDESHOW_IN_EPNUM);
 	Endpoint_Write_Stream_LE(PacketHeader, sizeof(SideShow_PacketHeader_t));
-	Endpoint_ClearCurrentBank();	
+	Endpoint_ClearCurrentBank();
 }
 
 static void SideShow_AddContent(SideShow_PacketHeader_t* PacketHeader)
@@ -308,7 +317,7 @@ static void SideShow_AddContent(SideShow_PacketHeader_t* PacketHeader)
 		SideShow_Discard_Byte_Stream();
 		PacketHeader->Type.NAK = true;
 	}
-	else if (!(SideShow_AddSimpleContent(&ApplicationID)))
+	else if (!(SideShow_AddSimpleContent(PacketHeader, &ApplicationID)))
 	{
 		PacketHeader->Type.NAK = true;
 	}
