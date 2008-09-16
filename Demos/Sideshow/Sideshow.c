@@ -37,6 +37,8 @@
 	USB Class:          Sideshow Device (Microsoft Only)
 	USB Subclass:       Bulk Only
 	Relevant Standards: Microsoft Sideshow Specification
+	                    Microsoft OS Descriptors Specification
+	                    XML Specification
 	Usable Speeds:      Full Speed Mode
 */
 

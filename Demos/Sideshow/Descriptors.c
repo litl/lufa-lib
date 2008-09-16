@@ -42,7 +42,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Endpoint0Size:          8,
 		
 	VendorID:               0x03EB,
-	ProductID:              0xDCDC,
+	ProductID:              0xDC01,
 	ReleaseNumber:          0x0000,
 		
 	ManufacturerStrIndex:   0x01,

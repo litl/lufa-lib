@@ -614,7 +614,7 @@
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Pipe_Write_CStream_LE(const void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
-			                             ATTR_NON_NULL_PTR_ARG(1);
+			                             ATTR_NON_NULL_PTR_ARG(1, 3);
 
 			/** Writes the given number of bytes to the pipe from the given buffer in big endian,
 			 *  sending full packets to the device as needed. The last packet filled is not automatically sent;
@@ -641,9 +641,33 @@
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Pipe_Write_CStream_BE(const void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
-			                             ATTR_NON_NULL_PTR_ARG(1);
+			                             ATTR_NON_NULL_PTR_ARG(1, 3);
 
-			/** Reads the given number of bytes from the pipe from the given buffer in little endian,
+			/** Reads and discards the given number of bytes from the pipe, discarding fully read packets from the host
+			 *  as needed. The last packet is not automatically discarded once the remaining bytes has been read; the
+			 *  user is responsible for manually discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
+			 *
+			 *  \param Length  Number of bytes to send via the currently selected pipe.
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Pipe_Discard_Stream(uint16_t Length);
+
+			/** Identical to Pipe_Discard_Stream, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
+			 *
+			 *  \see STREAM_CALLBACK() documentation for usage details.
+			 *
+			 *  \param Buffer  Pointer to the destination data buffer to write to.
+			 *  \param Length   Number of bytes to read for the currently selected endpoint into the buffer.
+			 *  \param Callback Name of a stream callback function to call between sucessive USB packet transfers
+			 *
+			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Pipe_Discard_CStream(uint16_t Length, uint8_t (* const Callback)(void)) ATTR_NON_NULL_PTR_ARG(2);
+
+			/** Reads the given number of bytes from the pipe into the given buffer in little endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
 			 *  discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
@@ -668,9 +692,9 @@
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Pipe_Read_CStream_LE(void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
-			                             ATTR_NON_NULL_PTR_ARG(1);
+			                             ATTR_NON_NULL_PTR_ARG(1, 3);
 										 
-			/** Reads the given number of bytes from the pipe from the given buffer in big endian,
+			/** Reads the given number of bytes from the pipe into the given buffer in big endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
 			 *  discarded once the remaining bytes has been read; the user is responsible for manually
 			 *  discarding the last packet from the host via the Pipe_ClearCurrentBank() macro.
@@ -695,7 +719,8 @@
 			 *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Pipe_Read_CStream_BE(void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
-			                             ATTR_NON_NULL_PTR_ARG(1);		
+			                             ATTR_NON_NULL_PTR_ARG(1, 3);
+
 		/* Function Aliases: */
 			/** Alias for Pipe_Discard_Byte().
 			 */

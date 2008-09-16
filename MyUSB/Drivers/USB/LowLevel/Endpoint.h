@@ -482,7 +482,7 @@
 			extern uint8_t USB_ControlEndpointSize;
 
 		/* Function Prototypes: */
-			/** Spinloops until the currently selected non-control endpoint is ready for the next packed of data
+			/** Spinloops until the currently selected non-control endpoint is ready for the next packet of data
 			 *  to be read or written to it.
 			 *
 			 *  \note This routine should not be called on CONTROL type endpoints.
@@ -490,7 +490,35 @@
 			 *  \return A value from the Endpoint_WaitUntilReady_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_WaitUntilReady(void);
-		
+
+			/** Reads and discards the given number of bytes from the endpoint from the given buffer,
+			 *  discarding fully read packets from the host as needed. The last packet is not automatically
+			 *  discarded once the remaining bytes has been read; the user is responsible for manually
+			 *  discarding the last packet from the host via the Endpoint_ClearCurrentBank() macro.
+			 *
+			 *  \note This routine should not be used on CONTROL type endpoints.
+			 *
+			 *  \param Length   Number of bytes to send via the currently selected endpoint.
+			 *
+			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Endpoint_Discard_Stream(uint16_t Length);
+
+			/** Identical to Endpoint_Discard_Stream, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
+			 *
+			 *  \see STREAM_CALLBACK() documentation for usage details.
+			 *
+			 *  \note This routine should not be used on CONTROL type endpoints.
+			 *
+			 *  \param Length   Number of bytes to send via the currently selected endpoint.
+			 *  \param Callback Name of a callback routine to call between sucessive USB packet transfers
+			 *
+			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
+			 */
+			uint8_t Endpoint_Discard_CStream_LE(uint16_t Length, uint8_t (* const CallbackRoutine)(void)) ATTR_NON_NULL_PTR_ARG(2);
+
 			/** Writes the given number of bytes to the endpoint from the given buffer in little endian,
 			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
 			 *  the user is responsible for manually sending the last written packet to the host via the
@@ -518,7 +546,7 @@
 			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_Write_CStream_LE(const void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
-			                                  ATTR_NON_NULL_PTR_ARG(1);
+			                                  ATTR_NON_NULL_PTR_ARG(1, 3);
 			
 			/** Writes the given number of bytes to the endpoint from the given buffer in big endian,
 			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
@@ -534,7 +562,9 @@
 			 */
 			uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
-			/** Callback version of Endpoint_Write_Stream_BE.
+			/** Identical to Endpoint_Write_Stream_BE, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
 			 *
 			 *  \see STREAM_CALLBACK() documentation for usage details.
 			 *
@@ -546,7 +576,7 @@
 			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_Write_CStream_BE(const void* Buffer, uint16_t Length, uint8_t (* const Callback)(void))
-			                                  ATTR_NON_NULL_PTR_ARG(1);
+			                                  ATTR_NON_NULL_PTR_ARG(1, 3);
 
 			/** Reads the given number of bytes from the endpoint from the given buffer in little endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
@@ -557,13 +587,14 @@
 			 *
 			 *  \param Buffer   Pointer to the destination data buffer to write to.
 			 *  \param Length   Number of bytes to send via the currently selected endpoint.
-			 *  \param Callback Name of a callback routine to call between sucessive USB packet transfers
 			 *
 			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
-			/** Callback version of Endpoint_Read_Stream_LE.
+			/** Identical to Endpoint_Read_Stream_LE, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
 			 *
 			 *  \see STREAM_CALLBACK() documentation for usage details.
 			 *
@@ -576,7 +607,7 @@
 			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_Read_CStream_LE(void* Buffer, uint16_t Length, uint8_t (* const CallbackRoutine)(void))
-			                                ATTR_NON_NULL_PTR_ARG(1);
+			                                ATTR_NON_NULL_PTR_ARG(1, 3);
 
 			/** Reads the given number of bytes from the endpoint from the given buffer in big endian,
 			 *  discarding fully read packets from the host as needed. The last packet is not automatically
@@ -592,7 +623,9 @@
 			 */
 			uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 
-			/** Callback version of Endpoint_Read_Stream_BE.
+			/** Identical to Endpoint_Read_Stream_BE, except for the addition of a callback routine to abort
+			 *  the transfer early if certain conditions are met. The callback routine should be created using
+			 *  the STREAM_CALLBACK() macro.
 			 *
 			 *  \see STREAM_CALLBACK() documentation for usage details.
 			 *
@@ -605,7 +638,7 @@
 			 *  \return A value from the Endpoint_Stream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_Read_CStream_BE(void* Buffer, uint16_t Length, uint8_t (* const CallbackRoutine)(void))
-			                                 ATTR_NON_NULL_PTR_ARG(1);
+			                                 ATTR_NON_NULL_PTR_ARG(1, 3);
 
 			/** Writes the given number of bytes to the CONTROL type endpoint from the given buffer in little endian,
 			 *  sending full packets to the host as needed. The host OUT acknowedgement is not automatically cleared

@@ -117,6 +117,9 @@ EVENT_HANDLER(USB_Connect)
 
 	/* Indicate USB enumerating */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+	
+	/* Reset the MSReset flag upon connection */
+	IsMassStoreReset = false;
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -166,6 +169,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case GET_MAX_LUN:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				/* Indicate to the host the number of supported LUNs (virtual disks) on the device */
 				Endpoint_ClearSetupReceived();			
 				Endpoint_Write_Byte(TOTAL_LUNS - 1);
 				Endpoint_ClearSetupIN();

@@ -32,25 +32,32 @@
 #define _SIDESHOW_COMMANDS_H_
 
 	/* Includes: */
+		#include <avr/io.h>
 		#include <stdbool.h>
 		#include <string.h>
 	
 		#include "Sideshow.h"
-	
-		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
+		#include "SideshowCommon.h"
+		#include "SideshowApplications.h"
+		#include "SideshowContent.h"
 
-	/* Type Defines: */
-		typedef struct
-		{
-			uint16_t LengthInBytes;
-			int      UnicodeString[];
-		} Unicode_String_t;
+	/* Macros: */
+		#define SIDESHOW_CMD_PING                     0x001
+		#define SIDESHOW_CMD_SET_CURRENT_USER         0x100
+		#define SIDESHOW_CMD_GET_CURRENT_USER         0x101
+		#define SIDESHOW_CMD_GET_APPLICATION_ORDER    0x104
+		#define SIDESHOW_CMD_ADD_APPLICATION          0x10D
+		#define SIDESHOW_CMD_DELETE_APPLICATION       0x10E
+		#define SIDESHOW_CMD_DELETE_ALL_APPLICATIONS  0x10F
+		#define SIDESHOW_CMD_ADD_CONTENT              0x114
+		#define SIDESHOW_CMD_DELETE_CONTENT           0x115
+		#define SIDESHOW_CMD_DELETE_ALL_CONTENT       0x116
+		#define SIDESHOW_CMD_GET_SUPPORTED_ENDPOINTS  0x117
+		#define SIDESHOW_CMD_GET_DEVICE_NAME          0x500
+		#define SIDESHOW_CMD_GET_MANUFACTURER         0x501
+		#define SIDESHOW_CMD_SYNC                     0x502
 		
-		typedef struct
-		{
-			uint32_t Chunks[4];
-		} GUID_t;		
-	
+	/* Type Defines: */	
 		typedef union
 		{
 			uint32_t TypeLong;
@@ -59,37 +66,23 @@
 			{
 				uint8_t TypeBytes[3];
 
-				int ErrorCode : 6;
-				int NAK       : 1;
-				int Response  : 1;				
+				int ErrorCode     : 6;
+				int NAK           : 1;
+				int Response      : 1;				
 			};
 		} SideShowPacketType_t;
 	
 		typedef struct
 		{
-			uint32_t             Length;
-			SideShowPacketType_t Type;
-			uint16_t             Number;
+			uint32_t               Length;
+			SideShowPacketType_t   Type;
+			uint16_t               Number;
 		} SideShow_PacketHeader_t;
-		
-	/* Macros: */
-		#define STANDARD_PROTOCOL_GUID        {0xA33F248B, 0x4531882F, 0x3BEDC282, 0x20C5C590}
-		#define SIMPLE_CONTENT_FORMAT_GUID    {0xA9A5353F, 0x47CE2D4B, 0x9F75EE93, 0x4FDA7D3A}
-		
-		#define SECURITY_INTERACTIVE_RID_SID  L"S-1-5-4"
-
-		#define UNICODE_STRING_t(x)		      struct                          \
-		                                      {                               \
-		                                          uint16_t LengthInBytes;    \
-		                                          int      UnicodeString[x]; \
-		                                      }
-
+				
 	/* Function Prototypes: */
 		void Sideshow_ProcessCommandPacket(void);
 		
 		#if defined(INCLUDE_FROM_SIDESHOWCOMMANDS_H)
-			static void SideShow_Read_Unicode_String(void* UnicodeStruct, uint16_t MaxBytes);
-			static void SideShow_Write_Unicode_String(void* UnicodeStruct);
 			static void SideShow_Ping(SideShow_PacketHeader_t* PacketHeader);
 			static void SideShow_Sync(SideShow_PacketHeader_t* PacketHeader);
 			static void SideShow_GetCurrentUser(SideShow_PacketHeader_t* PacketHeader);
@@ -97,6 +90,12 @@
 			static void SideShow_GetString(SideShow_PacketHeader_t* PacketHeader, void* UnicodeStruct);
 			static void SideShow_GetApplicationOrder(SideShow_PacketHeader_t* PacketHeader);
 			static void SideShow_GetSupportedEndpoints(SideShow_PacketHeader_t* PacketHeader);
+			static void SideShow_AddApplication(SideShow_PacketHeader_t* PacketHeader);
+			static void SideShow_DeleteApplication(SideShow_PacketHeader_t* PacketHeader);
+			static void SideShow_DeleteAllApplications(SideShow_PacketHeader_t* PacketHeader);
+			static void SideShow_AddContent(SideShow_PacketHeader_t* PacketHeader);
+			static void SideShow_DeleteContent(SideShow_PacketHeader_t* PacketHeader);
+			static void SideShow_DeleteAllContent(SideShow_PacketHeader_t* PacketHeader);
 		#endif
 
 #endif

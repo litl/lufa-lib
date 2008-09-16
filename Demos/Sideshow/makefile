@@ -88,7 +88,10 @@ OBJDIR = .
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                           \
 	  Descriptors.c                                         \
+	  SideshowCommon.c                                      \
 	  SideshowCommands.c                                    \
+	  SideshowApplications.c                                \
+	  SideshowContent.c                                     \
 	  ../../MyUSB/Scheduler/Scheduler.c                     \
 	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
 	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \

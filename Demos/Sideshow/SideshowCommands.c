@@ -39,12 +39,7 @@ Unicode_String_t DeviceName   = {LengthInBytes: sizeof(L"MyUSB Sideshow Device")
 
 Unicode_String_t Manufacturer = {LengthInBytes: sizeof(L"Dean Camera"),
                                  UnicodeString: L"Dean Camera"};
-								 
-struct
-{
-	uint8_t TotalGadgets;
-	GUID_t  GadgetGUIDs[4];
-} CurrentlyAddedGadgets;
+
 
 void Sideshow_ProcessCommandPacket(void)
 {
@@ -59,42 +54,53 @@ void Sideshow_ProcessCommandPacket(void)
 	
 	switch (PacketHeader.Type.TypeLong & 0x00FFFFFF)
 	{
-		case 0x01: // PING
+		case SIDESHOW_CMD_PING:
 			SideShow_Ping(&PacketHeader);
 			break;
-		case 0x502: // SYNC
+		case SIDESHOW_CMD_SYNC:
 			SideShow_Sync(&PacketHeader);
 			break;
-		case 0x101: // GET_CURRENT_USER
+		case SIDESHOW_CMD_GET_CURRENT_USER:
 			SideShow_GetCurrentUser(&PacketHeader);
 			break;
-		case 0x100: // SET_CURRENT_USER
+		case SIDESHOW_CMD_SET_CURRENT_USER:
 			SideShow_SetCurrentUser(&PacketHeader);
 			break;
-		case 0x500: // GET_DEVICE_NAME
+		case SIDESHOW_CMD_GET_DEVICE_NAME:
 			SideShow_GetString(&PacketHeader, &DeviceName);
 			break;
-		case 0x501: // GET_DEVICE_MANUFACTURER
+		case SIDESHOW_CMD_GET_MANUFACTURER:
 			SideShow_GetString(&PacketHeader, &Manufacturer);
 			break;
-		case 0x104: // GET_APPLICATION_ORDER
+		case SIDESHOW_CMD_GET_APPLICATION_ORDER:
 			SideShow_GetApplicationOrder(&PacketHeader);
 			break;
-		case 0x117: // GET SUPPORTED ENDPOINTS
+		case SIDESHOW_CMD_GET_SUPPORTED_ENDPOINTS:
 			SideShow_GetSupportedEndpoints(&PacketHeader);
+			break;
+		case SIDESHOW_CMD_ADD_APPLICATION:
+			SideShow_AddApplication(&PacketHeader);
+			break;
+		case SIDESHOW_CMD_ADD_CONTENT:
+			SideShow_AddContent(&PacketHeader);
+			break;
+		case SIDESHOW_CMD_DELETE_CONTENT:
+			SideShow_DeleteContent(&PacketHeader);
+			break;
+		case SIDESHOW_CMD_DELETE_ALL_CONTENT:
+			SideShow_DeleteAllContent(&PacketHeader);
+			break;		
+		case SIDESHOW_CMD_DELETE_APPLICATION:
+			SideShow_DeleteApplication(&PacketHeader);
+			break;
+		case SIDESHOW_CMD_DELETE_ALL_APPLICATIONS:
+			SideShow_DeleteAllApplications(&PacketHeader);
 			break;
 		default:
 			PacketHeader.Length -= sizeof(SideShow_PacketHeader_t);
 
-			while (PacketHeader.Length--)
-			{
-				while (!(Endpoint_ReadWriteAllowed()));
-
-				Endpoint_Discard_Byte();
-				
-				if (!(Endpoint_ReadWriteAllowed()))
-				  Endpoint_ClearCurrentBank();
-			}			
+			Endpoint_Discard_Stream(PacketHeader.Length);
+			Endpoint_ClearCurrentBank();
 
 			PacketHeader.Length   = sizeof(SideShow_PacketHeader_t);
 			PacketHeader.Type.NAK = true;
@@ -105,30 +111,6 @@ void Sideshow_ProcessCommandPacket(void)
 
 			printf(" (UNK)");
 	}
-}
-
-static void SideShow_Read_Unicode_String(void* UnicodeStruct, uint16_t MaxBytes)
-{
-	uint32_t UnicodeCharsToRead = Endpoint_Read_DWord_LE();
-	int16_t  UnicodeData[UnicodeCharsToRead];
-
-	((Unicode_String_t*)UnicodeStruct)->LengthInBytes = (UnicodeCharsToRead << 1);
-
-	Endpoint_Read_Stream_LE(&UnicodeData, ((Unicode_String_t*)UnicodeStruct)->LengthInBytes);
-	
-	if (((Unicode_String_t*)UnicodeStruct)->LengthInBytes > MaxBytes)
-	  ((Unicode_String_t*)UnicodeStruct)->LengthInBytes = MaxBytes;
-	  
-	memcpy(&((Unicode_String_t*)UnicodeStruct)->UnicodeString, &UnicodeData,
-	        ((Unicode_String_t*)UnicodeStruct)->LengthInBytes);
-}
-
-static void SideShow_Write_Unicode_String(void* UnicodeStruct)
-{
-	Endpoint_Write_DWord_LE(((Unicode_String_t*)UnicodeStruct)->LengthInBytes >> 1);
-
-	Endpoint_Write_Stream_LE(&((Unicode_String_t*)UnicodeStruct)->UnicodeString,
-	                         ((Unicode_String_t*)UnicodeStruct)->LengthInBytes);
 }
 
 static void SideShow_Ping(SideShow_PacketHeader_t* PacketHeader)
@@ -144,7 +126,7 @@ static void SideShow_Sync(SideShow_PacketHeader_t* PacketHeader)
 {
 	GUID_t ProtocolGUID;
 
-	Endpoint_Read_Stream_LE(&ProtocolGUID, sizeof(ProtocolGUID));
+	Endpoint_Read_Stream_LE(&ProtocolGUID, sizeof(GUID_t));
 	Endpoint_ClearCurrentBank();
 	
 	if (memcmp(&ProtocolGUID, (uint32_t[])STANDARD_PROTOCOL_GUID, sizeof(GUID_t)) != 0)
@@ -195,17 +177,24 @@ static void SideShow_GetString(SideShow_PacketHeader_t* PacketHeader, void* Unic
 
 static void SideShow_GetApplicationOrder(SideShow_PacketHeader_t* PacketHeader)
 {
-	Endpoint_ClearCurrentBank();
+	uint8_t TotalInstalledApplications = SideShow_GetTotalApplications();
+	uint16_t GadgetGUIDBytes           = (TotalInstalledApplications * sizeof(GUID_t));
 
-	uint16_t GadgetGUIDBytes = (CurrentlyAddedGadgets.TotalGadgets * sizeof(GUID_t));
+	Endpoint_ClearCurrentBank();
 
 	PacketHeader->Length = sizeof(SideShow_PacketHeader_t) +
 	                       sizeof(uint32_t) + GadgetGUIDBytes;
 	
 	Endpoint_SelectEndpoint(SIDESHOW_IN_EPNUM);
 	Endpoint_Write_Stream_LE(PacketHeader, sizeof(SideShow_PacketHeader_t));
-	Endpoint_Write_DWord_LE(CurrentlyAddedGadgets.TotalGadgets);
-	Endpoint_Write_Stream_LE(CurrentlyAddedGadgets.GadgetGUIDs, GadgetGUIDBytes);
+	Endpoint_Write_DWord_LE(TotalInstalledApplications);
+	
+	for (uint8_t App = 0; App < MAX_APPLICATIONS; App++)
+	{
+		if (InstalledApplications[App].InUse == true)
+		  Endpoint_Write_Stream_LE(&InstalledApplications[App].ApplicationID, sizeof(GUID_t));
+	}
+
 	Endpoint_ClearCurrentBank();	
 }
 
@@ -222,4 +211,156 @@ static void SideShow_GetSupportedEndpoints(SideShow_PacketHeader_t* PacketHeader
 	Endpoint_Write_DWord_LE(1);
 	Endpoint_Write_Stream_LE(&SupportedEndpointGUID, sizeof(GUID_t));
 	Endpoint_ClearCurrentBank();
+}
+
+static void SideShow_AddApplication(SideShow_PacketHeader_t* PacketHeader)
+{
+	SideShow_Application_t* CurrApp = SideShow_GetFreeApplication();
+
+	PacketHeader->Length -= sizeof(SideShow_PacketHeader_t);
+
+	if (CurrApp != NULL)
+	{
+		Endpoint_Read_Stream_LE(&CurrApp->ApplicationID, sizeof(GUID_t));
+		Endpoint_Read_Stream_LE(&CurrApp->EndpointID, sizeof(GUID_t));
+		SideShow_Read_Unicode_String(&CurrApp->ApplicationName, sizeof(CurrApp->ApplicationName.UnicodeString));
+		Endpoint_Read_Stream_LE(&CurrApp->CachePolicy, sizeof(uint32_t));
+		Endpoint_Read_Stream_LE(&CurrApp->OnlineOnly, sizeof(uint32_t));
+		SideShow_Discard_Byte_Stream();
+		SideShow_Discard_Byte_Stream();
+		SideShow_Discard_Byte_Stream();
+		Endpoint_ClearCurrentBank();
+		
+		CurrApp->InUse = true;
+	}
+	else
+	{
+		Endpoint_Discard_Stream(PacketHeader->Length);
+
+		PacketHeader->Type.NAK = true;
+	}
+
+	PacketHeader->Length = sizeof(SideShow_PacketHeader_t);
+
+	Endpoint_SelectEndpoint(SIDESHOW_IN_EPNUM);
+	Endpoint_Write_Stream_LE(PacketHeader, sizeof(SideShow_PacketHeader_t));
+	Endpoint_ClearCurrentBank();
+}
+
+static void SideShow_DeleteApplication(SideShow_PacketHeader_t* PacketHeader)
+{
+	GUID_t ApplicationGUID;
+	SideShow_Application_t* AppToDelete;
+	
+	Endpoint_Read_Stream_LE(&ApplicationGUID, sizeof(GUID_t));	
+	Endpoint_ClearCurrentBank();
+
+	AppToDelete = SideShow_GetApplicationFromGUID(&ApplicationGUID);
+
+	if (AppToDelete != NULL)
+	  AppToDelete->InUse = false;
+	else
+	  PacketHeader->Type.NAK = true;
+
+	PacketHeader->Length = sizeof(SideShow_PacketHeader_t);
+
+	Endpoint_SelectEndpoint(SIDESHOW_IN_EPNUM);
+	Endpoint_Write_Stream_LE(PacketHeader, sizeof(SideShow_PacketHeader_t));
+	Endpoint_ClearCurrentBank();
+}
+
+static void SideShow_DeleteAllApplications(SideShow_PacketHeader_t* PacketHeader)
+{
+	Endpoint_ClearCurrentBank();
+	
+	for (uint8_t App = 0; App < MAX_APPLICATIONS; App++)
+	  InstalledApplications[App].InUse = false;
+
+	Endpoint_SelectEndpoint(SIDESHOW_IN_EPNUM);
+	Endpoint_Write_Stream_LE(PacketHeader, sizeof(SideShow_PacketHeader_t));
+	Endpoint_ClearCurrentBank();	
+}
+
+static void SideShow_AddContent(SideShow_PacketHeader_t* PacketHeader)
+{
+	GUID_t ApplicationID;
+	GUID_t EndpointID;
+	SideShow_Application_t* Application;
+	
+	Endpoint_Read_Stream_LE(&ApplicationID, sizeof(GUID_t));
+	Endpoint_Read_Stream_LE(&EndpointID, sizeof(GUID_t));
+	
+	Application = SideShow_GetApplicationFromGUID(&ApplicationID);
+	
+	if (Application == NULL)
+	{
+		SideShow_Discard_Byte_Stream();
+		PacketHeader->Type.NAK = true;
+	}
+	else if (!(SideShow_AddSimpleContent(&ApplicationID)))
+	{
+		PacketHeader->Type.NAK = true;
+	}
+	
+	Endpoint_ClearCurrentBank();
+
+	PacketHeader->Length = sizeof(SideShow_PacketHeader_t);
+
+	Endpoint_SelectEndpoint(SIDESHOW_IN_EPNUM);
+	Endpoint_Write_Stream_LE(PacketHeader, sizeof(SideShow_PacketHeader_t));
+	Endpoint_ClearCurrentBank();
+}
+
+static void SideShow_DeleteContent(SideShow_PacketHeader_t* PacketHeader)
+{
+	GUID_t   ApplicationID;
+	GUID_t   EndpointID;
+	uint32_t ContentID;
+	bool     ContentFound = false;
+
+	Endpoint_Read_Stream_LE(&ApplicationID, sizeof(GUID_t));
+	Endpoint_Read_Stream_LE(&EndpointID, sizeof(GUID_t));
+	Endpoint_Read_Stream_LE(&ContentID, sizeof(uint32_t));
+	Endpoint_ClearCurrentBank();
+	
+	for (int ContentItem = 0; ContentItem < MAX_CONTENT; ContentItem++)
+	{
+		if ((Content[ContentItem].ContentID == ContentID) &&
+		     memcmp(&Content[ContentItem].ApplicationID, &ApplicationID, sizeof(GUID_t)))
+		{
+			Content->InUse = false;
+			ContentFound = true;
+		}
+	}
+	
+	if (!(ContentFound))
+	  PacketHeader->Type.NAK = true;
+	  
+	PacketHeader->Length = sizeof(SideShow_PacketHeader_t);
+
+	Endpoint_SelectEndpoint(SIDESHOW_IN_EPNUM);
+	Endpoint_Write_Stream_LE(PacketHeader, sizeof(SideShow_PacketHeader_t));
+	Endpoint_ClearCurrentBank();	  
+}
+
+static void SideShow_DeleteAllContent(SideShow_PacketHeader_t* PacketHeader)
+{
+	GUID_t ApplicationID;
+	GUID_t EndpointID;
+
+	Endpoint_Read_Stream_LE(&ApplicationID, sizeof(GUID_t));
+	Endpoint_Read_Stream_LE(&EndpointID, sizeof(GUID_t));
+	Endpoint_ClearCurrentBank();
+
+	for (int ContentItem = 0; ContentItem < MAX_CONTENT; ContentItem++)
+	{
+		if (memcmp(&Content[ContentItem].ApplicationID, &ApplicationID, sizeof(GUID_t)))
+		  Content[ContentItem].InUse = false;
+	}  
+
+	PacketHeader->Length = sizeof(SideShow_PacketHeader_t);
+
+	Endpoint_SelectEndpoint(SIDESHOW_IN_EPNUM);
+	Endpoint_Write_Stream_LE(PacketHeader, sizeof(SideShow_PacketHeader_t));
+	Endpoint_ClearCurrentBank();	  
 }
