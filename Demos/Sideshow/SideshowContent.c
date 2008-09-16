@@ -50,18 +50,39 @@ bool SideShow_AddSimpleContent(GUID_t* ApplicationID)
 	
 	Endpoint_Read_Stream_LE(&ContentSize, sizeof(uint32_t));
 
-	printf("Size: %lu\r\n", ContentSize);
+	printf("  Size: %lu\r\n", ContentSize);
 	
-	while (ContentSize--)
+	if (ContentSize >= sizeof("<body>"))
 	{
-		if (!(Endpoint_ReadWriteAllowed()))
+		char FirstChars[sizeof("<body>") - 1];
+		
+		Endpoint_Read_Stream_LE(&FirstChars, (sizeof("<body>") - 1));
+		ContentSize -= (sizeof("<body>") - 1);
+		
+		if (memcmp(FirstChars, "<body>", (sizeof("<body>") - 1)) == 0)
 		{
-			Endpoint_ClearCurrentBank();
+			printf("<body>");
+		
+			while (ContentSize--)
+			{
+				if (!(Endpoint_ReadWriteAllowed()))
+				{
+					Endpoint_ClearCurrentBank();
 
-			while (!(Endpoint_ReadWriteAllowed()));
+					while (!(Endpoint_ReadWriteAllowed()));
+				}
+
+				printf("%c", Endpoint_Read_Byte());
+			}
 		}
-
-		printf("%c", Endpoint_Read_Byte());
+		else
+		{
+			Endpoint_Discard_Stream(ContentSize);		
+		}
+	}
+	else
+	{
+		Endpoint_Discard_Stream(ContentSize);
 	}
 	
 	// TODO: Create content ID object, read in content data

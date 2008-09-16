@@ -236,6 +236,9 @@ static void SideShow_AddApplication(SideShow_PacketHeader_t* PacketHeader)
 	else
 	{
 		Endpoint_Discard_Stream(PacketHeader->Length);
+		Endpoint_ClearCurrentBank();
+
+		printf("TOO MANY APPS");
 
 		PacketHeader->Type.NAK = true;
 	}
@@ -251,15 +254,23 @@ static void SideShow_DeleteApplication(SideShow_PacketHeader_t* PacketHeader)
 {
 	GUID_t ApplicationGUID;
 	SideShow_Application_t* AppToDelete;
+	bool   FoundApp = false;
 	
 	Endpoint_Read_Stream_LE(&ApplicationGUID, sizeof(GUID_t));	
 	Endpoint_ClearCurrentBank();
 
-	AppToDelete = SideShow_GetApplicationFromGUID(&ApplicationGUID);
+	do
+	{
+		AppToDelete = SideShow_GetApplicationFromGUID(&ApplicationGUID);
 
-	if (AppToDelete != NULL)
-	  AppToDelete->InUse = false;
-	else
+		if (AppToDelete != NULL)
+		{
+			AppToDelete->InUse = false;
+			FoundApp = true;
+		}
+	} while (AppToDelete != NULL);
+
+	if (!(FoundApp))
 	  PacketHeader->Type.NAK = true;
 
 	PacketHeader->Length = sizeof(SideShow_PacketHeader_t);

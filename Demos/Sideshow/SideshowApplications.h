@@ -39,7 +39,7 @@
 		#include "SideshowCommon.h"
 
 	/* Macros: */
-		#define MAX_APPLICATIONS         2
+		#define MAX_APPLICATIONS         10
 
 	/* Type Defines: */
 		typedef struct
@@ -47,7 +47,7 @@
 			bool                   InUse;
 			GUID_t                 ApplicationID;
 			GUID_t                 EndpointID;
-			UNICODE_STRING_t(60)   ApplicationName;
+			UNICODE_STRING_t(50)   ApplicationName;
 			uint32_t               CachePolicy;
 			uint32_t               OnlineOnly;
 		} SideShow_Application_t;
