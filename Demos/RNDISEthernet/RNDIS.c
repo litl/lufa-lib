@@ -146,7 +146,7 @@ void ProcessRNDISControlMessage(void)
 				QUERY_Response->InformationBufferLength = 0;
 				QUERY_Response->InformationBufferOffset = 0;
 
-				printf("UNKQ %08lx:\r\n", Query_Oid);
+				printf_P(PSTR("UNKQ %08lx:\r\n"), Query_Oid);
 			}
 			
 			break;
@@ -174,7 +174,7 @@ void ProcessRNDISControlMessage(void)
 			{				
 				SET_Response->Status        = REMOTE_NDIS_STATUS_NOT_SUPPORTED;
 
-				printf("UNKS %08lx:\r\n", SET_Oid);
+				printf_P(PSTR("UNKS %08lx:\r\n"), SET_Oid);
 			}
 
 			break;

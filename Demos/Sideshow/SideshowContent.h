@@ -40,27 +40,19 @@
 
 	/* Macros: */
 		#define MAX_CONTENT    30
-	
-	/* Enums: */
-		enum SideShowContentTypes_t
-		{
-			SideShow_Menu      = 0,
-			SideShow_Content   = 1,
-			SideShow_Dialog    = 2,
-		};
-	
+		
 	/* Type Defines: */
 		typedef struct
 		{
 			bool               InUse;
 			GUID_t             ApplicationID;
 			uint32_t           ContentID;
-			uint8_t            ContentData[100];
+			uint8_t            ContentData[150];
 		} SideShow_Content_t;
 
 		typedef struct
 		{
-			uint16_t OID;
+			uint16_t ObjectID;
 			char     Title[50];
 			uint16_t MenuID;
 		} SideShow_Object_Content_t;
@@ -73,7 +65,7 @@
 		
 		#if defined(INCLUDE_FROM_SIDESHOWCONTENT_C)
 			static SideShow_Content_t* SideShow_GetFreeContent(void);
-			static SideShow_Content_t* SideShow_GetContentByID(GUID_t* ApplicationID, uint32_t ContentID);
+			static SideShow_Content_t* SideShow_GetContentFromID(GUID_t* ApplicationID, uint32_t ContentID);
 		#endif
 
 #endif

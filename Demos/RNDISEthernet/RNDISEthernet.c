@@ -107,7 +107,7 @@ int main(void)
 	Webserver_Init();
 	Telnet_Init();
 
-	printf("\r\n\r\n****** RNDIS Demo running. ******\r\n");
+	printf_P(PSTR("\r\n\r\n****** RNDIS Demo running. ******\r\n"));
 
 	/* Indicate USB not ready */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);

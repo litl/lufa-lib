@@ -307,11 +307,11 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 					ConnectionInfo->SequenceNumberOut = 0;
 					ConnectionInfo->Buffer.InUse      = false;
 
-					printf("CLOSED->SYNRECEIVED\r\n");
+					printf_P(PSTR("CLOSED->SYNRECEIVED\r\n"));
 				}
 				else
 				{
-					printf("CLOSED->SELF\r\n");				
+					printf_P(PSTR("CLOSED->SELF\r\n"));				
 				}
 				
 				break;
@@ -328,11 +328,11 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 														   
 					ConnectionInfo->SequenceNumberOut++;
 
-					printf("SYNRECEIVED->ESTABLISHED\r\n");
+					printf_P(PSTR("SYNRECEIVED->ESTABLISHED\r\n"));
 				}
 				else
 				{
-					printf("SYNRECEIVED->SELF\r\n");				
+					printf_P(PSTR("SYNRECEIVED->SELF\r\n"));				
 				}
 				
 				break;
@@ -353,11 +353,11 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 					ConnectionInfo->SequenceNumberIn++;
 					ConnectionInfo->SequenceNumberOut++;
 
-					printf("ESTABLISHED->CLOSEWAIT\r\n");
+					printf_P(PSTR("ESTABLISHED->CLOSEWAIT\r\n"));
 				}
 				else if ((TCPHeaderIN->Flags == TCP_FLAG_ACK) || (TCPHeaderIN->Flags == (TCP_FLAG_ACK | TCP_FLAG_PSH)))
 				{
-					printf("ESTABLISHED->SELF\r\n");
+					printf_P(PSTR("ESTABLISHED->SELF\r\n"));
 
 					ConnectionInfo = TCP_GetConnectionInfo(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
 					                                       TCPHeaderIN->SourcePort);
@@ -398,7 +398,7 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 					}
 					else
 					{
-						printf("Processing deferred, buffer full.\r\n");
+						printf_P(PSTR("Processing deferred, buffer full.\r\n"));
 						return NO_PROCESS;
 					}
 				}
@@ -410,11 +410,11 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 					TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
 										   TCPHeaderIN->SourcePort, TCP_Connection_Closed);
 
-					printf("CLOSEWAIT->CLOSED\r\n");
+					printf_P(PSTR("CLOSEWAIT->CLOSED\r\n"));
 				}
 				else
 				{
-					printf("CLOSEWAIT->SELF\r\n");			
+					printf_P(PSTR("CLOSEWAIT->SELF\r\n"));			
 				}
 				
 				break;			

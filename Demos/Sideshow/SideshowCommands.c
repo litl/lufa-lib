@@ -50,7 +50,7 @@ void Sideshow_ProcessCommandPacket(void)
 	
 	PacketHeader.Type.Response = true;
 
-	printf("\r\nCommand: %lX", PacketHeader.Type.TypeLong & 0x00FFFFFF);
+	printf_P(PSTR("\r\nCommand: %lX"), PacketHeader.Type.TypeLong & 0x00FFFFFF);
 	
 	switch (PacketHeader.Type.TypeLong & 0x00FFFFFF)
 	{
@@ -109,7 +109,7 @@ void Sideshow_ProcessCommandPacket(void)
 			Endpoint_Write_Stream_LE(&PacketHeader, sizeof(SideShow_PacketHeader_t));		
 			Endpoint_ClearCurrentBank();
 
-			printf(" (UNK)");
+			printf_P(PSTR(" (UNK)"));
 	}
 }
 
@@ -215,13 +215,32 @@ static void SideShow_GetSupportedEndpoints(SideShow_PacketHeader_t* PacketHeader
 
 static void SideShow_AddApplication(SideShow_PacketHeader_t* PacketHeader)
 {
-	SideShow_Application_t* CurrApp = SideShow_GetFreeApplication();
+	SideShow_Application_t* CurrApp;
+	GUID_t                  ApplicationID;
 
-	PacketHeader->Length -= sizeof(SideShow_PacketHeader_t);
+	Endpoint_Read_Stream_LE(&ApplicationID, sizeof(GUID_t));
 
-	if (CurrApp != NULL)
+	CurrApp = SideShow_GetApplicationFromGUID(&ApplicationID);
+
+	if (CurrApp == NULL)
+	  CurrApp = SideShow_GetFreeApplication();
+	else
+	  printf_P(PSTR(" <Updated>"));
+
+	if (CurrApp == NULL)
 	{
-		Endpoint_Read_Stream_LE(&CurrApp->ApplicationID, sizeof(GUID_t));
+		PacketHeader->Length -= sizeof(SideShow_PacketHeader_t) + sizeof(GUID_t);
+
+		Endpoint_Discard_Stream(PacketHeader->Length);
+		Endpoint_ClearCurrentBank();
+
+		PacketHeader->Type.NAK = true;
+
+		printf_P(PSTR(" APPS FULL"));
+	}
+	else
+	{
+		CurrApp->ApplicationID = ApplicationID;
 		Endpoint_Read_Stream_LE(&CurrApp->EndpointID, sizeof(GUID_t));
 		SideShow_Read_Unicode_String(&CurrApp->ApplicationName, sizeof(CurrApp->ApplicationName.UnicodeString));
 		Endpoint_Read_Stream_LE(&CurrApp->CachePolicy, sizeof(uint32_t));
@@ -232,15 +251,6 @@ static void SideShow_AddApplication(SideShow_PacketHeader_t* PacketHeader)
 		Endpoint_ClearCurrentBank();
 		
 		CurrApp->InUse = true;
-	}
-	else
-	{
-		Endpoint_Discard_Stream(PacketHeader->Length);
-		Endpoint_ClearCurrentBank();
-
-		printf("TOO MANY APPS");
-
-		PacketHeader->Type.NAK = true;
 	}
 
 	PacketHeader->Length = sizeof(SideShow_PacketHeader_t);

@@ -42,18 +42,18 @@ bool SideShow_AddSimpleContent(SideShow_PacketHeader_t* PacketHeader, GUID_t* Ap
 		
 	Endpoint_Read_Stream_LE(&ContentID, sizeof(uint32_t));
 
-	AppContent = SideShow_GetContentByID(ApplicationID, ContentID);
+	AppContent = SideShow_GetContentFromID(ApplicationID, ContentID);
 
 	if (AppContent == NULL)
 	  AppContent = SideShow_GetFreeContent();
 	else
-	  printf(" <Updated>");
+	  printf_P(PSTR(" <Updated>"));
 	
 	if (AppContent == NULL)
 	{
 		PacketHeader->Length -= sizeof(SideShow_PacketHeader_t) + (2 * sizeof(GUID_t)) + sizeof(uint32_t);
 		
-		printf(" CONTENT FULL");
+		printf_P(PSTR(" CONTENT FULL"));
 
 		Endpoint_Discard_Stream(PacketHeader->Length);
 		return false;
@@ -64,7 +64,7 @@ bool SideShow_AddSimpleContent(SideShow_PacketHeader_t* PacketHeader, GUID_t* Ap
 	
 	if (!(memcmp(&AppContent->ContentData, "<body>", (sizeof("<body>") - 1))))
 	{
-		printf(" XML");
+		printf_P(PSTR(" XML (ID: %lu, Size: %lu)"), ContentID, ContentSize);
 
 		AppContent->ApplicationID = *ApplicationID;
 		AppContent->ContentID     = ContentID;
@@ -77,7 +77,7 @@ bool SideShow_AddSimpleContent(SideShow_PacketHeader_t* PacketHeader, GUID_t* Ap
 	}
 	else
 	{
-		printf(" BINARY");
+		printf_P(PSTR(" BINARY"));
 
 		ContentSize -= (sizeof("<body>") - 1);
 		Endpoint_Discard_Stream(ContentSize);
@@ -97,7 +97,7 @@ static SideShow_Content_t* SideShow_GetFreeContent(void)
 	return NULL;
 }
 
-static SideShow_Content_t* SideShow_GetContentByID(GUID_t* ApplicationID, uint32_t ContentID)
+static SideShow_Content_t* SideShow_GetContentFromID(GUID_t* ApplicationID, uint32_t ContentID)
 {
 	for (int ContentItem = 0; ContentItem < MAX_CONTENT; ContentItem++)
 	{

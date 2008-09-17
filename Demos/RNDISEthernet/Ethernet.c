@@ -91,7 +91,7 @@ void Ethernet_ProcessPacket(void)
 	else
 	{
 		/* Packet deferred */
-		printf("Deferred processing of packet.\r\n");
+		printf_P(PSTR("Deferred processing of packet.\r\n"));
 	}
 }
 
