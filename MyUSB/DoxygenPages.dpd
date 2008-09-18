@@ -472,6 +472,9 @@
  *    - The FEATURE_ENDPOINT macro has been renamed FEATURE_ENDPOINT_HALT, and is now correctly documented.
  *    - The MassStoreHost demo contained errors which caused it to lock up randomly on certain devices. Projects built
  *      on the MassStoreDemo code should update to the latest version.
+ *    - The Interrupt type endpoint in the CDC based demos previously had a polling interval of 0x02, which caused
+ *      problems on some Linux systems. This has been changed to 0xFF, projects built on the CDC demos should upgrade
+ *      to the latest code.
  *
  *  <b>Device Mode</b>
  *    - The endpoint non-control stream functions now have a default timeout of 50ms between packets in the stream.

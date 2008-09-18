@@ -146,7 +146,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | CDC1_NOTIFICATION_EPNUM),
 			Attributes:       		EP_TYPE_INTERRUPT,
 			EndpointSize:           CDC_NOTIFICATION_EPSIZE,
-			PollingIntervalMS:		0x02
+			PollingIntervalMS:		0xFF
 		},
 
 	CDC1_DCI_Interface:
@@ -262,7 +262,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | CDC2_NOTIFICATION_EPNUM),
 			Attributes:       		EP_TYPE_INTERRUPT,
 			EndpointSize:           CDC_NOTIFICATION_EPSIZE,
-			PollingIntervalMS:		0x02
+			PollingIntervalMS:		0xFF
 		},
 
 	CDC2_DCI_Interface:
