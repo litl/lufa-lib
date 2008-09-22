@@ -40,7 +40,6 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-
 			/** Creates a prototype for or begins a stream callback routine. Stream callback routines are small
 			 *  routines which are executed during stream read or writes (if the callback-enabled versions of
 			 *  these functions are used) which allow the user application to abort the transfer when certain
@@ -71,6 +70,11 @@
 			 *  \endcode
 			 */
 			#define STREAM_CALLBACK(name) uint8_t name (void)
+
+			/** Used with the Endpoint and Pipe stream functions as the callback function parameter, indicating that the stream
+			 *  call has no callback function to be called between USB packets.
+			 */
+			#define NO_STREAM_CALLBACK    NULL
 			
 		/* Enums: */
 			/** Enum for the possible error return codes of a stream callback function */

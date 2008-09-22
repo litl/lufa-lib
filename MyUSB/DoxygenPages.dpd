@@ -484,6 +484,9 @@
  *    - Rather than returning fixed values, the flags indicating if the device has Remote Wakeup currently enabled
  *      and/or is self-powered are now accessed and set through the new USB_RemoteWakeupEnabled and
  *      USB_CurrentlySelfPowered macros. See the DevChapter9.h documentation for more details.
+ *    - All endpoint stream functions now require an extra Callback function parameter. Existing code may be updated
+ *      to either supply NO_STREAM_CALLBACK as the extra parameter, or disable stream callbacks altogether by pasing
+ *      the token NO_STREAM_CALLBACKS to the compiler using the -D switch.
  *
  *  <b>Host Mode</b>
  *    - The pipe non-control stream functions now have a default timeout of 50ms between packets in the stream.
@@ -491,6 +494,9 @@
  *      timeout value can be overridden by defining the USB_STREAM_TIMEOUT_MS in the project makefile to the desired
  *      timeout duration in ms.
  *    - CollectionPath_t has been renamed to HID_CollectionPath_t to be more in line with the other HID parser structures.
+ *    - All pipe stream functions now require an extra Callback function parameter. Existing code may be updated
+ *      to either supply NO_STREAM_CALLBACK as the extra parameter, or disable stream callbacks altogether by pasing
+ *      the token NO_STREAM_CALLBACKS to the compiler using the -D switch.
  */
  
 /** \page Page_Migration151 Migrating from V1.5.1 to 1.5.2

@@ -28,8 +28,8 @@ Changelog for MyUSB:
 		* Stream functions now have software timeouts, timeout period can be set by the USB_STREAM_TIMEOUT_MS token
 		* Added callback versions of the stream read and write functions (Endpoint_*_CStream_* and Pipe_*_CStream_*)
 		* All demos now pass the USB.org automated device compliant tests (Chapter 9, HID, Mass Storage)
-		* Added in new *_Discard_Stream(), *_Discard_CStream() functions
 		* Polling interval of the interrupt endpoint in the CDC based demos changed to 0xFF to fix problems on Linux systems
+		* Changed stream functions to accept a new callback function, with NO_STREAM_CALLBACKS used to disable all callbacks
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

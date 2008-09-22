@@ -261,8 +261,8 @@ TASK(USB_Keyboard_Report)
 	if (JoyStatus_LCL & JOY_PRESS)
 	  KeyboardReportData.KeyCode[0] = 0x08; // E
 
-	/* Check if the USB System is connected to a Host */
-	if (USB_IsConnected)
+	/* Check if the USB system is connected to a host and report protocol mode is enabled */
+	if (USB_IsConnected && UsingReportProtocol)
 	{
 		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);

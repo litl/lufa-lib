@@ -79,6 +79,7 @@ TASK_LIST
 /* Global Variables */
 USB_KeyboardReport_Data_t KeyboardReportData;
 USB_MouseReport_Data_t    MouseReportData;
+bool                      UsingReportProtocol = true;
 
 
 int main(void)
@@ -114,6 +115,9 @@ EVENT_HANDLER(USB_Connect)
 
 	/* Indicate USB enumerating */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+
+	/* Default to report protocol on connect */
+	UsingReportProtocol = true;
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -255,8 +259,8 @@ TASK(USB_Keyboard)
 		  KeyboardReportData.KeyCode[0] = 0x08; // E
 	}
 	
-	/* Check if the USB System is connected to a Host */
-	if (USB_IsConnected)
+	/* Check if the USB system is connected to a host and report protocol mode is enabled */
+	if (USB_IsConnected && UsingReportProtocol)
 	{
 		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_IN_EPNUM);
@@ -323,8 +327,8 @@ TASK(USB_Mouse)
 		  MouseReportData.Button  = (1 << 0);
 	}
 
-	/* Check if the USB System is connected to a Host */
-	if (USB_IsConnected)
+	/* Check if the USB system is connected to a host and report protocol mode is enabled */
+	if (USB_IsConnected && UsingReportProtocol)
 	{
 		/* Select the Mouse Report Endpoint */
 		Endpoint_SelectEndpoint(MOUSE_IN_EPNUM);

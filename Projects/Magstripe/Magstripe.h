@@ -45,6 +45,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <string.h>
 
 		#include "MagstripeHW.h"		
 		#include "Descriptors.h"
@@ -63,7 +64,10 @@
 		TASK(USB_Keyboard_Report);
 
 	/* Macros: */
-		#define REQ_GetReport   0x01
+		#define REQ_GetReport      0x01
+		#define REQ_SetReport      0x09
+		#define REQ_GetProtocol    0x03
+		#define REQ_SetProtocol    0x0B
 
 	/* Type Defines: */
 		typedef struct

@@ -126,10 +126,6 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
-	Endpoint_ConfigureEndpoint(KEYBOARD_LEDS_EPNUM, EP_TYPE_INTERRUPT,
-		                       ENDPOINT_DIR_OUT, KEYBOARD_EPSIZE,
-	                           ENDPOINT_BANK_SINGLE);
-
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 
@@ -137,7 +133,7 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(USB_Keyboard_Report, TASK_RUN);
 }
 
-HANDLES_EVENT(USB_UnhandledControlPacket)
+EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Handle HID Class specific requests */
 	switch (bRequest)
@@ -160,6 +156,9 @@ HANDLES_EVENT(USB_UnhandledControlPacket)
 
 				Endpoint_ClearSetupReceived();
 	
+				/* Clear the report data before sending - only normal requests give proper data */
+				memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
+
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&KeyboardReportData, wLength);
 				
@@ -176,13 +175,6 @@ TASK(USB_Keyboard_Report)
 	uint8_t        MagStatus_LCL       = Magstripe_GetStatus();	
 	uint16_t       StripeDataLen       = 0;
 	static uint8_t StripeData[DATA_LENGTH];
-
-	/* Select the LED Report Endpoint */
-	Endpoint_SelectEndpoint(KEYBOARD_LEDS_EPNUM);
-	
-	/* Throw away any LED reports from the host */
-	if (Endpoint_ReadWriteAllowed())
-	  Endpoint_ClearCurrentBank();
 
 	/* Abort task if no card inserted */
 	if (!(MagStatus_LCL & MAG_CLS))

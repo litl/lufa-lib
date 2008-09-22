@@ -218,8 +218,8 @@ TASK(USB_Mouse_Report)
 	if (HWB_GetStatus())
 	  MouseReportData.Button |= (1 << 1);
 
-	/* Check if the USB System is connected to a Host */
-	if (USB_IsConnected)
+	/* Check if the USB system is connected to a host and report protocol mode is enabled */
+	if (USB_IsConnected && UsingReportProtocol)
 	{
 		/* Select the Mouse Report Endpoint */
 		Endpoint_SelectEndpoint(MOUSE_EPNUM);
