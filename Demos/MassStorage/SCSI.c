@@ -143,7 +143,7 @@ static bool SCSI_Command_Inquiry(void)
 	}
 
 	/* Write the INQUIRY data to the endpoint */
-	Endpoint_Write_Stream_LE(&InquiryData, BytesTransferred);
+	Endpoint_Write_Stream_LE(&InquiryData, BytesTransferred, AbortOnMassStoreReset);
 
 	/* Pad out remaining bytes with 0x00 */
 	while (BytesTransferred < AllocationLength)
@@ -174,7 +174,7 @@ static bool SCSI_Command_Request_Sense(void)
 	uint8_t  BytesTransferred = (AllocationLength < sizeof(SenseData))? AllocationLength : sizeof(SenseData);
 	
 	/* Send the SENSE data - this indicates to the host the status of the last command */
-	Endpoint_Write_Stream_LE(&SenseData, BytesTransferred);
+	Endpoint_Write_Stream_LE(&SenseData, BytesTransferred, AbortOnMassStoreReset);
 	
 	/* Pad out remaining bytes with 0x00 */
 	while (BytesTransferred < AllocationLength)

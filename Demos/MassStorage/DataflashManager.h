@@ -46,7 +46,6 @@
 		                                            * DATAFLASH_PAGE_SIZE)
 		#define VIRTUAL_MEMORY_BLOCK_SIZE           512
 		#define VIRTUAL_MEMORY_BLOCKS               ((VIRTUAL_MEMORY_BYTES / VIRTUAL_MEMORY_BLOCK_SIZE) - 1)
-		#define VIRTUAL_MEMORY_EPPACKETS_PER_BLOCK  (VIRTUAL_MEMORY_BLOCK_SIZE / MASS_STORAGE_IO_EPSIZE)
 		
 	/* Function Prototypes: */
 		void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks);

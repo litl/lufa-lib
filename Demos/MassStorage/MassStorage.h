@@ -99,6 +99,7 @@
 	/* Global Variables: */
 		extern CommandBlockWrapper_t  CommandBlock;
 		extern CommandStatusWrapper_t CommandStatus;
+		extern volatile bool          IsMassStoreReset;
 
 	/* Task Definitions: */
 		TASK(USB_MassStorage);
@@ -107,6 +108,7 @@
 		STREAM_CALLBACK(AbortOnMassStoreReset);
 
 	/* Event Handlers: */
+		HANDLES_EVENT(USB_Reset);
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);

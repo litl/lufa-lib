@@ -109,9 +109,6 @@ EVENT_HANDLER(USB_Connect)
 
 	/* Indicate USB enumerating */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
-	
-	/* Default to report protocol on connect */
-	UsingReportProtocol = true;
 }
 
 EVENT_HANDLER(USB_Disconnect)
@@ -139,6 +136,9 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 	
+	/* Default to report protocol on connect */
+	UsingReportProtocol = true;
+
 	/* Start Keyboard reporting task */
 	Scheduler_SetTaskMode(USB_Keyboard_Report, TASK_RUN);
 }
