@@ -297,9 +297,6 @@ static void ReturnCommandStatus(void)
 		if (IsMassStoreReset)
 		  return;
 	}
-	
-	/* Wait until read/write to IN data endpoint allowed */
-	while (!(Endpoint_ReadWriteAllowed()));
 
 	/* Write the CSW to the endpoint */
 	Endpoint_Write_Stream_LE(&CommandStatus, sizeof(CommandStatus),
