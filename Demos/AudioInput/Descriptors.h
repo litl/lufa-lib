@@ -93,7 +93,12 @@
 
 		#define SAMPLE_FREQ(x)              {LowWord: ((uint32_t)x & 0x00FFFF), HighByte: (((uint32_t)x >> 16) & 0x0000FF)}
 		
-		#define AUDIO_STREAM_EPNUM          3
+		#if defined(USB_FULL_CONTROLLER)
+			#define AUDIO_STREAM_EPNUM      1
+		#else
+			#define AUDIO_STREAM_EPNUM      3		
+		#endif
+
 		#define AUDIO_STREAM_EPSIZE         ENDPOINT_MAX_SIZE
 		
 		#define AUDIO_SAMPLE_FREQUENCY      48000
