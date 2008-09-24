@@ -98,7 +98,6 @@ int main(void)
 	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
-	Joystick_Init();
 	LEDs_Init();
 	SerialStream_Init(9600);
 	

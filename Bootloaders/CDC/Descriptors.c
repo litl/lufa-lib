@@ -181,9 +181,9 @@ USB_Descriptor_String_t LanguageString =
 
 USB_Descriptor_String_t ProductString =
 {
-	Header:                 {Size: USB_STRING_LEN(20), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(15), Type: DTYPE_String},
 		
-	UnicodeString:          L"MyUSB CDC Bootloader"
+	UnicodeString:          L"AVR CDC BOOTLDR"
 };
 
 bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,

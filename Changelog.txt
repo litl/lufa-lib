@@ -5,6 +5,7 @@ Changelog for MyUSB:
 		1) Mass Storage app compliance
 		2) HID Boot not enumerating one some machines
 		3) Auto-detect clock frequency via watchdog
+		4) Add in audio volume control
 
 	Version 1.5.3 - UNRELEASED:
 	--------------------------------------------

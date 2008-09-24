@@ -116,8 +116,8 @@ static void USB_Device_SetAddress(void)
 
 	Endpoint_ClearSetupReceived();
 
-	while (!(Endpoint_IsSetupINReady()));
 	Endpoint_ClearSetupIN();
+	while (!(Endpoint_IsSetupINReady()));
 	
 	UDADDR |= (1 << ADDEN);
 
@@ -259,6 +259,10 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 			if (USB_RemoteWakeupEnabled)
 			  CurrentStatus |= FEATURE_REMOTE_WAKEUP_ENABLED;
 			
+			break;
+		case REQREC_INTERFACE:
+			// No bits set, all bits currently reserved
+				
 			break;
 		case REQREC_ENDPOINT:
 			Endpoint_SelectEndpoint(wIndex);

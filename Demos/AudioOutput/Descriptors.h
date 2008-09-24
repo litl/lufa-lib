@@ -96,7 +96,7 @@
 		#define EP_ACCEPTS_ONLY_FULL_PACKETS (1 << 7)
 		#define EP_ACCEPTS_SMALL_PACKETS     (0 << 7)
 
-		#define AUDIO_STREAM_EPNUM           1
+		#define AUDIO_STREAM_EPNUM           3
 		#define AUDIO_STREAM_EPSIZE          ENDPOINT_MAX_SIZE
 		
 		#define AUDIO_SAMPLE_FREQUENCY       48000
