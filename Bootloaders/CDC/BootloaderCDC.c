@@ -311,7 +311,7 @@ static uint8_t FetchNextCommandByte(void)
 	Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 	
 	/* If OUT endpoint empty, clear it and wait for the next packet from the host */
-	if (!(Endpoint_BytesInEndpoint()))
+	if (!(Endpoint_ReadWriteAllowed()))
 	{
 		Endpoint_ClearCurrentBank();
 		while (!(Endpoint_ReadWriteAllowed()));
@@ -327,7 +327,7 @@ static void WriteNextResponseByte(const uint8_t Response)
 	Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 	
 	/* If OUT endpoint empty, clear it and wait for the next packet from the host */
-	if (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE)
+	if (!(Endpoint_ReadWriteAllowed()))
 	{
 		Endpoint_ClearCurrentBank();
 		while (!(Endpoint_ReadWriteAllowed()));
@@ -534,7 +534,7 @@ TASK(CDC_Task)
 		/* Select the IN endpoint */
 		Endpoint_SelectEndpoint(CDC_TX_EPNUM);
 
-		/* Remeber if the endpoint is completely full before clearing it */
+		/* Remember if the endpoint is completely full before clearing it */
 		bool IsEndpointFull = !(Endpoint_ReadWriteAllowed());
 
 		/* Send the endpoint data to the host */

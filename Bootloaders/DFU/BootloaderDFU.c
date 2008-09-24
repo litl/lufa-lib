@@ -103,12 +103,8 @@ int main (void)
 	USB_Init();
 
 	/* Run the USB management task while the bootloader is supposed to be running */
-	while (RunBootloader)
+	while (RunBootloader || WaitForExit)
 	  USB_USBTask();
-	
-	_delay_ms(5);
-	
-	USB_USBTask();	
 	
 	/* Shut down the USB subsystem */
 	USB_ShutDown();
@@ -161,7 +157,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			Endpoint_ClearSetupReceived();
 			
 			if (WaitForExit)
-			  ProcessBootloaderCommand();
+			{
+				ProcessBootloaderCommand();
+				WaitForExit = false;
+			}
 			  
 			/* If the request has a data stage, load it into the command struct */
 			if (SentCommand.DataSize)
@@ -173,9 +172,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					
 				/* One byte of the data stage is the command, so subtract it from the total data bytes */
 				SentCommand.DataSize--;
-					
+				
 				/* Load in the rest of the data stage as command parameters */
-				for (uint16_t DataByte = 0; (DataByte < sizeof(SentCommand.Data)) &&
+				for (uint8_t DataByte = 0; (DataByte < sizeof(SentCommand.Data)) &&
 				     Endpoint_BytesInEndpoint(); DataByte++)
 				{
 					SentCommand.Data[DataByte] = Endpoint_Read_Byte();
@@ -617,19 +616,20 @@ static void ProcessReadCommand(void)
 {
 	const uint8_t BootloaderInfo[3] = {BOOTLOADER_VERSION, BOOTLOADER_ID_BYTE1, BOOTLOADER_ID_BYTE2};
 
-	uint8_t CommandResponse = 0x00;
+	uint8_t CommandResponse  = 0x00;
+	uint8_t CommandParameter = SentCommand.Data[1];
 
-	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))                            // Read bootloader info
+	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))                         // Read bootloader info
 	{
-		CommandResponse = BootloaderInfo[SentCommand.Data[1]];
+		CommandResponse = BootloaderInfo[CommandParameter];
 	}
-	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                       // Read signature byte
+	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                    // Read signature byte
 	{
-		if (SentCommand.Data[1] == 0x30)                                       // Read byte 1
+		if (CommandParameter == 0x30)                                       // Read byte 1
 		  CommandResponse = boot_signature_byte_get(0);
-		else if (SentCommand.Data[1] == 0x31)                                  // Read byte 2
+		else if (CommandParameter == 0x31)                                  // Read byte 2
 		  CommandResponse = boot_signature_byte_get(2);
-		else if (SentCommand.Data[1] == 0x60)                                  // Read byte 3
+		else if (CommandParameter == 0x60)                                  // Read byte 3
 		  CommandResponse = boot_signature_byte_get(4);
 	}
 	

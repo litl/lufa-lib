@@ -475,6 +475,10 @@
  *    - The Interrupt type endpoint in the CDC based demos previously had a polling interval of 0x02, which caused
  *      problems on some Linux systems. This has been changed to 0xFF, projects built on the CDC demos should upgrade
  *      to the latest code.
+ *    - The HID keyboard and mouse demos were not previously boot mode compatible. To enable boot mode support, projects
+ *      built on the keyboard or mouse demos (or derivatives) should upgrade to the latest code.
+ *    - The Mass Storage demo was not previously standards compliant. Projects built on the Mass Storage demo should
+ *      upgrade to the latest code.
  *
  *  <b>Device Mode</b>
  *    - The endpoint non-control stream functions now have a default timeout of 50ms between packets in the stream.

@@ -1,6 +1,11 @@
 Changelog for MyUSB:
 =======================================
 
+	TODO:
+		1) Mass Storage app compliance
+		2) HID Boot not enumerating one some machines
+		3) Auto-detect clock frequency via watchdog
+
 	Version 1.5.3 - UNRELEASED:
 	--------------------------------------------
 		* Fixed CDC bootloader using pgmspace macros for some descriptors inappropriately
@@ -13,7 +18,7 @@ Changelog for MyUSB:
 		* Added KeyboardMouse demo (Keyboard and Mouse functionality combined into a single demo)
 		* Added DriverStubs directory to house board level driver templates, to make MyUSB compatible custom board
 		  driver creation easier
-		* Extended MassStorage demo to support multiple LUNs
+		* Extended MassStorage demo to support multiple LUNs, 2 by default
 		* Fixed incorrect device address mask, preventing the device from enumerating with addresses larger than 63
 		* Fixed incorrect data direction mask in the GetStatus standard request, preventing it from being handled
 		* Fixed incorrect GetStatus standard request for endpoints, now returns the endpoint STALL status correctly
@@ -26,10 +31,10 @@ Changelog for MyUSB:
 		  not have a valid configuration descriptor header
 		* Added Endpoint_WaitUntilReady() and Pipe_WaitUntilReady() functions
 		* Stream functions now have software timeouts, timeout period can be set by the USB_STREAM_TIMEOUT_MS token
-		* Added callback versions of the stream read and write functions (Endpoint_*_CStream_* and Pipe_*_CStream_*)
 		* All demos now pass the USB.org automated device compliant tests (Chapter 9, HID, Mass Storage)
 		* Polling interval of the interrupt endpoint in the CDC based demos changed to 0xFF to fix problems on Linux systems
 		* Changed stream functions to accept a new callback function, with NO_STREAM_CALLBACKS used to disable all callbacks
+		* Mass Storage demo dataflash management routines changed to use the endpoint stream functions		
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------
