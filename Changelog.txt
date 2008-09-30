@@ -5,7 +5,7 @@ Changelog for MyUSB:
 		1) Mass Storage app compliance
 		2) HID Boot not enumerating one some machines
 		3) Auto-detect clock frequency via watchdog
-		4) Add in audio volume control
+		4) Micro stack for bootloader
 
 	Version 1.5.3 - UNRELEASED:
 	--------------------------------------------
@@ -28,7 +28,7 @@ Changelog for MyUSB:
 		* Added pipe NAK detection and clearing API
 		* Added pipe status change (NAK, STALL, etc.) interrupt API
 		* Fixed MassStorageHost demo so that it no longer freezes randomly when issuing several commands in a row
-		* Host demos' configuration descriptor routines now return a unique error code when the returned data does
+		* Host demos configuration descriptor routines now return a unique error code when the returned data does
 		  not have a valid configuration descriptor header
 		* Added Endpoint_WaitUntilReady() and Pipe_WaitUntilReady() functions
 		* Stream functions now have software timeouts, timeout period can be set by the USB_STREAM_TIMEOUT_MS token
@@ -36,6 +36,7 @@ Changelog for MyUSB:
 		* Polling interval of the interrupt endpoint in the CDC based demos changed to 0xFF to fix problems on Linux systems
 		* Changed stream functions to accept a new callback function, with NO_STREAM_CALLBACKS used to disable all callbacks
 		* Mass Storage demo dataflash management routines changed to use the endpoint stream functions		
+		* Added AVRStudio project files for each demo in addition to the existing Programmer's Notepad master project file
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

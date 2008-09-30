@@ -53,7 +53,7 @@ CDC_Line_Coding_t LineCoding = { BaudRateBPS: 9600,
 								 
 uint16_t          CurrAddress;
 
-bool RunBootloader = true;
+bool              RunBootloader = true;
 
 int main(void)
 {
