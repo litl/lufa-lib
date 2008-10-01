@@ -178,6 +178,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 				/* Send the line coding data to the host and clear the control endpoint */
 				Endpoint_ClearSetupIN();
+				
+				/* Reconfigure the USART with the new settings */
+				ReconfigureUSART();
 			}
 	
 			break;

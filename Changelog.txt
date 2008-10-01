@@ -1,11 +1,11 @@
 Changelog for MyUSB:
 =======================================
 
-	TODO:
+	FUTURE TODO:
 		1) Mass Storage app compliance
 		2) HID Boot not enumerating one some machines
 		3) Auto-detect clock frequency via watchdog
-		4) Micro stack for bootloader
+		5) Demos documentation
 
 	Version 1.5.3 - UNRELEASED:
 	--------------------------------------------
@@ -37,6 +37,8 @@ Changelog for MyUSB:
 		* Changed stream functions to accept a new callback function, with NO_STREAM_CALLBACKS used to disable all callbacks
 		* Mass Storage demo dataflash management routines changed to use the endpoint stream functions		
 		* Added AVRStudio project files for each demo in addition to the existing Programmer's Notepad master project file
+		* Re-added call to ReconfigureUSART() in USBtoSerial SetLineCoding request, so that baud rate changes
+		  are reflected in the hardware (change was previously lost)
 
 	Version 1.5.2 - Released 31st July, 2008:
 	--------------------------------------------

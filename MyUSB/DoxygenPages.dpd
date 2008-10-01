@@ -479,6 +479,9 @@
  *      built on the keyboard or mouse demos (or derivatives) should upgrade to the latest code.
  *    - The Mass Storage demo was not previously standards compliant. Projects built on the Mass Storage demo should
  *      upgrade to the latest code.
+ *    - The USART was not being reconfigured after the host sent new encoding settings in the USBtoSerial demo. This was
+ *      previously discovered and fixed, but the change was lost. Projects built on the USBtoSerial demo should update
+ *      to the latest code.
  *
  *  <b>Device Mode</b>
  *    - The endpoint non-control stream functions now have a default timeout of 50ms between packets in the stream.
