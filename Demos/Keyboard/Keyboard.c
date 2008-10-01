@@ -38,7 +38,9 @@
 /*
 	Keyboard demonstration application. This gives a simple reference
 	application for implementing a USB Keyboard using the basic USB HID
-	drivers in all modern OSes (i.e. no special drivers required).
+	drivers in all modern OSes (i.e. no special drivers required). It is
+	boot protocol compatible, and thus works under compatible BIOS as if
+	it was a native keyboard (e.g. PS/2).
 	
 	On startup the system will automatically enumerate and function
 	as a keyboard when the USB connection to a host is present. To use
@@ -72,8 +74,9 @@ TASK_LIST
 };
 
 /* Global Variables */
-USB_KeyboardReport_Data_t KeyboardReportData  = {Modifier: 0, KeyCode: {0, 0, 0, 0, 0, 0}};
-bool                      UsingReportProtocol = true;
+bool      UsingReportProtocol = true;
+uint8_t   IdleCount           = 0;
+uint16_t  IdleMSRemaining     = 0;
 
 
 int main(void)
@@ -89,6 +92,12 @@ int main(void)
 	Joystick_Init();
 	LEDs_Init();
 	
+	/* Millisecond timer initialization, with output compare interrupt enabled for the idle timing */
+	OCR0A  = 0x7D;
+	TCCR0A = (1 << WGM01);
+	TCCR0B = ((1 << CS01) | (1 << CS00));
+	TIMSK0 = (1 << OCIE0A);
+
 	/* Indicate USB not ready */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
@@ -151,6 +160,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case REQ_GetReport:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				USB_KeyboardReport_Data_t KeyboardReportData;
+
+				/* Create the next keyboard report for transmission to the host */
+				GetNextReport(&KeyboardReportData);
+
 				/* Ignore report type and ID number value */
 				Endpoint_Discard_Word();
 				
@@ -171,9 +185,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				
 				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
 				Endpoint_ClearSetupOUT();
-
-				/* Clear the report data afterwards */
-				memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
 			}
 		
 			break;
@@ -187,20 +198,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 				/* Read in the LED report from the host */
 				uint8_t LEDStatus = Endpoint_Read_Byte();
-				uint8_t LEDMask   = LEDS_LED2;
-				
-				if (LEDStatus & 0x01) // NUM Lock
-				  LEDMask |= LEDS_LED1;
-				
-				if (LEDStatus & 0x02) // CAPS Lock
-				  LEDMask |= LEDS_LED3;
 
-				if (LEDStatus & 0x04) // SCROLL Lock
-				  LEDMask |= LEDS_LED4;
-
-				/* Set the status LEDs to the current Keyboard LED status */
-				LEDs_SetAllLEDs(LEDMask);
-
+				/* Process the incomming LED report */
+				ProcessLEDReport(LEDStatus);
+			
 				/* Clear the endpoint data */
 				Endpoint_ClearSetupOUT();
 
@@ -241,43 +242,126 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			
 			break;
+		case REQ_SetIdle:
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Read in the wValue parameter containing the idle period */
+				uint16_t wValue = Endpoint_Read_Word_LE();
+				
+				Endpoint_ClearSetupReceived();
+				
+				/* Get idle period in MSB */
+				IdleCount = (wValue >> 8);
+				
+				/* Send an empty packet to acknowedge the command */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
+		case REQ_GetIdle:
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{		
+				Endpoint_ClearSetupReceived();
+				
+				/* Write the current idle duration to the host */
+				Endpoint_Write_Byte(IdleCount);
+				
+				/* Send the flag to the host */
+				Endpoint_ClearSetupIN();
+			}
+
+			break;
 	}
+}
+
+ISR(TIMER0_COMPA_vect, ISR_BLOCK)
+{
+	/* One millisecond has elapsed, decrement the idle time remaining counter if it has not already elapsed */
+	if (IdleMSRemaining)
+	  IdleMSRemaining--;
+}
+
+bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
+{
+	static uint8_t PrevJoyStatus = 0;
+	uint8_t        JoyStatus_LCL        = Joystick_GetStatus();
+	bool           InputChanged         = false;
+
+	/* Clear the report contents */
+	memset(ReportData, 0, sizeof(USB_KeyboardReport_Data_t));
+
+	if (JoyStatus_LCL & JOY_UP)
+	  ReportData->KeyCode[0] = 0x04; // A
+	else if (JoyStatus_LCL & JOY_DOWN)
+	  ReportData->KeyCode[0] = 0x05; // B
+
+	if (JoyStatus_LCL & JOY_LEFT)
+	  ReportData->KeyCode[0] = 0x06; // C
+	else if (JoyStatus_LCL & JOY_RIGHT)
+	  ReportData->KeyCode[0] = 0x07; // D
+
+	if (JoyStatus_LCL & JOY_PRESS)
+	  ReportData->KeyCode[0] = 0x08; // E
+	  
+	/* Check if the new report is different to the previous report */
+	InputChanged = PrevJoyStatus ^ JoyStatus_LCL;
+
+	/* Save the current joystick status for later comparison */
+	PrevJoyStatus = JoyStatus_LCL;
+
+	/* Return whether the new report is different to the previous report or not */
+	return InputChanged;
+}
+
+void ProcessLEDReport(uint8_t LEDReport)
+{
+	uint8_t LEDMask   = LEDS_LED2;
+	
+	if (LEDReport & 0x01) // NUM Lock
+	  LEDMask |= LEDS_LED1;
+	
+	if (LEDReport & 0x02) // CAPS Lock
+	  LEDMask |= LEDS_LED3;
+
+	if (LEDReport & 0x04) // SCROLL Lock
+	  LEDMask |= LEDS_LED4;
+
+	/* Set the status LEDs to the current Keyboard LED status */
+	LEDs_SetAllLEDs(LEDMask);
 }
 
 TASK(USB_Keyboard_Report)
 {
-	uint8_t JoyStatus_LCL = Joystick_GetStatus();
-
-	if (JoyStatus_LCL & JOY_UP)
-	  KeyboardReportData.KeyCode[0] = 0x04; // A
-	else if (JoyStatus_LCL & JOY_DOWN)
-	  KeyboardReportData.KeyCode[0] = 0x05; // B
-
-	if (JoyStatus_LCL & JOY_LEFT)
-	  KeyboardReportData.KeyCode[0] = 0x06; // C
-	else if (JoyStatus_LCL & JOY_RIGHT)
-	  KeyboardReportData.KeyCode[0] = 0x07; // D
-
-	if (JoyStatus_LCL & JOY_PRESS)
-	  KeyboardReportData.KeyCode[0] = 0x08; // E
-
-	/* Check if the USB system is connected to a host and report protocol mode is enabled */
-	if (USB_IsConnected && UsingReportProtocol)
+	USB_KeyboardReport_Data_t KeyboardReportData;
+	bool                      SendReport;
+	
+	/* Create the next keyboard report for transmission to the host */
+	SendReport = GetNextReport(&KeyboardReportData);
+	
+	/* Check if the idle period is set and has elapsed */
+	if (IdleCount && !(IdleMSRemaining))
+	{
+		/* Idle period elapsed, indicate that a report must be sent */
+		SendReport = true;
+		
+		/* Reset the idle time remaining counter, must multiply by 4 to get the duration in milliseconds */
+		IdleMSRemaining = (IdleCount << 2);
+	}
+	
+	/* Check if the USB system is connected to a host */
+	if (USB_IsConnected)
 	{
 		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
-		/* Check if Keyboard Endpoint Ready for Read/Write */
-		if (Endpoint_ReadWriteAllowed())
+		/* Check if Keyboard Endpoint Ready for Read/Write, and if we should send a report */
+		if (Endpoint_ReadWriteAllowed() && SendReport)
 		{
 			/* Write Keyboard Report Data */
 			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
 
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_ClearCurrentBank();
-			
-			/* Clear the report data afterwards */
-			memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
 		}
 
 		/* Select the Keyboard LED Report Endpoint */
@@ -288,19 +372,9 @@ TASK(USB_Keyboard_Report)
 		{
 			/* Read in the LED report from the host */
 			uint8_t LEDStatus = Endpoint_Read_Byte();
-			uint8_t LEDMask   = LEDS_LED2;
-			
-			if (LEDStatus & 0x01) // NUM Lock
-			  LEDMask |= LEDS_LED1;
-			
-			if (LEDStatus & 0x02) // CAPS Lock
-			  LEDMask |= LEDS_LED3;
 
-			if (LEDStatus & 0x04) // SCROLL Lock
-			  LEDMask |= LEDS_LED4;
-
-			/* Set the status LEDs to the current Keyboard LED status */
-			LEDs_SetAllLEDs(LEDMask);
+			/* Process the incomming LED report */
+			ProcessLEDReport(LEDStatus);
 
 			/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
 			Endpoint_ClearCurrentBank();

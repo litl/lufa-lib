@@ -110,7 +110,8 @@
  *
  *  \subsection SSec_MCU The MCU Parameter
  *  This parameter indicates the target AVR model for the compiled application. This should be set to the model of the target AVR
- *  (such as the AT90USB1287, or the ATMEGA32U4), in all lower-case.
+ *  (such as the AT90USB1287, or the ATMEGA32U4), in all lower-case (e.g. "at90usb1287"). Note that not all demos support all the
+ *  USB AVR models, as they may make use of peripherals or modes only present in some devices.
  *
  *  For supported library AVR models, see main documentation page.
  *
@@ -151,11 +152,17 @@
  *  This means that while a build inside a particular demo directory will build only that particular demo, a build stated
  *  from the /Demos/ directory will build all MyUSB demo projects sequentially.
  *
- *  To build a project from the source, the command <b>"make all"</b> should be executed from the command line in the directory
+ *  \subsection SSec_CommandLine Via the Command Line
+ *  To build a project from the source via the command line, the command <b>"make all"</b> should be executed from the command line in the directory
  *  of interest. To remove compiled files (including the binary output, all intermediatary files and all diagnostic output
  *  files), execute <b>"make clean"</b>. Once a "make all" has been run and no errors were encountered, the resulting binary will
  *  be located in the generated ".HEX" file. If your project makes use of pre-initialized EEPROM variables, the generated ".EEP"
  *  file will contain the project's EEPROM data.
+ *
+ *  \subsection SSec_AVRStudio Via AVRStudio
+ *  Each demo, project and bootloader contains an AVRStudio project (.aps) which can be used to build each project. Once opened
+ *  in AVRStudio, the project can be built and cleaned using the GUI buttons or menus. Note that the AVRStudio project files make
+ *  use of the external project makefile, thus the procedure for configuring a demo remains the same regardless of the build environment.
  *
  *  \section Sec_Programming Programming a USB AVR
  *  Once you have built an application, you will need a way to program in the resulting ".HEX" file (and, if your

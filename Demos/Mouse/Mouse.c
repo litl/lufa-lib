@@ -31,7 +31,9 @@
 /*
 	Mouse demonstration application. This gives a simple reference
 	application for implementing a USB Mouse using the basic USB HID
-	drivers in all modern OSes (i.e. no special drivers required).
+	drivers in all modern OSes (i.e. no special drivers required). It is
+	boot protocol compatible, and thus works under compatible BIOS as if
+	it was a native mouse (e.g. PS/2).
 	
 	On startup the system will automatically enumerate and function
 	as a mouse when the USB connection to a host is present. To use
@@ -65,8 +67,9 @@ TASK_LIST
 };
 
 /* Global Variables */
-USB_MouseReport_Data_t MouseReportData     = {Button: 0, X: 0, Y: 0};
-bool                   UsingReportProtocol = true;
+bool      UsingReportProtocol = true;
+uint8_t   IdleCount           = 0;
+uint16_t  IdleMSRemaining     = 0;
 
 
 int main(void)
@@ -83,6 +86,12 @@ int main(void)
 	LEDs_Init();
 	HWB_Init();
 	
+	/* Millisecond timer initialization, with output compare interrupt enabled for the idle timing */
+	OCR0A  = 0x7D;
+	TCCR0A = (1 << WGM01);
+	TCCR0B = ((1 << CS01) | (1 << CS00));
+	TIMSK0 = (1 << OCIE0A);
+
 	/* Indicate USB not ready */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
@@ -140,6 +149,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case REQ_GetReport:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				USB_MouseReport_Data_t MouseReportData;
+
+				/* Create the next mouse report for transmission to the host */
+				GetNextReport(&MouseReportData);
+
 				/* Ignore report type and ID number value */
 				Endpoint_Discard_Word();
 				
@@ -195,46 +209,107 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			
 			break;
+		case REQ_SetIdle:
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Read in the wValue parameter containing the idle period */
+				uint16_t wValue = Endpoint_Read_Word_LE();
+				
+				Endpoint_ClearSetupReceived();
+				
+				/* Get idle period in MSB */
+				IdleCount = (wValue >> 8);
+				
+				/* Send an empty packet to acknowedge the command */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
+		case REQ_GetIdle:
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{		
+				Endpoint_ClearSetupReceived();
+				
+				/* Write the current idle duration to the host */
+				Endpoint_Write_Byte(IdleCount);
+				
+				/* Send the flag to the host */
+				Endpoint_ClearSetupIN();
+			}
+
+			break;
 	}
+}
+
+ISR(TIMER0_COMPA_vect, ISR_BLOCK)
+{
+	/* One millisecond has elapsed, decrement the idle time remaining counter if it has not already elapsed */
+	if (IdleMSRemaining)
+	  IdleMSRemaining--;
+}
+
+void GetNextReport(USB_MouseReport_Data_t* ReportData)
+{
+	uint8_t JoyStatus_LCL = Joystick_GetStatus();
+
+	/* Clear the report contents */
+	memset(ReportData, 0, sizeof(USB_MouseReport_Data_t));
+
+	if (JoyStatus_LCL & JOY_UP)
+	  ReportData->Y =  1;
+	else if (JoyStatus_LCL & JOY_DOWN)
+	  ReportData->Y = -1;
+
+	if (JoyStatus_LCL & JOY_RIGHT)
+	  ReportData->X =  1;
+	else if (JoyStatus_LCL & JOY_LEFT)
+	  ReportData->X = -1;
+
+	if (JoyStatus_LCL & JOY_PRESS)
+	  ReportData->Button  = (1 << 0);
+	  
+	if (HWB_GetStatus())
+	  ReportData->Button |= (1 << 1);	  
 }
 
 TASK(USB_Mouse_Report)
 {
-	uint8_t JoyStatus_LCL = Joystick_GetStatus();
-
-	if (JoyStatus_LCL & JOY_UP)
-	  MouseReportData.Y =  1;
-	else if (JoyStatus_LCL & JOY_DOWN)
-	  MouseReportData.Y = -1;
-
-	if (JoyStatus_LCL & JOY_RIGHT)
-	  MouseReportData.X =  1;
-	else if (JoyStatus_LCL & JOY_LEFT)
-	  MouseReportData.X = -1;
-
-	if (JoyStatus_LCL & JOY_PRESS)
-	  MouseReportData.Button  = (1 << 0);
-	  
-	if (HWB_GetStatus())
-	  MouseReportData.Button |= (1 << 1);
-
-	/* Check if the USB system is connected to a host and report protocol mode is enabled */
-	if (USB_IsConnected && UsingReportProtocol)
+	USB_MouseReport_Data_t MouseReportData;
+	bool                   SendReport = true;
+	
+	/* Create the next mouse report for transmission to the host */
+	GetNextReport(&MouseReportData);
+	
+	/* Check if the idle period is set*/
+	if (IdleCount)
+	{
+		/* Determine if the idle period has elapsed */
+		if (!(IdleMSRemaining))
+		{
+			/* Reset the idle time remaining counter, must multiply by 4 to get the duration in milliseconds */
+			IdleMSRemaining = (IdleCount << 2);		
+		}
+		else
+		{
+			/* Idle period not elapsed, indicate that a report must not be sent */
+			SendReport = false;
+		}
+	}
+	
+	/* Check if the USB system is connected to a host */
+	if (USB_IsConnected)
 	{
 		/* Select the Mouse Report Endpoint */
 		Endpoint_SelectEndpoint(MOUSE_EPNUM);
 
-		/* Check if Mouse Endpoint Ready for Read/Write */
-		if (Endpoint_ReadWriteAllowed())
+		/* Check if Mouse Endpoint Ready for Read/Write and if we should send a new report */
+		if (Endpoint_ReadWriteAllowed() && SendReport)
 		{
 			/* Write Mouse Report Data */
 			Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData));
 			
 			/* Handshake the IN Endpoint - send the data to the host */
 			Endpoint_ClearCurrentBank();
-			
-			/* Clear the report data afterwards */
-			memset(&MouseReportData, 0, sizeof(MouseReportData));
 		}
 	}
 }

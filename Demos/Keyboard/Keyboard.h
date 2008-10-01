@@ -41,6 +41,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <avr/interrupt.h>
 		#include <stdbool.h>
 		#include <string.h>
 
@@ -58,7 +59,9 @@
 
 	/* Macros: */
 		#define REQ_GetReport      0x01
+		#define REQ_GetIdle        0x02
 		#define REQ_SetReport      0x09
+		#define REQ_SetIdle        0x0A
 		#define REQ_GetProtocol    0x03
 		#define REQ_SetProtocol    0x0B
 		
@@ -75,5 +78,9 @@
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
+		
+	/* Function Prototypes: */
+		bool GetNextReport(USB_KeyboardReport_Data_t* ReportData);
+		void ProcessLEDReport(uint8_t LEDReport);
 
 #endif

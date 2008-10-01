@@ -3,9 +3,8 @@ Changelog for MyUSB:
 
 	FUTURE TODO:
 		1) Mass Storage app compliance
-		2) HID Boot not enumerating one some machines
-		3) Auto-detect clock frequency via watchdog
-		5) Demos documentation
+		2) Auto-detect clock frequency via watchdog
+		3) Demos documentation
 
 	Version 1.5.3 - UNRELEASED:
 	--------------------------------------------

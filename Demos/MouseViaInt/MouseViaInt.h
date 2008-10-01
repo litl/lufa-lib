@@ -46,10 +46,12 @@
 		#include <MyUSB/Drivers/Board/Joystick.h>     // Joystick driver
 		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
 		#include <MyUSB/Drivers/Board/HWB.h>          // Hardware Button driver
-		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
-
+		
 	/* Macros: */
 		#define REQ_GetReport      0x01
+		#define REQ_GetIdle        0x02
+		#define REQ_SetReport      0x09
+		#define REQ_SetIdle        0x0A
 		#define REQ_GetProtocol    0x03
 		#define REQ_SetProtocol    0x0B
 
@@ -66,5 +68,8 @@
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
 		HANDLES_EVENT(USB_UnhandledControlPacket);
+
+	/* Function Prototypes: */
+		bool GetNextReport(USB_MouseReport_Data_t* ReportData);
 		
 #endif

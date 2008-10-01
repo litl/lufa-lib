@@ -34,6 +34,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <avr/interrupt.h>
 		#include <stdbool.h>
 		#include <string.h>
 		
@@ -45,12 +46,15 @@
 		#include <MyUSB/Drivers/Board/Joystick.h>     // Joystick driver
 		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
 		#include <MyUSB/Drivers/Board/HWB.h>          // Hardware Button driver
-		
+
 	/* Macros: */
 		#define REQ_GetReport      0x01
+		#define REQ_GetIdle        0x02
+		#define REQ_SetReport      0x09
+		#define REQ_SetIdle        0x0A
 		#define REQ_GetProtocol    0x03
 		#define REQ_SetProtocol    0x0B
-		
+
 	/* Type Defines: */
 		typedef struct
 		{
@@ -61,8 +65,11 @@
 			
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
-		HANDLES_EVENT(USB_Reset);
 		HANDLES_EVENT(USB_Disconnect);
 		HANDLES_EVENT(USB_ConfigurationChanged);
+		HANDLES_EVENT(USB_UnhandledControlPacket);
+
+	/* Function Prototypes: */
+		bool GetNextReport(USB_MouseReport_Data_t* ReportData);
 
 #endif
