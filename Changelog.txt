@@ -1,12 +1,7 @@
 Changelog for MyUSB:
 =======================================
 
-	FUTURE TODO:
-		1) Mass Storage app compliance
-		2) Auto-detect clock frequency via watchdog
-		3) Demos documentation
-
-	Version 1.5.3 - UNRELEASED:
+	Version 1.5.3 - Released 2nd October, 2008:
 	--------------------------------------------
 		* Fixed CDC bootloader using pgmspace macros for some descriptors inappropriately
 		* Updated all Mouse and Keyboard device demos to include boot protocol support (now works in BIOS)
@@ -31,7 +26,8 @@ Changelog for MyUSB:
 		  not have a valid configuration descriptor header
 		* Added Endpoint_WaitUntilReady() and Pipe_WaitUntilReady() functions
 		* Stream functions now have software timeouts, timeout period can be set by the USB_STREAM_TIMEOUT_MS token
-		* All demos now pass the USB.org automated device compliant tests (Chapter 9, HID, Mass Storage)
+		* All demos now pass the USB.org automated Chapter 9 device compliance tests
+		* All HID demos now pass the USB.org automated HID compliance tests
 		* Polling interval of the interrupt endpoint in the CDC based demos changed to 0xFF to fix problems on Linux systems
 		* Changed stream functions to accept a new callback function, with NO_STREAM_CALLBACKS used to disable all callbacks
 		* Mass Storage demo dataflash management routines changed to use the endpoint stream functions		

@@ -311,18 +311,18 @@ ISR(ENDPOINT_PIPE_vect)
 			}
 		}
 		
-		/* Select the Mouse Report Endpoint */
-		Endpoint_SelectEndpoint(MOUSE_EPNUM);
-
-		/* Clear the endpoint IN interrupt flag */
-		USB_INT_Clear(ENDPOINT_INT_IN);
-
-		/* Clear the Mouse Report endpoint interrupt and select the endpoint */
-		Endpoint_ClearEndpointInterrupt(MOUSE_EPNUM);
-
 		/* Check to see if a report should be issued */
 		if (SendReport)
 		{
+			/* Select the Mouse Report Endpoint */
+			Endpoint_SelectEndpoint(MOUSE_EPNUM);
+
+			/* Clear the endpoint IN interrupt flag */
+			USB_INT_Clear(ENDPOINT_INT_IN);
+
+			/* Clear the Mouse Report endpoint interrupt and select the endpoint */
+			Endpoint_ClearEndpointInterrupt(MOUSE_EPNUM);
+
 			/* Write Mouse Report Data */
 			Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData));
 		}

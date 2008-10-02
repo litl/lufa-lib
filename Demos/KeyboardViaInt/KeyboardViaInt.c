@@ -355,18 +355,18 @@ ISR(ENDPOINT_PIPE_vect)
 			IdleMSRemaining = (IdleCount << 2);
 		}
 	
-		/* Select the Keyboard Report Endpoint */
-		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
-
-		/* Clear the endpoint IN interrupt flag */
-		USB_INT_Clear(ENDPOINT_INT_IN);
-
-		/* Clear the Keyboard Report endpoint interrupt */
-		Endpoint_ClearEndpointInterrupt(KEYBOARD_EPNUM);
-
 		/* Check to see if a report should be issued */
 		if (SendReport)
 		{
+			/* Select the Keyboard Report Endpoint */
+			Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
+
+			/* Clear the endpoint IN interrupt flag */
+			USB_INT_Clear(ENDPOINT_INT_IN);
+
+			/* Clear the Keyboard Report endpoint interrupt */
+			Endpoint_ClearEndpointInterrupt(KEYBOARD_EPNUM);
+
 			/* Write Keyboard Report Data */
 			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
 		}
