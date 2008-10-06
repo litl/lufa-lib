@@ -33,20 +33,32 @@
 	NOTE: The user of this include file MUST define the following macros
 	prior to including the file:
 
-	MAG_DATA_PIN    Pin connected to data wire (ie. PORTC0)
-	MAG_CLOCK_PIN   Pin connected to clock wire (ie. PORTC3)
-	MAG_CLS_PIN     Pin connected to card loaded wire (ie. PORTC4)
-	MAG_PIN         PIN macro for the reader's port (ie. PINC)
-	MAG_DDR         DDR macro for the reader's port (ie. DDRC)
-	MAG_PORT        PORT macro for the reader's port (ie. PORTC)
+	MAG_T1_CLOCK_PIN   Pin connected to Track 1 clock wire (ie. PORTC1)
+	MAG_T1_DATA_PIN    Pin connected to Track 1 data wire (ie. PORTC2)
+	MAG_T2_CLOCK_PIN   Pin connected to Track 2 clock wire (ie. PORTC3)
+	MAG_T2_DATA_PIN    Pin connected to Track 2 data wire (ie. PORTC0)
+	MAG_T3_CLOCK_PIN   Pin connected to Track 3 clock wire (ie. PORTC5)
+	MAG_T3_DATA_PIN    Pin connected to Track 3 data wire (ie. PORTC6)
+	MAG_CLS_PIN        Pin connected to card loaded wire (ie. PORTC4)
+	MAG_PIN            PIN macro for the reader's port (ie. PINC)
+	MAG_DDR            DDR macro for the reader's port (ie. DDRC)
+	MAG_PORT           PORT macro for the reader's port (ie. PORTC)
 
-	The example macros listed above assumed that the data wire is connected
-	to pin 0 on port C, the clock wire is connected to pin 3 on port C, and
-	the card loaded wire is connected to pin 4 on port C.
+	The example macros listed above assume that the Track 2 data wire is
+	connected to pin 0 on port C, the Track 2 clock wire is connected to
+	pin 3 on port C (similarly for Tracks 1 and 3), and the card loaded
+	wire is connected to pin 4 on port C.
 
-	Connecting wires to pins on different ports (ie. data wire to pin 0 on
-	port C and clock wire to pin 0 on port D) is currently unsupported.  All
-	wires must be connected to the same port.
+	If the magstripe reader you are using only reads one or two tracks,
+	then set the clock and data pins for the tracks it doesn't read to a
+	pin that is unused.  For example, on the AT90USBKey, any of the pins on
+	port C that do not have wires attached will be unused since they are
+	not connected to any onboard devices (such as the joystick or
+	temperature sensor).
+
+	Connecting wires to pins on different ports (ie. a data wire to pin 0
+	on port C and a clock wire to pin 0 on port D) is currently
+	unsupported.  All pins specified above must be on the same port.
 */
 
 #ifndef _MAGSTRIPEHW_H_
@@ -59,13 +71,20 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
-			#define MAG_MASK    (MAG_DATA | MAG_CLOCK | MAG_CLS)
+			#define MAG_MASK    (MAG_T1_DATA | MAG_T1_CLOCK | \
+					     MAG_T2_DATA | MAG_T2_CLOCK | \
+					     MAG_T3_DATA | MAG_T3_CLOCK | \
+					     MAG_CLS)
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			#define MAG_DATA    (1 << MAG_DATA_PIN)
-			#define MAG_CLOCK   (1 << MAG_CLOCK_PIN)
-			#define MAG_CLS     (1 << MAG_CLS_PIN)
+			#define MAG_T1_DATA    (1 << MAG_T1_DATA_PIN)
+			#define MAG_T1_CLOCK   (1 << MAG_T1_CLOCK_PIN)
+			#define MAG_T2_DATA    (1 << MAG_T2_DATA_PIN)
+			#define MAG_T2_CLOCK   (1 << MAG_T2_CLOCK_PIN)
+			#define MAG_T3_DATA    (1 << MAG_T3_DATA_PIN)
+			#define MAG_T3_CLOCK   (1 << MAG_T3_CLOCK_PIN)
+			#define MAG_CLS        (1 << MAG_CLS_PIN)
 
 		/* Inline Functions: */
 			static inline void Magstripe_Init(void)

@@ -1,4 +1,12 @@
 /*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2008.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+*/
+
+/*
   Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
 
   Permission to use, copy, modify, and distribute this software
@@ -21,12 +29,10 @@
 */
 
 /*
-	Demonstration application for a TTL magnetic stripe reader (such as the
-	Omron V3B-4K) by Denver Gingerich. See http://ossguy.com/ss_usb/ for the
-	demonstration project website, including construction and support details.
+	Keyboard demonstration application by Denver Gingerich.
 
-	This example is based on the MyUSB Keyboard demonstration application,
-	written by Denver Gingerich.
+	This example is based on the MyUSB Mouse demonstration application,
+	written by Dean Camera.
 */
 
 #ifndef _DESCRIPTORS_H_
@@ -59,14 +65,20 @@
 			USB_Descriptor_Interface_t            Interface;
 			USB_Descriptor_HID_t                  KeyboardHID;
 	        USB_Descriptor_Endpoint_t             KeyboardEndpoint;
+	        USB_Descriptor_Endpoint_t             KeyboardLEDsEndpoint;
 		} USB_Descriptor_Configuration_t;
 					
 	/* Macros: */
 		#define KEYBOARD_EPNUM               1
+		#define KEYBOARD_LEDS_EPNUM          2
 		#define KEYBOARD_EPSIZE              8
 
 		#define DTYPE_HID                    0x21
 		#define DTYPE_Report                 0x22
+
+	/* External Variables: */
+		extern USB_Descriptor_HIDReport_Datatype_t KeyboardReport[];
+		extern USB_Descriptor_Configuration_t      ConfigurationDescriptor;
 
 	/* Function Prototypes: */
 		bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,

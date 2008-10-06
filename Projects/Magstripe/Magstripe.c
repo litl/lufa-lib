@@ -1,4 +1,12 @@
 /*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2008.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+*/
+
+/*
   Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
 
   Permission to use, copy, modify, and distribute this software
@@ -58,7 +66,7 @@
 #include "Magstripe.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB Magstripe App");
+BUTTLOADTAG(ProjName,     "Magstripe Reader");
 BUTTLOADTAG(BuildTime,    __TIME__);
 BUTTLOADTAG(BuildDate,    __DATE__);
 BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
@@ -71,7 +79,9 @@ TASK_LIST
 };
 
 /* Global Variables */
-USB_KeyboardReport_Data_t KeyboardReportData = {Modifier: 0, KeyCode: 0};
+bool      UsingReportProtocol = true;
+uint8_t   IdleCount           = 0;
+uint16_t  IdleMSRemaining     = 0;
 
 
 int main(void)
@@ -87,6 +97,12 @@ int main(void)
 	Magstripe_Init();
 	LEDs_Init();
 	
+	/* Millisecond timer initialization, with output compare interrupt enabled for the idle timing */
+	OCR0A  = 0x7D;
+	TCCR0A = (1 << WGM01);
+	TCCR0B = ((1 << CS01) | (1 << CS00));
+	TIMSK0 = (1 << OCIE0A);
+
 	/* Indicate USB not ready */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 	
@@ -95,7 +111,7 @@ int main(void)
 
 	/* Initialize USB Subsystem */
 	USB_Init();
-
+	
 	/* Scheduling - routine never returns, so put this last in the main function */
 	Scheduler_Start();
 }
@@ -121,13 +137,21 @@ EVENT_HANDLER(USB_Disconnect)
 
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
-	/* Setup Keyboard Report Endpoints */
+	/* Setup Keyboard Keycode Report Endpoint */
 	Endpoint_ConfigureEndpoint(KEYBOARD_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, KEYBOARD_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
 
+	/* Setup Keyboard LED Report Endpoint */
+	Endpoint_ConfigureEndpoint(KEYBOARD_LEDS_EPNUM, EP_TYPE_INTERRUPT,
+		                       ENDPOINT_DIR_OUT, KEYBOARD_EPSIZE,
+	                           ENDPOINT_BANK_SINGLE);
+
 	/* Indicate USB connected and ready */
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
+	
+	/* Default to report protocol on connect */
+	UsingReportProtocol = true;
 
 	/* Start Keyboard reporting task */
 	Scheduler_SetTaskMode(USB_Keyboard_Report, TASK_RUN);
@@ -141,6 +165,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case REQ_GetReport:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				USB_KeyboardReport_Data_t KeyboardReportData;
+
+				/* Create the next keyboard report for transmission to the host */
+				GetNextReport(&KeyboardReportData);
+
 				/* Ignore report type and ID number value */
 				Endpoint_Discard_Word();
 				
@@ -156,9 +185,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 				Endpoint_ClearSetupReceived();
 	
-				/* Clear the report data before sending - only normal requests give proper data */
-				memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
-
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&KeyboardReportData, wLength);
 				
@@ -167,81 +193,311 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 		
 			break;
+		case REQ_SetReport:
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
+				
+				/* Wait until the LED report has been sent by the host */
+				while (!(Endpoint_IsSetupOUTReceived()));
+
+				/* Read in the LED report from the host */
+				uint8_t LEDStatus = Endpoint_Read_Byte();
+
+				/* Process the incomming LED report */
+				ProcessLEDReport(LEDStatus);
+			
+				/* Clear the endpoint data */
+				Endpoint_ClearSetupOUT();
+
+				/* Wait until the host is ready to receive the request confirmation */
+				while (!(Endpoint_IsSetupINReady()));
+				
+				/* Handshake the request by sending an empty IN packet */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
+		case REQ_GetProtocol:
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSetupReceived();
+				
+				/* Write the current protocol flag to the host */
+				Endpoint_Write_Byte(UsingReportProtocol);
+				
+				/* Send the flag to the host */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
+		case REQ_SetProtocol:
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Read in the wValue parameter containing the new protocol mode */
+				uint16_t wValue = Endpoint_Read_Word_LE();
+				
+				/* Set or clear the flag depending on what the host indicates that the current Protocol should be */
+				UsingReportProtocol = (wValue != 0x0000);
+				
+				Endpoint_ClearSetupReceived();
+
+				/* Send an empty packet to acknowedge the command */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
+		case REQ_SetIdle:
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				/* Read in the wValue parameter containing the idle period */
+				uint16_t wValue = Endpoint_Read_Word_LE();
+				
+				Endpoint_ClearSetupReceived();
+				
+				/* Get idle period in MSB */
+				IdleCount = (wValue >> 8);
+				
+				/* Send an empty packet to acknowedge the command */
+				Endpoint_ClearSetupIN();
+			}
+			
+			break;
+		case REQ_GetIdle:
+			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{		
+				Endpoint_ClearSetupReceived();
+				
+				/* Write the current idle duration to the host */
+				Endpoint_Write_Byte(IdleCount);
+				
+				/* Send the flag to the host */
+				Endpoint_ClearSetupIN();
+			}
+
+			break;
 	}
+}
+
+ISR(TIMER0_COMPA_vect, ISR_BLOCK)
+{
+	/* One millisecond has elapsed, decrement the idle time remaining counter if it has not already elapsed */
+	if (IdleMSRemaining)
+	  IdleMSRemaining--;
+}
+
+bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
+{
+	static uint8_t PrevMagStatus = 0;
+	uint8_t        MagStatus_LCL = Magstripe_GetStatus();
+	bool           InputChanged  = false;
+
+	/* Clear the report contents */
+	memset(ReportData, 0, sizeof(USB_KeyboardReport_Data_t));
+	  
+	/* Check if the new report is different to the previous report */
+	InputChanged = PrevMagStatus ^ MagStatus_LCL;
+
+	/* Save the current magstripe status for later comparison */
+	PrevMagStatus = MagStatus_LCL;
+
+	/* Return whether the new report is different to the previous report or not */
+	return InputChanged;
+}
+
+void ProcessLEDReport(uint8_t LEDReport)
+{
+	uint8_t LEDMask   = LEDS_LED2;
+	
+	if (LEDReport & 0x01) // NUM Lock
+	  LEDMask |= LEDS_LED1;
+	
+	if (LEDReport & 0x02) // CAPS Lock
+	  LEDMask |= LEDS_LED3;
+
+	if (LEDReport & 0x04) // SCROLL Lock
+	  LEDMask |= LEDS_LED4;
+
+	/* Set the status LEDs to the current Keyboard LED status */
+	LEDs_SetAllLEDs(LEDMask);
 }
 
 TASK(USB_Keyboard_Report)
 {
-	uint8_t        MagStatus_LCL       = Magstripe_GetStatus();	
-	uint16_t       StripeDataLen       = 0;
-	static uint8_t StripeData[DATA_LENGTH];
+	USB_KeyboardReport_Data_t KeyboardReportData;
+	bool                      SendReport;
+	
+	uint8_t MagStatus_LCL = Magstripe_GetStatus();
 
-	/* Abort task if no card inserted */
+	bool T1_StrobeFired = false;
+	uint8_t T1_Bits[T1_MAX_BITS];
+	uint16_t T1_NumBits = 0;
+
+	bool T2_StrobeFired = false;
+	uint8_t T2_Bits[T2_MAX_BITS];
+	uint16_t T2_NumBits = 0;
+
+	bool T3_StrobeFired = false;
+	uint8_t T3_Bits[T3_MAX_BITS];
+	uint16_t T3_NumBits = 0;
+
+	/* Create the next keyboard report for transmission to the host */
+	SendReport = GetNextReport(&KeyboardReportData);
+	Send(&KeyboardReportData, SendReport);
+	_delay_ms(2);
+
+	/* Check if a card is present, abort if no card inserted into the reader */
 	if (!(MagStatus_LCL & MAG_CLS))
-	{
-		/* Indicate no key press to the host */
-		Keyboard_SendKeyReport(0);
+	  return;
 
-		return;
-	}
-
-	/* While card is inserted, read the data */
 	while (MagStatus_LCL & MAG_CLS)
 	{
-		/* Read card reader pins until clock pin becomes high or the card is removed */
-		do
-		{
-			MagStatus_LCL = Magstripe_GetStatus();
-		} while ((MagStatus_LCL & MAG_CLOCK) && (MagStatus_LCL & MAG_CLS));
+		/* get current magstripe reader pin state */
+		MagStatus_LCL = Magstripe_GetStatus();
 
-		/* Abort if card has been removed */
-		if (!(MagStatus_LCL & MAG_CLS))
-		  break;
+		/* Track 1 */
+		if ( (MagStatus_LCL & MAG_T1_CLOCK) /* if t1_strobe low */
+			 && !T1_StrobeFired ) {         /*  and !t1_strobe_fired */
+				if (MagStatus_LCL & MAG_T1_DATA) { /* if t1_data low */
+				  T1_Bits[T1_NumBits] = KEY_1;
+				} else {
+				  T1_Bits[T1_NumBits] = KEY_0;
+				}
 
-		/* Data bit sucessfully retrieved, load the keyboard key code into the buffer */
-		StripeData[StripeDataLen++] = ((!(MagStatus_LCL & MAG_DATA)) ? 39 : 30);
-		
-		/* If buffer full, go back to the beginning */
-		StripeDataLen %= DATA_LENGTH;
+				T1_NumBits = (T1_NumBits + 1) % T1_MAX_BITS;
+				T1_StrobeFired = true;
 
-		/* Read card reader pins until clock pin becomes low or the card is removed */
-		do
-		{
-			MagStatus_LCL = Magstripe_GetStatus();
-		} while (!(MagStatus_LCL & MAG_CLOCK) && (MagStatus_LCL & MAG_CLS));
+		} else if ( !(MagStatus_LCL & MAG_T1_CLOCK) ) {
+				/* if t1_strobe high */
+				T1_StrobeFired = false;
+		}
+
+		/* Track 2 */
+		if ( (MagStatus_LCL & MAG_T2_CLOCK) /* if t2_strobe low */
+			 && !T2_StrobeFired ) {         /*  and !t2_strobe_fired */
+				if (MagStatus_LCL & MAG_T2_DATA) { /* if t2_data low */
+				  T2_Bits[T2_NumBits] = KEY_1;
+				} else {
+				  T2_Bits[T2_NumBits] = KEY_0;
+				}
+
+				T2_NumBits = (T2_NumBits + 1) % T2_MAX_BITS;
+				T2_StrobeFired = true;
+
+		} else if ( !(MagStatus_LCL & MAG_T2_CLOCK) ) {
+				/* if t2_strobe high */
+				T2_StrobeFired = false;
+		}
+
+		/* Track 3 */
+		if ( (MagStatus_LCL & MAG_T3_CLOCK) /* if t3_strobe low */
+			 && !T3_StrobeFired ) {         /*  and !t3_strobe_fired */
+				if (MagStatus_LCL & MAG_T3_DATA) { /* if t3_data low */
+				  T3_Bits[T3_NumBits] = KEY_1;
+				} else {
+				  T3_Bits[T3_NumBits] = KEY_0;
+				}
+
+				T3_NumBits = (T3_NumBits + 1) % T3_MAX_BITS;
+				T3_StrobeFired = true;
+
+		} else if ( !(MagStatus_LCL & MAG_T3_CLOCK) ) {
+				/* if t1_strobe high */
+				T3_StrobeFired = false;
+		}
 	}
 
-	/* Send the decoded card data from the buffer to the host as a stream of keyboard keycodes */
-	for (uint8_t i = 0; i < StripeDataLen; i++)
+	/* type Track 1 */
+	for (uint16_t i = 0; i < T1_NumBits; i++)
 	{
-		Keyboard_SendKeyReport(StripeData[i]);
-		Keyboard_SendKeyReport(0);
+		SendKey(&KeyboardReportData, T1_Bits[i]);
+
+		/* send "no event" key; this is required so that the OS does
+		 * not ignore multiple keypresses of the same key (which is
+		 * what occurs when you hold down a key - the OS has a repeat
+		 * delay to prevent it from immediately repeating the key)
+		 */
+		SendKey(&KeyboardReportData, KEY_NO_EVENT);
 	}
 
-	/* Terminate data with a newline (return) keycode */
-	Keyboard_SendKeyReport(40); // Enter Key
-	Keyboard_SendKeyReport(0);
+	SendKey(&KeyboardReportData, KEY_ENTER);
+	SendKey(&KeyboardReportData, KEY_NO_EVENT);
+
+	/* type Track 2 */
+	for (uint16_t i = 0; i < T2_NumBits; i++)
+	{
+		SendKey(&KeyboardReportData, T2_Bits[i]);
+		SendKey(&KeyboardReportData, KEY_NO_EVENT);
+	}
+
+	SendKey(&KeyboardReportData, KEY_ENTER);
+	SendKey(&KeyboardReportData, KEY_NO_EVENT);
+
+	/* type Track 3 */
+	for (uint16_t i = 0; i < T3_NumBits; i++)
+	{
+		SendKey(&KeyboardReportData, T3_Bits[i]);
+		SendKey(&KeyboardReportData, KEY_NO_EVENT);
+	}
+
+	SendKey(&KeyboardReportData, KEY_ENTER);
+	SendKey(&KeyboardReportData, KEY_NO_EVENT);
 }
 
-void Keyboard_SendKeyReport(uint8_t KeyCode)
+void SendKey(USB_KeyboardReport_Data_t* KeyboardReportData, uint8_t Key)
 {
-	/* Check if the USB System is connected to a Host */
+	memset(KeyboardReportData, 0, sizeof(USB_KeyboardReport_Data_t));
+	KeyboardReportData->KeyCode[0] = Key;
+	Send(KeyboardReportData, true);
+
+	/* a delay of at least 2ms is required between key events; if a key
+	 * event X happens less than 2ms after key event Y, then key event X
+	 * will be ignored
+	 */
+	_delay_ms(2);
+}	
+
+void Send(USB_KeyboardReport_Data_t* KeyboardReportData, bool SendReport)
+{
+	/* Check if the idle period is set and has elapsed */
+	if (IdleCount && !(IdleMSRemaining))
+	{
+		/* Idle period elapsed, indicate that a report must be sent */
+		SendReport = true;
+		
+		/* Reset the idle time remaining counter, must multiply by 4 to get the duration in milliseconds */
+		IdleMSRemaining = (IdleCount << 2);
+	}
+	
+	/* Check if the USB system is connected to a host */
 	if (USB_IsConnected)
 	{
 		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
-		/* Check if Keyboard Endpoint Ready for Read/Write */
-		if (Endpoint_ReadWriteAllowed())
+		/* Check if Keyboard Endpoint Ready for Read/Write, and if we should send a report */
+		if (Endpoint_ReadWriteAllowed() && SendReport)
 		{
 			/* Write Keyboard Report Data */
-			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
-						
-			/* Clear the report data afterwards */
-			KeyboardReportData.Modifier = 0;
-			KeyboardReportData.KeyCode  = 0;
-			
+			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(USB_KeyboardReport_Data_t));
+
 			/* Handshake the IN Endpoint - send the data to the host */
+			Endpoint_ClearCurrentBank();
+		}
+
+		/* Select the Keyboard LED Report Endpoint */
+		Endpoint_SelectEndpoint(KEYBOARD_LEDS_EPNUM);
+
+		/* Check if Keyboard LED Endpoint Ready for Read/Write */
+		if (Endpoint_ReadWriteAllowed())
+		{
+			/* Read in the LED report from the host */
+			uint8_t LEDStatus = Endpoint_Read_Byte();
+
+			/* Process the incomming LED report */
+			ProcessLEDReport(LEDStatus);
+
+			/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
 			Endpoint_ClearCurrentBank();
 		}
 	}

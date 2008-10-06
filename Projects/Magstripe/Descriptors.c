@@ -1,4 +1,12 @@
 /*
+             MyUSB Library
+     Copyright (C) Dean Camera, 2008.
+              
+  dean [at] fourwalledcubicle [dot] com
+      www.fourwalledcubicle.com
+*/
+
+/*
   Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
 
   Permission to use, copy, modify, and distribute this software
@@ -47,7 +55,16 @@ USB_Descriptor_HIDReport_Datatype_t KeyboardReport[] PROGMEM =
 	0x95, 0x01,          /*   Report Count (1)                              */
 	0x75, 0x08,          /*   Report Size (8)                               */
 	0x81, 0x03,          /*   Input (Const, Variable, Absolute)             */
+	0x95, 0x05,          /*   Report Count (5)                              */
+	0x75, 0x01,          /*   Report Size (1)                               */
+	0x05, 0x08,          /*   Usage Page (LEDs)                             */
+	0x19, 0x01,          /*   Usage Minimum (Num Lock)                      */
+	0x29, 0x05,          /*   Usage Maximum (Kana)                          */
+	0x91, 0x02,          /*   Output (Data, Variable, Absolute)             */
 	0x95, 0x01,          /*   Report Count (1)                              */
+	0x75, 0x03,          /*   Report Size (3)                               */
+	0x91, 0x03,          /*   Output (Const, Variable, Absolute)            */
+	0x95, 0x06,          /*   Report Count (6)                              */
 	0x75, 0x08,          /*   Report Size (8)                               */
 	0x15, 0x00,          /*   Logical Minimum (0)                           */
 	0x25, 0x65,          /*   Logical Maximum (101)                         */
@@ -70,7 +87,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	Endpoint0Size:          8,
 		
 	VendorID:               0x03EB,
-	ProductID:              0x2049,
+	ProductID:              0x2042,
 	ReleaseNumber:          0x0000,
 		
 	ManufacturerStrIndex:   0x01,
@@ -104,11 +121,11 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			InterfaceNumber:        0x00,
 			AlternateSetting:       0x00,
 			
-			TotalEndpoints:         1,
+			TotalEndpoints:         2,
 				
 			Class:                  0x03,
-			SubClass:               0x00,
-			Protocol:               0x00,
+			SubClass:               0x01,
+			Protocol:               0x01,
 				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
@@ -121,18 +138,28 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			CountryCode:            0x00,
 			TotalHIDReports:        0x01,
 			HIDReportType:          DTYPE_Report,
-			HIDReportLength:        sizeof(KeyboardReport)  
+			HIDReportLength:        sizeof(KeyboardReport)
 		},
 		
 	KeyboardEndpoint:
 		{
-			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), 
-			Type: DTYPE_Endpoint},
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+
 			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | KEYBOARD_EPNUM),
 			Attributes:             EP_TYPE_INTERRUPT,
 			EndpointSize:           KEYBOARD_EPSIZE,
 			PollingIntervalMS:      0x02
 		},
+
+	KeyboardLEDsEndpoint:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | KEYBOARD_LEDS_EPNUM),
+			Attributes:             EP_TYPE_INTERRUPT,
+			EndpointSize:           KEYBOARD_EPSIZE,
+			PollingIntervalMS:      0x02
+		}
 };
 
 USB_Descriptor_String_t LanguageString PROGMEM =
