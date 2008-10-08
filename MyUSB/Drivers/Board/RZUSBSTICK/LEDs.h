@@ -54,6 +54,15 @@
 			#error Do not include this file directly. Include MyUSB/Drivers/Board/LEDS.h instead.
 		#endif
 
+	/* Private Interface - For use in library only: */
+	#if !defined(__DOXYGEN__)
+		/* Macros: */
+			#define LEDS_PORTD_LEDS       (LEDS_LED1 | LEDS_LED2)
+			#define LEDS_PORTE_LEDS       (LEDS_LED3 | LEDS_LED4)
+			
+			#define LEDS_PORTE_MASK_SHIFT 4
+	#endif
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			/** LED mask for the first LED on the board. */
@@ -123,15 +132,6 @@
 				        ((~PORTE & (LEDS_PORTE_LEDS << LEDS_PORTE_MASK_SHIFT)) >> LEDS_PORTE_MASK_SHIFT));
 			}
 		#endif
-
-	/* Private Interface - For use in library only: */
-	#if !defined(__DOXYGEN__)
-		/* Macros: */
-			#define LEDS_PORTD_LEDS       (LEDS_LED1 | LEDS_LED2)
-			#define LEDS_PORTE_LEDS       (LEDS_LED3 | LEDS_LED4)
-			
-			#define LEDS_PORTE_MASK_SHIFT 4
-	#endif
 
 	/* Disable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)

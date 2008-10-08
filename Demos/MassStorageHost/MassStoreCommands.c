@@ -52,10 +52,11 @@ static void MassStore_SendCommand(void)
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_ClearCurrentBank();
 
+	/* Some buggy devices require a delay here before the pipe freezing or they will lock up */
+	USB_Host_WaitMS(1);
+
 	/* Freeze pipe after use */
 	Pipe_Freeze();
-
-	USB_Host_WaitMS(1);
 }
 
 static uint8_t MassStore_WaitForDataReceived(void)

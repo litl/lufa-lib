@@ -112,10 +112,16 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 		{
 			while (DataLen)
 			{
-				if (DataLen <= USB_ControlPipeSize)
+				if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(USB_HOST_WAITFOR_OutReady)))
+				  goto End_Of_Control_Send;
+
+				if (DataLen < USB_ControlPipeSize)
 				{
-					while (DataLen--)
-					  Pipe_Write_Byte(*(DataStream++));
+					while (DataLen)
+					{
+						Pipe_Write_Byte(*(DataStream++));
+						DataLen--;
+					}
 				}
 				else
 				{
@@ -125,9 +131,6 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 					DataLen -= USB_ControlPipeSize;
 				}
 				
-				if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(USB_HOST_WAITFOR_OutReady)))
-				  goto End_Of_Control_Send;
-
 				Pipe_ClearSetupOUT();
 			}
 		}

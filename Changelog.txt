@@ -1,6 +1,12 @@
 Changelog for MyUSB:
 =======================================
 
+	Version 1.5.4 - UNRELEASED:
+	--------------------------------------------
+		* Fixed Mass Storage Host demo's MassStore_SendCommand() delay in the incorrect place
+		* Fixed USBtoSerial demo not calling ReconfigureUSART() after a change in the line encoding
+		* Fixed infinite loop in host mode Host-to-Device control transfers with data stages
+
 	Version 1.5.3 - Released 2nd October, 2008:
 	--------------------------------------------
 		* Fixed CDC bootloader using pgmspace macros for some descriptors inappropriately
