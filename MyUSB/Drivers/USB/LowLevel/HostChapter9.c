@@ -87,8 +87,11 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 				if (!(Pipe_BytesInPipe()))
 				  DataLen = 0;
 				
-				while (Pipe_BytesInPipe() && DataLen--)
-				  *(DataStream++) = Pipe_Read_Byte();			
+				while (Pipe_BytesInPipe() && DataLen)
+				{
+					*(DataStream++) = Pipe_Read_Byte();
+					DataLen--;
+				}
 
 				Pipe_Freeze();
 				Pipe_ClearSetupIN();
