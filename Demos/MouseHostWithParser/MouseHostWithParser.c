@@ -40,7 +40,7 @@
 	printed as a formatted list through the USART before the mouse is
 	fully enumerated.
 
-	Currently only single interface mice are supported.	
+	Currently only single interface and single report mice are supported.	
 */
 
 /*

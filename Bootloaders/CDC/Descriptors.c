@@ -39,7 +39,7 @@ USB_Descriptor_Device_t DeviceDescriptor =
 	SubClass:               0x00,
 	Protocol:               0x00,
 				
-	Endpoint0Size:          8,
+	Endpoint0Size:          FIXED_CONTROL_ENDPOINT_SIZE,
 		
 	VendorID:               0x03EB,
 	ProductID:              0x204A,
@@ -183,7 +183,7 @@ USB_Descriptor_String_t ProductString =
 {
 	Header:                 {Size: USB_STRING_LEN(15), Type: DTYPE_String},
 		
-	UnicodeString:          L"AVR CDC BOOTLDR"
+	UnicodeString:          L"AVR CDC Bootloader"
 };
 
 bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,

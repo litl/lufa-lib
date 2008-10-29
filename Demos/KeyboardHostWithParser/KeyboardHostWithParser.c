@@ -40,7 +40,7 @@
 	report items will be processed and printed as a formatted list through the
 	USART before the keyboard is fully enumerated.
 
-	Currently only single interface keyboards are supported.
+	Currently only single interface and single report keyboards are supported.
 */
 
 /*

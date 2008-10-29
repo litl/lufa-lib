@@ -36,8 +36,8 @@
  *  The processed report is presented back to the user application as a flat structure containing each report
  *  item's IN, OUT and FEATURE (if desired) items along with each item's attributes.
  *
- *  This library portion also allows for easy setting and retrieval of data from a HID report. It currently
- *  supports devices with one one single HID report containing multiple items (i.e. no multiple report devices).
+ *  This library portion also allows for easy setting and retrieval of data from a HID report, including devices
+ *  with multiple reports on the one HID interface.
  *
  *  By default, FEATURE reports and IN/OUT reports with constant data are ignored in the HID report when processed
  *  to save on memory. This can be overridden by defining the HID_ENABLE_FEATURE_PROCESSING or
@@ -50,6 +50,7 @@
 
 	/* Includes: */
 		#include <string.h>
+		#include <stdbool.h>
 
 		#include "HIDReportData.h"
 
@@ -174,6 +175,7 @@
 				uint16_t                     BitOffset;      /**< Bit offset in the IN, OUT or FEATURE report of the item. */
 				uint8_t                      ItemType;       /**< Report item type, a value in HID_Types_t. */
 				uint16_t                     ItemFlags;      /**< Item data flags, such as constant/variable, etc. */
+				uint8_t                      ReportID;       /**< Report ID this item belongs to, or 0x00 if device has only one report */
 				HID_CollectionPath_t*        CollectionPath; /**< Collection path of the item. */
 
 				HID_ReportItem_Attributes_t  Attributes;     /**< Report item attributes. */
@@ -212,8 +214,10 @@
 			 *
 			 *  \param ReportData  Buffer containing an IN or FEATURE report from an attached device
 			 *  \param ReportItem  Pointer to the report item of interest in a HID_ReportInfo_t ReportItem array
+			 *
+			 *  \returns Boolean true if the item to retrieve was located in the given report, false otherwise
 			 */
-			void GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
+			bool GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
 			                       ATTR_NON_NULL_PTR_ARG(1, 2);
 
 			/** Retreives the given report item's value out of the Value member of the report item's
@@ -221,10 +225,12 @@
 			 *  buffer. The report buffer is assumed to have the appropriate bits cleared before calling
 			 *  this function (i.e., the buffer should be explicitly cleared before report values are added).
 			 *
+			 *  If the device has multiple HID reports, the report ID is set to the report ID of the given item.
+			 *
 			 *  \param ReportData  Buffer holding the current OUT report data
 			 *  \param ReportItem  Pointer to the report item of interest in a HID_ReportInfo_t ReportItem array
 			 */
-			void SetReportItemInfo(uint8_t* const ReportData, const HID_ReportItem_t* ReportItem)
+			void SetReportItemInfo(uint8_t* ReportData, const HID_ReportItem_t* ReportItem)
 			                       ATTR_NON_NULL_PTR_ARG(1, 2);
 
 	/* Private Interface - For use in library only: */
@@ -234,6 +240,7 @@
 			{
 				 HID_ReportItem_Attributes_t Attributes;
 				 uint8_t                     ReportCount;
+				 uint8_t                     ReportID;
 			} HID_StateTable_t;
 	#endif
 			

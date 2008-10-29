@@ -85,9 +85,11 @@
 			#define ENDPOINT_CONTROLEP                         0
 
 			/** Default size of the default control endpoint's bank, until altered by the Endpoint0Size value 
-			 *  in the device descriptor.
+			 *  in the device descriptor. Not available if the FIXED_CONTROL_ENDPOINT_SIZE token is defined.
 			 */
-			#define ENDPOINT_CONTROLEP_DEFAULT_SIZE            8
+			#if (!defined(FIXED_CONTROL_ENDPOINT_SIZE) || defined(__DOXYGEN__))
+				#define ENDPOINT_CONTROLEP_DEFAULT_SIZE            8
+			#endif
 			
 			/** Endpoint number mask, for masking against endpoint addresses to retrieve the endpoint's
 			 *  numerical address in the device.
@@ -477,10 +479,22 @@
 			 *  0 in the device. This value is set to the value indicated in the device descriptor in the user
 			 *  project once the USB interface is initialized into device mode.
 			 *
+			 *  If space is an issue, it is possible to fix this to a static value by defining the control
+			 *  endpoint size in the FIXED_CONTROL_ENDPOINT_SIZE token passed to the compiler in the makefile
+			 *  via the -D switch. When a fixed control endpoint size is used, the size is no longer dynamically
+			 *  read from the descriptors at runtime and instead fixed to the given value. When used, it is
+			 *  important that the descriptor control endpoint size value matches the size given as the
+			 *  FIXED_CONTROL_ENDPOINT_SIZE token - it is recommended that the FIXED_CONTROL_ENDPOINT_SIZE token
+			 *  be used in the descriptors to ensure this.
+			 *
 			 *  \note This variable should be treated as read-only in the user application, and never manually
 			 *        changed in value.
 			 */
-			extern uint8_t USB_ControlEndpointSize;
+			#if (!defined(FIXED_CONTROL_ENDPOINT_SIZE) || defined(__DOXYGEN__))
+				extern uint8_t USB_ControlEndpointSize;
+			#else
+				#define USB_ControlEndpointSize FIXED_CONTROL_ENDPOINT_SIZE
+			#endif
 
 		/* Function Prototypes: */
 			/** Spinloops until the currently selected non-control endpoint is ready for the next packet of data

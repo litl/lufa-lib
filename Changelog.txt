@@ -6,6 +6,13 @@ Changelog for MyUSB:
 		* Fixed Mass Storage Host demo's MassStore_SendCommand() delay in the incorrect place
 		* Fixed USBtoSerial demo not calling ReconfigureUSART() after a change in the line encoding
 		* Fixed infinite loop in host mode Host-to-Device control transfers with data stages
+		* HID report parser now supports devices with multiple reports in one interface via Report IDs
+		* Fixed RZUSBSTICK board LED driver header incorrect macro definition order causing compile errors
+		* Calling USB_Init() when the USB interface is already configured now forces a complete interface reset
+		  and re-initialization
+		* Fixed "No newline at end of file" warning when stream callbacks are enabled
+		* DFU bootloader now uses fixed signature bytes per device, rather than reading them out dynamically for size
+		* Added new FIXED_CONTROL_ENDPOINT_SIZE switch to statically define the control endpoint size to reduce FLASH size
 
 	Version 1.5.3 - Released 2nd October, 2008:
 	--------------------------------------------

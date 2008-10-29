@@ -49,10 +49,9 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 	if ((ReturnStatus = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
 	  return ReturnStatus;
 
-	Pipe_ClearErrorFlags();
-
 	Pipe_SelectPipe(PIPE_CONTROLPIPE);
 	Pipe_SetToken(PIPE_TOKEN_SETUP);
+	Pipe_ClearErrorFlags();
 	Pipe_ClearSetupSent();
 
 	Pipe_Unfreeze();
@@ -76,7 +75,7 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 		Pipe_SetToken(PIPE_TOKEN_IN);
 		
 		if (DataStream != NULL)
-		{			
+		{
 			while (DataLen)
 			{
 				Pipe_Unfreeze();
@@ -138,6 +137,9 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 			}
 		}
 		
+		if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(USB_HOST_WAITFOR_OutReady)))
+		  goto End_Of_Control_Send;
+
 		Pipe_Freeze();
 		Pipe_SetToken(PIPE_TOKEN_IN);
 		Pipe_Unfreeze();

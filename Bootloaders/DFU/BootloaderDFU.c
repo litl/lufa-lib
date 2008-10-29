@@ -156,9 +156,13 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case DFU_DNLOAD:
 			Endpoint_ClearSetupReceived();
 			
+			/* Check if bootloader is waiting to terminate */
 			if (WaitForExit)
 			{
+				/* Bootloader is terminating - process last recieved command */
 				ProcessBootloaderCommand();
+				
+				/* Indicate that the last command has now been processed - free to exit bootloader */
 				WaitForExit = false;
 			}
 			  
@@ -296,7 +300,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					while (TransfersRemaining && SentCommand.DataSize)
 					{
 						/* Check if endpoint is full - if so clear it and wait until ready for next packet */
-						if (Endpoint_BytesInEndpoint() == CONTROL_ENDPOINT_SIZE)
+						if (Endpoint_BytesInEndpoint() == FIXED_CONTROL_ENDPOINT_SIZE)
 						{
 							Endpoint_ClearSetupIN();
 							while (!(Endpoint_IsSetupINReady()));
@@ -615,23 +619,16 @@ static void ProcessWriteCommand(void)
 static void ProcessReadCommand(void)
 {
 	const uint8_t BootloaderInfo[3] = {BOOTLOADER_VERSION, BOOTLOADER_ID_BYTE1, BOOTLOADER_ID_BYTE2};
+	const uint8_t SignatureInfo[3]  = {SIGNATURE_BYTE_1, SIGNATURE_BYTE_2, SIGNATURE_BYTE_3};
 
-	uint8_t CommandResponse  = 0x00;
-	uint8_t CommandParameter = SentCommand.Data[1];
+	uint8_t DataIndexToRead = SentCommand.Data[1];
 
 	if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x00))                         // Read bootloader info
 	{
-		CommandResponse = BootloaderInfo[CommandParameter];
+		ResponseByte = BootloaderInfo[DataIndexToRead];
 	}
 	else if (IS_ONEBYTE_COMMAND(SentCommand.Data, 0x01))                    // Read signature byte
 	{
-		if (CommandParameter == 0x30)                                       // Read byte 1
-		  CommandResponse = boot_signature_byte_get(0);
-		else if (CommandParameter == 0x31)                                  // Read byte 2
-		  CommandResponse = boot_signature_byte_get(2);
-		else if (CommandParameter == 0x60)                                  // Read byte 3
-		  CommandResponse = boot_signature_byte_get(4);
+		ResponseByte = SignatureInfo[DataIndexToRead - 0x30];
 	}
-	
-	ResponseByte = CommandResponse;
 }

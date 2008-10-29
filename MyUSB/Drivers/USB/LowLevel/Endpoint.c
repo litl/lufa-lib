@@ -33,7 +33,9 @@
 
 #include "Endpoint.h"
 
+#if !defined(FIXED_CONTROL_ENDPOINT_SIZE)
 uint8_t USB_ControlEndpointSize = ENDPOINT_CONTROLEP_DEFAULT_SIZE;
+#endif
 
 void Endpoint_ConfigureEndpoint_P(const uint8_t  EndpointNum,
                                   const uint16_t EndpointSize,
@@ -223,7 +225,7 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length
 }
 
 uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
-								#if !defined(NO_STREAM_CALLBACKS)
+#if !defined(NO_STREAM_CALLBACKS)
                                  , uint8_t (* const Callback)(void)
 #endif
 								 )

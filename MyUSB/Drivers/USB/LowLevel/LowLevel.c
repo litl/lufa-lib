@@ -56,8 +56,7 @@ void USB_Init(
                #endif
                )
 {
-	if (USB_IsInitialized)
-	  USB_ShutDown();
+	USB_ShutDown();
 
 	#if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
 	USB_CurrentMode = Mode;
@@ -134,6 +133,8 @@ void USB_ShutDown(void)
 {
 	if (USB_IsConnected)
 	  RAISE_EVENT(USB_Disconnect);
+
+	USB_Detach();
 
 	USB_INT_DisableAllInterrupts();
 	USB_INT_ClearAllInterrupts();
@@ -239,7 +240,7 @@ void USB_SetupInterface(void)
 	  USB_Host_PrepareForDeviceConnect();
 	#endif
 	
-	#if defined(USB_CAN_BE_DEVICE)
+	#if (defined(USB_CAN_BE_DEVICE) && !defined(FIXED_CONTROL_ENDPOINT_SIZE))
 	USB_Descriptor_Device_t* DeviceDescriptorPtr;
 	uint16_t                 DeviceDescriptorSize;
 

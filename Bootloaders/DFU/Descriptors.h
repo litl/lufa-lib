@@ -42,21 +42,57 @@
 		#define ATTR_MANEFESTATION_TOLLERANT      (1 << 2)
 		#define ATTR_CAN_UPLOAD                   (1 << 1)
 		#define ATTR_CAN_DOWNLOAD                 (1 << 0)
-		
-		#define CONTROL_ENDPOINT_SIZE             32
 
-		#if (defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__))
+		#if defined(__AVR_AT90USB1286__)
 			#define PRODUCT_ID_CODE               0x2FFB
-		#elif (defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__))
+
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x97
+			#define SIGNATURE_BYTE_3              0x82	
+		#elif defined(__AVR_AT90USB1287__)
+			#define PRODUCT_ID_CODE               0x2FFB
+			
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x97
+			#define SIGNATURE_BYTE_3              0x82	
+		#elif defined(__AVR_AT90USB646__)
 			#define PRODUCT_ID_CODE               0x2FF9
+
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x96
+			#define SIGNATURE_BYTE_3              0x82	
+		#elif defined(__AVR_AT90USB647__)
+			#define PRODUCT_ID_CODE               0x2FF9
+
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x96
+			#define SIGNATURE_BYTE_3              0x82
 		#elif defined(__AVR_AT90USB162__)
 			#define PRODUCT_ID_CODE               0x2FFA
+
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x94
+			#define SIGNATURE_BYTE_3              0x82
 		#elif defined(__AVR_AT90USB82__)
 			#define PRODUCT_ID_CODE               0x2FF7
+
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x94
+			#define SIGNATURE_BYTE_3              0x82
 		#elif defined(__AVR_ATmega32U4__)
 			#define PRODUCT_ID_CODE               0x2FF4
+
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x95
+			#define SIGNATURE_BYTE_3              0x87	
 		#elif defined(__AVR_ATmega16U4__)
 			#define PRODUCT_ID_CODE               0x2FF4
+
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x94
+			#define SIGNATURE_BYTE_3              0x88
+		#else
+			#error The selected AVR part is not currently supported by this bootloader.
 		#endif
 		
 		#if !defined(PRODUCT_ID_CODE)

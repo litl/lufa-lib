@@ -43,7 +43,8 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 #endif
 	HID_CollectionPath_t* CurrCollectionPath       = NULL;
 
-	memset((void*)ParserData, 0x00, sizeof(HID_ReportInfo_t)); 
+	memset((void*)ParserData, 0x00, sizeof(HID_ReportInfo_t));
+	memset((void*)StateTable, 0x00, sizeof(StateTable));
 
 	while (ReportSize)
 	{
@@ -106,6 +107,9 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				break;
 			case (TYPE_GLOBAL | TAG_GLOBAL_REPORTCOUNT):
 				CurrStateTable->ReportCount                 = ReportItemData;
+				break;
+			case (TYPE_GLOBAL | TAG_GLOBAL_REPORTID):
+				CurrStateTable->ReportID                    = ReportItemData;
 				break;
 			case (TYPE_LOCAL | TAG_LOCAL_USAGE):
 				if (UsageStackSize == HID_USAGE_STACK_DEPTH)
@@ -183,6 +187,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 
 					CurrReportItem->ItemFlags      = ReportItemData;
 					CurrReportItem->CollectionPath = CurrCollectionPath;
+					CurrReportItem->ReportID       = CurrStateTable->ReportID;
 
 					if (UsageStackSize)
 					{
@@ -269,13 +274,21 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 	return HID_PARSE_Sucessful;
 }
 
-void GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
+bool GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)
 {
 	uint16_t DataBitsRem  = ReportItem->Attributes.BitSize;
 	uint16_t CurrentBit   = ReportItem->BitOffset;
 	uint32_t BitMask      = (1 << 0);
 
 	ReportItem->Value = 0;
+	
+	if (ReportItem->ReportID)
+	{
+		if (ReportItem->ReportID != ReportData[0])
+		  return false;
+
+		ReportData++;
+	}
 
 	while (DataBitsRem--)
 	{
@@ -285,13 +298,21 @@ void GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const Report
 		CurrentBit++;
 		BitMask <<= 1;
 	}
+	
+	return true;
 }
 
-void SetReportItemInfo(uint8_t* const ReportData, const HID_ReportItem_t* ReportItem)
+void SetReportItemInfo(uint8_t* ReportData, const HID_ReportItem_t* ReportItem)
 {
 	uint16_t DataBitsRem  = ReportItem->Attributes.BitSize;
 	uint16_t CurrentBit   = ReportItem->BitOffset;
 	uint32_t BitMask      = (1 << 0);
+
+	if (ReportItem->ReportID)
+	{
+		ReportData[0] = ReportItem->ReportID;
+		ReportData++;
+	}
 
 	while (DataBitsRem--)
 	{

@@ -56,16 +56,16 @@
 		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 
-		#define MAG_T1_CLOCK_PIN    PORTB0
-		#define MAG_T1_DATA_PIN     PORTB1
-		#define MAG_T2_CLOCK_PIN    PORTB2
-		#define MAG_T2_DATA_PIN     PORTB3
-		#define MAG_T3_CLOCK_PIN    PORTB4
-		#define MAG_T3_DATA_PIN     PORTB5
-		#define MAG_CLS_PIN         PORTB6
-		#define MAG_PIN             PINB
-		#define MAG_DDR             DDRB
-		#define MAG_PORT            PORTB
+		#define MAG_T1_CLOCK_PIN    PORTC1
+		#define MAG_T1_DATA_PIN     PORTC2
+		#define MAG_T2_CLOCK_PIN    PORTC3
+		#define MAG_T2_DATA_PIN     PORTC0
+		#define MAG_T3_CLOCK_PIN    PORTC5
+		#define MAG_T3_DATA_PIN     PORTC6
+		#define MAG_CLS_PIN         PORTC4
+		#define MAG_PIN             PINC
+		#define MAG_DDR             DDRC
+        #define MAG_PORT            PORTC
 		#include "MagstripeHW.h"
 		
 	/* Task Definitions: */

@@ -203,6 +203,9 @@
 			 *  As the USB library relies on USB interrupts for some of its functionality, this routine will
 			 *  enable global interrupts.
 			 *
+			 *  Calling this function when the USB interface is already initialized will cause a complete USB
+			 *  interface reset and re-initialization.
+			 *
 			 *  \param Mode     This is a mask indicating what mode the USB interface is to be initialized to.
 			 *                  Valid mode masks are USB_MODE_DEVICE, USB_MODE_HOST or USB_MODE_UID.
 			 *
@@ -219,7 +222,7 @@
 			 *
 			 *  \note To reduce the FLASH requirements of the library if only fixed settings are are required,
 			 *        the options may be set statically in the same manner as the mode (see the Mode parameter of 
-			 *        this function). To statically set the USB options, pass in the  USE_STATIC_OPTIONS token,
+			 *        this function). To statically set the USB options, pass in the USE_STATIC_OPTIONS token,
 			 *        defined to the appropriate options masks. When the options are statically set, this
 			 *        parameter does not exist in the function prototype.
 			 *        
