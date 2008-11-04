@@ -474,7 +474,7 @@
 
 		/* Function Prototypes: */
 			/** Function to retrieve a given descriptor's size and memory location from the given descriptor
-			 *  type value, index and language ID. This function must be overridden in the user application
+			 *  type value, index and language ID. This function MUST be overridden in the user application
 			 *  (added with full, identical prototype and name) so that the library can call it to retrieve
 			 *  descriptor data.
 			 *
@@ -489,6 +489,12 @@
 			 *                            the location of the descriptor, found by the DESCRIPTOR_ADDRESS macro.
 			 *  \param DescriptorSize     Pointer to a variable storing the size of the requested descriptor. This
 			 *                            should be set by the routine to the size in bytes of the descriptor.
+			 *
+			 *  \note By default, the library expects all descriptors to be located in flash memory via the PROGMEM attribute.
+			 *        If descriptors should be located in RAM or EEPROM instead (to speed up access in the case of RAM, or to
+			 *        allow the descriptors to be changed dynamically at runtime) either the USE_SRAM_DESCRIPTORS or the 
+			 *        USE_EEPROM_DESCRIPTORS tokens may be defined in the project makefile and passed to the compiler by the -D
+			 *        switch.
 			 *
 			 *  \return Boolean true if the requested descriptor exists, false otherwise
 			 */

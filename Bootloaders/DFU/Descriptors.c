@@ -94,7 +94,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 			DetatchTimeout:         0x0000,
 			TransferSize:           0x0c00,
 		
-			DFUSpecification:       0x0101
+			DFUSpecification:       VERSION_BCD(01.01)
 		}
 };
 

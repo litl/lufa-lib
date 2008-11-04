@@ -168,6 +168,13 @@
 			 *  When in device mode, this can be used to progmatically start the USB management task to reduce
 			 *  CPU usage.
 			 *
+			 *  \note For the smaller USB AVRs (AT90USBXX2) with limited USB controllers, VBUS is not avaliable to the USB controller.
+			 *        this means that the current connection state is derived from the bus suspension and wake up events by default,
+			 *        which is not always accurate (host may suspend the bus while still connected). If the actual connection state
+			 *        needs to be determined, VBUS should be routed to an external pin, and the auto-detect behaviour turned off by
+			 *        passing the NO_LIMITED_CONTROLLER_CONNECT token to the compiler via the -D switch at compile time. The connection
+			 *        and disconnection events may be manually fired by RAISE_EVENT(), and the USB_IsConnected global changed manually.
+			 *
 			 *  \see USBTask.h for more information on the USB management task and reducing CPU usage.
 			 */
 			void USB_Connect(void);
@@ -178,6 +185,13 @@
 			 *
 			 *  When in device mode, this can be used to progmatically stop the USB management task to reduce
 			 *  CPU usage.
+			 *
+			 *  \note For the smaller USB AVRs (AT90USBXX2) with limited USB controllers, VBUS is not avaliable to the USB controller.
+			 *        this means that the current connection state is derived from the bus suspension and wake up events by default,
+			 *        which is not always accurate (host may suspend the bus while still connected). If the actual connection state
+			 *        needs to be determined, VBUS should be routed to an external pin, and the auto-detect behaviour turned off by
+			 *        passing the NO_LIMITED_CONTROLLER_CONNECT token to the compiler via the -D switch at compile time. The connection
+			 *        and disconnection events may be manually fired by RAISE_EVENT(), and the USB_IsConnected global changed manually.
 			 *
 			 *  \see USBTask.h for more information on the USB management task and reducing CPU usage.
 			 */

@@ -90,7 +90,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                   {Size: sizeof(USB_AudioInterface_AC_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_Header,
 			
-			ACSpecification:          0x0100,
+			ACSpecification:          VERSION_BCD(01.00),
 			TotalLength:              sizeof(USB_AudioInterface_AC_t),
 			
 			InCollection:             1,

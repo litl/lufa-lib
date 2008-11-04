@@ -60,7 +60,7 @@
 			#define USB_HOST_DEVICEADDRESS             1
 
 			#if !defined(USB_HOST_TIMEOUT_MS) || defined(__DOXYGEN__)
-				/** Constant for the maximum software timeout period of sent USB transactions to an attached
+				/** Constant for the maximum software timeout period of sent USB control transactions to an attached
 				 *  device. If a device fails to respond to a sent control request within this period, the
 				 *  library will return a timeout error code.
 				 *

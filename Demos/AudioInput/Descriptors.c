@@ -34,7 +34,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
-	USBSpecification:       VERSION_BCD(01.10),
+	USBSpecification:       VERSION_BCD(02.00),
 	Class:                  0x00,
 	SubClass:               0x00,
 	Protocol:               0x00,
@@ -90,7 +90,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 			Header:                   {Size: sizeof(USB_AudioInterface_AC_t), Type: DTYPE_AudioInterface},
 			Subtype:                  DSUBTYPE_Header,
 			
-			ACSpecification:          0x0100,
+			ACSpecification:          VERSION_BCD(01.00),
 			TotalLength:              (sizeof(USB_AudioInterface_AC_t) +
 			                           sizeof(USB_AudioInputTerminal_t) +
 									   sizeof(USB_AudioOutputTerminal_t)),

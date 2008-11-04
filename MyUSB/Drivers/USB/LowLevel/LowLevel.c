@@ -191,16 +191,17 @@ void USB_SetupInterface(void)
 	USB_CurrentlySelfPowered = false;
 	#endif
 	
-	#if defined(USB_MODIFIED_FULL_CONTROLLER) && !defined(MANUAL_PLL_CONTROL)
-	PLLFRQ = ((1 << PLLUSB) | (1 << PDIV3) | (1 << PDIV1));
+	#if defined(USB_MODIFIED_FULL_CONTROLLER)
+	if (!(USB_Options & USB_OPT_MANUAL_PLL))
+	  PLLFRQ = ((1 << PLLUSB) | (1 << PDIV3) | (1 << PDIV1));
 	#endif
 	
-	#if !defined(MANUAL_PLL_CONTROL)
-	USB_PLL_On();
-	#endif
-
-	while (!(USB_PLL_IsReady()));
-		
+	if (!(USB_Options & USB_OPT_MANUAL_PLL))
+	{
+		USB_PLL_On();
+		while (!(USB_PLL_IsReady()));
+	}
+	
 	USB_Interface_Reset();
 	
 	#if defined(USB_CAN_BE_BOTH)

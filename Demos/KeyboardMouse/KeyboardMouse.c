@@ -38,7 +38,8 @@
 	application for implementing a composite device containing both USB Keyboard
 	and USB Mouse functionality using the basic USB HID drivers in all modern OSes
 	(i.e. no special drivers required). This example uses two seperate HID
-	interfaces for each function.
+	interfaces for each function. It is boot protocol compatible, and thus works under
+	compatible BIOS as if it was a native keyboard and mouse (e.g. PS/2).
 	
 	On startup the system will automatically enumerate and function
 	as a keyboard when the USB connection to a host is present and the HWB is not

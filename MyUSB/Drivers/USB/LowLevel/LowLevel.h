@@ -118,19 +118,31 @@
 			 */
 			#define USB_MODE_UID                       3
 			
-			/** Regulator disable mask for USB_Init(). This indicates that the internal 3.3V USB data pad
+			/** Regulator disable option mask for USB_Init(). This indicates that the internal 3.3V USB data pad
 			 *  regulator should be enabled to regulate the data pin voltages to within the USB standard.
 			 *
 			 *  \note See USB AVR data sheet for more information on the internal pad regulator.
 			 */
 			#define USB_OPT_REG_DISABLED               (1 << 1)
 
-			/** Regulator enable mask for USB_Init(). This indicates that the internal 3.3V USB data pad
+			/** Regulator enable option mask for USB_Init(). This indicates that the internal 3.3V USB data pad
 			 *  regulator should be disabled and the AVR's VCC level used for the data pads.
 			 *
 			 *  \note See USB AVR data sheet for more information on the internal pad regulator.
 			 */
 			#define USB_OPT_REG_ENABLED                (0 << 1)
+			
+			/** Manual PLL control option mask for USB_Init(). This indicates to the library that the user application
+			 *  will take full responsibility for controlling the AVR's PLL (used to generate the high frequency clock
+			 *  that the USB controller requires) and ensuring that it is locked at the correct frequency for USB operations.
+			 */
+			#define USB_OPT_MANUAL_PLL                 (1 << 2)
+
+			/** Automatic PLL control option mask for USB_Init(). This indicates to the library that the library should
+			 *  take full responsibility for controlling the AVR's PLL (used to generate the high frequency clock
+			 *  that the USB controller requires) and ensuring that it is locked at the correct frequency for USB operations.
+			 */
+			#define USB_OPT_AUTO_PLL                   (0 << 2)
 
 			/** Mask for a CONTROL type endpoint or pipe.
 			 *
@@ -204,15 +216,16 @@
 			 *  enable global interrupts.
 			 *
 			 *  Calling this function when the USB interface is already initialized will cause a complete USB
-			 *  interface reset and re-initialization.
+			 *  interface reset and re-enumeration.
 			 *
 			 *  \param Mode     This is a mask indicating what mode the USB interface is to be initialized to.
 			 *                  Valid mode masks are USB_MODE_DEVICE, USB_MODE_HOST or USB_MODE_UID.
 			 *
 			 *  \param Options  Mask indicating the options which should be used when initializing the USB
 			 *                  interface to control the USB interface's behaviour. This should be comprised of
-			 *                  a USB_OPT_REG_* mask to control the regulator, plus a USB_DEVICE_OPT_* mask
-			 *                  when the device mode is enabled to set the device mode speed.
+			 *                  a USB_OPT_REG_* mask to control the regulator, a USB_OPT_*_PLL mask to control the
+			 *                  PLL, and a USB_DEVICE_OPT_* mask (when the device mode is enabled) to set the device
+			 *                  mode speed.
 			 *
 			 *  \note To reduce the FLASH requirements of the library if only device or host mode is required, 
 			 *        this can be statically set via defining the token USB_DEVICE_ONLY for device mode or 

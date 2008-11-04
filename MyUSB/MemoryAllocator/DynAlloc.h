@@ -44,6 +44,11 @@
  *
  *  The constants NUM_BLOCKS, BLOCK_SIZE and NUM_HANDLES must be defined in the project makefile (and passed to the
  *  preprocessor via the -D GCC switch) for this library to compile.
+ *
+ *  NUM_BLOCKS indicates the number of memory blocks in the memory psudoheap which can be chaned together and handed
+ *  to the application via a memory handle. NUM_HANDLES is the maximum number of memory handles (pointing to one or
+ *  more chained memory blocks) which can be handed out simultaneously before requring a handle (and its associated
+ *  memory) to be freed. BLOCK_SIZE gives the number of bytes in each memory block.
  */
 
 #ifndef __DYN_ALLOC__

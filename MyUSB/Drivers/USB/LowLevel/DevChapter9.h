@@ -104,6 +104,10 @@
 	
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
+		#if defined(USE_RAM_DESCRIPTORS) && defined(USE_EEPROM_DESCRIPTORS)
+			#error USE_RAM_DESCRIPTORS and USE_EEPROM_DESCRIPTORS are mutually exclusive.
+		#endif
+	
 		/* Function Prototypes: */
 			void USB_Device_ProcessControlPacket(void);
 			
