@@ -44,7 +44,7 @@
 		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
 	
 	/* Enums: */
-		enum GetConfigDescriptorDataCodes_t
+		enum KeyboardHost_GetConfigDescriptorDataCodes_t
 		{
 			SuccessfulConfigRead               = 0,
 			ControlError                       = 1,

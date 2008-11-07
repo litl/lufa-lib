@@ -109,14 +109,14 @@
 		} SCSI_Capacity_t;
 
 	/* Enums: */
-		enum CommandStatusCodes_t
+		enum MassStorageHost_CommandStatusCodes_t
 		{
 			Command_Pass = 0,
 			Command_Fail = 1,
 			Phase_Error  = 2
 		};
 		
-		enum ReadWriteErrorCodes_t
+		enum MassStorageHost_ReadWriteErrorCodes_t
 		{
 			NoError            = 0,
 			InPipeStalled      = 1,

@@ -30,8 +30,11 @@
 
 #include "Webserver.h"
 
-char HTTPHeader[] PROGMEM = "HTTP/1.1 200 OK\r\nServer: MyUSB RNDIS\r\nContent-type: text/html\r\nConnection: close\r\n\r\n";
-char HTTPPage[]   PROGMEM = 
+char PROGMEM HTTPHeader[] = "HTTP/1.1 200 OK\r\n"
+                            "Server: MyUSB RNDIS\r\n"
+                            "Content-type: text/html\r\n"
+                            "Connection: close\r\n\r\n";
+char PROGMEM HTTPPage[]   = 
 		"<html>"
 		"	<head>"
 		"		<title>"

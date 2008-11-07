@@ -28,19 +28,39 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Descriptors.c.
+ */
+
 #ifndef _DESCRIPTORS_H_
 #define _DESCRIPTORS_H_
 
 	/* Includes: */
 		#include <MyUSB/Drivers/USB/USB.h>
 
-
 	/* Macros: */
+		/** Descriptor type value for a DFU class functional descriptor. */
 		#define DTYPE_DFUFunctional               0x21
 		
+		/** DFU attribute mask, indicating that the DFU device will detach and re-attach when a DFU_DETACH
+		 *  command is issued, rather than the host issing a USB Reset.
+		 */
 		#define ATTR_WILL_DETATCH                 (1 << 3)
+
+		/** DFU attribute mask, indicating that the DFU device can communicate during the manefestation phase
+		 *  (memory programming phase).
+		 */
 		#define ATTR_MANEFESTATION_TOLLERANT      (1 << 2)
+		
+		/** DFU attribute mask, indicating that the DFU device can accept DFU_UPLOAD requests to send data from
+		 *  the device to the host.
+		 */		
 		#define ATTR_CAN_UPLOAD                   (1 << 1)
+
+		/** DFU attribute mask, indicating that the DFU device can accept DFU_DNLOAD requests to send data from
+		 *  the host to the device.
+		 */		
 		#define ATTR_CAN_DOWNLOAD                 (1 << 0)
 
 		#if defined(__AVR_AT90USB1286__)
@@ -100,17 +120,32 @@
 		#endif
 	
 	/* Type Defines: */
+		/** Type define for a DFU class function descriptor. This descriptor gives DFU class information
+		 *  to the host when read, indicating the DFU device's capabilities.
+		 */
 		typedef struct
 		{
-			USB_Descriptor_Header_t               Header;
+			USB_Descriptor_Header_t               Header; /**< Standard descriptor header structure */
 			
-			uint8_t                               Attributes;
-			uint16_t                              DetatchTimeout;
-			uint16_t                              TransferSize;
-			
-			uint16_t                              DFUSpecification;			
+			uint8_t                               Attributes; /**< DFU device attributes, a mask comprising of the
+			                                                    *  ATTR_* macros listed in this source file
+			                                                    */
+			uint16_t                              DetatchTimeout; /**< Timeout in milliseconds between a USB_DETACH
+			                                                        *  command being issued and the device detaching
+			                                                        *  from the USB bus
+			                                                        */																	
+			uint16_t                              TransferSize; /**< Maximum number of bytes the DFU device can accept
+			                                                      *  from the host in a transaction
+			                                                      */			
+			uint16_t                              DFUSpecification;	/**< BCD packed DFU specification number this DFU
+			                                                          *  device complies with
+			                                                          */
 		} USB_DFU_Functional_Descriptor_t;
 	
+		/** Type define for the device configuration descriptor structure. This must be defined in the
+		 *  application code, as the configuration descriptor contains several sub-descriptors which
+		 *  vary between devices, and which describe the device's usage to the host.
+		 */
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;
@@ -118,10 +153,10 @@
 			USB_DFU_Functional_Descriptor_t       DFUFunctional;
 		} USB_Descriptor_Configuration_t;
 		
-	/* External Variables: */
-		extern USB_Descriptor_Configuration_t ConfigurationDescriptor;
-		
 	/* Function Prototypes: */
+		/** Prototype for the function to return the address and size of a given descriptor when requested by
+		 *  the host. See StdDescriptors.h for more details.
+		 */
 		bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 		                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 		                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);

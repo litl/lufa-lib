@@ -190,7 +190,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	/* Process CDC specific control requests */
 	switch (bRequest)
 	{
-		case GET_LINE_CODING:
+		case REQ_GetLineEncoding:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{	
 				/* Acknowedge the SETUP packet, ready for data transfer */
@@ -204,7 +204,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			
 			break;
-		case SET_LINE_CODING:
+		case REQ_SetLineEncoding:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				/* Acknowedge the SETUP packet, ready for data transfer */
@@ -218,7 +218,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 	
 			break;
-		case SET_CONTROL_LINE_STATE:
+		case REQ_SetControlLineState:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				/* Acknowedge the SETUP packet, ready for data transfer */
@@ -272,7 +272,7 @@ TASK(CDC1_Task)
 	/* Select the Serial Rx Endpoint */
 	Endpoint_SelectEndpoint(CDC1_RX_EPNUM);
 	
-	/* Throw away any recieved data from the host */
+	/* Throw away any received data from the host */
 	if (Endpoint_ReadWriteAllowed())
 	  Endpoint_ClearCurrentBank();
 }

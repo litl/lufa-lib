@@ -32,9 +32,9 @@
 #include "RNDIS.h"
 
 /* Global Variables: */
-static MAC_Address_t AdapterMACAddress          PROGMEM = {ADAPTER_MAC_ADDRESS};
-static char          AdapterVendorDescription[] PROGMEM = "MyUSB RNDIS Adapter";
-static uint32_t      AdapterSupportedOIDList[]  PROGMEM =
+static MAC_Address_t PROGMEM AdapterMACAddress          = {ADAPTER_MAC_ADDRESS};
+static char          PROGMEM AdapterVendorDescription[] = "MyUSB RNDIS Adapter";
+static uint32_t      PROGMEM AdapterSupportedOIDList[]  =
 							{
 								OID_GEN_SUPPORTED_LIST,
 								OID_GEN_HARDWARE_STATUS,

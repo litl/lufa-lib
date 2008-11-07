@@ -32,7 +32,7 @@
 
 /* Globals: */
 PIMA_Container_t PIMA_SendBlock;
-PIMA_Container_t PIMA_RecievedBlock;
+PIMA_Container_t PIMA_ReceivedBlock;
 PIMA_Container_t PIMA_EventBlock;
 
 void SImage_SendBlockHeader(void)
@@ -89,7 +89,7 @@ uint8_t SImage_RecieveBlockHeader(void)
 	Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
 	
-	/* Wait until data recieved on the IN pipe */
+	/* Wait until data received on the IN pipe */
 	while (!(Pipe_ReadWriteAllowed()))
 	{
 		/* Check to see if a new frame has been issued (1ms elapsed) */
@@ -147,19 +147,19 @@ uint8_t SImage_RecieveBlockHeader(void)
 	Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
 	
 	/* Load in the response from the attached device */
-	Pipe_Read_Stream_LE(&PIMA_RecievedBlock, PIMA_COMMAND_SIZE(0));
+	Pipe_Read_Stream_LE(&PIMA_ReceivedBlock, PIMA_COMMAND_SIZE(0));
 	
 	/* Check if the returned block type is a response block */
-	if (PIMA_RecievedBlock.Type == CType_ResponseBlock)
+	if (PIMA_ReceivedBlock.Type == CType_ResponseBlock)
 	{
 		/* Determine the size of the parameters in the block via the data length attribute */
-		uint8_t ParamBytes = (PIMA_RecievedBlock.DataLength - PIMA_COMMAND_SIZE(0));
+		uint8_t ParamBytes = (PIMA_ReceivedBlock.DataLength - PIMA_COMMAND_SIZE(0));
 
 		/* Check if the device has returned any parameters */
 		if (ParamBytes)
 		{
 			/* Read the PIMA parameters from the data IN pipe */
-			Pipe_Read_Stream_LE(&PIMA_RecievedBlock.Params, ParamBytes);
+			Pipe_Read_Stream_LE(&PIMA_ReceivedBlock.Params, ParamBytes);
 		}
 		
 		/* Clear pipe banks after use */
@@ -211,7 +211,7 @@ bool SImage_IsEventReceived(void)
 	Pipe_SelectPipe(SIMAGE_EVENTS_PIPE);
 	Pipe_Unfreeze();
 	
-	/* If the pipe contains data, an event has been recieved */
+	/* If the pipe contains data, an event has been received */
 	if (Pipe_BytesInPipe())
 	  IsEventReceived = true;
 	

@@ -32,7 +32,7 @@
 	Communications Device Class demonstration application.
 	This gives a simple reference application for implementing
 	a USB to Serial converter using the CDC class. Sent and
-	recieved data on the serial port is communicated to the USB
+	received data on the serial port is communicated to the USB
 	host.
 	
 	Before running, you will need to install the INF file that
@@ -153,7 +153,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	/* Process CDC specific control requests */
 	switch (bRequest)
 	{
-		case GET_LINE_CODING:
+		case REQ_GetLineEncoding:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{	
 				/* Acknowedge the SETUP packet, ready for data transfer */
@@ -167,7 +167,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			
 			break;
-		case SET_LINE_CODING:
+		case REQ_SetLineEncoding:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				/* Acknowedge the SETUP packet, ready for data transfer */
@@ -184,7 +184,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 	
 			break;
-		case SET_CONTROL_LINE_STATE:
+		case REQ_SetControlLineState:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				/* Acknowedge the SETUP packet, ready for data transfer */
@@ -207,7 +207,7 @@ TASK(CDC_Task)
 		
 		if (Endpoint_ReadWriteAllowed())
 		{
-			/* Read the recieved data endpoint into the transmission buffer */
+			/* Read the received data endpoint into the transmission buffer */
 			while (Endpoint_BytesInEndpoint())
 			{
 				/* Wait until the buffer has space for a new character */
@@ -244,7 +244,7 @@ TASK(CDC_Task)
 			/* Check before sending the data if the endpoint is completely full */
 			bool IsFull = (Endpoint_BytesInEndpoint() == CDC_TXRX_EPSIZE);
 			
-			/* Write the transmission buffer contents to the recieved data endpoint */
+			/* Write the transmission buffer contents to the received data endpoint */
 			while (Tx_Buffer.Elements && (Endpoint_BytesInEndpoint() < CDC_TXRX_EPSIZE))
 			  Endpoint_Write_Byte(Buffer_GetElement(&Tx_Buffer));
 			
@@ -275,7 +275,7 @@ ISR(USART1_TX_vect)
 
 ISR(USART1_RX_vect)
 {
-	/* Character recieved, store it into the buffer */
+	/* Character received, store it into the buffer */
 	Buffer_StoreElement(&Tx_Buffer, UDR1);
 }
 

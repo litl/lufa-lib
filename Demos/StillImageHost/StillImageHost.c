@@ -218,7 +218,7 @@ TASK(USB_SImage_Host)
 			}
 			
 			/* Calculate the size of the returned device info data structure */
-			uint16_t DeviceInfoSize = (PIMA_RecievedBlock.DataLength - PIMA_COMMAND_SIZE(0));
+			uint16_t DeviceInfoSize = (PIMA_ReceivedBlock.DataLength - PIMA_COMMAND_SIZE(0));
 			
 			/* Create a buffer large enough to hold the entire device info */
 			uint8_t DeviceInfo[DeviceInfoSize];
@@ -269,9 +269,9 @@ TASK(USB_SImage_Host)
 			}
 			
 			/* Verify that the command completed successfully */
-			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
+			if ((PIMA_ReceivedBlock.Type != CType_ResponseBlock) || (PIMA_ReceivedBlock.Code != PIMA_RESPONSE_OK))
 			{
-				ShowCommandError(PIMA_RecievedBlock.Code, true);
+				ShowCommandError(PIMA_ReceivedBlock.Code, true);
 				break;
 			}
 			
@@ -297,9 +297,9 @@ TASK(USB_SImage_Host)
 			}
 			
 			/* Verify that the command completed successfully */
-			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
+			if ((PIMA_ReceivedBlock.Type != CType_ResponseBlock) || (PIMA_ReceivedBlock.Code != PIMA_RESPONSE_OK))
 			{
-				ShowCommandError(PIMA_RecievedBlock.Code, true);
+				ShowCommandError(PIMA_ReceivedBlock.Code, true);
 				break;
 			}
 
@@ -325,9 +325,9 @@ TASK(USB_SImage_Host)
 			}
 
 			/* Verify that the command completed successfully */
-			if ((PIMA_RecievedBlock.Type != CType_ResponseBlock) || (PIMA_RecievedBlock.Code != PIMA_RESPONSE_OK))
+			if ((PIMA_ReceivedBlock.Type != CType_ResponseBlock) || (PIMA_ReceivedBlock.Code != PIMA_RESPONSE_OK))
 			{
-				ShowCommandError(PIMA_RecievedBlock.Code, true);
+				ShowCommandError(PIMA_ReceivedBlock.Code, true);
 				break;
 			}
 

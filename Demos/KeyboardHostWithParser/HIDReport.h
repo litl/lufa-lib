@@ -40,7 +40,7 @@
 		#define USAGEPAGE_KEYBOARD             0x07
 
 	/* Enums: */
-		enum GetHIDReportDataCodes_t
+		enum KeyboardHostWithParser_GetHIDReportDataCodes_t
 		{
 			ParseSucessful          = 0,
 			ParseError              = 1,

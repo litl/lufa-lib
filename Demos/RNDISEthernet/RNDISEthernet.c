@@ -47,7 +47,7 @@
 	then chosen instead of the MyUSB RNDIS INF file when prompted.
 
 	When enumerated, this demo will install as a new network
-	adapter which ethernet packets can be sent to and recieved
+	adapter which ethernet packets can be sent to and received
 	from. Running on top of the adapter is a very simple TCP/IP
 	stack with a HTTP webserver and TELNET host which can be
 	accessed through a web browser at IP address 10.0.0.2:80 or

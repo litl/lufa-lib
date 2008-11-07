@@ -41,7 +41,7 @@
 		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
 	
 	/* Enums: */
-		enum GetConfigDescriptorDataCodes_t
+		enum StillImageHost_GetConfigDescriptorDataCodes_t
 		{
 			ControlError         = 0,
 			DescriptorTooLarge   = 1,

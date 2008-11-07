@@ -28,41 +28,12 @@
   this software.
 */
 
-/*
-	Firmware for a USB AVR powered USB TTL magnetic stripe reader (using a card
-	reader such as the Omron V3B-4K) by Denver Gingerich. This project is designed
-	to be used with the open source Stripe Snoop project at http://stripesnoop.sourceforge.net/.
-	
-	See http://ossguy.com/ss_usb/ for the USB reader hardware project website,
-	including construction and support details.
-
-	To use, connect your magentic card reader device to the USB AVR as follows:
-	
-	 ---- Signal ---+--- AVR Port ----
-	    DATA        |   PORTC, Pin 0
-	    CLOCK       |   PORTC, Pin 3
-	    CARD LOAD   |   PORTC, Pin 4
-
-	This project is based on the MyUSB Keyboard demonstration application,
-	written by Denver Gingerich.
-*/
-
-/*
-	This application uses a keyboard HID driver to communicate the data collected
-	a TTL magnetic stripe reader to the connected computer. The raw bitstream
-	obtained from the magnetic stripe reader is "typed" through the keyboard
-	driver as 0's and 1's. After every card swipe, the demo will send a return key.
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Keyboard
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
-
+/** \file
+ *
+ *  Main source file for the MagStripe application. This file contains the code which drives
+ *  the USB keyboard interface from the magnetic card stripe reader device.
+ */
+ 
 #include "Magstripe.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -79,11 +50,27 @@ TASK_LIST
 };
 
 /* Global Variables */
-bool      UsingReportProtocol = true;
-uint8_t   IdleCount           = 0;
-uint16_t  IdleMSRemaining     = 0;
+/** Indicates if the device is using Report Protocol mode, instead of Boot Protocol mode. Boot Protocol mode
+ *  is a special reporting mode used by compatible PC BIOS to support USB keyboards before a full OS and USB
+ *  driver has been loaded, by using predefined report structures indicated in the USB HID standard.
+ */
+bool UsingReportProtocol = true;
+
+/** Total idle period in milliseconds set by the host via a SetIdle request, used to silence the report endpoint
+ *  until the report data changes or the idle period elapsed. Generally used to implement hardware key repeats, or
+ *  by some BIOS to reduce the number of reports when in Boot Protocol mode.
+ */
+uint8_t IdleCount = 0;
+
+/** Milliseconds remaining counter for the HID class SetIdle and GetIdle requests, used to silence the report
+ *  endpoint for an amount of time indicated by the host or until the report changes.
+ */
+uint16_t IdleMSRemaining = 0;
 
 
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -116,6 +103,7 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This starts the USB task. */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
@@ -125,6 +113,7 @@ EVENT_HANDLER(USB_Connect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
+/** Event handler for the USB_Disconnect event. This stops the USB and keyboard report tasks. */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop running keyboard reporting and USB management tasks */
@@ -135,6 +124,9 @@ EVENT_HANDLER(USB_Disconnect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This configures the device's endpoints ready
+ *  to relay reports to the host, and starts the keyboard report task.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup Keyboard Keycode Report Endpoint */
@@ -157,6 +149,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(USB_Keyboard_Report, TASK_RUN);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library, so that they can be handled appropriately
+ *  for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Handle HID Class specific requests */
@@ -279,6 +275,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 }
 
+/** ISR for the timer 0 compare vector. This ISR fires once each millisecond, and decrements the counter indicating
+ *  the number of milliseconds left to idle (not send the host reports) if the device has been instructed to idle
+ *  by the host via a SetIdle class specific request.
+ */
 ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 {
 	/* One millisecond has elapsed, decrement the idle time remaining counter if it has not already elapsed */
@@ -286,6 +286,13 @@ ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 	  IdleMSRemaining--;
 }
 
+/** Constructs a keyboard report indicating the currently pressed keyboard keys to the host.
+ *
+ *  \param ReportData  Pointer to a USB_KeyboardReport_Data_t report structure where the resulting report should
+ *                     be stored
+ *
+ *  \return Boolean true if the current report is different to the previous report, false otherwise
+ */
 bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 {
 	static uint8_t PrevMagStatus = 0;
@@ -305,6 +312,11 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 	return InputChanged;
 }
 
+/** Processes a LED status report from the host to the device, and displays the current LED status (Caps Lock,
+ *  Num Lock and Scroll Lock) onto the board LEDs.
+ *
+ *  \param LEDReport  Report from the host indicating the current keyboard LED status
+ */
 void ProcessLEDReport(uint8_t LEDReport)
 {
 	uint8_t LEDMask   = LEDS_LED2;
@@ -322,6 +334,9 @@ void ProcessLEDReport(uint8_t LEDReport)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** Task for the magnetic card reading and keyboard report generation. This task waits until a card is inserted,
+ *  then reads off the card data and sends it to the host as a series of keyboard keypresses via keyboard reports.
+ */
 TASK(USB_Keyboard_Report)
 {
 	USB_KeyboardReport_Data_t KeyboardReportData;
@@ -444,6 +459,11 @@ TASK(USB_Keyboard_Report)
 	SendKey(&KeyboardReportData, KEY_NO_EVENT);
 }
 
+/** Creates a keypress report from the given key code and sends the report to the host.
+ *
+ *  \param KeyboardReportData  Pointer to a USB_KeyboardReport_Data_t structure where the key report can be stored
+ *  \param Key  Key code of the key to send
+ */
 void SendKey(USB_KeyboardReport_Data_t* KeyboardReportData, uint8_t Key)
 {
 	memset(KeyboardReportData, 0, sizeof(USB_KeyboardReport_Data_t));
@@ -457,6 +477,11 @@ void SendKey(USB_KeyboardReport_Data_t* KeyboardReportData, uint8_t Key)
 	_delay_ms(2);
 }	
 
+/** Sends the given keyboard report to the host, if required.
+ *
+ *  \param KeyboardReportData  Pointer to the keyboard report to send
+ *  \param SendReport  Boolean true if the report should be sent, false otherwise
+ */
 void Send(USB_KeyboardReport_Data_t* KeyboardReportData, bool SendReport)
 {
 	/* Check if the idle period is set and has elapsed */

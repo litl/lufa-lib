@@ -66,7 +66,7 @@
 			CType_EventBlock        = 4,
 		};
 
-		enum ReadWriteErrorCodes_t
+		enum StillImageHost_ReadWriteErrorCodes_t
 		{
 			NoError            = 0,
 			InPipeStalled      = 1,
@@ -78,7 +78,7 @@
 	
 	/* External Variables: */
 		extern PIMA_Container_t PIMA_SendBlock;
-		extern PIMA_Container_t PIMA_RecievedBlock;
+		extern PIMA_Container_t PIMA_ReceivedBlock;
 		extern PIMA_Container_t PIMA_EventBlock;
 	
 	/* Function Prototypes: */

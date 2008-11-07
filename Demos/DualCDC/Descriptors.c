@@ -30,7 +30,7 @@
 
 #include "Descriptors.h"
 
-USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
+USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
@@ -52,7 +52,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	NumberOfConfigurations: 1
 };
 	
-USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
+USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 {
 	Config:
 		{
@@ -101,40 +101,32 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 
 	CDC1_Functional_IntHeader:
 		{
-			FuncHeader:             {Header:
-										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
-										 Type: 0x24},
-									 SubType: 0x00},
+			Header:                 {Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)), Type: 0x24},
+			SubType:                0x00,
 			
 			Data:                   {0x01, 0x10}
 		},
 
 	CDC1_Functional_CallManagement:
 		{
-			FuncHeader:             {Header:
-										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
-										 Type: 0x24},
-									 SubType: 0x01},
+			Header:                 {Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)), Type: 0x24},
+			SubType:                0x01,
 			
 			Data:                   {0x03, 0x01}
 		},
 
 	CDC1_Functional_AbstractControlManagement:
 		{
-			FuncHeader:             {Header:
-										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(1)),
-										 Type: 0x24},
-									 SubType: 0x02},
+			Header:                 {Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(1)), Type: 0x24},
+			SubType:                0x02,
 			
 			Data:                   {0x06}
 		},
 		
 	CDC1_Functional_Union:
 		{
-			FuncHeader:             {Header:
-										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
-										 Type: 0x24},
-									 SubType: 0x06},
+			Header:                 {Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)), Type: 0x24},
+			SubType:                0x06,
 			
 			Data:                   {0x00, 0x01}
 		},
@@ -217,40 +209,32 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 
 	CDC2_Functional_IntHeader:
 		{
-			FuncHeader:             {Header:
-										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
-										 Type: 0x24},
-									 SubType: 0x00},
+			Header:                 {Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)), Type: 0x24},
+			SubType:                0x00,
 			
 			Data:                   {0x01, 0x10}
 		},
 
 	CDC2_Functional_CallManagement:
 		{
-			FuncHeader:             {Header:
-										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
-										 Type: 0x24},
-									 SubType: 0x01},
+			Header:                 {Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)), Type: 0x24},
+			SubType:                0x01,
 			
 			Data:                   {0x03, 0x03}
 		},
 
 	CDC2_Functional_AbstractControlManagement:
 		{
-			FuncHeader:             {Header:
-										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(1)),
-										 Type: 0x24},
-									 SubType: 0x02},
+			Header:                 {Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(1)), Type: 0x24},
+			SubType:                0x02,
 			
 			Data:                   {0x06}
 		},
 		
 	CDC2_Functional_Union:
 		{
-			FuncHeader:             {Header:
-										{Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)),
-										 Type: 0x24},
-									 SubType: 0x06},
+			Header:                 {Size: sizeof(CDC_FUNCTIONAL_DESCRIPTOR(2)), Type: 0x24},
+			SubType:                0x06,
 			
 			Data:                   {0x02, 0x03}
 		},
@@ -302,21 +286,21 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		}
 };
 
-USB_Descriptor_String_t LanguageString PROGMEM =
+USB_Descriptor_String_t PROGMEM LanguageString =
 {
 	Header:                 {Size: USB_STRING_LEN(1), Type: DTYPE_String},
 		
 	UnicodeString:          {LANGUAGE_ID_ENG}
 };
 
-USB_Descriptor_String_t ManufacturerString PROGMEM =
+USB_Descriptor_String_t PROGMEM ManufacturerString =
 {
 	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
 		
 	UnicodeString:          L"Dean Camera"
 };
 
-USB_Descriptor_String_t ProductString PROGMEM =
+USB_Descriptor_String_t PROGMEM ProductString =
 {
 	Header:                 {Size: USB_STRING_LEN(14), Type: DTYPE_String},
 		

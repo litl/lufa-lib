@@ -54,7 +54,7 @@
 			/** Indicates whether a character has been received through the USART - boolean false if no character
 			 *  has been received, or non-zero if a character is waiting to be read from the reception buffer.
 			 */
-			#define Serial_IsCharRecieved() ((UCSR1A & (1 << RXC1)) ? true : false)
+			#define Serial_IsCharReceived() ((UCSR1A & (1 << RXC1)) ? true : false)
 
 			/** Macro for calculating the baud value from a given baud rate when the U2X (double speed) bit is
 			 *  not set.

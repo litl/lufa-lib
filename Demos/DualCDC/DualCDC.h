@@ -46,9 +46,9 @@
 		#include <MyUSB/Scheduler/Scheduler.h>            // Simple scheduler for task management
 
 	/* Macros: */
-		#define GET_LINE_CODING              0x21
-		#define SET_LINE_CODING              0x20
-		#define SET_CONTROL_LINE_STATE       0x22
+		#define REQ_GetLineEncoding          0x21
+		#define REQ_SetLineEncoding          0x20
+		#define REQ_SetControlLineState      0x22
 
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
@@ -66,14 +66,14 @@
 		} CDC_Line_Coding_t;
 		
 	/* Enums: */
-		enum CDC_Line_Coding_Format_t
+		enum DualCDC_CDC_LineCodingFormats_t
 		{
 			OneStopBit          = 0,
 			OneAndAHalfStopBits = 1,
 			TwoStopBits         = 2,
 		};
 		
-		enum CDC_Line_Coding_Parity_t
+		enum DualCDC_CDC_LineCodingParity_t
 		{
 			Parity_None         = 0,
 			Parity_Odd          = 1,

@@ -234,7 +234,7 @@ TASK(USB_Mouse_Host)
 			Pipe_SelectPipe(MOUSE_DATAPIPE);	
 			Pipe_Unfreeze();
 
-			/* Check if data has been recieved from the attached mouse */
+			/* Check if data has been received from the attached mouse */
 			if (Pipe_ReadWriteAllowed())
 			{
 				uint8_t LEDMask = LEDS_NO_LEDS;

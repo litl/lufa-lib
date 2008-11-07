@@ -37,7 +37,7 @@
 
 #include "Descriptors.h"
 
-USB_Descriptor_HIDReport_Datatype_t KeyboardReport[] PROGMEM =
+USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardReport[] =
 {
 	0x05, 0x01,          /* Usage Page (Generic Desktop)                    */
 	0x09, 0x06,          /* Usage (Keyboard)                                */
@@ -73,7 +73,7 @@ USB_Descriptor_HIDReport_Datatype_t KeyboardReport[] PROGMEM =
 	0xc0                 /* End Collection                                  */
 };
 
-USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
+USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
 		
@@ -95,7 +95,7 @@ USB_Descriptor_Device_t DeviceDescriptor PROGMEM =
 	NumberOfConfigurations: 1
 };
 	
-USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
+USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 {
 	Config:
 		{
@@ -160,21 +160,21 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor PROGMEM =
 		}
 };
 
-USB_Descriptor_String_t LanguageString PROGMEM =
+USB_Descriptor_String_t PROGMEM LanguageString =
 {
 	Header:                 {Size: USB_STRING_LEN(1), Type: DTYPE_String},
 		
 	UnicodeString:          {LANGUAGE_ID_ENG}
 };
 
-USB_Descriptor_String_t ManufacturerString PROGMEM =
+USB_Descriptor_String_t PROGMEM ManufacturerString =
 {
 	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
 		
 	UnicodeString:          L"Denver Gingerich"
 };
 
-USB_Descriptor_String_t ProductString PROGMEM =
+USB_Descriptor_String_t PROGMEM ProductString =
 {
 	Header:                 {Size: USB_STRING_LEN(19), Type: DTYPE_String},
 		

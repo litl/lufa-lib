@@ -28,33 +28,43 @@
   this software.
 */
 
-/*
-	MyUSB USB CDC Bootloader. This bootloader enumerates to the host
-	as a CDC Class device (virtual serial port), allowing for AVR109
-	compatible programming software to load firmware onto the AVR.	
-	
-	Out of the box this bootloader builds for the USB1287, and should fit
-	into 4KB of bootloader space. If you wish to enlarge this space and/or
-	change the AVR model, you will need to edit the BOOT_START and MCU
-	values in the accompanying makefile.
-
-	This bootloader is compatible with the open source application
-	AVRDUDE, or Atmel's AVRPROG.
-*/
-
+/** \file
+ *
+ *  Main source file for the CDC class bootloader. This file contains the complete bootloader logic.
+ */
+ 
 #define  INCLUDE_FROM_BOOTLOADERCDC_C
 #include "BootloaderCDC.h"
 
 /* Globals: */
+/** Line coding options for the virtual serial port. Although the virtual serial port data is never
+ *  sent through a physical serial port, the line encoding data must still be read and preserved from
+ *  the host, or the host will detect a problem and fail to open the port. This structure contains the
+ *  current encoding options, including baud rate, character format, parity mode and total number of 
+ *  bits in each data chunk.
+ */
 CDC_Line_Coding_t LineCoding = { BaudRateBPS: 9600,
                                  CharFormat:  OneStopBit,
                                  ParityType:  Parity_None,
                                  DataBits:    8            };
-								 
-uint16_t          CurrAddress;
 
-bool              RunBootloader = true;
+/** Current address counter. This stores the current address of the FLASH or EEPROM as set by the host,
+ *  and is used when reading or writing to the AVRs memory (either FLASH or EEPROM depending on the issued
+ *  command.)
+ */
+uint16_t CurrAddress;
 
+/** Flag to indicate if the bootloader should be running, or should exit and allow the application code to run
+ *  via a soft reset. When cleared, the bootloader will abort, the USB interface will shut down and the application
+ *  jumped to via an indirect jump to location 0x0000.
+ */
+bool RunBootloader = true;
+
+
+/** Main program entry point. This routine configures the hardware required by the bootloader, then continuously 
+ *  runs the bootloader processing routine until instructed to soft-exit, or hard-reset via the watchdog to start
+ *  the loaded application code.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -113,18 +123,25 @@ int main(void)
 	AppStartPtr();	
 }
 
+/** Event handler for the USB_Connect event. This indicates the presence of a USB host by the board LEDs. */
 EVENT_HANDLER(USB_Connect)
 {
-	/* Indicate USB enumerating */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+	/* Indicate USB connected */
+	LEDs_SetAllLEDs(LEDS_LED2);
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the bootloader should exit and the user
+ *  application started.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
-	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1);
+	/* Upon disconnection, run user application */
+	RunBootloader = false;
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This configures the device's endpoints ready
+ *  to relay data to and from the attached USB host.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup CDC Notification, Rx and Tx Endpoints */
@@ -144,6 +161,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	LEDs_SetAllLEDs(LEDS_LED2);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library, so that they can be handled appropriately
+ *  for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	uint8_t* LineCodingData = (uint8_t*)&LineCoding;
@@ -153,7 +174,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	/* Process CDC specific control requests */
 	switch (bRequest)
 	{
-		case GET_LINE_CODING:
+		case REQ_GetLineEncoding:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
@@ -168,7 +189,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 			
 			break;
-		case SET_LINE_CODING:
+		case REQ_SetLineEncoding:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
@@ -185,7 +206,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 	
 			break;
-		case SET_CONTROL_LINE_STATE:
+		case REQ_SetControlLineState:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				Endpoint_ClearSetupReceived();
@@ -198,7 +219,12 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 }
 
-static void ProgramReadMemoryBlock(const uint8_t Command)
+/** Reads or writes a block of EEPROM or FLASH memory to or from the appropriate CDC data endpoint, depending
+ *  on the AVR910 protocol command issued.
+ *
+ *  \param Command  Single character AVR910 protocol command indicating what memory operation to perform
+ */
+static void ProgramReadWriteMemoryBlock(const uint8_t Command)
 {
 	uint16_t BlockSize;
 	char     MemoryType;
@@ -232,7 +258,11 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 				else
 				{
 					/* Read the next FLASH byte from the current FLASH page */
+					#if defined(RAMPZ)
 					WriteNextResponseByte(pgm_read_byte_far(((uint32_t)CurrAddress << 1) + HighByte));
+					#else
+					WriteNextResponseByte(pgm_read_byte((CurrAddress << 1) + HighByte));					
+					#endif
 					
 					/* If both bytes in current word have been read, increment the address counter */
 					if (HighByte)
@@ -305,6 +335,11 @@ static void ProgramReadMemoryBlock(const uint8_t Command)
 	}
 }
 
+/** Retrieves the next byte from the host in the CDC data OUT endpoint, and clears the endpoint bank if needed
+ *  to allow reception of the next data packet from the host.
+ *
+ *  \return Next received byte from the host in the CDC data OUT endpoint
+ */
 static uint8_t FetchNextCommandByte(void)
 {
 	/* Select the OUT endpoint so that the next data byte can be read */
@@ -321,6 +356,11 @@ static uint8_t FetchNextCommandByte(void)
 	return Endpoint_Read_Byte();
 }
 
+/** Writes the next reponse byte to the CDC data IN endpoint, and sends the endpoint back if needed to free up the
+ *  bank when full ready for the next byte in the packet to the host.
+ *
+ *  \param Response  Next response byte to send to the host
+ */
 static void WriteNextResponseByte(const uint8_t Response)
 {
 	/* Select the IN endpoint so that the next data byte can be written */
@@ -337,6 +377,9 @@ static void WriteNextResponseByte(const uint8_t Response)
 	Endpoint_Write_Byte(Response);
 }
 
+/** Task to read in AVR910 commands from the CDC data OUT endpoint, process them, perform the required actions
+ *  and send the appropriate response back to the host.
+ */
 TASK(CDC_Task)
 {
 	/* Select the OUT endpoint */
@@ -493,12 +536,16 @@ TASK(CDC_Task)
 		else if ((Command == 'B') || (Command == 'g'))
 		{
 			/* Delegate the block write/read to a seperate function for clarity */
-			ProgramReadMemoryBlock(Command);
+			ProgramReadWriteMemoryBlock(Command);
 		}
 		else if (Command == 'R')
 		{
+			#if defined(RAMPZ)
 			uint16_t ProgramWord = pgm_read_word_far(((uint32_t)CurrAddress << 1));
-		
+			#else
+			uint16_t ProgramWord = pgm_read_word(CurrAddress << 1);			
+			#endif
+			
 			WriteNextResponseByte(ProgramWord >> 8);
 			WriteNextResponseByte(ProgramWord & 0xFF);
 		}

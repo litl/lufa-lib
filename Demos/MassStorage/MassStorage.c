@@ -204,7 +204,7 @@ TASK(USB_MassStorage)
 				if (CommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
 				  Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 
-				/* Decode the recieved SCSI command */
+				/* Decode the received SCSI command */
 				SCSI_DecodeSCSICommand();
 
 				/* Load in the CBW tag into the CSW to link them together */
@@ -318,7 +318,7 @@ STREAM_CALLBACK(AbortOnMassStoreReset)
 
 ISR(ENDPOINT_PIPE_vect)
 {
-	/* Check if the control endpoint has recieved a request */
+	/* Check if the control endpoint has received a request */
 	if (Endpoint_HasEndpointInterrupted(ENDPOINT_CONTROLEP))
 	{
 		/* Clear the endpoint interrupt */

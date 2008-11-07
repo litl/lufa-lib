@@ -21,15 +21,6 @@
 */
 
 /*
-	Demonstration application for a TTL magnetic stripe reader (such as the
-	Omron V3B-4K) by Denver Gingerich. See http://ossguy.com/ss_usb/ for the
-	demonstration project website, including construction and support details.
-
-	This example is based on the MyUSB Keyboard demonstration application,
-	written by Denver Gingerich.
-*/
-
-/*
 	NOTE: The user of this include file MUST define the following macros
 	prior to including the file:
 
@@ -61,6 +52,11 @@
 	unsupported.  All pins specified above must be on the same port.
 */
 
+/** \file
+ *
+ *  Driver header for a TTL Magnetic Card reader device (such as the Omron V3B-4K).
+ */
+
 #ifndef _MAGSTRIPEHW_H_
 #define _MAGSTRIPEHW_H_
 
@@ -71,28 +67,50 @@
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */
+			/** Mask of the track data, clock and card detection pins. */
 			#define MAG_MASK    (MAG_T1_DATA | MAG_T1_CLOCK | \
-					     MAG_T2_DATA | MAG_T2_CLOCK | \
-					     MAG_T3_DATA | MAG_T3_CLOCK | \
-					     MAG_CLS)
+			                     MAG_T2_DATA | MAG_T2_CLOCK | \
+			                     MAG_T3_DATA | MAG_T3_CLOCK | \
+			                     MAG_CLS)
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
+			/** Mask for the first track data line. */
 			#define MAG_T1_DATA    (1 << MAG_T1_DATA_PIN)
+
+			/** Mask for the first track clock line. */
 			#define MAG_T1_CLOCK   (1 << MAG_T1_CLOCK_PIN)
+
+			/** Mask for the second track data line. */
 			#define MAG_T2_DATA    (1 << MAG_T2_DATA_PIN)
+
+			/** Mask for the second track clock line. */
 			#define MAG_T2_CLOCK   (1 << MAG_T2_CLOCK_PIN)
+
+			/** Mask for the third track data line. */
 			#define MAG_T3_DATA    (1 << MAG_T3_DATA_PIN)
+
+			/** Mask for the third track clock line. */
 			#define MAG_T3_CLOCK   (1 << MAG_T3_CLOCK_PIN)
+
+			/** Mask for the card detection line. */
 			#define MAG_CLS        (1 << MAG_CLS_PIN)
 
 		/* Inline Functions: */
+			/** Initializes the magnetic stripe card reader ports and pins so that the card reader
+			 *  device can be controlled and read by the card reader driver. This must be called before
+			 *  trying to read any of the card reader's status lines.
+			 */
 			static inline void Magstripe_Init(void)
 			{
 				MAG_DDR &= ~(MAG_MASK);
 				MAG_PORT |= MAG_MASK;
 			};
 
+			/** Returns the status of all the magnetic card reader's outputs.
+			 *
+			 *  \return A mask indicating which card lines are high or low
+			 */
 			static inline uint8_t Magstripe_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Magstripe_GetStatus(void)
 			{

@@ -43,7 +43,7 @@
 		#define USAGE_Y                     0x31
 
 	/* Enums: */
-		enum GetHIDReportDataCodes_t
+		enum MouseHostWithParser_GetHIDReportDataCodes_t
 		{
 			ParseSucessful          = 0,
 			ParseError              = 1,

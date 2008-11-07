@@ -45,7 +45,7 @@
 		#define CDC_PROTOCOL                   0x01
 
 	/* Enums: */
-		enum GetConfigDescriptorDataCodes_t
+		enum CDCHost_GetConfigDescriptorDataCodes_t
 		{
 			SuccessfulConfigRead               = 0,
 			ControlError                       = 1,

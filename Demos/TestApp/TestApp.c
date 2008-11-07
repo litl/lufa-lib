@@ -28,35 +28,11 @@
   this software.
 */
 
-/*
-	Test application. Demonstrates several aspects of the MyUSB
-	Library. On startup the current temperature will be printed
-	through the USART every 10 seconds, and the current joystick
-	position will be indicated via the LEDs on the selected board.
-	Pressing the HWB will initiate the USB subsystem, enumerating
-	the device (which has no actual functionality beyond
-	enumeration as a device or as a host in this demo, and serves
-	only to demonstrate the USB portion of the library). It will
-	also suspend the joystick and temperature monitoring tasks.
-	
-	Pressing the HWB a second time will turn off the USB system
-	and resume the temperature printing task (but not the joystick
-	monitoring task).
-	
-	When activated, the USB events will be printed through the
-	serial USART.
-	
-	When the USB subsystem is activated, the board LEDs will show
-	the current USB status.
-*/
-
-/*
-	USB Mode:           Host/Device (Dual Role)
-	USB Class:          N/A
-	USB Subclass:       N/A
-	Relevant Standards: N/A
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
+/** \file
+ *
+ *  Main source file for the TestApp demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
 
 #include "TestApp.h"
 
@@ -75,6 +51,9 @@ TASK_LIST
 	{ Task: USB_USBTask          , TaskStatus: TASK_RUN  },
 };
 
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -109,14 +88,18 @@ int main(void)
 	Scheduler_Start();
 }
 
-
+/** ISR for the timer 0 compare vector. This ISR fires once each millisecond, and increments the
+ *  scheduler tick counter.
+ */
 ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 {
 	/* Scheduler test - increment scheduler tick counter once each millisecond */
 	Scheduler_TickCounter++;
 }
 
-
+/** Task responsible for checking the joystick position, and displaying the joystick position onto the
+ *  board LEDs.
+ */
 TASK(TestApp_CheckJoystick)
 {
 	uint8_t JoyStatus_LCL = Joystick_GetStatus();
@@ -142,6 +125,9 @@ TASK(TestApp_CheckJoystick)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** Task responsible for checking the current temperature via the temperature sensor mounted on the
+ *  board, and displaying it through the serial USART.
+ */
 TASK(TestApp_CheckTemp)
 {
 	static SchedulerDelayCounter_t DelayCounter = 10000; // Force immediate run on startup
@@ -157,6 +143,9 @@ TASK(TestApp_CheckTemp)
 	}	
 }
 
+/** Task responsible for checking the HWB button position, and start-stopping other tasks and the USB
+ *  interface in response to user joystick movements.
+ */
 TASK(TestApp_CheckHWB)
 {
 	static SchedulerDelayCounter_t DelayCounter = 0;

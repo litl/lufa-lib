@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Descriptors.c.
+ */
+
 #ifndef _DESCRIPTORS_H_
 #define _DESCRIPTORS_H_
 
@@ -37,13 +42,20 @@
 		#include <avr/pgmspace.h>
 
 	/* Type Defines: */
+		/** Type define for the device configuration descriptor structure. This must be defined in the
+		 *  application code, as the configuration descriptor contains several sub-descriptors which
+		 *  vary between devices, and which describe the device's usage to the host.
+		 */
 		typedef struct
 		{
-			USB_Descriptor_Configuration_Header_t Config;
-			USB_Descriptor_Interface_t            Interface;
+			USB_Descriptor_Configuration_Header_t Config; /**< Configuration descriptor header structure */
+			USB_Descriptor_Interface_t            Interface; /**< Interface descriptor, required for the device to enumerate */
 		} USB_Descriptor_Configuration_t;
 
 	/* Function Prototypes: */
+		/** Prototype for the function to return the address and size of a given descriptor when requested by
+		 *  the host. See StdDescriptors.h for more details.
+		 */
 		bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 		                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 		                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);

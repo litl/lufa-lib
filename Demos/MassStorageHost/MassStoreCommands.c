@@ -71,7 +71,7 @@ static uint8_t MassStore_WaitForDataReceived(void)
 	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
 
-	/* Wait until data recieved in the IN pipe */
+	/* Wait until data received in the IN pipe */
 	while (!(Pipe_ReadWriteAllowed()))
 	{
 		/* Check to see if a new frame has been issued (1ms elapsed) */
@@ -216,7 +216,7 @@ uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_
 	/* Send SCSI command to the attached device */
 	MassStore_SendCommand();
 
-	/* Wait until data recieved from the device */
+	/* Wait until data received from the device */
 	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
 
@@ -266,7 +266,7 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 	/* Send SCSI command to the attached device */
 	MassStore_SendCommand();
 
-	/* Wait until data recieved from the device */
+	/* Wait until data received from the device */
 	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
 
@@ -394,7 +394,7 @@ uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* const Ca
 	/* Send SCSI command to the attached device */
 	MassStore_SendCommand();
 
-	/* Wait until data recieved from the device */
+	/* Wait until data received from the device */
 	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
 	  return ReturnCode;
 	  

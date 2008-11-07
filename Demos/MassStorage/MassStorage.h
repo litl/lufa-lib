@@ -89,7 +89,7 @@
 		} CommandStatusWrapper_t;
 		
 	/* Enums: */
-		enum CommandStatusCodes_t
+		enum MassStorage_CommandStatusCodes_t
 		{
 			Command_Pass = 0,
 			Command_Fail = 1,

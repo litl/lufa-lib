@@ -331,7 +331,7 @@ void ProcessLEDReport(uint8_t LEDReport)
 
 ISR(ENDPOINT_PIPE_vect)
 {
-	/* Check if the control endpoint has recieved a request */
+	/* Check if the control endpoint has received a request */
 	if (Endpoint_HasEndpointInterrupted(ENDPOINT_CONTROLEP))
 	{
 		/* Clear the endpoint interrupt */
