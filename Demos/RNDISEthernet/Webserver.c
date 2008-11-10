@@ -116,6 +116,9 @@ void Webserver_ApplicationCallback(TCP_ConnectionState_t* ConnectionState, TCP_C
 		/* Copy the next buffer sized block of the page to the packet buffer */
 		strncpy_P(BufferDataStr, &HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE], Length);
 		
+		/* Send the buffer contents to the host */
+		TCP_APP_SEND_BUFFER(Buffer, Length);
+
 		/* Check to see if the entire page has been sent */
 		if (PageBlock++ == (sizeof(HTTPPage) / HTTP_REPLY_BLOCK_SIZE))
 		{
@@ -125,8 +128,5 @@ void Webserver_ApplicationCallback(TCP_ConnectionState_t* ConnectionState, TCP_C
 			/* Close the connection to the host */
 			TCP_APP_CLOSECONNECTION(ConnectionState);
 		}
-		
-		/* Send the buffer contents to the host */
-		TCP_APP_SEND_BUFFER(Buffer, Length);
 	}
 }
