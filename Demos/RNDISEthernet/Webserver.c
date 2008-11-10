@@ -65,7 +65,7 @@ static bool IsHTTPCommand(uint8_t* RequestHeader, char* Command)
 	return (strncmp((char*)RequestHeader, Command, strlen(Command)) == 0);
 }
 
-void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
+void Webserver_ApplicationCallback(TCP_ConnectionState_t* ConnectionState, TCP_ConnectionBuffer_t* Buffer)
 {
 	char*          BufferDataStr = (char*)Buffer->Data;
 	static uint8_t PageBlock     = 0;
@@ -116,10 +116,15 @@ void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
 		/* Copy the next buffer sized block of the page to the packet buffer */
 		strncpy_P(BufferDataStr, &HTTPPage[PageBlock * HTTP_REPLY_BLOCK_SIZE], Length);
 		
-		/* Check to see if the entire page has been sent, if so unlock the buffer so that packets can be
-		   received from the host again */
+		/* Check to see if the entire page has been sent */
 		if (PageBlock++ == (sizeof(HTTPPage) / HTTP_REPLY_BLOCK_SIZE))
-		  TCP_APP_RELEASE_BUFFER(Buffer);
+		{
+			/* Unlock the buffer so that the host can fill it with future packets */
+			TCP_APP_RELEASE_BUFFER(Buffer);
+			
+			/* Close the connection to the host */
+			TCP_APP_CLOSECONNECTION(ConnectionState);
+		}
 		
 		/* Send the buffer contents to the host */
 		TCP_APP_SEND_BUFFER(Buffer, Length);

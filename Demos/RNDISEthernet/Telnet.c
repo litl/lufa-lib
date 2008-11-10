@@ -58,7 +58,7 @@ static bool IsTELNETCommand(uint8_t* Data, char* Command)
 	return (strncmp((char*)Data, Command, strlen(Command)) == 0);
 }
 
-void Telnet_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer)
+void Telnet_ApplicationCallback(TCP_ConnectionState_t* ConnectionState, TCP_ConnectionBuffer_t* Buffer)
 {
 	char* BufferDataStr = (char*)Buffer->Data;
 

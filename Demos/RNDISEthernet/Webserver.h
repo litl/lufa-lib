@@ -44,6 +44,6 @@
 	
 	/* Function Prototypes: */
 		void Webserver_Init(void);
-		void Webserver_ApplicationCallback(TCP_ConnectionBuffer_t* Buffer);
+		void Webserver_ApplicationCallback(TCP_ConnectionState_t* ConnectionState, TCP_ConnectionBuffer_t* Buffer);
 
 #endif

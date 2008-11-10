@@ -262,7 +262,11 @@ TASK(USB_Keyboard_Host)
 					    (ReportItem->ItemType                   == REPORT_ITEM_TYPE_In))
 					{
 						/* Retrieve the keyboard scancode from the report data retrieved from the device */
-						GetReportItemInfo(KeyboardReport, ReportItem);
+						bool FoundData = GetReportItemInfo(KeyboardReport, ReportItem);
+						
+						/* For multi-report devices - if the requested data was not in the issued report, continue */
+						if (!(FoundData))
+						  continue;
 						
 						/* Key code is an unsigned char in length, cast to the appropriate type */
 						uint8_t KeyCode = (uint8_t)ReportItem->Value;

@@ -58,7 +58,8 @@
 	not implement a DHCP server capable of handing out IP addresses.
 	
 	**NOTE:** The TCP/IP stack in this demo has a number of limitations
-	and should serve as an example only. For complete projects, it is 
+	and should serve as an example only - it is not fully featured nor
+	compliant to the TCP/IP specification. For complete projects, it is 
 	recommended that it be replaced with an external open source TCP/IP
 	stack that is feature complete, such as the uIP stack.
 */
@@ -336,7 +337,7 @@ TASK(Ethernet_Task)
 	/* Check if a frame has been written to the IN frame buffer */
 	if (FrameIN.FrameInBuffer)
 	{
-		/* Print out the frame details */
+		/* Process the ethernet frame - replace this with your own Ethernet handler code as desired */
 		Ethernet_ProcessPacket();
 	}
 }

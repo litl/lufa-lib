@@ -39,7 +39,8 @@ TCP_ConnectionState_t  ConnectionStateTable[MAX_TCP_CONNECTIONS];
 TASK(TCP_Task)
 {
 	/* Task to hand off TCP packets to and from the listening applications. */
-	  
+
+	/* Run each application in sequence, to process incomming and generate outgoing packets */
 	for (uint8_t CSTableEntry = 0; CSTableEntry < MAX_TCP_CONNECTIONS; CSTableEntry++)
 	{
 		/* Find the corresponding port entry in the port table */
@@ -49,7 +50,7 @@ TASK(TCP_Task)
 			if ((PortStateTable[PTableEntry].Port  == ConnectionStateTable[CSTableEntry].Port) && 
 			    (PortStateTable[PTableEntry].State == TCP_Port_Open))
 			{
-				PortStateTable[PTableEntry].ApplicationHandler(&ConnectionStateTable[CSTableEntry].Info.Buffer);
+				PortStateTable[PTableEntry].ApplicationHandler(&ConnectionStateTable[CSTableEntry], &ConnectionStateTable[CSTableEntry].Info.Buffer);
 			}
 		}
 	}
@@ -58,6 +59,7 @@ TASK(TCP_Task)
 	if (FrameOUT.FrameInBuffer)
 	  return;
 	
+	/* Send response packets from each application as the TCP packet buffers are filled by the applications */
 	for (uint8_t CSTableEntry = 0; CSTableEntry < MAX_TCP_CONNECTIONS; CSTableEntry++)
 	{
 		/* For each completely received packet, pass it along to the listening application */
@@ -144,7 +146,7 @@ void TCP_Init(void)
 	  ConnectionStateTable[CSTableEntry].State = TCP_Connection_Closed;
 }
 
-bool TCP_SetPortState(uint16_t Port, uint8_t State, void (*Handler)(TCP_ConnectionBuffer_t*))
+bool TCP_SetPortState(uint16_t Port, uint8_t State, void (*Handler)(TCP_ConnectionState_t*, TCP_ConnectionBuffer_t*))
 {
 	/* Note, Port number should be specified in BIG endian to simplfy network code */
 
@@ -285,12 +287,12 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 	if (TCP_GetPortState(TCPHeaderIN->DestinationPort) == TCP_Port_Open)
 	{
 		if (TCPHeaderIN->Flags == TCP_FLAG_SYN)
-		  TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress, TCPHeaderIN->SourcePort, TCP_Connection_Closed);
+		  TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress, TCPHeaderIN->SourcePort, TCP_Connection_Listen);
 
 		/* Process the incomming TCP packet based on the current connection state for the sender and port */
 		switch (TCP_GetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress, TCPHeaderIN->SourcePort))
 		{
-			case TCP_Connection_Closed:
+			case TCP_Connection_Listen:
 				if (TCPHeaderIN->Flags == TCP_FLAG_SYN)
 				{
 					/* SYN connection when closed starts a connection with a peer */
@@ -307,11 +309,11 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 					ConnectionInfo->SequenceNumberOut = 0;
 					ConnectionInfo->Buffer.InUse      = false;
 
-					printf_P(PSTR("CLOSED->SYNRECEIVED\r\n"));
+					printf_P(PSTR("LISTENING->SYNRECEIVED\r\n"));
 				}
 				else
 				{
-					printf_P(PSTR("CLOSED->SELF\r\n"));				
+					printf_P(PSTR("LISTENING->SELF\r\n"));				
 				}
 				
 				break;
@@ -339,7 +341,7 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 			case TCP_Connection_Established:
 				if (TCPHeaderIN->Flags == (TCP_FLAG_FIN | TCP_FLAG_ACK))
 				{
-					/* FYN ACK when connected to a peer starts the finalization process */
+					/* FIN ACK when connected to a peer starts the finalization process */
 				
 					TCPHeaderOUT->Flags = (TCP_FLAG_FIN | TCP_FLAG_ACK);				
 					PacketResponse      = true;
@@ -404,6 +406,74 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 				}
 				
 				break;
+			case TCP_Connection_Closing:
+					ConnectionInfo = TCP_GetConnectionInfo(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
+					                                       TCPHeaderIN->SourcePort);
+
+					TCPHeaderOUT->Flags = (TCP_FLAG_ACK | TCP_FLAG_FIN);
+					PacketResponse      = true;
+					
+					ConnectionInfo->Buffer.InUse = false;
+					
+					TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
+										   TCPHeaderIN->SourcePort, TCP_Connection_FINWait1);
+
+					printf_P(PSTR("ESTABLISHED->FINWAIT1\r\n"));
+					
+				break;
+			case TCP_Connection_FINWait1:
+				if (TCPHeaderIN->Flags == (TCP_FLAG_FIN | TCP_FLAG_ACK))
+				{
+					ConnectionInfo = TCP_GetConnectionInfo(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
+					                                       TCPHeaderIN->SourcePort);
+
+					TCPHeaderOUT->Flags = TCP_FLAG_ACK;
+					PacketResponse      = true;
+
+					ConnectionInfo->SequenceNumberIn++;
+					ConnectionInfo->SequenceNumberOut++;
+					
+					TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
+										   TCPHeaderIN->SourcePort, TCP_Connection_Closed);
+
+					printf_P(PSTR("FINWAIT1->CLOSED\r\n"));
+				}
+				else if (TCPHeaderIN->Flags == TCP_FLAG_ACK)
+				{
+					TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
+										   TCPHeaderIN->SourcePort, TCP_Connection_FINWait2);
+
+					printf_P(PSTR("FINWAIT1->FINWAIT2\r\n"));				
+				}
+				else
+				{
+					printf_P(PSTR("FINWAIT1->SELF\r\n"));				
+				}
+				
+				break;
+			case TCP_Connection_FINWait2:
+				if (TCPHeaderIN->Flags == (TCP_FLAG_FIN | TCP_FLAG_ACK))
+				{
+					ConnectionInfo = TCP_GetConnectionInfo(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
+					                                       TCPHeaderIN->SourcePort);
+
+					TCPHeaderOUT->Flags = TCP_FLAG_ACK;
+					PacketResponse      = true;
+
+					ConnectionInfo->SequenceNumberIn++;
+					ConnectionInfo->SequenceNumberOut++;
+					
+					TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
+										   TCPHeaderIN->SourcePort, TCP_Connection_Closed);
+
+					printf_P(PSTR("FINWAIT2->CLOSED\r\n"));
+				}
+				else
+				{
+					printf_P(PSTR("FINWAIT2->SELF\r\n"));			
+				}
+			
+				break;
 			case TCP_Connection_CloseWait:
 				if (TCPHeaderIN->Flags == TCP_FLAG_ACK)
 				{
@@ -417,7 +487,7 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 					printf_P(PSTR("CLOSEWAIT->SELF\r\n"));			
 				}
 				
-				break;			
+				break;
 		}
 	}
 	else

@@ -250,13 +250,19 @@ TASK(USB_Mouse_Host)
 				{
 					/* Create a tempoary item pointer to the next report item */
 					HID_ReportItem_t* ReportItem = &HIDReportInfo.ReportItems[ReportNumber];
+					
+					bool FoundData;
 
 					if ((ReportItem->Attributes.Usage.Page       == USAGE_PAGE_BUTTON) &&
 					    (ReportItem->ItemType                    == REPORT_ITEM_TYPE_In))
 					{
 						/* Get the mouse button value */
-						GetReportItemInfo(MouseReport, ReportItem);
+						FoundData = GetReportItemInfo(MouseReport, ReportItem);
 						
+						/* For multi-report devices - if the requested data was not in the issued report, continue */
+						if (!(FoundData))
+						  continue;
+
 						/* If button is pressed, all LEDs are turned on */
 						if (ReportItem->Value)
 						  LEDMask = LEDS_ALL_LEDS;
@@ -267,8 +273,12 @@ TASK(USB_Mouse_Host)
 					         (ReportItem->ItemType                == REPORT_ITEM_TYPE_In))
 					{
 						/* Get the mouse relative position value */
-						GetReportItemInfo(MouseReport, ReportItem);
+						FoundData = GetReportItemInfo(MouseReport, ReportItem);
 						
+						/* For multi-report devices - if the requested data was not in the issued report, continue */
+						if (!(FoundData))
+						  continue;
+
 						/* Value is a signed 8-bit value, cast as appropriate */
 						int8_t DeltaMovement = (int8_t)ReportItem->Value;
 						

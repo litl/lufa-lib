@@ -70,6 +70,8 @@
 		#define TCP_APP_CLEAR_BUFFER(Buffer)         MACROS{ Buffer->Ready = false; Buffer->Length = 0; }MACROE
 		#define TCP_APP_CAPTURE_BUFFER(Buffer)       MACROS{ Buffer->Direction = TCP_PACKETDIR_OUT; Buffer->InUse = true; }MACROE
 		#define TCP_APP_RELEASE_BUFFER(Buffer)       MACROS{ Buffer->InUse = false; }MACROE
+		
+		#define TCP_APP_CLOSECONNECTION(Connection)  MACROS{ Connection->State = TCP_Connection_Closing;  }MACROE
 
 	/* Enums: */
 		enum TCP_PortStates_t
@@ -100,7 +102,7 @@
 			uint8_t                Data[TCP_WINDOW_SIZE];
 			bool                   Direction;
 			bool                   Ready;
-			bool                   InUse;		
+			bool                   InUse;
 		} TCP_ConnectionBuffer_t;
 
 		typedef struct
@@ -113,18 +115,19 @@
 		typedef struct
 		{
 			uint16_t               Port;
-			uint8_t                State;
-			void                   (*ApplicationHandler) (TCP_ConnectionBuffer_t* Buffer);
-		} TCP_PortState_t;
-	
-		typedef struct
-		{
-			uint16_t               Port;
 			uint16_t               RemotePort;
 			IP_Address_t           RemoteAddress;
 			TCP_ConnectionInfo_t   Info;
 			uint8_t                State;
 		} TCP_ConnectionState_t;
+
+		typedef struct
+		{
+			uint16_t               Port;
+			uint8_t                State;
+			void                   (*ApplicationHandler) (TCP_ConnectionState_t* ConnectionState,
+			                                              TCP_ConnectionBuffer_t* Buffer);
+		} TCP_PortState_t;
 
 		typedef struct
 		{
@@ -151,7 +154,7 @@
 
 	/* Function Prototypes: */
 		void                  TCP_Init(void);
-		bool                  TCP_SetPortState(uint16_t Port, uint8_t State, void (*Handler)(TCP_ConnectionBuffer_t*));
+		bool                  TCP_SetPortState(uint16_t Port, uint8_t State, void (*Handler)(TCP_ConnectionState_t*, TCP_ConnectionBuffer_t*));
 		uint8_t               TCP_GetPortState(uint16_t Port);
 		bool                  TCP_SetConnectionState(uint16_t Port, IP_Address_t RemoteAddress, uint16_t RemotePort, uint8_t State);
 		uint8_t               TCP_GetConnectionState(uint16_t Port, IP_Address_t RemoteAddress, uint16_t RemotePort);

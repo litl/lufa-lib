@@ -21,8 +21,10 @@ Changelog for MyUSB:
 		* CDC bootloader now uses the correct non-far or far versions of the pgm_* functions depending on if RAMPZ is defined
 		* Doxygen documentation now contains documentation on the projects, bootloaders and demos included with the library
 		* CDC bootloader now runs user application when USB disconnected rather than waiting for a hard reset
+		* MouseHostWithParser and KeyboardHostWithParser now support multiple-report devices
+		* RNDIS demo can now close connections correctly using the new TCP_APP_CLOSECONNECTION() macro - used in Webserver
 		
-		TODO: Document MyUSB internal folders with descriptions and briefs, and document remaining DFU bootloader and demos
+		TODO: Document MyUSB internal folders with descriptions and briefs, and document remaining demos
 
 	Version 1.5.3 - Released 2nd October, 2008:
 	--------------------------------------------
