@@ -187,10 +187,20 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case REQ_SetControlLineState:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				/* NOTE: Here you can read in the line state mask from the host, to get the current state of the output handshake
+				         lines. The mask is read in from the wValue parameter, and can be masked against the CONTROL_LINE_OUT_* masks
+				         to determine the RTS and DTR line states using the following code:
+				*/
+				/*
+					uint16_t wIndex = Endpoint_Read_Word_LE();
+					
+					// Do something with the given line states in wIndex
+				*/
+				
 				/* Acknowedge the SETUP packet, ready for data transfer */
 				Endpoint_ClearSetupReceived();
 				
-				/* Send an empty packet to acknowedge the command (currently unused) */
+				/* Send an empty packet to acknowedge the command */
 				Endpoint_ClearSetupIN();
 			}
 	
@@ -202,6 +212,28 @@ TASK(CDC_Task)
 {
 	if (USB_IsConnected)
 	{
+		/* NOTE: Here you can use the notification endpoint to send back line state changes to the host, for the special RS-232
+				 handshake signal lines (and some error states), via the CONTROL_LINE_IN_* masks and the following code:
+		*/
+		/*
+		USB_Notification_Header_t Notification = (USB_Notification_Header_t)
+			{
+				NotificationType: (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE),
+				Notification:     NOTIF_SerialState,
+				wValue:           0,
+				wIndex:           0,
+				wLength:          sizeof(uint16_t),
+			};
+			
+		uint16_t LineStateMask;
+		
+		// Set LineStateMask here to a mask of CONTROL_LINE_IN_* masks to set the input handshake line states to send to the host
+		
+		Endpoint_SelectEndpoint(CDC_NOTIFICATION_EPNUM);
+		Endpoint_Write_Stream_LE(&Notification, sizeof(Notification));
+		Endpoint_Write_Stream_LE(&LineStateMask, sizeof(LineStateMask));
+		*/
+
 		/* Select the Serial Rx Endpoint */
 		Endpoint_SelectEndpoint(CDC_RX_EPNUM);
 		
