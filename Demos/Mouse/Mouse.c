@@ -28,29 +28,12 @@
   this software.
 */
 
-/*
-	Mouse demonstration application. This gives a simple reference
-	application for implementing a USB Mouse using the basic USB HID
-	drivers in all modern OSes (i.e. no special drivers required). It is
-	boot protocol compatible, and thus works under compatible BIOS as if
-	it was a native mouse (e.g. PS/2).
-	
-	On startup the system will automatically enumerate and function
-	as a mouse when the USB connection to a host is present. To use
-	the mouse, move the joystick to move the pointer, and push the
-	joystick inwards to simulate a left-button click. The HWB serves as
-	the right mouse button.
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Mouse
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
-
+/** \file
+ *
+ *  Main source file for the Mouse demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
+ 
 #include "Mouse.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -67,11 +50,26 @@ TASK_LIST
 };
 
 /* Global Variables */
-bool      UsingReportProtocol = true;
-uint8_t   IdleCount           = 0;
-uint16_t  IdleMSRemaining     = 0;
+/** Indicates what report mode the host has requested, true for normal HID reporting mode, false for special boot
+ *  protocol reporting mode.
+ */
+bool UsingReportProtocol = true;
+
+/** Current Idle period. This is set by the host via a Set Idle HID class request to silence the device's reports
+ *  for either the entire idle duration, or until the report status changes (e.g. the user moves the mouse).
+ */
+uint8_t IdleCount = 0;
+
+/** Current Idle period remaining. When the IdleCount value is set, this tracks the remaining number of idle
+ *  milliseconds. This is seperate to the IdleCount timer and is incremented and compared as the host may request 
+ *  the current idle period via a Get Idle HID class request, thus its value must be preserved.
+ */
+uint16_t IdleMSRemaining = 0;
 
 
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -105,6 +103,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
+ *  starts the library USB task to begin the enumeration and USB management process.
+ */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
@@ -114,6 +115,9 @@ EVENT_HANDLER(USB_Connect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs and stops the USB management and Mouse reporting tasks.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop running mouse reporting and USB management tasks */
@@ -124,6 +128,9 @@ EVENT_HANDLER(USB_Disconnect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host sets the current configuration
+ *  of the USB device after enumeration - the device endpoints are configured and the mouse reporting task started.
+ */ 
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup Mouse Report Endpoint */
@@ -141,6 +148,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(USB_Mouse_Report, TASK_RUN);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the HID commands, which are
+ *  all issued via the control endpoint), so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Handle HID Class specific requests */
@@ -241,6 +252,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 }
 
+/** ISR for the timer 0 compare vector. This ISR fires once each millisecond, and increments the
+ *  scheduler elapsed idle period counter when the host has set an idle period.
+ */
 ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 {
 	/* One millisecond has elapsed, decrement the idle time remaining counter if it has not already elapsed */
@@ -248,17 +262,26 @@ ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 	  IdleMSRemaining--;
 }
 
-void GetNextReport(USB_MouseReport_Data_t* ReportData)
+/** Fills the given HID report data structure with the next HID report to send to the host.
+ *
+ *  \param ReportData  Pointer to a HID report data structure to be filled
+ *
+ *  \return Boolean true if the new report differs from the last report, false otherwise
+ */
+bool GetNextReport(USB_MouseReport_Data_t* ReportData)
 {
-	uint8_t JoyStatus_LCL = Joystick_GetStatus();
-
+	static uint8_t PrevJoyStatus = 0;
+	static bool    PrevHWBStatus = false;
+	uint8_t        JoyStatus_LCL = Joystick_GetStatus();
+	bool           InputChanged  = false;
+	
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_MouseReport_Data_t));
 
 	if (JoyStatus_LCL & JOY_UP)
-	  ReportData->Y =  1;
-	else if (JoyStatus_LCL & JOY_DOWN)
 	  ReportData->Y = -1;
+	else if (JoyStatus_LCL & JOY_DOWN)
+	  ReportData->Y =  1;
 
 	if (JoyStatus_LCL & JOY_RIGHT)
 	  ReportData->X =  1;
@@ -269,9 +292,20 @@ void GetNextReport(USB_MouseReport_Data_t* ReportData)
 	  ReportData->Button  = (1 << 0);
 	  
 	if (HWB_GetStatus())
-	  ReportData->Button |= (1 << 1);	  
+	  ReportData->Button |= (1 << 1);
+
+	/* Check if the new report is different to the previous report */
+	InputChanged = ((PrevJoyStatus ^ JoyStatus_LCL) | (HWB_GetStatus() ^ PrevHWBStatus));
+
+	/* Save the current joystick and HWB status for later comparison */
+	PrevJoyStatus = JoyStatus_LCL;
+	PrevHWBStatus = HWB_GetStatus();
+
+	/* Return whether the new report is different to the previous report or not */
+	return InputChanged;
 }
 
+/** Task to manage HID report generation and transmission to the host, when in report mode. */
 TASK(USB_Mouse_Report)
 {
 	USB_MouseReport_Data_t MouseReportData;

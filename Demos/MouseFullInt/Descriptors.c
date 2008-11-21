@@ -28,8 +28,21 @@
   this software.
 */
 
+/** \file
+ *
+ *  USB Device Descriptors, for library use when in USB device mode. Descriptors are special 
+ *  computer-readable structures which the host requests upon device enumeration, to determine
+ *  the device's capabilities and functions.  
+ */
+ 
 #include "Descriptors.h"
 
+/** HID class report descriptor. This is a special descriptor constructed with values from the
+ *  USBIF HID class specification to describe the reports and capabilities of the HID device. This
+ *  descriptor is parsed by the host and its contents used to determine what data (and in what encoding)
+ *  the device will send, and what it may be sent back from the host. Refer to the HID specification for
+ *  more details on HID report descriptors.
+ */
 USB_Descriptor_HIDReport_Datatype_t PROGMEM MouseReport[] =
 {
 	0x05, 0x01,          /* Usage Page (Generic Desktop)             */
@@ -60,6 +73,11 @@ USB_Descriptor_HIDReport_Datatype_t PROGMEM MouseReport[] =
 	0xC0                 /* End Collection                           */
 };
 
+/** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall
+ *  device characteristics, including the supported USB version, control endpoint size and the
+ *  number of device configurations. The descriptor is read out by the USB host when the enumeration
+ *  process begins.
+ */
 USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 {
 	Header:                 {Size: sizeof(USB_Descriptor_Device_t), Type: DTYPE_Device},
@@ -81,7 +99,12 @@ USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 		
 	NumberOfConfigurations: 1
 };
-	
+
+/** Configuration descriptor structure. This descriptor, located in FLASH memory, describes the usage
+ *  of the device in one of its supported configurations, including information about any device interfaces
+ *  and endpoints. The descriptor is read out by the USB host during the enumeration process when selecting
+ *  a configuration so that the host may correctly communicate with the USB device.
+ */
 USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 {
 	Config:
@@ -137,6 +160,10 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 		}	
 };
 
+/** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests
+ *  the string descriptor with index 0 (the first index). It is actually an array of 16-bit integers, which indicate
+ *  via the language ID table available at USB.org what languages the device supports for its string descriptors.
+ */
 USB_Descriptor_String_t PROGMEM LanguageString =
 {
 	Header:                 {Size: USB_STRING_LEN(1), Type: DTYPE_String},
@@ -144,6 +171,10 @@ USB_Descriptor_String_t PROGMEM LanguageString =
 	UnicodeString:          {LANGUAGE_ID_ENG}
 };
 
+/** Manufacturer descriptor string. This is a Unicode string containing the manufacturer's details in human readable
+ *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
+ *  Descriptor.
+ */
 USB_Descriptor_String_t PROGMEM ManufacturerString =
 {
 	Header:                 {Size: USB_STRING_LEN(11), Type: DTYPE_String},
@@ -151,6 +182,10 @@ USB_Descriptor_String_t PROGMEM ManufacturerString =
 	UnicodeString:          L"Dean Camera"
 };
 
+/** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
+ *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
+ *  Descriptor.
+ */
 USB_Descriptor_String_t PROGMEM ProductString =
 {
 	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
@@ -158,6 +193,12 @@ USB_Descriptor_String_t PROGMEM ProductString =
 	UnicodeString:          L"MyUSB Mouse Demo"
 };
 
+/** This function is called by the library when in device mode, and must be overridden (see StdDescriptors.h
+ *  documentation) by the application code so that the address and size of a requested descriptor can be given
+ *  to the USB library. When the device recieves a Get Descriptor request on the control endpoint, this function
+ *  is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
+ *  USB host.
+ */
 bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
                        void** const DescriptorAddress, uint16_t* const DescriptorSize)
 {

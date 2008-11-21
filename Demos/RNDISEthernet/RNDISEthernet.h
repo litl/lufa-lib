@@ -35,6 +35,8 @@
 		#include <avr/io.h>
 		#include <avr/wdt.h>
 		#include <string.h>
+		#include <stdio.h>
+		#include <avr/pgmspace.h>
 
 		#include "Descriptors.h"
 		#include "RNDIS.h"

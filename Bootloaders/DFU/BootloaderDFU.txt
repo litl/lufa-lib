@@ -43,10 +43,7 @@
  *  </tr>
  *  <tr>
  *   <td><b>Relevant Standards:</b></td>
- *   <td>
- *    - USBIF DFU Class Standard
- *    - Atmel USB Bootloader Application Note
- *   </td>
+ *   <td>USBIF DFU Class Standard, Atmel USB Bootloader Datasheet</td>
  *  </tr>
  *  <tr>
  *   <td><b>Usable Speeds:</b></td>

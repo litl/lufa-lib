@@ -83,15 +83,11 @@ void Ethernet_ProcessPacket(void)
 		}
 	}
 
+	/* Check if the packet was processed */
 	if (RetSize != NO_PROCESS)
 	{
 		/* Clear the frame buffer */
 		FrameIN.FrameInBuffer = false;
-	}
-	else
-	{
-		/* Packet deferred */
-		printf_P(PSTR("Deferred processing of packet.\r\n"));
 	}
 }
 

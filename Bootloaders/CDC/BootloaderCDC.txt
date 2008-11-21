@@ -31,9 +31,7 @@
  *  </tr>
  *  <tr>
  *   <td><b>Relevant Standards:</b></td>
- *   <td>
- *    - USBIF CDC Class Standard
- *   </td>
+ *   <td>USBIF CDC Class Standard</td>
  *  </tr>
  *  <tr>
  *   <td><b>Usable Speeds:</b></td>

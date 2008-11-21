@@ -17,7 +17,8 @@
   *    and re-enumeration - fixes MyUSB DFU bootloader not switching to app code correctly when soft reset used
   *  - Fixed "No newline at end of file" warning when stream callbacks are enabled
   *  - DFU bootloader now uses fixed signature bytes per device, rather than reading them out dynamically for size
-  *  - Added new FIXED_CONTROL_ENDPOINT_SIZE switch to statically define the control endpoint size to reduce FLASH size
+  *  - Added new FIXED_CONTROL_ENDPOINT_SIZE and USE_SINGLE_DEVICE_CONFIGURATION switches to statically define certain values to
+  *    reduce compiled binary size
   *  - Added new NO_LIMITED_CONTROLLER_CONNECT switch to prevent the library from trying to determine bus connection
   *    state from the suspension and wake up events on the smaller USB AVRs
   *  - Added summary of all library compile time tokens to the documentation
@@ -28,6 +29,12 @@
   *  - CDC bootloader now runs user application when USB disconnected rather than waiting for a hard reset
   *  - MouseHostWithParser and KeyboardHostWithParser now support multiple-report devices
   *  - RNDIS demo can now close connections correctly using the new TCP_APP_CLOSECONNECTION() macro - used in Webserver  
+  *  - Fixed the DFU bootloader, no longer freezes up when certain files are programmed into an AVR, made reading/writing faster
+  *  - Fixed mouse up/down movements reversed - X/Y coordinates use a left-handed system on the OS, not a normal right-handed system
+  *  - Added stub code to the CDC and USBtoSerial demos showing how to read and set the RS-232 handshake lines - not currently used in
+  *    the demos, but the example code and supporting defines are now in place
+  *  - Interrupts are now disabled when processing a control request in device mode, to avoid exceeding the strict control request
+  *    timing requirements.
   *
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
@@ -255,7 +262,7 @@
   *  - Added support for AT90USB162 and AT90USB82 AVR models
   *  - Added support for the STK525 and STK526 boards
   *  - Added support for custom board drivers to be supplied by selecting the board type as BOARD_USER, and
-  *    placing board drivers in <APP DIRECTORY>/Board/
+  *    placing board drivers in {Application Directory}/Board/
   *  - PLL is now stopped and USB clock is frozen when detatched from host in device mode, to save power
   *  - Joystick defines are now in synch with the schematics - orientation will be rotated for the USBKEY
   *  - Fixed USB_DEV_IsUSBSuspended() - now checks the correct register

@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Descriptors.c.
+ */
+ 
 #ifndef _DESCRIPTORS_H_
 #define _DESCRIPTORS_H_
 
@@ -37,6 +42,9 @@
 		#include <avr/pgmspace.h>
 
 	/* Type Defines: */
+		/** Type define for the HID class specific HID descriptor, to describe the HID device's specifications. Refer to the HID
+		 *  specification for details on the structure elements.
+		 */
 		typedef struct
 		{
 			USB_Descriptor_Header_t               Header;
@@ -50,8 +58,13 @@
 			uint16_t                              HIDReportLength;
 		} USB_Descriptor_HID_t;
 
+		/** Type define for the data type used to store HID report descriptor elements. */
 		typedef uint8_t USB_Descriptor_HIDReport_Datatype_t;
 
+		/** Type define for the device configuration descriptor structure. This must be defined in the
+		 *  application code, as the configuration descriptor contains several sub-descriptors which
+		 *  vary between devices, and which describe the device's usage to the host.
+		 */
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;
@@ -61,13 +74,22 @@
 		} USB_Descriptor_Configuration_t;
 					
 	/* Macros: */
+		/** Endpoint number of the Mouse HID reporting IN endpoint. */
 		#define MOUSE_EPNUM               1
+		
+		/** Size in bytes of the Mouse HID reporting IN endpoint. */
 		#define MOUSE_EPSIZE              8
 
+		/** Descriptor header type value, to indicate a HID class HID descriptor. */
 		#define DTYPE_HID                 0x21
+		
+		/** Descriptor header type value, to indicate a HID class HID report descriptor. */
 		#define DTYPE_Report              0x22
 
 	/* Function Prototypes: */
+		/** Prototype for the function to return the address and size of a given descriptor when requested by
+		 *  the host. See StdDescriptors.h for more details.
+		 */	
 		bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 		                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 		                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);

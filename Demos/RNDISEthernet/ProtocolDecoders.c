@@ -79,7 +79,7 @@ void DecodeEthernetFrameHeader(void* InDataStart)
 void DecodeARPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_ARP)
-	Ethernet_ARP_Header_t* ARPHeader = (Ethernet_ARP_Header_t*)InDataStart;	
+	ARP_Header_t* ARPHeader = (ARP_Header_t*)InDataStart;	
 
 	printf_P(PSTR("   \\\r\n    ARP\r\n"));
 
@@ -125,7 +125,7 @@ void DecodeARPHeader(void* InDataStart)
 void DecodeIPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_IP)
-	Ethernet_IP_Header_t* IPHeader  = (Ethernet_IP_Header_t*)InDataStart;
+	IP_Header_t* IPHeader  = (IP_Header_t*)InDataStart;
 
 	uint16_t              HeaderLengthBytes = (IPHeader->HeaderLength * sizeof(uint32_t));
 
@@ -159,7 +159,7 @@ void DecodeIPHeader(void* InDataStart)
 void DecodeICMPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_ICMP)
-	Ethernet_ICMP_Header_t* ICMPHeader  = (Ethernet_ICMP_Header_t*)InDataStart;
+	ICMP_Header_t* ICMPHeader  = (ICMP_Header_t*)InDataStart;
 
 	printf_P(PSTR("    \\\r\n     ICMP\r\n"));
 
@@ -171,11 +171,11 @@ void DecodeICMPHeader(void* InDataStart)
 void DecodeTCPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_TCP)
-	Ethernet_TCP_Header_t* TCPHeader  = (Ethernet_TCP_Header_t*)InDataStart;
+	TCP_Header_t* TCPHeader  = (TCP_Header_t*)InDataStart;
 
 	uint16_t               HeaderLengthBytes = (TCPHeader->DataOffset * sizeof(uint32_t));
 
-	printf_P(PSTR("    \\\r\n     TCP\r\n");
+	printf_P(PSTR("    \\\r\n     TCP\r\n"));
 
 	printf_P(PSTR("     + Header Length: %u Bytes\r\n"), HeaderLengthBytes);
 

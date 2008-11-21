@@ -50,7 +50,7 @@
 		
 	/* Macros: */
 		/** Major bootloader version number. */
-		#define BOOTLOADER_VERSION_MINOR 1
+		#define BOOTLOADER_VERSION_MINOR 2
 
 		/** Minor bootloader version number. */
 		#define BOOTLOADER_VERSION_REV   0

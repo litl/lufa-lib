@@ -8,7 +8,8 @@
 
 /*
   Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
-
+  Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+	  
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
   granted, provided that the above copyright notice appear in all
@@ -28,39 +29,12 @@
   this software.
 */
 
-/*
-	Portions of this example is based on the MyUSB Keyboard demonstration
-	application, written by Denver Gingerich.
-*/
-
-/*
-	Keyboard/Mouse demonstration application. This gives a simple reference
-	application for implementing a composite device containing both USB Keyboard
-	and USB Mouse functionality using the basic USB HID drivers in all modern OSes
-	(i.e. no special drivers required). This example uses two seperate HID
-	interfaces for each function. It is boot protocol compatible, and thus works under
-	compatible BIOS as if it was a native keyboard and mouse (e.g. PS/2).
-	
-	On startup the system will automatically enumerate and function
-	as a keyboard when the USB connection to a host is present and the HWB is not
-	pressed. When enabled, manipulate the joystick to send the letters
-	a, b, c, d and e. See the USB HID documentation for more information
-	on sending keyboard event and keypresses.
-	
-	When the HWB is pressed, the mouse mode is enabled. When enabled, move the
-	joystick to move the pointer, and push the joystick inwards to simulate a
-	left-button click.
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       HID
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
-
+/** \file
+ *
+ *  Main source file for the KeyboardMouse demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
+ 
 #include "KeyboardMouse.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -78,11 +52,15 @@ TASK_LIST
 };
 
 /* Global Variables */
+/** Global structure to hold the current keyboard interface HID report, for transmission to the host */
 USB_KeyboardReport_Data_t KeyboardReportData;
+
+/** Global structure to hold the current mouse interface HID report, for transmission to the host */
 USB_MouseReport_Data_t    MouseReportData;
-bool                      UsingReportProtocol = true;
 
-
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the USB management task.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -109,6 +87,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
+ *  starts the library USB task to begin the enumeration and USB management process.
+ */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
@@ -116,11 +97,11 @@ EVENT_HANDLER(USB_Connect)
 
 	/* Indicate USB enumerating */
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
-
-	/* Default to report protocol on connect */
-	UsingReportProtocol = true;
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs and stops the USB management task.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop running HID reporting and USB management tasks */
@@ -130,6 +111,9 @@ EVENT_HANDLER(USB_Disconnect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host sets the current configuration
+ *  of the USB device after enumeration, and configures the keyboard and mouse device endpoints.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup Keyboard Report Endpoint */
@@ -151,6 +135,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the HID commands, which are
+ *  all issued via the control endpoint), so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	uint8_t* ReportData;
@@ -239,6 +227,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 }
 
+/** Keyboard task. This generates the next keyboard HID report for the host, and transmits it via the
+ *  keyboard IN endpoint when the host is ready for more data. Additionally, it processes host LED status
+ *  reports sent to the device via the keyboard OUT reporting endpoint.
+ */
 TASK(USB_Keyboard)
 {
 	uint8_t JoyStatus_LCL = Joystick_GetStatus();
@@ -261,7 +253,7 @@ TASK(USB_Keyboard)
 	}
 	
 	/* Check if the USB system is connected to a host and report protocol mode is enabled */
-	if (USB_IsConnected && UsingReportProtocol)
+	if (USB_IsConnected)
 	{
 		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_IN_EPNUM);
@@ -307,6 +299,9 @@ TASK(USB_Keyboard)
 	}
 }
 
+/** Mouse task. This generates the next mouse HID report for the host, and transmits it via the
+ *  mouse IN endpoint when the host is ready for more data.
+ */
 TASK(USB_Mouse)
 {
 	uint8_t JoyStatus_LCL = Joystick_GetStatus();
@@ -329,7 +324,7 @@ TASK(USB_Mouse)
 	}
 
 	/* Check if the USB system is connected to a host and report protocol mode is enabled */
-	if (USB_IsConnected && UsingReportProtocol)
+	if (USB_IsConnected)
 	{
 		/* Select the Mouse Report Endpoint */
 		Endpoint_SelectEndpoint(MOUSE_IN_EPNUM);

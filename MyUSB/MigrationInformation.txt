@@ -10,7 +10,7 @@
  *  to the next version released. It does not indicate all new additions to the library in each version change, only
  *  areas relevant to making older projects compatible with the API changes of each new release.
  *
- * \section Sec_Migration153 Migrating from V1.5.3 to 1.5.4
+ * \section Sec_Migration153 Migrating from V1.5.3 to V1.5.4
  *
  *  <b>Library Demos</b>
  *    - The ReconfigureUSART() routine in the USBtoSerial demo was not being called after new line encoding
@@ -20,7 +20,7 @@
  *      built on either "WithParser" demo should update to the latest code.
  *    - The RNDIS demo TCP stack has been modified so that connections can be properly closed. It is still not
  *      recommended that the MyUSB RNDIS demo TCP/IP stack be used for anything other than demonstration purposes,
- *      as it is not a full nor a standards compliant implementation.
+ *      as it is neither a full nor a standards compliant implementation.
  *
  *  <b>Non-USB Library Components</b>
  *    - The Serial_IsCharRecieved() macro has been changed to the correct spelling of Serial_IsCharReceived() in Serial.h.
@@ -30,6 +30,8 @@
  *      to be used in the Options parameter of the USB_Init() function.
  *    - Calling USB_Init() now forces a complete USB interface reset and enumeration, even if the USB interface is
  *      currently initialized.
+ *    - Interrupts are now disabled when processing control requests, to avoid problems with interrupts causing the library
+ *      or user request processing code to exceed the strict USB timing requirements on control transfers.
  *
  *  <b>Host Mode</b>
  *    - The MANUAL_PLL_CONTROL compile time token has been removed, and replaced with a USB_OPT_MANUAL_PLL mask
@@ -42,7 +44,7 @@
  *      currently initialized.
  *
  *
- * \section Sec_Migration152 Migrating from V1.5.2 to 1.5.3
+ * \section Sec_Migration152 Migrating from V1.5.2 to V1.5.3
  *
  *  <b>Library Demos</b>
  *    - Previously, all demos contained a serial number string descriptor, filled with all zeros. A serial number
@@ -88,7 +90,7 @@
  *      the token NO_STREAM_CALLBACKS to the compiler using the -D switch.
  *
  *
- * \section Sec_Migration151 Migrating from V1.5.1 to 1.5.2
+ * \section Sec_Migration151 Migrating from V1.5.1 to V1.5.2
  *
  *  <b>Library Demos</b>
  *    - The RNDIS demo application has been updated so that it is functional on Linux under earlier implementations
@@ -98,7 +100,7 @@
  *      possible any existing devices upgrade to the latest bootloader code.
  *
  *
- * \section Sec_Migration150 Migrating from V1.5.0 to 1.5.1
+ * \section Sec_Migration150 Migrating from V1.5.0 to V1.5.1
  *
  *  <b>Library Demos</b>
  *    - The USBtoSerial demo was broken in the 1.5.0 release, due to incorrect register polling in place of the
@@ -114,7 +116,7 @@
  *      Projects built upon the AudioOut demo should upgrade to the latest code.
  *
  *
- * \section Sec_Migration141 Migrating from V1.4.1 to 1.5.0
+ * \section Sec_Migration141 Migrating from V1.4.1 to V1.5.0
  *
  *  <b>Library Demos</b>
  *    - Previous versions of the library demos had incorrectly encoded BCD version numbers in the descriptors. To

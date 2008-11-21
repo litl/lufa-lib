@@ -92,9 +92,16 @@
  *
  *  <b>FIXED_CONTROL_ENDPOINT_SIZE</b> - Endpoint.h \n
  *  By default, the library determines the size of the control endpoint (when in device mode) by reading the device descriptor.
- *  This reduces the amount of configuration required for the library, allows the value to change dynamically (if descriptors are
- *  stored in EEPROM or RAM rather than flash memory) and reduces code maintenance. However, this token can be defined to a non-zero
- *  value instead to give the size in bytes of the control endpoint, to reduce the size of the compiled binary.
+ *  Normally this reduces the amount of configuration required for the library, allows the value to change dynamically (if
+ *  descriptors are stored in EEPROM or RAM rather than flash memory) and reduces code maintenance. However, this token can be
+ *  defined to a non-zero value instead to give the size in bytes of the control endpoint, to reduce the size of the compiled
+ *  binary at the expense of flexibility.
+ *
+ *  <b>USE_SINGLE_DEVICE_CONFIGURATION</b> - DevChapter9.h \n
+ *  By default, the library determines the number of configurations a USB device supports by reading the device descriptor. This reduces
+ *  the amount of configuration required to set up the library, and allows the value to change dynamically (if descriptors are stored in
+ *  EEPROM or RAM rather than flash memory) and reduces code maintenance. However, many USB device projects use only a single configuration.
+ *  Defining this token enables single-configuration mode, reducing the compiled size of the binary at the expense of flexibility.
  *
  *  <b>NO_STREAM_CALLBACKS</b> - Endpoint.h, Pipe.h \n
  *  Both the endpoint and the pipe driver code contains stream functions, allowing for arrays of data to be sent to or from the

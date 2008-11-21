@@ -279,7 +279,8 @@
 			/** Event for unhandled control requests. This event fires when a the USB host issues a control
 			 *  request to the control endpoint (address 0) that the library does not handle. This may either
 			 *  be a standard request that the library has no handler code for, or a class specific request
-			 *  issued to the device which must be handled appropriately.
+			 *  issued to the device which must be handled appropriately. Due to the strict timing requirements
+			 *  on control transfers, interrupts are disabled during control request processing.
 			 *
 			 *  \param bRequest       Request value, indicating what command the host has issued.
 			 *  \param bmRequestType  Mask indicating the request data direction (if any), type and recipient.

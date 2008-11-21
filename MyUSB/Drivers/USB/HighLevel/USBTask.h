@@ -39,6 +39,7 @@
 
 	/* Includes: */
 		#include <avr/io.h>
+		#include <avr/interrupt.h>
 		#include <stdbool.h>
 		#include <stddef.h>
 		
@@ -147,10 +148,10 @@
 			 *  The USB task must be serviced within 50mS in all modes, when needed. The task may be serviced 
 			 *  at all times, or (for minimum CPU consumption):
 			 *
-			 *    > In device mode, it may be disabled at startup, enabled on the firing of the USB_Connect event
+			 *    - In device mode, it may be disabled at startup, enabled on the firing of the USB_Connect event
 			 *    and disabled again on the firing of the USB_Disconnect event.
 			 *
-			 *    > In host mode, it may be disabled at startup, enabled on the firing of the USB_DeviceAttached
+			 *    - In host mode, it may be disabled at startup, enabled on the firing of the USB_DeviceAttached
 			 *    event and disabled again on the firing of the USB_DeviceUnattached event.
 			 *
 			 *  \see Events.h for more information on the USB events.

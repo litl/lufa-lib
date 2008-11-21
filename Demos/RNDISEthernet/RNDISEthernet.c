@@ -337,7 +337,13 @@ TASK(Ethernet_Task)
 	/* Check if a frame has been written to the IN frame buffer */
 	if (FrameIN.FrameInBuffer)
 	{
+		/* Indicate packet processing started */
+		LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED2 | LEDS_LED4);
+
 		/* Process the ethernet frame - replace this with your own Ethernet handler code as desired */
 		Ethernet_ProcessPacket();
+
+		/* Indicate packet processing complete */
+		LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 	}
 }

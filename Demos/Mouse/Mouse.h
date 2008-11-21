@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Mouse.c.
+ */
+
 #ifndef _MOUSE_H_
 #define _MOUSE_H_
 
@@ -49,31 +54,54 @@
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
 	/* Task Definitions: */
+		/** Task prototype for the mouse report generation task. */
 		TASK(USB_Mouse_Report);
 
 	/* Macros: */
+		/** HID Class specific request to get the next HID report from the device. */
 		#define REQ_GetReport      0x01
+
+		/** HID Class specific request to get the idle timeout period of the device. */
 		#define REQ_GetIdle        0x02
+
+		/** HID Class specific request to send the next HID report to the device. */
 		#define REQ_SetReport      0x09
+
+		/** HID Class specific request to set the idle timeout period of the device. */
 		#define REQ_SetIdle        0x0A
+
+		/** HID Class specific request to get the current HID protocol in use, either report or boot. */
 		#define REQ_GetProtocol    0x03
+
+		/** HID Class specific request to set the current HID protocol in use, either report or boot. */
 		#define REQ_SetProtocol    0x0B
 
 	/* Type Defines: */
+		/** Type define for the mouse HID report structure, for creating and sending HID reports to the host PC.
+		 *  This mirrors the layout described to the host in the HID report descriptor, in Descriptors.c.
+		 */
 		typedef struct
 		{
-			uint8_t Button;
-			int8_t  X;
-			int8_t  Y;
+			uint8_t Button; /**< Bit mask of the currently pressed mouse buttons */
+			int8_t  X; /**< Current mouse delta X movement, as a signed 8-bit integer */
+			int8_t  Y; /**< Current mouse delta Y movement, as a signed 8-bit integer */
 		} USB_MouseReport_Data_t;
 			
 	/* Event Handlers: */
+		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
 		HANDLES_EVENT(USB_Connect);
+
+		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
+
+		/** Indicates that this module will catch the USB_ConfigurationChanged event when thrown by the library. */
 		HANDLES_EVENT(USB_ConfigurationChanged);
+
+		/** Indicates that this module will catch the USB_UnhandledControlPacket event when thrown by the library. */
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Function Prototypes: */
-		void GetNextReport(USB_MouseReport_Data_t* ReportData);
+		/** Function prototype for the GetNextReport() routine, to generate HID reports for transmission to the host. */
+		bool GetNextReport(USB_MouseReport_Data_t* ReportData);
 
 #endif

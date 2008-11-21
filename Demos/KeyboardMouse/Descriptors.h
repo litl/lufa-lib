@@ -8,7 +8,8 @@
 
 /*
   Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
-
+  Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+  
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
   granted, provided that the above copyright notice appear in all
@@ -28,6 +29,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Descriptors.c.
+ */
+ 
 #ifndef _DESCRIPTORS_H_
 #define _DESCRIPTORS_H_
 
@@ -37,6 +43,9 @@
 		#include <avr/pgmspace.h>
 
 	/* Type Defines: */
+		/** Type define for the HID class specific HID descriptor, to describe the HID device's specifications. Refer to the HID
+		 *  specification for details on the structure elements.
+		 */
 		typedef struct
 		{
 			USB_Descriptor_Header_t               Header;
@@ -50,8 +59,13 @@
 			uint16_t                              HIDReportLength;
 		} USB_Descriptor_HID_t;
 
+		/** Type define for the data type used to store HID report descriptor elements. */
 		typedef uint8_t USB_Descriptor_HIDReport_Datatype_t;
 
+		/** Type define for the device configuration descriptor structure. This must be defined in the
+		 *  application code, as the configuration descriptor contains several sub-descriptors which
+		 *  vary between devices, and which describe the device's usage to the host.
+		 */
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;
@@ -65,15 +79,28 @@
 		} USB_Descriptor_Configuration_t;
 					
 	/* Macros: */
-		#define KEYBOARD_IN_EPNUM              1
-		#define KEYBOARD_OUT_EPNUM             2
-		#define MOUSE_IN_EPNUM                 3
-		#define HID_EPSIZE                     8
+		/** Endpoint number of the Keyboard HID reporting IN endpoint. */
+		#define KEYBOARD_IN_EPNUM         1
 
-		#define DTYPE_HID                      0x21
-		#define DTYPE_Report                   0x22
+		/** Endpoint number of the Keyboard HID reporting OUT endpoint. */
+		#define KEYBOARD_OUT_EPNUM        2
+
+		/** Endpoint number of the Mouse HID reporting IN endpoint. */
+		#define MOUSE_IN_EPNUM            3
+
+		/** Size in bytes of each of the HID reporting IN and OUT endpoints. */
+		#define HID_EPSIZE                8
+
+		/** Descriptor header type value, to indicate a HID class HID descriptor. */
+		#define DTYPE_HID                 0x21
+		
+		/** Descriptor header type value, to indicate a HID class HID report descriptor. */
+		#define DTYPE_Report              0x22
 
 	/* Function Prototypes: */
+		/** Prototype for the function to return the address and size of a given descriptor when requested by
+		 *  the host. See StdDescriptors.h for more details.
+		 */	
 		bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 		                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 		                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);

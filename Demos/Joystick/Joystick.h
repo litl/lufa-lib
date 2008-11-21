@@ -28,12 +28,18 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Joystick.c.
+ */
+ 
 #ifndef _JOYSTICK_H_
 #define _JOYSTICK_H_
 
 	/* Includes: */
 		#include <avr/io.h>
 		#include <avr/wdt.h>
+		#include <string.h>
 
 		#include "Descriptors.h"
 
@@ -46,23 +52,39 @@
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
 	/* Task Definitions: */
+		/** Task prototype for the joystick report generation task. */
 		TASK(USB_Joystick_Report);
 
 	/* Macros: */
+		/** HID Class specific request to get the next HID report from the device. */
 		#define REQ_GetReport   0x01
 
 	/* Type Defines: */
+		/** Type define for the joystick HID report structure, for creating and sending HID reports to the host PC.
+		 *  This mirrors the layout described to the host in the HID report descriptor, in Descriptors.c.
+		 */
 		typedef struct
 		{
-			int8_t  X;
-			int8_t  Y;
-			uint8_t Button;
+			int8_t  X; /**< Current absolute joystick X position, as a signed 8-bit integer */
+			int8_t  Y; /**< Current absolute joystick Y position, as a signed 8-bit integer */
+			uint8_t Button; /**< Bit mask of the currently pressed joystick buttons */
 		} USB_JoystickReport_Data_t;
 			
 	/* Event Handlers: */
+		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
 		HANDLES_EVENT(USB_Connect);
+
+		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
+
+		/** Indicates that this module will catch the USB_ConfigurationChanged event when thrown by the library. */
 		HANDLES_EVENT(USB_ConfigurationChanged);
+
+		/** Indicates that this module will catch the USB_UnhandledControlPacket event when thrown by the library. */
 		HANDLES_EVENT(USB_UnhandledControlPacket);
+		
+	/* Function Prototypes: */
+		/** Function prototype for the GetNextReport() routine, to generate HID reports for transmission to the host. */
+		bool GetNextReport(USB_JoystickReport_Data_t* ReportData);
 		
 #endif

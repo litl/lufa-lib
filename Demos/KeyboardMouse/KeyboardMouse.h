@@ -8,7 +8,8 @@
 
 /*
   Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
-
+  Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+  
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
   granted, provided that the above copyright notice appear in all
@@ -48,34 +49,57 @@
 		#include <MyUSB/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
 	/* Task Definitions: */
+		/** Task to manage the keyboard HID interface, generating and processing HID reports to and from the host. */
 		TASK(USB_Keyboard);
+
+		/** Task to manage the mouse HID interface, generating and processing HID reports to and from the host. */
 		TASK(USB_Mouse);
 
 	/* Macros: */
+		/** HID Class specific request to get the next HID report from the device. */
 		#define REQ_GetReport      0x01
+
+		/** HID Class specific request to send the next HID report to the device. */
 		#define REQ_SetReport      0x09
+
+		/** HID Class specific request to get the current HID protocol in use, either report or boot. */
 		#define REQ_GetProtocol    0x03
+
+		/** HID Class specific request to set the current HID protocol in use, either report or boot. */
 		#define REQ_SetProtocol    0x0B
 		
 	/* Type Defines: */
+		/** Type define for the keyboard HID report structure, for creating and sending HID reports to the host PC.
+		 *  This mirrors the layout described to the host in the HID report descriptor, in Descriptors.c.
+		 */
 		typedef struct
 		{
-			uint8_t Modifier;
-			uint8_t Reserved;
-			uint8_t KeyCode[6];
+			uint8_t Modifier; /**< Modifier mask byte, containing a mask of modifier keys set (such as shift or CTRL) */
+			uint8_t Reserved; /**< Reserved, always set as 0x00 */
+			uint8_t KeyCode[6]; /**< Array of up to six simultaneous key codes of pressed keys */
 		} USB_KeyboardReport_Data_t;
 
+		/** Type define for the mouse HID report structure, for creating and sending HID reports to the host PC.
+		 *  This mirrors the layout described to the host in the HID report descriptor, in Descriptors.c.
+		 */
 		typedef struct
 		{
-			uint8_t Button;
-			int8_t  X;
-			int8_t  Y;
+			uint8_t Button; /**< Bit mask of the currently pressed mouse buttons */
+			int8_t  X; /**< Current mouse delta X movement, as a signed 8-bit integer */
+			int8_t  Y; /**< Current mouse delta Y movement, as a signed 8-bit integer */
 		} USB_MouseReport_Data_t;
 			
 	/* Event Handlers: */
+		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
 		HANDLES_EVENT(USB_Connect);
+
+		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
+
+		/** Indicates that this module will catch the USB_ConfigurationChanged event when thrown by the library. */
 		HANDLES_EVENT(USB_ConfigurationChanged);
+
+		/** Indicates that this module will catch the USB_UnhandledControlPacket event when thrown by the library. */
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 #endif

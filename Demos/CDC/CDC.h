@@ -50,6 +50,19 @@
 		#define REQ_SetLineEncoding          0x20
 		#define REQ_SetControlLineState      0x22
 		
+		#define NOTIF_SerialState            0x20
+
+		#define CONTROL_LINE_OUT_DTR         (1 << 0)
+		#define CONTROL_LINE_OUT_RTS         (1 << 1)
+		
+		#define CONTROL_LINE_IN_DCD          (1 << 0)
+		#define CONTROL_LINE_IN_DSR          (1 << 1)
+		#define CONTROL_LINE_IN_BREAK        (1 << 2)
+		#define CONTROL_LINE_IN_RING         (1 << 3)
+		#define CONTROL_LINE_IN_FRAMEERROR   (1 << 4)
+		#define CONTROL_LINE_IN_PARITYERROR  (1 << 5)
+		#define CONTROL_LINE_IN_OVERRUNERROR (1 << 6)
+		
 	/* Event Handlers: */
 		HANDLES_EVENT(USB_Connect);
 		HANDLES_EVENT(USB_Disconnect);
@@ -64,6 +77,15 @@
 			uint8_t  ParityType;
 			uint8_t  DataBits;
 		} CDC_Line_Coding_t;
+		
+		typedef struct
+		{
+			uint8_t  NotificationType;
+			uint8_t  Notification;
+			uint16_t wValue;
+			uint16_t wIndex;
+			uint16_t wLength;
+		} USB_Notification_Header_t;
 		
 	/* Enums: */
 		enum CDCDevice_CDC_LineCodingFormats_t

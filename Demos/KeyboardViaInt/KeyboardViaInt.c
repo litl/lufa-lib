@@ -8,6 +8,7 @@
 
 /*
   Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+      Based on code by Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -28,36 +29,12 @@
   this software.
 */
 
-/*
-	Keyboard demonstration application by Denver Gingerich.
-
-	This example is based on the MyUSB Mouse demonstration application,
-	written by Dean Camera.
-*/
-
-/*
-	Keyboard demonstration application, using endpoint interrupts. This
-	gives a simple reference application for implementing a USB Keyboard
-	using the basic USB HID drivers in all modern OSes (i.e. no special
-	drivers required). It is boot protocol compatible, and thus works under
-	compatible BIOS as if it was a native keyboard (e.g. PS/2).
-	
-	On startup the system will automatically enumerate and function
-	as a keyboard when the USB connection to a host is present. To use
-	the keyboard example, manipulate the joystick to send the letters
-	a, b, c, d and e. See the USB HID documentation for more information
-	on sending keyboard event and keypresses.
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Keyboard
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
-
+/** \file
+ *
+ *  Main source file for the KeyboardViaInt demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
+ 
 #include "KeyboardViaInt.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -73,11 +50,26 @@ TASK_LIST
 };
 
 /* Global Variables */
-bool      UsingReportProtocol = true;
-uint8_t   IdleCount           = 0;
-uint16_t  IdleMSRemaining     = 0;
+/** Indicates what report mode the host has requested, true for normal HID reporting mode, false for special boot
+ *  protocol reporting mode.
+ */
+bool UsingReportProtocol = true;
+
+/** Current Idle period. This is set by the host via a Set Idle HID class request to silence the device's reports
+ *  for either the entire idle duration, or until the report status changes (e.g. the user moves the mouse).
+ */
+uint8_t IdleCount = 0;
+
+/** Current Idle period remaining. When the IdleCount value is set, this tracks the remaining number of idle
+ *  milliseconds. This is seperate to the IdleCount timer and is incremented and compared as the host may request 
+ *  the current idle period via a Get Idle HID class request, thus its value must be preserved.
+ */
+uint16_t IdleMSRemaining = 0;
 
 
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the USB management task.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -110,6 +102,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
+ *  starts the library USB task to begin the enumeration and USB management process.
+ */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
@@ -122,6 +117,9 @@ EVENT_HANDLER(USB_Connect)
 	UsingReportProtocol = true;
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs and stops the USB management task.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop running keyboard reporting and USB management tasks */
@@ -131,6 +129,9 @@ EVENT_HANDLER(USB_Disconnect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host sets the current configuration
+ *  of the USB device after enumeration, and configures the keyboard device endpoints.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup Keyboard Keycode Report Endpoint */
@@ -153,6 +154,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the HID commands, which are
+ *  all issued via the control endpoint), so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Handle HID Class specific requests */
@@ -275,6 +280,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 }
 
+/** ISR for the timer 0 compare vector. This ISR fires once each millisecond, and increments the
+ *  scheduler elapsed idle period counter when the host has set an idle period.
+ */
 ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 {
 	/* One millisecond has elapsed, decrement the idle time remaining counter if it has not already elapsed */
@@ -282,11 +290,17 @@ ISR(TIMER0_COMPA_vect, ISR_BLOCK)
 	  IdleMSRemaining--;
 }
 
+/** Fills the given HID report data structure with the next HID report to send to the host.
+ *
+ *  \param ReportData  Pointer to a HID report data structure to be filled
+ *
+ *  \return Boolean true if the new report differs from the last report, false otherwise
+ */
 bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 {
 	static uint8_t PrevJoyStatus = 0;
-	uint8_t        JoyStatus_LCL        = Joystick_GetStatus();
-	bool           InputChanged         = false;
+	uint8_t        JoyStatus_LCL = Joystick_GetStatus();
+	bool           InputChanged  = false;
 
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_KeyboardReport_Data_t));
@@ -314,6 +328,10 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 	return InputChanged;
 }
 
+/** Processes a given LED report mask from the host and sets the board LEDs to match.
+ *
+ *  \param LEDReport  LED mask from the host, containing a mask of what LEDs are set
+ */
 void ProcessLEDReport(uint8_t LEDReport)
 {
 	uint8_t LEDMask   = LEDS_LED2;
@@ -331,6 +349,11 @@ void ProcessLEDReport(uint8_t LEDReport)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** ISR for the general Pipe/Endpoint interrupt vector. This ISR fires when an endpoint's status changes (such as
+ *  a packet has been received) on an endpoint with its corresponding ISR enabling bits set. This is used to send
+ *  HID packets to the host each time the HID interrupt endpoints polling period elapses, as managed by the USB
+ *  controller.
+ */
 ISR(ENDPOINT_PIPE_vect)
 {
 	/* Save previously selected endpoint before selecting a new endpoint */

@@ -28,29 +28,11 @@
   this software.
 */
 
-/*
-	Joystick demonstration application. This gives a simple reference
-	application for implementing a USB Keyboard device, for USB Joysticks
-	using the standard Keyboard HID profile.
-	
-	This device will show up as a generic joystick device, with two buttons.
-	Pressing the joystick inwards is the first button, and the HWB button
-	is the second.
-	
-	Moving the joystick on the selected board moves the joystick location on
-	the host computer.
-	
-	Currently only single interface joysticks are supported.
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Joystick
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
+/** \file
+ *
+ *  Main source file for the Joystick demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
 
 #include "Joystick.h"
 
@@ -67,9 +49,9 @@ TASK_LIST
 	{ Task: USB_Joystick_Report  , TaskStatus: TASK_STOP },
 };
 
-/* Global Variables */
-USB_JoystickReport_Data_t JoystickReportData = {Button: 0, X: 0, Y: 0};
-
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -97,6 +79,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
+ *  starts the library USB task to begin the enumeration and USB management process.
+ */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
@@ -106,6 +91,9 @@ EVENT_HANDLER(USB_Connect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs and stops the USB management and joystick reporting tasks.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop running joystick reporting and USB management tasks */
@@ -116,6 +104,9 @@ EVENT_HANDLER(USB_Disconnect)
 	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
+ *  of the USB device after enumeration - the device endpoints are configured and the joystick reporting task started.
+ */ 
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup Joystick Report Endpoint */
@@ -130,6 +121,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(USB_Joystick_Report, TASK_RUN);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the HID commands, which are
+ *  all issued via the control endpoint), so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Handle HID Class specific requests */
@@ -138,6 +133,11 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 		case REQ_GetReport:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
+				USB_JoystickReport_Data_t JoystickReportData;
+				
+				/* Create the next HID report to send to the host */				
+				GetNextReport(&JoystickReportData);
+
 				/* Ignore report type and ID number value */
 				Endpoint_Discard_Word();
 				
@@ -164,26 +164,50 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 }
 
-TASK(USB_Joystick_Report)
+/** Fills the given HID report data structure with the next HID report to send to the host.
+ *
+ *  \param ReportData  Pointer to a HID report data structure to be filled
+ *
+ *  \return Boolean true if the new report differs from the last report, false otherwise
+ */
+bool GetNextReport(USB_JoystickReport_Data_t* ReportData)
 {
-	uint8_t JoyStatus_LCL = Joystick_GetStatus();
+	static uint8_t PrevJoyStatus = 0;
+	uint8_t        JoyStatus_LCL        = Joystick_GetStatus();
+	bool           InputChanged         = false;
+
+	/* Clear the report contents */
+	memset(ReportData, 0, sizeof(USB_JoystickReport_Data_t));
 
 	if (JoyStatus_LCL & JOY_UP)
-	  JoystickReportData.Y =  100;
+	  ReportData->Y =  100;
 	else if (JoyStatus_LCL & JOY_DOWN)
-	  JoystickReportData.Y = -100;
+	  ReportData->Y = -100;
 
 	if (JoyStatus_LCL & JOY_RIGHT)
-	  JoystickReportData.X =  100;
+	  ReportData->X =  100;
 	else if (JoyStatus_LCL & JOY_LEFT)
-	  JoystickReportData.X = -100;
+	  ReportData->X = -100;
 
 	if (JoyStatus_LCL & JOY_PRESS)
-	  JoystickReportData.Button  = (1 << 1);
+	  ReportData->Button  = (1 << 1);
 	  
 	if (HWB_GetStatus())
-	  JoystickReportData.Button |= (1 << 0);
+	  ReportData->Button |= (1 << 0);
+	  
+	/* Check if the new report is different to the previous report */
+	InputChanged = PrevJoyStatus ^ JoyStatus_LCL;
 
+	/* Save the current joystick status for later comparison */
+	PrevJoyStatus = JoyStatus_LCL;
+
+	/* Return whether the new report is different to the previous report or not */
+	return InputChanged;
+}
+
+/** Task to manage HID report generation and transmission to the host. */
+TASK(USB_Joystick_Report)
+{
 	/* Check if the USB System is connected to a Host */
 	if (USB_IsConnected)
 	{
@@ -193,6 +217,11 @@ TASK(USB_Joystick_Report)
 		/* Check if Joystick Endpoint Ready for Read/Write */
 		if (Endpoint_ReadWriteAllowed())
 		{
+			USB_JoystickReport_Data_t JoystickReportData;
+			
+			/* Create the next HID report to send to the host */
+			GetNextReport(&JoystickReportData);
+		
 			/* Write Joystick Report Data */
 			Endpoint_Write_Stream_LE(&JoystickReportData, sizeof(JoystickReportData));
 

@@ -8,6 +8,7 @@
 
 /*
   Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+      Based on code by Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -26,13 +27,6 @@
   in an action of contract, negligence or other tortious action,
   arising out of or in connection with the use or performance of
   this software.
-*/
-
-/*
-	Keyboard demonstration application by Denver Gingerich.
-
-	This example is based on the MyUSB Mouse demonstration application,
-	written by Dean Camera.
 */
 
 #include "Descriptors.h"

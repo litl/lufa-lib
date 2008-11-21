@@ -81,8 +81,12 @@ static void USB_DeviceTask(void)
 		Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
 
 		if (Endpoint_IsSetupReceived())
-		  USB_Device_ProcessControlPacket();
-		  
+		{
+			cli();
+			USB_Device_ProcessControlPacket();
+			sei();
+		}
+		
 		Endpoint_SelectEndpoint(PrevEndpoint);
 	}
 }

@@ -128,16 +128,21 @@ static void USB_Device_SetConfiguration(void)
 {
 	uint16_t                 wValue               = Endpoint_Read_Word_LE();
 	bool                     NotAlreadyConfigured = !(USB_ConfigurationNumber);
+
+#if defined(USE_SINGLE_DEVICE_CONFIGURATION)
+	if (wValue > 1)
+#else
 	USB_Descriptor_Device_t* DevDescriptorPtr;
 	uint16_t                 DevDescriptorSize;
 
 	if ((USB_GetDescriptor((DTYPE_Device << 8), 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false) ||
-#if defined(USE_RAM_DESCRIPTORS)
+	#if defined(USE_RAM_DESCRIPTORS)
 	    (wValue > DevDescriptorPtr->NumberOfConfigurations))
-#elif defined (USE_EEPROM_DESCRIPTORS)
+	#elif defined (USE_EEPROM_DESCRIPTORS)
 	    (wValue > eeprom_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
-#else
+	#else
 	    (wValue > pgm_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
+	#endif
 #endif
 	{
 		return;
