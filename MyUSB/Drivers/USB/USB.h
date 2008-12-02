@@ -43,7 +43,7 @@
 
 	/* Preprocessor Checks: */
 		#if (!(defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB647__)) && defined(USB_HOST_ONLY))
-			#error USB_HOST_ONLY is not avaliable for the currently selected USB AVR model.
+			#error USB_HOST_ONLY is not available for the currently selected USB AVR model.
 		#endif
 		
 		#if (!(defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB647__) ||  \

@@ -77,7 +77,7 @@ int main(void)
 	LEDs_Init();
 	
 	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_USBNotReady);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -96,7 +96,7 @@ int main(void)
 EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR("Device Attached.\r\n"));
-	LEDs_SetAllLEDs(LEDS_NO_LEDS);
+	UpdateStatus(Status_USBEnumerating);
 
 	/* Start USB management task to enumerate the device */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
@@ -109,13 +109,16 @@ EVENT_HANDLER(USB_DeviceUnattached)
 	Scheduler_SetTaskMode(USB_CDC_Host, TASK_STOP);
 
 	puts_P(PSTR("\r\nDevice Unattached.\r\n"));
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_USBNotReady);
 }
 
 EVENT_HANDLER(USB_DeviceEnumerationComplete)
 {
 	/* Start CDC Host task */
 	Scheduler_SetTaskMode(USB_CDC_Host, TASK_RUN);
+
+	/* Indicate device enumeration complete */
+	UpdateStatus(Status_USBReady);
 }
 
 EVENT_HANDLER(USB_HostError)
@@ -125,7 +128,7 @@ EVENT_HANDLER(USB_HostError)
 	puts_P(PSTR(ESC_BG_RED "Host Mode Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_HardwareError);
 	for(;;);
 }
 
@@ -134,6 +137,39 @@ EVENT_HANDLER(USB_DeviceEnumerationFailed)
 	puts_P(PSTR(ESC_BG_RED "Dev Enum Error\r\n"));
 	printf_P(PSTR(" -- Error Code %d\r\n"), ErrorCode);
 	printf_P(PSTR(" -- In State %d\r\n"), USB_HostState);
+	
+	UpdateStatus(Status_EnumerationError);
+}
+
+/** Task to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
+ *  log to a serial port, or anything else that is suitable for status updates.
+ *
+ *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
+ */
+void UpdateStatus(uint8_t CurrentStatus)
+{
+	uint8_t LEDMask = LEDS_NO_LEDS;
+	
+	/* Set the LED mask to the appropriate LED mask based on the given status code */
+	switch (CurrentStatus)
+	{
+		case Status_USBNotReady:
+			LEDMask = (LEDS_LED1);
+			break;
+		case Status_USBEnumerating:
+			LEDMask = (LEDS_LED1 | LEDS_LED2);
+			break;
+		case Status_USBReady:
+			LEDMask = (LEDS_LED2);
+			break;
+		case Status_EnumerationError:
+		case Status_HardwareError:
+			LEDMask = (LEDS_LED1 | LEDS_LED3);
+			break;
+	}
+	
+	/* Set the board LEDs to the new LED mask */
+	LEDs_SetAllLEDs(LEDMask);
 }
 
 TASK(USB_CDC_Host)
@@ -160,7 +196,7 @@ TASK(USB_CDC_Host)
 				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 
 				/* Indicate error via status LEDs */
-				LEDs_SetAllLEDs(LEDS_LED1);
+				UpdateStatus(Status_EnumerationError);
 
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);
@@ -183,7 +219,7 @@ TASK(USB_CDC_Host)
 				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 				
 				/* Indicate error via status LEDs */
-				LEDs_SetAllLEDs(LEDS_LED1);
+				UpdateStatus(Status_EnumerationError);
 
 				/* Wait until USB device disconnected */
 				while (USB_IsConnected);

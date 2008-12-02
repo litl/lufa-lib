@@ -141,7 +141,7 @@
 			/** Event for VBUS level change. This event fires when the VBUS line of the USB AVR changes from
 			 *  high to low or vice-versa.
 			 *
-			 *  \note This event is only avaliable on USB AVR models which support VBUS notification interrupts.
+			 *  \note This event is only available on USB AVR models which support VBUS notification interrupts.
 			 */
 			void USB_VBUSChange(void);
 
@@ -149,7 +149,7 @@
 			 *  low to high, signalling the attachment of the USB device to a host, before the enumeration
 			 *  process has begun.
 			 *
-			 *  \note This event is only avaliable on USB AVR models which support VBUS notification interrupts.
+			 *  \note This event is only available on USB AVR models which support VBUS notification interrupts.
 			 */
 			void USB_VBUSConnect(void);
 
@@ -157,7 +157,7 @@
 			 *  high to low, signalling the USB device has been removed from a host whether it has been enumerated
 			 *  or not.
 			 *
-			 *  \note This event is only avaliable on USB AVR models which support VBUS notification interrupts.
+			 *  \note This event is only available on USB AVR models which support VBUS notification interrupts.
 			 */
 			void USB_VBUSDisconnect(void);
 
@@ -168,7 +168,7 @@
 			 *  When in device mode, this can be used to progmatically start the USB management task to reduce
 			 *  CPU usage.
 			 *
-			 *  \note For the smaller USB AVRs (AT90USBXX2) with limited USB controllers, VBUS is not avaliable to the USB controller.
+			 *  \note For the smaller USB AVRs (AT90USBXX2) with limited USB controllers, VBUS is not available to the USB controller.
 			 *        this means that the current connection state is derived from the bus suspension and wake up events by default,
 			 *        which is not always accurate (host may suspend the bus while still connected). If the actual connection state
 			 *        needs to be determined, VBUS should be routed to an external pin, and the auto-detect behaviour turned off by
@@ -186,7 +186,7 @@
 			 *  When in device mode, this can be used to progmatically stop the USB management task to reduce
 			 *  CPU usage.
 			 *
-			 *  \note For the smaller USB AVRs (AT90USBXX2) with limited USB controllers, VBUS is not avaliable to the USB controller.
+			 *  \note For the smaller USB AVRs (AT90USBXX2) with limited USB controllers, VBUS is not available to the USB controller.
 			 *        this means that the current connection state is derived from the bus suspension and wake up events by default,
 			 *        which is not always accurate (host may suspend the bus while still connected). If the actual connection state
 			 *        needs to be determined, VBUS should be routed to an external pin, and the auto-detect behaviour turned off by

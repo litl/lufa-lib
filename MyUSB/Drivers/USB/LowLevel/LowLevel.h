@@ -88,7 +88,7 @@
 		#endif
 		
 		#if !defined(USB_PLL_PSC)
-			#error No PLL prescale value avaliable for chosen F_CPU value and AVR model.
+			#error No PLL prescale value available for chosen F_CPU value and AVR model.
 		#endif
 		
 	/* Public Interface - May be used in end-application: */

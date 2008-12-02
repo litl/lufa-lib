@@ -50,7 +50,7 @@
 			 *  parameter is only for identification purposes (so that the tag data can be referenced in code)
 			 *  and is not visible in the compiled binary.
 			 */
-			#define BUTTLOADTAG(id, data)  const volatile struct ButtLoadTagData BUTTTAG_##id \
+			#define BUTTLOADTAG(id, data)  const struct ButtLoadTagData BUTTTAG_##id \
 			                               PROGMEM __attribute__((used, externally_visible)) = \
 			                               {MagicString: BT_TAGHEADER, TagData: data}
 			

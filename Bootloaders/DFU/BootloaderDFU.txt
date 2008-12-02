@@ -17,7 +17,7 @@
  *  software, available for download at http://sourceforge.net/projects/dfu-programmer/.
  *  
  *  If SECURE_MODE is defined as true, upon startup the bootloader will be locked, with only the chip erase
- *  function avaliable (similar to Atmel's DFU bootloader). If SECURE_MODE is defined as false, all functions 
+ *  function available (similar to Atmel's DFU bootloader). If SECURE_MODE is defined as false, all functions 
  *  are usable on startup without the prerequisite firmware erase.
  *  
  *  Out of the box this bootloader builds for the USB1287, and should fit into 4KB of bootloader space. If

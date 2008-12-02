@@ -91,7 +91,7 @@ int main(void)
 	TIMSK0 = (1 << OCIE0A);
 
 	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_USBNotReady);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -112,7 +112,7 @@ EVENT_HANDLER(USB_Connect)
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 
 	/* Indicate USB enumerating */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+	UpdateStatus(Status_USBEnumerating);
 }
 
 /** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
@@ -125,7 +125,7 @@ EVENT_HANDLER(USB_Disconnect)
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
 	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_USBNotReady);
 }
 
 /** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
@@ -144,7 +144,7 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	                           ENDPOINT_BANK_SINGLE);
 
 	/* Indicate USB connected and ready */
-	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
+	UpdateStatus(Status_USBReady);
 	
 	/* Default to report protocol on connect */
 	UsingReportProtocol = true;
@@ -345,6 +345,33 @@ void ProcessLEDReport(uint8_t LEDReport)
 	  LEDMask |= LEDS_LED4;
 
 	/* Set the status LEDs to the current Keyboard LED status */
+	LEDs_SetAllLEDs(LEDMask);
+}
+
+/** Task to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
+ *  log to a serial port, or anything else that is suitable for status updates.
+ *
+ *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
+ */
+void UpdateStatus(uint8_t CurrentStatus)
+{
+	uint8_t LEDMask = LEDS_NO_LEDS;
+	
+	/* Set the LED mask to the appropriate LED mask based on the given status code */
+	switch (CurrentStatus)
+	{
+		case Status_USBNotReady:
+			LEDMask = (LEDS_LED1);
+			break;
+		case Status_USBEnumerating:
+			LEDMask = (LEDS_LED1 | LEDS_LED2);
+			break;
+		case Status_USBReady:
+			LEDMask = (LEDS_LED2 | LEDS_LED4);
+			break;
+	}
+	
+	/* Set the board LEDs to the new LED mask */
 	LEDs_SetAllLEDs(LEDMask);
 }
 

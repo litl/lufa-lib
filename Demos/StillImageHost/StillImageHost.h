@@ -52,6 +52,19 @@
 		#define SIMAGE_SUBCLASS                0x01
 		#define SIMAGE_PROTOCOL                0x01
 
+	/* Enums: */
+		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
+		enum StatusCodes_t
+		{
+			Status_USBNotReady      = 0, /**< USB is not ready (disconnected from a USB device) */
+			Status_USBEnumerating   = 1, /**< USB interface is enumerating */
+			Status_USBReady         = 2, /**< USB interface is connected and ready */
+			Status_EnumerationError = 3, /**< Software error while enumerating the attached USB device */
+			Status_HardwareError    = 4, /**< Hardware error while enumerating the attached USB device */
+			Status_Busy             = 5, /**< Busy reading or writing to the attached Still Image device */
+			Status_PIMACommandError = 6, /**< Error while sending or receiving a PIM command to the attached device */
+		};
+
 	/* Task Definitions: */
 		TASK(USB_SImage_Host);
 
@@ -65,5 +78,8 @@
 	/* Function Prototypes: */
 		void UnicodeToASCII(uint8_t* restrict UnicodeString, char* restrict Buffer);
 		void ShowCommandError(uint8_t ErrorCode, bool ResponseCodeError);
+
+		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

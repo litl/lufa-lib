@@ -35,7 +35,9 @@
   *    the demos, but the example code and supporting defines are now in place
   *  - Interrupts are now disabled when processing a control request in device mode, to avoid exceeding the strict control request
   *    timing requirements.
-  *
+  *  - All demos now use a central StatusUpdate() function rather than direct calls to the board LED functions, so that the demos can
+  *    easily be altered to show different LED combinations (or do something else entirely) as the demo's status changes
+  *  - Removed LED commands from the CDC bootloader, unused by most AVR910 programming software
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *
@@ -269,7 +271,7 @@
   *  - Fixed data transfers to devices when in host mode
   *  - Renamed USB_DEV_OPT_HIGHSPEED to USB_DEV_OPT_FULLSPEED and USB_HOST_IsDeviceHighSpeed() to
   *    USB_HOST_IsDeviceFullSpeed() to be in line with the official USB speed names (to avoid confusion with
-  *    the real high speed mode, which is unavaliable on the USB AVRs)
+  *    the real high speed mode, which is unavailable on the USB AVRs)
   *
   *
   *  \section Sec_ChangeLog120 Version 1.2.0 - Released February 4th, 2008

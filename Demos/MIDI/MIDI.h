@@ -54,6 +54,15 @@
 		
 		#define MIDI_CHANNEL(channel)        (channel - 1)
 
+	/* Enums: */
+		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
+		enum StatusCodes_t
+		{
+			Status_USBNotReady    = 0, /**< USB is not ready (disconnected from a USB host) */
+			Status_USBEnumerating = 1, /**< USB interface is enumerating */
+			Status_USBReady       = 2, /**< USB interface is connected and ready */
+		};
+
 	/* Task Definitions: */
 		TASK(USB_MIDI_Task);
 
@@ -65,5 +74,8 @@
    /* Function Prototypes: */
 		void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff,
 		                        const uint8_t CableID, const uint8_t Channel);
-
+		
+		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+		void UpdateStatus(uint8_t CurrentStatus);
+		
 #endif

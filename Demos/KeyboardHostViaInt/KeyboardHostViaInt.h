@@ -58,6 +58,16 @@
 			uint8_t KeyCode;
 		} USB_KeyboardReport_Data_t;
 
+		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
+		enum StatusCodes_t
+		{
+			Status_USBNotReady      = 0, /**< USB is not ready (disconnected from a USB device) */
+			Status_USBEnumerating   = 1, /**< USB interface is enumerating */
+			Status_USBReady         = 2, /**< USB interface is connected and ready */
+			Status_EnumerationError = 3, /**< Software error while enumerating the attached USB device */
+			Status_HardwareError    = 4, /**< Hardware error while enumerating the attached USB device */
+		};
+		
 	/* Task Definitions: */
 		TASK(USB_Keyboard_Host);
 
@@ -67,5 +77,9 @@
 		HANDLES_EVENT(USB_DeviceEnumerationComplete);
 		HANDLES_EVENT(USB_HostError);
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
+
+	/* Function Prototypes: */
+		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

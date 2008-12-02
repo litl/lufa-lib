@@ -84,7 +84,7 @@ int main(void)
 	TIMSK0 = (1 << OCIE0A);
 
 	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_USBNotReady);
 
 	/* Initialize USB Subsystem */
 	USB_Init();
@@ -102,7 +102,7 @@ int main(void)
 EVENT_HANDLER(USB_Connect)
 {
 	/* Indicate USB enumerating */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+	UpdateStatus(Status_USBEnumerating);
 
 	/* Default to report protocol on connect */
 	UsingReportProtocol = true;
@@ -126,7 +126,7 @@ EVENT_HANDLER(USB_Reset)
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_USBNotReady);
 }
 
 /** Event handler for the USB_ConfigurationChanged event. This is fired when the host sets the current configuration
@@ -151,7 +151,7 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	USB_INT_Enable(ENDPOINT_INT_OUT);
 
 	/* Indicate USB connected and ready */
-	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
+	UpdateStatus(Status_USBReady);
 }
 
 /** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
@@ -346,6 +346,33 @@ void ProcessLEDReport(uint8_t LEDReport)
 	  LEDMask |= LEDS_LED4;
 
 	/* Set the status LEDs to the current Keyboard LED status */
+	LEDs_SetAllLEDs(LEDMask);
+}
+
+/** Task to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
+ *  log to a serial port, or anything else that is suitable for status updates.
+ *
+ *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
+ */
+void UpdateStatus(uint8_t CurrentStatus)
+{
+	uint8_t LEDMask = LEDS_NO_LEDS;
+	
+	/* Set the LED mask to the appropriate LED mask based on the given status code */
+	switch (CurrentStatus)
+	{
+		case Status_USBNotReady:
+			LEDMask = (LEDS_LED1);
+			break;
+		case Status_USBEnumerating:
+			LEDMask = (LEDS_LED1 | LEDS_LED2);
+			break;
+		case Status_USBReady:
+			LEDMask = (LEDS_LED2 | LEDS_LED4);
+			break;
+	}
+	
+	/* Set the board LEDs to the new LED mask */
 	LEDs_SetAllLEDs(LEDMask);
 }
 

@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for DualCDC.c.
+ */
+
 #ifndef _DUAL_CDC_H_
 #define _DUAL_CDC_H_
 
@@ -46,44 +51,80 @@
 		#include <MyUSB/Scheduler/Scheduler.h>            // Simple scheduler for task management
 
 	/* Macros: */
+		/** CDC Class specific request to get the current virtual serial port configuration settings. */
 		#define REQ_GetLineEncoding          0x21
+
+		/** CDC Class specific request to set the current virtual serial port configuration settings. */
 		#define REQ_SetLineEncoding          0x20
+
+		/** CDC Class specific request to set the current virtual serial port handshake line states. */
 		#define REQ_SetControlLineState      0x22
 
 	/* Event Handlers: */
+		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
 		HANDLES_EVENT(USB_Connect);
+
+		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
+
+		/** Indicates that this module will catch the USB_ConfigurationChanged event when thrown by the library. */
 		HANDLES_EVENT(USB_ConfigurationChanged);
+
+		/** Indicates that this module will catch the USB_UnhandledControlPacket event when thrown by the library. */
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 		
 	/* Type Defines: */
+		/** Type define for the virtual serial port line encoding settings, for storing the current USART configuration
+		 *  as set by the host via a class specific request.
+		 */
 		typedef struct
 		{
-			uint32_t BaudRateBPS;
-			uint8_t  CharFormat;
-			uint8_t  ParityType;
-			uint8_t  DataBits;
+			uint32_t BaudRateBPS; /**< Baud rate of the virtual serial port, in bits per second */
+			uint8_t  CharFormat; /**< Character format of the virtual serial port, a value from the
+			                      *   CDCDevice_CDC_LineCodingFormats_t enum
+			                      */
+			uint8_t  ParityType; /**< Parity setting of the virtual serial port, a value from the
+			                      *   CDCDevice_LineCodingParity_t enum
+			                      */
+			uint8_t  DataBits; /**< Bits of data per charater of the virtual serial port */
 		} CDC_Line_Coding_t;
 		
 	/* Enums: */
-		enum DualCDC_CDC_LineCodingFormats_t
+		/** Enum for the possible line encoding formats of a virtual serial port. */
+		enum CDCDevice_CDC_LineCodingFormats_t
 		{
-			OneStopBit          = 0,
-			OneAndAHalfStopBits = 1,
-			TwoStopBits         = 2,
+			OneStopBit          = 0, /**< Each frame contains one stop bit */
+			OneAndAHalfStopBits = 1, /**< Each frame contains one and a half stop bits */
+			TwoStopBits         = 2, /**< Each frame contains two stop bits */
 		};
 		
-		enum DualCDC_CDC_LineCodingParity_t
+		/** Enum for the possible line encoding parity settings of a virtual serial port. */
+		enum CDCDevice_LineCodingParity_t
 		{
-			Parity_None         = 0,
-			Parity_Odd          = 1,
-			Parity_Even         = 2,
-			Parity_Mark         = 3,
-			Parity_Space        = 4,
+			Parity_None         = 0, /**< No parity bit mode on each frame */
+			Parity_Odd          = 1, /**< Odd parity bit mode on each frame */
+			Parity_Even         = 2, /**< Even parity bit mode on each frame */
+			Parity_Mark         = 3, /**< Mark parity bit mode on each frame */
+			Parity_Space        = 4, /**< Space parity bit mode on each frame */
+		};
+
+		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
+		enum StatusCodes_t
+		{
+			Status_USBNotReady    = 0, /**< USB is not ready (disconnected from a USB host) */
+			Status_USBEnumerating = 1, /**< USB interface is enumerating */
+			Status_USBReady       = 2, /**< USB interface is connected and ready */
 		};
 
 	/* Tasks: */
+		/** Task prototype for the CDC management task of the first CDC interface. */
 		TASK(CDC1_Task);
+
+		/** Task prototype for the CDC management task of the second CDC interface. */
 		TASK(CDC2_Task);
 
+	/* Function Prototypes: */
+		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+		void UpdateStatus(uint8_t CurrentStatus);
+		
 #endif

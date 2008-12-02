@@ -82,6 +82,15 @@
 			uint8_t KeyCode[6]; /**< Array of up to six simultaneous key codes of pressed keys */
 		} USB_KeyboardReport_Data_t;
 			
+	/* Enums: */
+		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
+		enum StatusCodes_t
+		{
+			Status_USBNotReady    = 0, /**< USB is not ready (disconnected from a USB host) */
+			Status_USBEnumerating = 1, /**< USB interface is enumerating */
+			Status_USBReady       = 2, /**< USB interface is connected and ready */
+		};
+
 	/* Event Handlers: */
 		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
 		HANDLES_EVENT(USB_Connect);
@@ -103,5 +112,8 @@
 		 *  them onto the board LEDs.
 		 */
 		void ProcessLEDReport(uint8_t LEDReport);
+		
+		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

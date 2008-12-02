@@ -95,6 +95,16 @@
 			Command_Fail = 1,
 			Phase_Error  = 2
 		};
+
+		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
+		enum StatusCodes_t
+		{
+			Status_USBNotReady            = 0, /**< USB is not ready (disconnected from a USB host) */
+			Status_USBEnumerating         = 1, /**< USB interface is enumerating */
+			Status_USBReady               = 2, /**< USB interface is connected and ready */
+			Status_CommandBlockError      = 3, /**< Processing a SCSI command block from the host */
+			Status_ProcessingCommandBlock = 4, /**< Error during the processing of a SCSI command block from the host */
+		};
 		
 	/* Global Variables: */
 		extern CommandBlockWrapper_t  CommandBlock;
@@ -115,6 +125,9 @@
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Function Prototypes: */
+		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+		void UpdateStatus(uint8_t CurrentStatus);
+
 		#if defined(INCLUDE_FROM_MASSSTORAGEDUALLUN_C)
 			static bool ReadInCommandBlock(void);
 			static void ReturnCommandStatus(void);

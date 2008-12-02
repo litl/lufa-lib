@@ -120,7 +120,7 @@ int main (void)
 	LEDs_Init();
 	
 	/* Indicate USB not connected */
-	LEDs_SetAllLEDs(LEDS_LED1);
+	UpdateStatus(Status_USBNotReady);
 
 	/* Initialize the USB subsystem */
 	USB_Init();
@@ -153,7 +153,7 @@ int main (void)
 EVENT_HANDLER(USB_Connect)
 {	
 	/* Indicate USB connected */
-	LEDs_SetAllLEDs(LEDS_LED2);
+	UpdateStatus(Status_USBReady);
 }
 
 /** Event handler for the USB_Disconnect event. This indicates that the bootloader should exit and the user
@@ -181,7 +181,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	SentCommand.DataSize = Endpoint_Read_Word_LE();
 
 	/* Indicate processing request */
-	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3);
+	UpdateStatus(Status_ProcessingDFUCommand);
 
 	switch (bRequest)
 	{
@@ -468,7 +468,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 
 	/* Indicate command processing finished */
-	LEDs_SetAllLEDs(LEDS_LED2);
+	UpdateStatus(Status_USBReady);
 }
 
 /** Routine to discard the specified number of bytes from the control endpoint stream. This is used to
@@ -708,4 +708,34 @@ static void ProcessReadCommand(void)
 	{
 		ResponseByte = SignatureInfo[DataIndexToRead - 0x30];
 	}
+}
+
+/** Task to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
+ *  log to a serial port, or anything else that is suitable for status updates.
+ *
+ *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
+ */
+static void UpdateStatus(uint8_t CurrentStatus)
+{
+	uint8_t LEDMask = LEDS_NO_LEDS;
+	
+	/* Set the LED mask to the appropriate LED mask based on the given status code */
+	switch (CurrentStatus)
+	{
+		case Status_USBNotReady:
+			LEDMask = (LEDS_LED2);
+			break;
+		case Status_USBEnumerating:
+			LEDMask = (LEDS_LED1 | LEDS_LED2);
+			break;
+		case Status_USBReady:
+			LEDMask = (LEDS_LED2);
+			break;
+		case Status_ProcessingDFUCommand:
+			LEDMask = (LEDS_LED2 | LEDS_LED3);
+			break;		
+	}
+	
+	/* Set the board LEDs to the new LED mask */
+	LEDs_SetAllLEDs(LEDMask);
 }

@@ -28,37 +28,12 @@
   this software.
 */
 
-/*
-	Dual Communications Device Class demonstration application.
-	This gives a simple reference application for implementing
-	a compound device with dual CDC functions acting as a pair
-	of virtual serial ports. This demo uses Interface Association
-	Descriptors to link together the pair of related CDC
-	descriptors for each virtual serial port, which may not be
-	supported in all OSes - Windows Vista is supported, as is
-	XP (although the latter may need a hotfix to function).
-	
-	Joystick actions are transmitted to the host as strings
-	through the first serial port. The device does not respond to
-	serial data sent from the host in the first serial port.
-	
-	The second serial port echoes back data sent from the host.
-	
-	Before running, you will need to install the INF file that
-	is located in the DualCDC project directory. This will enable
-	Windows to use its inbuilt CDC drivers, negating the need
-	for special Windows drivers for the device.
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Communications Device Class (CDC)
-	USB Subclass:       Abstract Control Model (ACM)
-	Relevant Standards: USBIF CDC Class Standard
-	                    Interface Association Descriptor ECN
-	Usable Speeds:      Full Speed Mode
-*/
-
+/** \file
+ *
+ *  Main source file for the DualCDC demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
+ 
 #include "DualCDC.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -76,22 +51,50 @@ TASK_LIST
 };
 
 /* Globals: */
+/** Contains the current baud rate and other settings of the first virtual serial port. While this demo does not use
+ *  the physical USART and thus does not use these settings, they must still be retained and returned to the host
+ *  upon request or the host will assume the device is non-functional.
+ *
+ *  These values are set by the host via a class-specific request, however they are not required to be used accurately.
+ *  It is possible to completely ignore these value or use other settings as the host is completely unaware of the physical
+ *  serial link characteristics and instead sends and recieves data in endpoint streams.
+ */
 CDC_Line_Coding_t LineCoding1 = { BaudRateBPS: 9600,
                                   CharFormat:  OneStopBit,
                                   ParityType:  Parity_None,
                                   DataBits:    8            };
 
+/** Contains the current baud rate and other settings of the second virtual serial port. While this demo does not use
+ *  the physical USART and thus does not use these settings, they must still be retained and returned to the host
+ *  upon request or the host will assume the device is non-functional.
+ *
+ *  These values are set by the host via a class-specific request, however they are not required to be used accurately.
+ *  It is possible to completely ignore these value or use other settings as the host is completely unaware of the physical
+ *  serial link characteristics and instead sends and recieves data in endpoint streams.
+ */
 CDC_Line_Coding_t LineCoding2 = { BaudRateBPS: 9600,
                                   CharFormat:  OneStopBit,
                                   ParityType:  Parity_None,
                                   DataBits:    8            };
 								  
+/** String to print through the first virtual serial port when the joystick is pressed upwards. */
 char JoystickUpString[]      = "Joystick Up\r\n";
+
+/** String to print through the first virtual serial port when the joystick is pressed downwards. */
 char JoystickDownString[]    = "Joystick Down\r\n";
+
+/** String to print through the first virtual serial port when the joystick is pressed left. */
 char JoystickLeftString[]    = "Joystick Left\r\n";
+
+/** String to print through the first virtual serial port when the joystick is pressed right. */
 char JoystickRightString[]   = "Joystick Right\r\n";
+
+/** String to print through the first virtual serial port when the joystick is pressed inwards. */
 char JoystickPressedString[] = "Joystick Pressed\r\n";
 
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -106,7 +109,7 @@ int main(void)
 	LEDs_Init();
 	
 	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_USBNotReady);
 	
 	/* Initialize Scheduler so that it can be used */
 	Scheduler_Init();
@@ -118,15 +121,21 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
+ *  starts the library USB task to begin the enumeration and USB management process.
+ */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 
 	/* Indicate USB enumerating */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED4);
+	UpdateStatus(Status_USBEnumerating);
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs and stops the USB management and CDC management tasks.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop running CDC and USB management tasks */
@@ -135,9 +144,12 @@ EVENT_HANDLER(USB_Disconnect)
 	Scheduler_SetTaskMode(USB_USBTask, TASK_STOP);
 
 	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1 | LEDS_LED3);
+	UpdateStatus(Status_USBNotReady);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
+ *  of the USB device after enumeration - the device endpoints are configured and the CDC management tasks are started.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup CDC Notification, Rx and Tx Endpoints for the first CDC */
@@ -167,13 +179,17 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	                           ENDPOINT_BANK_SINGLE);
 							   
 	/* Indicate USB connected and ready */
-	LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED4);
+	UpdateStatus(Status_USBReady);
 	
 	/* Start CDC tasks */
 	Scheduler_SetTaskMode(CDC1_Task, TASK_RUN);
 	Scheduler_SetTaskMode(CDC2_Task, TASK_RUN);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the CDC control commands,
+ *  which are all issued via the control endpoint), so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	uint8_t* LineCodingData;
@@ -232,6 +248,36 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 }
 
+/** Task to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
+ *  log to a serial port, or anything else that is suitable for status updates.
+ *
+ *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
+ */
+void UpdateStatus(uint8_t CurrentStatus)
+{
+	uint8_t LEDMask = LEDS_NO_LEDS;
+	
+	/* Set the LED mask to the appropriate LED mask based on the given status code */
+	switch (CurrentStatus)
+	{
+		case Status_USBNotReady:
+			LEDMask = (LEDS_LED1);
+			break;
+		case Status_USBEnumerating:
+			LEDMask = (LEDS_LED1 | LEDS_LED2);
+			break;
+		case Status_USBReady:
+			LEDMask = (LEDS_LED2 | LEDS_LED4);
+			break;
+	}
+	
+	/* Set the board LEDs to the new LED mask */
+	LEDs_SetAllLEDs(LEDMask);
+}
+
+/** Task to manage CDC data transmission and reception to and from the host for the first CDC interface, which sends joystick
+ *  movements to the host as ASCII strings.
+ */
 TASK(CDC1_Task)
 {
 	char*       ReportString    = NULL;
@@ -277,6 +323,9 @@ TASK(CDC1_Task)
 	  Endpoint_ClearCurrentBank();
 }
 
+/** Task to manage CDC data transmission and reception to and from the host for the second CDC interface, which echos back
+ *  all data sent to it from the host.
+ */
 TASK(CDC2_Task)
 {
 	/* Select the Serial Rx Endpoint */

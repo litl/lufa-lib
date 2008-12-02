@@ -127,6 +127,19 @@
 			Parity_Space        = 4, /**< Space data parity checking */
 		};
 
+		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
+		enum StatusCodes_t
+		{
+			Status_USBNotReady    = 0,       /**< USB is not ready (disconnected from a USB host) */
+			Status_USBEnumerating = 1,       /**< USB interface is enumerating */
+			Status_USBReady       = 2,       /**< USB interface is connected and ready */
+			Status_ProcessingCDCCommand = 3, /**< Currently processing a CDC bootloader command from the host */
+		};
+		
+	/* Tasks: */
+		/** Task prototype for the bootloader CDC management and processing task. */
+		TASK(CDC_Task);
+
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_BOOTLOADERCDC_C) || defined(__DOXYGEN__)
 			/** Prototype for the ProgramReadWriteMemoryBlock() function, for reading or writing EEPROM and
@@ -139,10 +152,9 @@
 
 			/** Prototype for the WriteNextResponseByte() routine, to send the next response byte to the host. */
 			static void WriteNextResponseByte(const uint8_t Response);
-		#endif
 
-	/* Tasks: */
-		/** Task prototype for the bootloader CDC management and processing task. */
-		TASK(CDC_Task);
+			/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+			static void UpdateStatus(uint8_t CurrentStatus);
+		#endif
 
 #endif

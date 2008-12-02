@@ -83,7 +83,7 @@ int main(void)
 	LEDs_Init();
 	
 	/* Indicate USB not ready */
-	LEDs_SetAllLEDs(LEDS_LED1);
+	UpdateStatus(Status_USBNotReady);
 
 	/* Initialize USB Subsystem */
 	USB_Init();
@@ -127,7 +127,7 @@ int main(void)
 EVENT_HANDLER(USB_Connect)
 {
 	/* Indicate USB connected */
-	LEDs_SetAllLEDs(LEDS_LED2);
+	UpdateStatus(Status_USBEnumerating);
 }
 
 /** Event handler for the USB_Disconnect event. This indicates that the bootloader should exit and the user
@@ -158,7 +158,7 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	                           ENDPOINT_BANK_SINGLE);
 
 	/* Indicate USB connected and ready */
-	LEDs_SetAllLEDs(LEDS_LED2);
+	UpdateStatus(Status_USBReady);
 }
 
 /** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
@@ -388,6 +388,9 @@ TASK(CDC_Task)
 	/* Check if endpoint has a command in it sent from the host */
 	if (Endpoint_ReadWriteAllowed())
 	{
+		/* Indicate current processing a CDC bootloader command */
+		UpdateStatus(Status_ProcessingCDCCommand);
+
 		/* Read in the bootloader command (first byte sent from host) */
 		uint8_t Command = FetchNextCommandByte();
 
@@ -400,22 +403,6 @@ TASK(CDC_Task)
 
 			/* Send confirmation byte back to the host */
 			WriteNextResponseByte('\r');			
-		}
-		else if (Command == 'x')
-		{
-			/* Turn on the secondary LED */
-			LEDs_SetAllLEDs(LEDS_LED2 | LEDS_LED3);
-
-			/* Send confirmation byte back to the host */
-			WriteNextResponseByte('\r');
-		}
-		else if (Command == 'y')
-		{
-			/* Turn off the secondary LED */
-			LEDs_SetAllLEDs(LEDS_LED2);
-
-			/* Send confirmation byte back to the host */
-			WriteNextResponseByte('\r');		
 		}
 		else if (Command == 't')
 		{
@@ -599,5 +586,38 @@ TASK(CDC_Task)
 
 		/* Acknowledge the command from the host */
 		Endpoint_ClearCurrentBank();
+
+		/* Indicate USB ready */
+		UpdateStatus(Status_USBReady);
 	}
+}
+
+/** Task to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
+ *  log to a serial port, or anything else that is suitable for status updates.
+ *
+ *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
+ */
+static void UpdateStatus(uint8_t CurrentStatus)
+{
+	uint8_t LEDMask = LEDS_NO_LEDS;
+	
+	/* Set the LED mask to the appropriate LED mask based on the given status code */
+	switch (CurrentStatus)
+	{
+		case Status_USBNotReady:
+			LEDMask = (LEDS_LED2);
+			break;
+		case Status_USBEnumerating:
+			LEDMask = (LEDS_LED1 | LEDS_LED2);
+			break;
+		case Status_USBReady:
+			LEDMask = (LEDS_LED2);
+			break;
+		case Status_ProcessingCDCCommand:
+			LEDMask = (LEDS_LED2 | LEDS_LED3);
+			break;		
+	}
+	
+	/* Set the board LEDs to the new LED mask */
+	LEDs_SetAllLEDs(LEDMask);
 }

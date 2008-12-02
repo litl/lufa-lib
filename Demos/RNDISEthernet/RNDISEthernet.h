@@ -69,9 +69,23 @@
 			uint16_t wIndex;
 			uint16_t wLength;
 		} USB_Notification_t;
+
+	/* Enums: */
+		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
+		enum StatusCodes_t
+		{
+			Status_USBNotReady             = 0, /**< USB is not ready (disconnected from a USB host) */
+			Status_USBEnumerating          = 1, /**< USB interface is enumerating */
+			Status_USBReady                = 2, /**< USB interface is connected and ready */
+			Status_ProcessingEthernetFrame = 3, /**< Currently processing an ethernet frame from the host */
+		};
 		
 	/* Tasks: */
 		TASK(RNDIS_Task);
 		TASK(Ethernet_Task);
-		
+
+	/* Function Prototypes: */
+		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+		void UpdateStatus(uint8_t CurrentStatus);
+	
 #endif
