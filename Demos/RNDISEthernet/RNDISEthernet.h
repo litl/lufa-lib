@@ -40,11 +40,11 @@
 
 		#include "Descriptors.h"
 		#include "RNDIS.h"
-		#include "NetworkStack/Ethernet.h"
-		#include "NetworkStack/TCP.h"
-		#include "NetworkStack/ARP.h"
-		#include "NetworkStack/Webserver.h"
-		#include "NetworkStack/Telnet.h"
+		#include "Ethernet.h"
+		#include "TCP.h"
+		#include "ARP.h"
+		#include "Webserver.h"
+		#include "Telnet.h"
 
 		#include <LUFA/Version.h>                        // Library Version Information
 		#include <LUFA/Common/ButtLoadTag.h>             // PROGMEM tags readable by the ButtLoad project

@@ -48,5 +48,5 @@ needs       = Usb_Rndis.ndi.Services
 
 ; Modify these strings for your device as needed.
 [Strings] 
-COMPANY="MyUSB Library"
+COMPANY="LUFA Library"
 RNDISDEV="USB RNDIS Demo"

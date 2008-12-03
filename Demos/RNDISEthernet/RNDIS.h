@@ -39,7 +39,7 @@
 		#include <LUFA/Drivers/AT90USBXXX/Serial_Stream.h>
 		
 		#include "RNDISEthernet.h"
-		#include "NetworkStack/Ethernet.h"
+		#include "Ethernet.h"
 
 	/* Macros: */
 		#define ADAPTER_MAC_ADDRESS                   {0x02, 0x00, 0x02, 0x00, 0x02, 0x00}

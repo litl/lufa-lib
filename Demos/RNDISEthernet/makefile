@@ -89,16 +89,16 @@ OBJDIR = .
 SRC = $(TARGET).c                                          \
       Descriptors.c                                        \
       RNDIS.c                                              \
-	  NetworkStack/Ethernet.c                              \
-	  NetworkStack/ProtocolDecoders.c                      \
-	  NetworkStack/ICMP.c                                  \
-	  NetworkStack/TCP.c                                   \
-	  NetworkStack/UDP.c                                   \
-	  NetworkStack/DHCP.c                                  \
-	  NetworkStack/ARP.c                                   \
-	  NetworkStack/IP.c                                    \
-	  NetworkStack/Webserver.c                             \
-	  NetworkStack/Telnet.c                                \
+	  Ethernet.c                                           \
+	  ProtocolDecoders.c                                   \
+	  ICMP.c                                               \
+	  TCP.c                                                \
+	  UDP.c                                                \
+	  DHCP.c                                               \
+	  ARP.c                                                \
+	  IP.c                                                 \
+	  Webserver.c                                          \
+	  Telnet.c                                             \
       ../../LUFA/Scheduler/Scheduler.c                     \
       ../../LUFA/Drivers/USB/LowLevel/LowLevel.c           \
       ../../LUFA/Drivers/USB/LowLevel/Endpoint.c           \

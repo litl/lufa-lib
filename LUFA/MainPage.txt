@@ -28,7 +28,6 @@
  *  Development Blog: http://www.fourwalledcubicle.com/blog \n
  *  Discussion Group: http://groups.google.com/group/LUFA-support-list \n
  *  Bugs and Feature Requests: http://code.google.com/p/LUFA-issues/issues/ \n
- *  Development Suggestions Wiki: http://wikihost.org/wikis/LUFAsuggestion/ \n
  *  Author's Website: http://www.fourwalledcubicle.com \n
  *
  *  WinAVR Website: http://winavr.sourceforge.net \n
