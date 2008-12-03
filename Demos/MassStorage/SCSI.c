@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -55,7 +55,7 @@ SCSI_Inquiry_Response_t InquiryData =
 		WideBus32Bit:        false,
 		RelAddr:             false,
 		
-		VendorID:            "MyUSB",
+		VendorID:            "LUFA",
 		ProductID:           "Dataflash Disk",
 		RevisionID:          {'0','.','0','0'},
 	};

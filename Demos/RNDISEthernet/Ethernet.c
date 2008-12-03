@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -37,7 +37,7 @@ Ethernet_Frame_Info_t FrameOUT;
 MAC_Address_t ServerMACAddress    = {SERVER_MAC_ADDRESS};
 IP_Address_t  ServerIPAddress     = {SERVER_IP_ADDRESS};
 MAC_Address_t BroadcastMACAddress = {BROADCAST_MAC_ADDRESS};
-
+IP_Address_t  BroadcastIPAddress = {BROADCAST_IP_ADDRESS};
 
 void Ethernet_ProcessPacket(void)
 {
@@ -49,8 +49,6 @@ void Ethernet_ProcessPacket(void)
 	
 	int16_t                  RetSize        = NO_RESPONSE;
 	
-	FrameIN.FrameLength -= sizeof(Ethernet_Frame_Header_t);
-
 	/* Ensure frame is addressed to either all (broadcast) or the virtual webserver, and is a type II frame */
 	if ((MAC_COMPARE(&FrameINHeader->Destination, &ServerMACAddress) ||
 	     MAC_COMPARE(&FrameINHeader->Destination, &BroadcastMACAddress)) &&

@@ -7,11 +7,11 @@
 /** \page TokenSummary Summary of Compile Tokens
  *
  *  The following lists all the possible tokens which can be defined in a project makefile, and passed to the
- *  compiler via the -D switch, to alter the MyUSB library code. These tokens may alter the library behaviour,
+ *  compiler via the -D switch, to alter the LUFA library code. These tokens may alter the library behaviour,
  *  or remove features unused by a given application in order to save flash space.
  *
  *  \section Sec_SummaryNonUSBTokens Non USB Related Tokens
- *  This section describes compile tokens which affect non-USB sections of the MyUSB library.
+ *  This section describes compile tokens which affect non-USB sections of the LUFA library.
  *
  *  <b>DISABLE_TERMINAL_CODES</b> - TerminalCodes.h \n
  *  If an application contains ANSI terminal control codes listed in TerminalCodes.h, it might be desired to remove them
@@ -32,7 +32,7 @@
  *  simultaneously, before a handle (and its associated allocated memory) must be freed.
  *
  *  \section Sec_SummaryUSBClassTokens USB Class Driver Related Tokens
- *  This section describes compile tokens which affect USB class-specific drivers in the MyUSB library.
+ *  This section describes compile tokens which affect USB class-specific drivers in the LUFA library.
  *
  *  <b>HID_ENABLE_FEATURE_PROCESSING</b> - HIDParser.h \n
  *  Define this token to enable the processing of FEATURE HID report items, if any, into the processed HID structure.
@@ -74,7 +74,7 @@
  *  processed HID report table. If not defined, this defaults to the value indicated in the HID.h file documentation.
  *
  *  \section Sec_SummaryUSBTokens USB Driver Related Tokens
- *  This section describes compile tokens which affect USB driver stack as a whole in the MyUSB library.
+ *  This section describes compile tokens which affect USB driver stack as a whole in the LUFA library.
  *
  *  <b>USE_RAM_DESCRIPTORS</b> - StdDescriptors.h \n
  *  Define this token to indicate to the USB driver that device descriptors are stored in RAM, rather than the default of
@@ -86,8 +86,8 @@
  *
  *  <b>USE_NONSTANDARD_DESCRIPTOR_NAMES</b> - StdDescriptors.h \n
  *  The USB 2.0 standard gives some rather obscure names for the elements in the standard descriptor types (device, configuration,
- *  string, endpoint, etc.). By default the MyUSB library uses these names in its predefined descriptor structure types for
- *  compatibility. If this token is defined, the structure element names are switched to the MyUSB-specific but more descriptive
+ *  string, endpoint, etc.). By default the LUFA library uses these names in its predefined descriptor structure types for
+ *  compatibility. If this token is defined, the structure element names are switched to the LUFA-specific but more descriptive
  *  names documented in the StdDescriptors.h source file.
  *
  *  <b>FIXED_CONTROL_ENDPOINT_SIZE</b> - Endpoint.h \n

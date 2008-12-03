@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -31,24 +31,24 @@
 #include "Webserver.h"
 
 char PROGMEM HTTPHeader[] = "HTTP/1.1 200 OK\r\n"
-                            "Server: MyUSB RNDIS\r\n"
+                            "Server: LUFA RNDIS\r\n"
                             "Content-type: text/html\r\n"
                             "Connection: close\r\n\r\n";
 char PROGMEM HTTPPage[]   = 
 		"<html>"
 		"	<head>"
 		"		<title>"
-		"			MyUSB Webserver Demo"
+		"			LUFA Webserver Demo"
 		"		</title>"
 		"	</head>"
 		"	<body>"
 		"		<h1>Hello from your USB AVR!</h1>"
 		"		<p>"
-		"			Hello! Welcome to the MyUSB RNDIS Demo Webserver test page, running on your USB AVR via the MyUSB library. This demonstrates the HTTP webserver, TCP/IP stack and RNDIS demo all running atop the MyUSB USB stack."
+		"			Hello! Welcome to the LUFA RNDIS Demo Webserver test page, running on your USB AVR via the LUFA library. This demonstrates the HTTP webserver, TCP/IP stack and RNDIS demo all running atop the LUFA USB stack."
 		"			<br /><br />"
-		"			<small>Project Information: <a href=\"http://www.fourwalledcubicle.com/MyUSB.php\">http://www.fourwalledcubicle.com/MyUSB.php</a>.</small>"
+		"			<small>Project Information: <a href=\"http://www.fourwalledcubicle.com/LUFA.php\">http://www.fourwalledcubicle.com/LUFA.php</a>.</small>"
 		"			<hr />"
-		"			<i>MyUSB Version: </i>" MYUSB_VERSION_STRING
+		"			<i>LUFA Version: </i>" LUFA_VERSION_STRING
 		"		</p>"
 		"	</body>"
 		"</html>";

@@ -6,11 +6,15 @@
 
 /** \page Page_Migration Migrating from Older Versions
  *
- *  Below is migration information for updating existing projects based on previous versions of the MyUSB library
+ *  Below is migration information for updating existing projects based on previous versions of the LUFA library
  *  to the next version released. It does not indicate all new additions to the library in each version change, only
  *  areas relevant to making older projects compatible with the API changes of each new release.
  *
  * \section Sec_Migration153 Migrating from V1.5.3 to V1.5.4
+ *
+ *  <b>All</b>
+ *    - The MyUSB project name has been changed to LUFA (Lightweight Framework for USB AVRs). All references to MyUSB, including macro names,
+ *      have been changed to LUFA.
  *
  *  <b>Library Demos</b>
  *    - The ReconfigureUSART() routine in the USBtoSerial demo was not being called after new line encoding

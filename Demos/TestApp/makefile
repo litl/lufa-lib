@@ -45,7 +45,7 @@ MCU = at90usb1287
 
 
 # Target board (USBKEY, STK525, STK526, RZUSBSTICK, USER or blank for projects not requiring
-# MyUSB board drivers). If USER is selected, put custom board drivers in a directory called 
+# LUFA board drivers). If USER is selected, put custom board drivers in a directory called 
 # "Board" inside the application directory.
 BOARD  = USBKEY
 
@@ -86,24 +86,24 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c                                           \
-	  TestEvents.c                                          \
-	  Descriptors.c                                         \
-	  ../../MyUSB/Scheduler/Scheduler.c                     \
-	  ../../MyUSB/MemoryAllocator/DynAlloc.c                \
-	  ../../MyUSB/Drivers/Board/Temperature.c               \
-	  ../../MyUSB/Drivers/AT90USBXXX/Serial_Stream.c        \
-	  ../../MyUSB/Drivers/AT90USBXXX/Serial.c               \
-	  ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
-	  ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
-	  ../../MyUSB/Drivers/USB/LowLevel/Pipe.c               \
-	  ../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
-	  ../../MyUSB/Drivers/USB/LowLevel/HostChapter9.c       \
-	  ../../MyUSB/Drivers/USB/LowLevel/Host.c               \
-	  ../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
-	  ../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
-	  ../../MyUSB/Drivers/USB/HighLevel/Events.c            \
-	  ../../MyUSB/Drivers/USB/HighLevel/StdDescriptors.c    \
+SRC = $(TARGET).c                                          \
+	  TestEvents.c                                         \
+	  Descriptors.c                                        \
+	  ../../LUFA/Scheduler/Scheduler.c                     \
+	  ../../LUFA/MemoryAllocator/DynAlloc.c                \
+	  ../../LUFA/Drivers/Board/Temperature.c               \
+	  ../../LUFA/Drivers/AT90USBXXX/Serial_Stream.c        \
+	  ../../LUFA/Drivers/AT90USBXXX/Serial.c               \
+	  ../../LUFA/Drivers/USB/LowLevel/LowLevel.c           \
+	  ../../LUFA/Drivers/USB/LowLevel/Endpoint.c           \
+	  ../../LUFA/Drivers/USB/LowLevel/Pipe.c               \
+	  ../../LUFA/Drivers/USB/LowLevel/DevChapter9.c        \
+	  ../../LUFA/Drivers/USB/LowLevel/HostChapter9.c       \
+	  ../../LUFA/Drivers/USB/LowLevel/Host.c               \
+	  ../../LUFA/Drivers/USB/HighLevel/USBTask.c           \
+	  ../../LUFA/Drivers/USB/HighLevel/USBInterrupt.c      \
+	  ../../LUFA/Drivers/USB/HighLevel/Events.c            \
+	  ../../LUFA/Drivers/USB/HighLevel/StdDescriptors.c    \
 	  
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -465,11 +465,11 @@ sizeafter:
 
 checkhooks: build
 	@echo
-	@echo ------- Unhooked MyUSB Events -------
-	@$(shell) (grep -s '^Event.*MyUSB/.*\\.o' $(TARGET).map | \
+	@echo ------- Unhooked LUFA Events -------
+	@$(shell) (grep -s '^Event.*LUFA/.*\\.o' $(TARGET).map | \
 	           cut -d' ' -f1 | cut -d'_' -f2- | grep ".*") || \
 			   echo "(None)"
-	@echo ----- End Unhooked MyUSB Events -----
+	@echo ----- End Unhooked LUFA Events -----
 
 checklibmode:
 	@echo

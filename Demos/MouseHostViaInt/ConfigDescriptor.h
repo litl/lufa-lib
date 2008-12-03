@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -32,8 +32,8 @@
 #define _CONFIGDESCRIPTOR_H_
 
 	/* Includes: */
-		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
-		#include <MyUSB/Drivers/USB/Class/ConfigDescriptor.h>     // Configuration Descriptor Parser
+		#include <LUFA/Drivers/USB/USB.h>                        // USB Functionality
+		#include <LUFA/Drivers/USB/Class/ConfigDescriptor.h>     // Configuration Descriptor Parser
 		
 		#include "MouseHostViaInt.h"
 		

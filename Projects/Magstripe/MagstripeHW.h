@@ -63,7 +63,7 @@
 	/* Includes: */
 		#include <avr/io.h>
 
-		#include <MyUSB/Common/Common.h>
+		#include <LUFA/Common/Common.h>
 
 	/* Private Interface - For use in library only: */
 		/* Macros: */

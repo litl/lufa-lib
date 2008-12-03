@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -33,7 +33,7 @@
  *  Board specific HWB driver header for the STK525.
  *
  *  \note This file should not be included directly. It is automatically included as needed by the dataflash driver
- *        dispatch header located in MyUSB/Drivers/Board/Dataflash.h.
+ *        dispatch header located in LUFA/Drivers/Board/Dataflash.h.
  */
 
 #ifndef __DATAFLASH_USBKEY_H__
@@ -44,7 +44,7 @@
 
 	/* Preprocessor Checks: */
 		#if !defined(INCLUDE_FROM_DATAFLASH_H)
-			#error Do not include this file directly. Include MyUSB/Drivers/Board/Dataflash.h instead.
+			#error Do not include this file directly. Include LUFA/Drivers/Board/Dataflash.h instead.
 		#endif
 		
 	/* Private Interface - For use in library only: */

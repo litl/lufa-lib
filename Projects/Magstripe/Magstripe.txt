@@ -53,7 +53,7 @@
  *  </table>
  *
  * 
- *  This project is based on the MyUSB Keyboard demonstration application,
+ *  This project is based on the LUFA Keyboard demonstration application,
  *  written by Denver Gingerich.
  *
  *  This application uses a keyboard HID driver to communicate the data collected

@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -37,10 +37,10 @@
 #include "MouseFullInt.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB MouseFI App");
-BUTTLOADTAG(BuildTime,    __TIME__);
-BUTTLOADTAG(BuildDate,    __DATE__);
-BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
+BUTTLOADTAG(ProjName,    "LUFA MouseFI App");
+BUTTLOADTAG(BuildTime,   __TIME__);
+BUTTLOADTAG(BuildDate,   __DATE__);
+BUTTLOADTAG(LUFAVersion, "LUFA V" LUFA_VERSION_STRING);
 
 /* Global Variables */
 /** Indicates what report mode the host has requested, true for normal HID reporting mode, false for special boot
@@ -334,7 +334,7 @@ void UpdateStatus(uint8_t CurrentStatus)
  *  a packet has been received) on an endpoint with its corresponding ISR enabling bits set. This is used to send
  *  HID packets to the host each time the HID interrupt endpoints polling period elapses, as managed by the USB
  *  controller. It is also used to respond to standard and class specific requests send to the device on the control
- *  endpoint, by handing them off to the MyUSB library when they are received.
+ *  endpoint, by handing them off to the LUFA library when they are received.
  */
 ISR(ENDPOINT_PIPE_vect)
 {

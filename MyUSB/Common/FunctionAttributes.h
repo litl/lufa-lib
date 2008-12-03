@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -43,7 +43,7 @@
 
 	/* Preprocessor Checks: */
 		#if !defined(__COMMON_H__)
-			#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
+			#error Do not include this file directly. Include LUFA/Common/Common.h instead to gain this functionality.
 		#endif
 
 	/* Public Interface - May be used in end-application: */

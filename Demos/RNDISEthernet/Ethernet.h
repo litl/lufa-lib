@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -39,6 +39,8 @@
 		#include "ProtocolDecoders.h"
 		#include "ICMP.h"
 		#include "TCP.h"
+		#include "UDP.h"
+		#include "DHCP.h"
 		#include "ARP.h"
 		#include "IP.h"
 		
@@ -82,8 +84,8 @@
 
 		extern MAC_Address_t ServerMACAddress;
 		extern IP_Address_t  ServerIPAddress;
-		extern MAC_Address_t NullMACAddress;
 		extern MAC_Address_t BroadcastMACAddress;
+		extern IP_Address_t  BroadcastIPAddress;
 		
 	/* Function Prototypes: */
 		void     Ethernet_ProcessPacket(void);

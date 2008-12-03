@@ -1,16 +1,16 @@
 #
-#             MyUSB Library
+#             LUFA Library
 #     Copyright (C) Dean Camera, 2008.
 #              
 #  dean [at] fourwalledcubicle [dot] com
 #      www.fourwalledcubicle.com
 #
 
-# Makefile to build all the MyUSB Demos. Call with "make all" to
+# Makefile to build all the LUFA Demos. Call with "make all" to
 # rebuild all demos.
 
 # Projects are pre-cleaned before each one is built, to ensure any
-# custom MyUSB library build options are reflected in the compiled
+# custom LUFA library build options are reflected in the compiled
 # code.
 
 all:

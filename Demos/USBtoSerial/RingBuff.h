@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -59,7 +59,7 @@
 	#include <util/atomic.h>
 	#include <limits.h>
 
-	#include <MyUSB/Common/Common.h>
+	#include <LUFA/Common/Common.h>
 
 	/* Defines and checks: */
 	#if defined(BUFF_STATICSIZE)

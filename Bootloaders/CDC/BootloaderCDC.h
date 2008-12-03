@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -45,9 +45,9 @@
 
 		#include "Descriptors.h"
 
-		#include <MyUSB/Drivers/USB/USB.h>                // USB Functionality
-		#include <MyUSB/Drivers/Board/Joystick.h>         // Joystick driver
-		#include <MyUSB/Drivers/Board/LEDs.h>             // LEDs driver
+		#include <LUFA/Drivers/USB/USB.h>                // USB Functionality
+		#include <LUFA/Drivers/Board/Joystick.h>         // Joystick driver
+		#include <LUFA/Drivers/Board/LEDs.h>             // LEDs driver
 
 	/* Macros: */
 		/** CDC Class Specific request to get the line encoding on a CDC-ACM virtual serial port, including the
@@ -78,7 +78,7 @@
 		#define BOOTLOADER_HWVERSION_MINOR   0x00
 
 		/** Eight character bootloader firmware identifier reported to the host when requested */
-		#define SOFTWARE_IDENTIFIER          "MYUSBCDC"
+		#define SOFTWARE_IDENTIFIER          "LUFA-CDC"
 
 	/* Event Handlers: */
 		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */

@@ -1,14 +1,14 @@
 #
-#             MyUSB Library
+#             LUFA Library
 #     Copyright (C) Dean Camera, 2008.
 #              
 #  dean [at] fourwalledcubicle [dot] com
 #      www.fourwalledcubicle.com
 #
 
-# Makefile for the MyUSB library itself.
+# Makefile for the LUFA library itself.
 
-MYUSB_SRC_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
+LUFA_SRC_FILES =     ./Drivers/USB/LowLevel/LowLevel.c           \
                      ./Drivers/USB/LowLevel/Endpoint.c           \
                      ./Drivers/USB/LowLevel/Pipe.c               \
                      ./Drivers/USB/LowLevel/DevChapter9.c        \
@@ -29,6 +29,6 @@ MYUSB_SRC_FILES =    ./Drivers/USB/LowLevel/LowLevel.c           \
 all:
 	
 clean:
-	rm -f $(MYUSB_SRC_FILES:%.c=%.o)
+	rm -f $(LUFA_SRC_FILES:%.c=%.o)
 	
 clean_list:

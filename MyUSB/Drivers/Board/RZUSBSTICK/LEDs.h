@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -33,7 +33,7 @@
  *  Board specific LED driver header for the RZUSBSTICK.
  *
  *  \note This file should not be included directly. It is automatically included as needed by the LEDs driver
- *        dispatch header located in MyUSB/Drivers/Board/LEDs.h.
+ *        dispatch header located in LUFA/Drivers/Board/LEDs.h.
  */
  
 #ifndef __LEDS_RZUSBSTICK_H__
@@ -51,7 +51,7 @@
 
 	/* Preprocessor Checks: */
 		#if !defined(INCLUDE_FROM_LEDS_H)
-			#error Do not include this file directly. Include MyUSB/Drivers/Board/LEDS.h instead.
+			#error Do not include this file directly. Include LUFA/Drivers/Board/LEDS.h instead.
 		#endif
 
 	/* Private Interface - For use in library only: */

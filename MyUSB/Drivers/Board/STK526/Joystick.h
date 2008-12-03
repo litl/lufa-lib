@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -33,7 +33,7 @@
  *  Board specific joystick driver header for the STK526.
  *
  *  \note This file should not be included directly. It is automatically included as needed by the joystick driver
- *        dispatch header located in MyUSB/Drivers/Board/Joystick.h.
+ *        dispatch header located in LUFA/Drivers/Board/Joystick.h.
  */
  
 #ifndef __JOYSTICK_STK526_H__
@@ -51,7 +51,7 @@
 
 	/* Preprocessor Checks: */
 		#if !defined(INCLUDE_FROM_JOYSTICK_H)
-			#error Do not include this file directly. Include MyUSB/Drivers/Board/Joystick.h instead.
+			#error Do not include this file directly. Include LUFA/Drivers/Board/Joystick.h instead.
 		#endif
 
 	/* Private Interface - For use in library only: */

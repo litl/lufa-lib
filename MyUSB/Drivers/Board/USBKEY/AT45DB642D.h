@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -33,7 +33,7 @@
  *  Board specific Dataflash commands header for the AT45DB642D as mounted on the USBKEY.
  *
  *  \note This file should not be included directly. It is automatically included as needed by the dataflash driver
- *        dispatch header located in MyUSB/Drivers/Board/Dataflash.h.
+ *        dispatch header located in LUFA/Drivers/Board/Dataflash.h.
  */
 
 #ifndef __DATAFLASH_CMDS_H__

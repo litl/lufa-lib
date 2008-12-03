@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -37,9 +37,9 @@
 		#include "MassStorage.h"
 		#include "Descriptors.h"
 
-		#include <MyUSB/Common/Common.h>              // Function Attribute, Atomic, Debug and ISR Macros
-		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
-		#include <MyUSB/Drivers/Board/Dataflash.h>    // Dataflash chip driver
+		#include <LUFA/Common/Common.h>              // Function Attribute, Atomic, Debug and ISR Macros
+		#include <LUFA/Drivers/USB/USB.h>            // USB Functionality
+		#include <LUFA/Drivers/Board/Dataflash.h>    // Dataflash chip driver
 
 	/* Defines: */
 		#define VIRTUAL_MEMORY_BYTES                ((uint32_t)(DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS) \

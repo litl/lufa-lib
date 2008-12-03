@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -37,7 +37,7 @@
 #define _DESCRIPTORS_H_
 
 	/* Includes: */
-		#include <MyUSB/Drivers/USB/USB.h>
+		#include <LUFA/Drivers/USB/USB.h>
 
 		#include <avr/pgmspace.h>
 

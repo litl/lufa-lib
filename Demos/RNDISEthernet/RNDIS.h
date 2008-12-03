@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -36,10 +36,10 @@
 		#include <stdbool.h>
 		#include <string.h>
 
-		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>
+		#include <LUFA/Drivers/AT90USBXXX/Serial_Stream.h>
 		
 		#include "RNDISEthernet.h"
-		#include "Ethernet.h"
+		#include "NetworkStack/Ethernet.h"
 
 	/* Macros: */
 		#define ADAPTER_MAC_ADDRESS                   {0x02, 0x00, 0x02, 0x00, 0x02, 0x00}

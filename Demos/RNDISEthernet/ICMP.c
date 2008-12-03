@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -37,8 +37,6 @@ int16_t ICMP_ProcessICMPPacket(void* InDataStart, void* OutDataStart)
 
 	DecodeICMPHeader(InDataStart);
 
-	FrameIN.FrameLength -= sizeof(ICMP_Header_t);
-
 	/* Determine if the ICMP packet is an echo request (ping) */
 	if (ICMPHeaderIN->Type == ICMP_TYPE_ECHOREQUEST)
 	{
@@ -48,18 +46,18 @@ int16_t ICMP_ProcessICMPPacket(void* InDataStart, void* OutDataStart)
 		ICMPHeaderOUT->Checksum = 0;
 		ICMPHeaderOUT->Id       = ICMPHeaderIN->Id;
 		ICMPHeaderOUT->Sequence = ICMPHeaderIN->Sequence;
-
-		ICMPHeaderOUT->Checksum = Ethernet_Checksum16(ICMPHeaderOUT, sizeof(ICMP_Header_t));
+		
+		uint16_t DataSize = FrameIN.FrameLength - ((((uint16_t)InDataStart + sizeof(ICMP_Header_t)) - (uint16_t)FrameIN.FrameData));
 		
 		/* Copy the remaining payload to the response - echo requests should echo back any sent data */
 		memcpy(&((uint8_t*)OutDataStart)[sizeof(ICMP_Header_t)],
 		       &((uint8_t*)InDataStart)[sizeof(ICMP_Header_t)],
-			   FrameIN.FrameLength);
+			   DataSize);
 
-		FrameIN.FrameLength = 0;
+		ICMPHeaderOUT->Checksum = Ethernet_Checksum16(ICMPHeaderOUT, (DataSize + sizeof(ICMP_Header_t)));
 
 		/* Return the size of the response so far */
-		return (sizeof(ICMP_Header_t) + FrameIN.FrameLength);
+		return (DataSize + sizeof(ICMP_Header_t));
 	}
 	
 	return NO_RESPONSE;

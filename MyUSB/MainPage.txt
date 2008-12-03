@@ -5,9 +5,9 @@
  */
 
 /**
- *  \mainpage About the MyUSB Library
+ *  \mainpage About the LUFA (Formerly MyUSB) Library
  *
- *  Written by Dean Camera, 2008.
+ *  Lightweight USB Framework for AVRs Library, written by Dean Camera.
  *
  *  \section Sec_About About this library
  *
@@ -19,16 +19,16 @@
  *  The library is currently in a stable release, suitable for download and incorporation into user projects for
  *  both host and device modes. For information about the project progression, check out my blog.
  *
- *  MyUSB is written specifically for the free AVR-GCC compiler, and uses several GCC-only extensions to make the
+ *  LUFA is written specifically for the free AVR-GCC compiler, and uses several GCC-only extensions to make the
  *  library API more streamlined and robust. You can download AVR-GCC for free in a convenient windows package, 
  *  from the the WinAVR website.
  *
  *  \section Sec_Links Library Links
- *  Project Homepage: http://www.fourwalledcubicle.com/MyUSB.php \n
+ *  Project Homepage: http://www.fourwalledcubicle.com/LUFA.php \n
  *  Development Blog: http://www.fourwalledcubicle.com/blog \n
- *  Discussion Group: http://groups.google.com/group/myusb-support-list \n
- *  Bugs and Feature Requests: http://code.google.com/p/myusb-issues/issues/ \n
- *  Development Suggestions Wiki: http://wikihost.org/wikis/myusbsuggestion/ \n
+ *  Discussion Group: http://groups.google.com/group/LUFA-support-list \n
+ *  Bugs and Feature Requests: http://code.google.com/p/LUFA-issues/issues/ \n
+ *  Development Suggestions Wiki: http://wikihost.org/wikis/LUFAsuggestion/ \n
  *  Author's Website: http://www.fourwalledcubicle.com \n
  *
  *  WinAVR Website: http://winavr.sourceforge.net \n
@@ -37,7 +37,7 @@
  *  USB-IF Website: http://www.usb.org \n
  *
  *  \section Sec_License License
- *  The MyUSB library is currently released under the MIT licence, included below.
+ *  The LUFA library is currently released under the MIT licence, included below.
  *
  *  \verbatim
  *  Permission to use, copy, modify, and distribute this software
@@ -60,7 +60,7 @@
  *  \endverbatim
  *
  *  \section Sec_Demos Demos and Bootloaders
- *  The MyUSB library ships with several different host and device demos, located in the /Demos/ subdirectory.
+ *  The LUFA library ships with several different host and device demos, located in the /Demos/ subdirectory.
  *  If this directory is missing, please re-download the project from the project homepage.
  *
  *  Also included with the library are two fully functional bootloaders, loacated in the /Bootloaders/ subdirectory.

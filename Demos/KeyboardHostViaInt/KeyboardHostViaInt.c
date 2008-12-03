@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -31,7 +31,7 @@
 /*
 	Keyboard host demonstration application, using pipe interrupts. This gives
 	a simple reference application for implementing a USB Keyboard host utilizing
-	the MyUSB pipe interrupt system, for USB keyboards using the standard Keyboard
+	the LUFA pipe interrupt system, for USB keyboards using the standard Keyboard
 	HID profile.
 	
 	Pressed alpha-numeric, enter or space key is transmitted through the serial
@@ -57,10 +57,10 @@
 #include "KeyboardHostViaInt.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB KBD Host App");
-BUTTLOADTAG(BuildTime,    __TIME__);
-BUTTLOADTAG(BuildDate,    __DATE__);
-BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
+BUTTLOADTAG(ProjName,    "LUFA KBD Host App");
+BUTTLOADTAG(BuildTime,   __TIME__);
+BUTTLOADTAG(BuildDate,   __DATE__);
+BUTTLOADTAG(LUFAVersion, "LUFA V" LUFA_VERSION_STRING);
 
 /* Scheduler Task List */
 TASK_LIST

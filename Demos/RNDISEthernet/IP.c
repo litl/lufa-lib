@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -40,13 +40,14 @@ int16_t IP_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 	/* Header length is specified in number of longs in the packet header, convert to bytes */
 	uint16_t     HeaderLengthBytes = (IPHeaderIN->HeaderLength * sizeof(uint32_t));
 
-	int16_t      RetSize     = NO_RESPONSE;
+	int16_t      RetSize = NO_RESPONSE;
 
-	FrameIN.FrameLength -= HeaderLengthBytes;
-
-	/* Check to ensure the IP packet is addressed to the virtual webserver's IP */
-	if (!(IP_COMPARE(&IPHeaderIN->DestinationAddress, &ServerIPAddress)))
-	  return NO_RESPONSE;
+	/* Check to ensure the IP packet is addressed to the virtual webserver's IP or the broadcast IP address */
+	if (!(IP_COMPARE(&IPHeaderIN->DestinationAddress, &ServerIPAddress)) &&
+	    !(IP_COMPARE(&IPHeaderIN->DestinationAddress, &BroadcastIPAddress)))
+	{
+		return NO_RESPONSE;
+	}
 	
 	/* Pass off the IP payload to the appropriate protocol processing routine */
 	switch (IPHeaderIN->Protocol)
@@ -57,6 +58,11 @@ int16_t IP_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 			break;
 		case PROTOCOL_TCP:
 			RetSize = TCP_ProcessTCPPacket(InDataStart,
+			                               &((uint8_t*)InDataStart)[HeaderLengthBytes],
+			                               &((uint8_t*)OutDataStart)[sizeof(IP_Header_t)]);		
+			break;
+		case PROTOCOL_UDP:
+			RetSize = UDP_ProcessUDPPacket(InDataStart,
 			                               &((uint8_t*)InDataStart)[HeaderLengthBytes],
 			                               &((uint8_t*)OutDataStart)[sizeof(IP_Header_t)]);		
 			break;

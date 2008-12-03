@@ -8,6 +8,7 @@
   *
   *  \section Sec_ChangeLog154 Version 1.5.4 - UNRELEASED
   *
+  *  - MyUSB name changed to LUFA, the Lightweight USB Framework for AVRs
   *  - Fixed Mass Storage Host demo's MassStore_SendCommand() delay in the incorrect place
   *  - Fixed USBtoSerial demo not calling ReconfigureUSART() after a change in the line encoding
   *  - Fixed infinite loop in host mode Host-to-Device control transfers with data stages
@@ -22,7 +23,7 @@
   *  - Added new NO_LIMITED_CONTROLLER_CONNECT switch to prevent the library from trying to determine bus connection
   *    state from the suspension and wake up events on the smaller USB AVRs
   *  - Added summary of all library compile time tokens to the documentation
-  *  - Added overview of the MyUSB scheduler to the documentation
+  *  - Added overview of the LUFA scheduler to the documentation
   *  - Removed MANUAL_PLL_CONTROL compile time token, replaced with a mask for the USB_Init() Options parameter
   *  - CDC bootloader now uses the correct non-far or far versions of the pgm_* functions depending on if RAMPZ is defined
   *  - Doxygen documentation now contains documentation on the projects, bootloaders and demos included with the library
@@ -38,6 +39,8 @@
   *  - All demos now use a central StatusUpdate() function rather than direct calls to the board LED functions, so that the demos can
   *    easily be altered to show different LED combinations (or do something else entirely) as the demo's status changes
   *  - Removed LED commands from the CDC bootloader, unused by most AVR910 programming software
+  *  - Fixed RNDIS demo ICMP ping requests echoing back incorrect data
+  *  - Added DHCP server code to RNDIS demo, allowing for hands-free autoconfiguration on any PC
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *

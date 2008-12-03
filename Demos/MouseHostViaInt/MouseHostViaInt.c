@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -31,7 +31,7 @@
 /*
 	Mouse host demonstration application, using pipe interrupts. This
 	gives a simple reference application for implementing a USB Mouse
-	host utilizing the MyUSB pipe interrupt system, for USB mice using
+	host utilizing the LUFA pipe interrupt system, for USB mice using
 	the standard mouse HID profile.
 	
 	Mouse movement and button presses are displayed on the board LEDs,
@@ -58,10 +58,10 @@
 #include "MouseHostViaInt.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB Mouse Host App");
-BUTTLOADTAG(BuildTime,    __TIME__);
-BUTTLOADTAG(BuildDate,    __DATE__);
-BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
+BUTTLOADTAG(ProjName,    "LUFA Mouse Host App");
+BUTTLOADTAG(BuildTime,   __TIME__);
+BUTTLOADTAG(BuildDate,   __DATE__);
+BUTTLOADTAG(LUFAVersion, "LUFA V" LUFA_VERSION_STRING);
 
 /* Scheduler Task List */
 TASK_LIST

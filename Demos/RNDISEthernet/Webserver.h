@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -35,7 +35,7 @@
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 		
-		#include <MyUSB/Version.h>
+		#include <LUFA/Version.h>
 		
 		#include "TCP.h"
 	

@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -39,12 +39,12 @@
 	/* Includes: */
 		#include <avr/io.h>
 
-		#include <MyUSB/Common/Common.h>                          // Commonly used macros
-		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
-		#include <MyUSB/Drivers/Board/LEDs.h>                     // LED driver
-		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>       // USART Stream driver
-		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
-		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
+		#include <LUFA/Common/Common.h>                          // Commonly used macros
+		#include <LUFA/Drivers/USB/USB.h>                        // USB Functionality
+		#include <LUFA/Drivers/Board/LEDs.h>                     // LED driver
+		#include <LUFA/Drivers/AT90USBXXX/Serial_Stream.h>       // USART Stream driver
+		#include <LUFA/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
+		#include <LUFA/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 
 	/* Event Catch List: */
 		/** Indicates that this module will catch the USB_VBUSChange event when thrown by the library. */

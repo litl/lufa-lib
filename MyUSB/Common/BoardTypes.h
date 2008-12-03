@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -42,7 +42,7 @@
 
 	/* Preprocessor Checks: */
 		#if !defined(__COMMON_H__)
-			#error Do not include this file directly. Include MyUSB/Common/Common.h instead to gain this functionality.
+			#error Do not include this file directly. Include LUFA/Common/Common.h instead to gain this functionality.
 		#endif
 
 	/* Public Interface - May be used in end-application: */
@@ -60,8 +60,8 @@
 			#define BOARD_RZUSBSTICK    3
 
 			/** Selects the user-defined board drivers, which should be placed in the user project's folder
-			 *  under a directory named /Board/. Each board driver should be named identically to the MyUSB
-			 *  master board driver (i.e., driver in the MyUSB/Drivers/Board director) so that the library
+			 *  under a directory named /Board/. Each board driver should be named identically to the LUFA
+			 *  master board driver (i.e., driver in the LUFA/Drivers/Board director) so that the library
 			 *  can correctly identify it.
 			 */
 			#define BOARD_USER          4

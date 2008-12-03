@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -143,7 +143,7 @@
 			/** This is the main USB management task. The USB driver requires that this task be executed
 			 *  continuously when the USB system is active (device attached in host mode, or attached to a host
 			 *  in device mode) in order to manage USB communications. This task may be executed inside an RTOS,
-			 *  scheduler (e.g. the simple MyUSB Scheduler), fast timer ISR or the main user application loop.
+			 *  scheduler (e.g. the simple LUFA Scheduler), fast timer ISR or the main user application loop.
 			 *
 			 *  The USB task must be serviced within 50mS in all modes, when needed. The task may be serviced 
 			 *  at all times, or (for minimum CPU consumption):

@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -44,12 +44,12 @@
 		#include "Descriptors.h"
 		#include "RingBuff.h"
 
-		#include <MyUSB/Version.h>                         // Library Version Information
-		#include <MyUSB/Common/ButtLoadTag.h>              // PROGMEM tags readable by the ButtLoad project
-		#include <MyUSB/Drivers/USB/USB.h>                 // USB Functionality
-		#include <MyUSB/Drivers/AT90USBXXX/Serial.h>       // USART driver
-		#include <MyUSB/Drivers/Board/LEDs.h>              // LEDs driver
-		#include <MyUSB/Scheduler/Scheduler.h>             // Simple scheduler for task management
+		#include <LUFA/Version.h>                         // Library Version Information
+		#include <LUFA/Common/ButtLoadTag.h>              // PROGMEM tags readable by the ButtLoad project
+		#include <LUFA/Drivers/USB/USB.h>                 // USB Functionality
+		#include <LUFA/Drivers/AT90USBXXX/Serial.h>       // USART driver
+		#include <LUFA/Drivers/Board/LEDs.h>              // LEDs driver
+		#include <LUFA/Scheduler/Scheduler.h>             // Simple scheduler for task management
 
 	/* Macros: */
 		/** CDC Class specific request to get the current virtual serial port configuration settings. */

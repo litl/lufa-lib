@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -32,7 +32,7 @@
 #define _STILL_IMAGE_COMMANDS_H_
 
 	/* Includes: */
-		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
+		#include <LUFA/Drivers/USB/USB.h>                        // USB Functionality
 		
 		#include "PIMACodes.h"
 

@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -189,5 +189,28 @@ void DecodeTCPHeader(void* InDataStart)
 	
 	if (TCP_GetPortState(TCPHeader->DestinationPort) == TCP_Port_Closed)
 	  printf_P(PSTR("     + NOT LISTENING ON DESTINATION PORT\r\n"));
+	#endif
+}
+
+void DecodeUDPHeader(void* InDataStart)
+{
+	#if !defined(NO_DECODE_UDP)
+	UDP_Header_t* UDPHeader = (UDP_Header_t*)InDataStart;
+
+	printf_P(PSTR("    \\\r\n     UDP\r\n"));
+
+	printf_P(PSTR("     + Source Port: %u\r\n"), SwapEndian_16(UDPHeader->SourcePort));
+	printf_P(PSTR("     + Destination Port: %u\r\n"), SwapEndian_16(UDPHeader->DestinationPort));
+
+	printf_P(PSTR("     + Data Length: %lu\r\n"), SwapEndian_32(UDPHeader->Length));
+	#endif
+}
+
+void DecodeDHCPHeader(void* InDataStart)
+{
+	#if !defined(NO_DECODE_DHCP)
+	DHCP_Header_t* DHCPHeader = (DHCP_Header_t*)InDataStart;
+
+	printf_P(PSTR("     \\\r\n      DHCP\r\n"));
 	#endif
 }

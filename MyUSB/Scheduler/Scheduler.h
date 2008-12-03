@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -37,7 +37,7 @@
  *
  *  Usage Example:
  *  \code
- *      #include <MyUSB/Scheduler/Scheduler.h>
+ *      #include <LUFA/Scheduler/Scheduler.h>
  *      
  *      TASK(MyTask1);
  *      TASK(MyTask2);

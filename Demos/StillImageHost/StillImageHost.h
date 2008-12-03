@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -40,12 +40,12 @@
 		#include "PIMACodes.h"
 		#include "StillImageCommands.h"
 
-		#include <MyUSB/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
-		#include <MyUSB/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
-		#include <MyUSB/Drivers/USB/USB.h>                        // USB Functionality
-		#include <MyUSB/Drivers/AT90USBXXX/Serial_Stream.h>       // Serial stream driver
-		#include <MyUSB/Drivers/Board/LEDs.h>                     // LED driver
-		#include <MyUSB/Scheduler/Scheduler.h>                    // Simple scheduler for task management
+		#include <LUFA/Common/ButtLoadTag.h>                     // PROGMEM tags readable by the ButtLoad project
+		#include <LUFA/Drivers/Misc/TerminalCodes.h>             // ANSI Terminal Escape Codes
+		#include <LUFA/Drivers/USB/USB.h>                        // USB Functionality
+		#include <LUFA/Drivers/AT90USBXXX/Serial_Stream.h>       // Serial stream driver
+		#include <LUFA/Drivers/Board/LEDs.h>                     // LED driver
+		#include <LUFA/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 		
 	/* Macros: */
 		#define SIMAGE_CLASS                   0x06

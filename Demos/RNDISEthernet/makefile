@@ -45,7 +45,7 @@ MCU = at90usb1287
 
 
 # Target board (USBKEY, STK525, STK526, RZUSBSTICK, USER or blank for projects not requiring
-# MyUSB board drivers). If USER is selected, put custom board drivers in a directory called 
+# LUFA board drivers). If USER is selected, put custom board drivers in a directory called 
 # "Board" inside the application directory.
 BOARD  = USBKEY
 
@@ -86,27 +86,29 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c                                           \
-      Descriptors.c                                         \
-      RNDIS.c                                               \
-	  Ethernet.c                                            \
-	  ProtocolDecoders.c                                    \
-	  ICMP.c                                                \
-	  TCP.c                                                 \
-	  ARP.c                                                 \
-	  IP.c                                                  \
-	  Webserver.c                                           \
-	  Telnet.c                                              \
-      ../../MyUSB/Scheduler/Scheduler.c                     \
-      ../../MyUSB/Drivers/USB/LowLevel/LowLevel.c           \
-      ../../MyUSB/Drivers/USB/LowLevel/Endpoint.c           \
-      ../../MyUSB/Drivers/USB/LowLevel/DevChapter9.c        \
-      ../../MyUSB/Drivers/USB/HighLevel/USBTask.c           \
-      ../../MyUSB/Drivers/USB/HighLevel/USBInterrupt.c      \
-      ../../MyUSB/Drivers/USB/HighLevel/Events.c            \
-      ../../MyUSB/Drivers/USB/HighLevel/StdDescriptors.c    \
-      ../../MyUSB/Drivers/AT90USBXXX/Serial_Stream.c        \
-      ../../MyUSB/Drivers/AT90USBXXX/Serial.c               \
+SRC = $(TARGET).c                                          \
+      Descriptors.c                                        \
+      RNDIS.c                                              \
+	  NetworkStack/Ethernet.c                              \
+	  NetworkStack/ProtocolDecoders.c                      \
+	  NetworkStack/ICMP.c                                  \
+	  NetworkStack/TCP.c                                   \
+	  NetworkStack/UDP.c                                   \
+	  NetworkStack/DHCP.c                                  \
+	  NetworkStack/ARP.c                                   \
+	  NetworkStack/IP.c                                    \
+	  NetworkStack/Webserver.c                             \
+	  NetworkStack/Telnet.c                                \
+      ../../LUFA/Scheduler/Scheduler.c                     \
+      ../../LUFA/Drivers/USB/LowLevel/LowLevel.c           \
+      ../../LUFA/Drivers/USB/LowLevel/Endpoint.c           \
+      ../../LUFA/Drivers/USB/LowLevel/DevChapter9.c        \
+      ../../LUFA/Drivers/USB/HighLevel/USBTask.c           \
+      ../../LUFA/Drivers/USB/HighLevel/USBInterrupt.c      \
+      ../../LUFA/Drivers/USB/HighLevel/Events.c            \
+      ../../LUFA/Drivers/USB/HighLevel/StdDescriptors.c    \
+      ../../LUFA/Drivers/AT90USBXXX/Serial_Stream.c        \
+      ../../LUFA/Drivers/AT90USBXXX/Serial.c               \
 	  
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -153,7 +155,7 @@ CSTANDARD = -std=gnu99
 # Place -D or -U options here for C sources
 CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD) -DUSE_NONSTANDARD_DESCRIPTOR_NAMES -DNO_STREAM_CALLBACKS
 CDEFS += -DUSB_DEVICE_ONLY -DUSE_STATIC_OPTIONS="(USB_DEVICE_OPT_FULLSPEED | USB_OPT_REG_ENABLED | USB_OPT_AUTO_PLL)"
-CDEFS += -DNO_DECODE_ETHERNET -DNO_DECODE_ARP -DNO_DECODE_ICMP -DNO_DECODE_IP -DNO_DECODE_TCP
+CDEFS += -DNO_DECODE_ETHERNET -DNO_DECODE_ARP -DNO_DECODE_ICMP -DNO_DECODE_IP -DNO_DECODE_TCP -DNO_DECODE_UDP -DNO_DECODE_DHCP
 
 
 # Place -D or -U options here for ASM sources
@@ -469,11 +471,11 @@ sizeafter:
 
 checkhooks: build
 	@echo
-	@echo ------- Unhooked MyUSB Events -------
-	@$(shell) (grep -s '^Event.*MyUSB/.*\\.o' $(TARGET).map | \
+	@echo ------- Unhooked LUFA Events -------
+	@$(shell) (grep -s '^Event.*LUFA/.*\\.o' $(TARGET).map | \
 	           cut -d' ' -f1 | cut -d'_' -f2- | grep ".*") || \
 			   echo "(None)"
-	@echo ----- End Unhooked MyUSB Events -----
+	@echo ----- End Unhooked LUFA Events -----
 	
 checklibmode:
 	@echo

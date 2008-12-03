@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -30,12 +30,12 @@
 
 /*
    This is a stub driver header file, for implementing custom board
-   layout hardware with compatible MyUSB board specific drivers. If
+   layout hardware with compatible LUFA board specific drivers. If
    the library is configured to use the BOARD_USER board mode, this
    driver file should be completed and copied into the "/Board/" folder
    inside the application's folder.
 
-   This stub is for the board-specific component of the MyUSB Joystick
+   This stub is for the board-specific component of the LUFA Joystick
    driver, a small surface mount four-way (plus button) digital joystick
    on most USB AVR boards.
 */
@@ -57,7 +57,7 @@
 
 	/* Preprocessor Checks: */
 		#if !defined(INCLUDE_FROM_JOYSTICK_H)
-			#error Do not include this file directly. Include MyUSB/Drivers/Board/Joystick.h instead.
+			#error Do not include this file directly. Include LUFA/Drivers/Board/Joystick.h instead.
 		#endif
 	
 	/* Public Interface - May be used in end-application: */

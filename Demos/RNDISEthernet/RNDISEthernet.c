@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -44,7 +44,7 @@
 	right-click the .INF file and choose the Install option. If
 	Windows 2000 is used, the Microsoft INF file in the hotfix
 	will need to be altered to use the VID/PID of the demo and
-	then chosen instead of the MyUSB RNDIS INF file when prompted.
+	then chosen instead of the LUFA RNDIS INF file when prompted.
 
 	When enumerated, this demo will install as a new network
 	adapter which ethernet packets can be sent to and received
@@ -56,6 +56,7 @@
 	adapter it enumerates in the OS to use a fixed IP of 10.0.0.1
 	rather than using dynamic address allocation, as the device does
 	not implement a DHCP server capable of handing out IP addresses.
+	This device also supports ping echos via the ICMP protocol.
 	
 	**NOTE:** The TCP/IP stack in this demo has a number of limitations
 	and should serve as an example only - it is not fully featured nor
@@ -75,10 +76,10 @@
 #include "RNDISEthernet.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
-BUTTLOADTAG(ProjName,     "MyUSB RNDIS App");
-BUTTLOADTAG(BuildTime,    __TIME__);
-BUTTLOADTAG(BuildDate,    __DATE__);
-BUTTLOADTAG(MyUSBVersion, "MyUSB V" MYUSB_VERSION_STRING);
+BUTTLOADTAG(ProjName,    "LUFA RNDIS App");
+BUTTLOADTAG(BuildTime,   __TIME__);
+BUTTLOADTAG(BuildDate,   __DATE__);
+BUTTLOADTAG(LUFAVersion, "LUFA V" LUFA_VERSION_STRING);
 
 /* Scheduler Task List */
 TASK_LIST

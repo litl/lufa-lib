@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -31,25 +31,25 @@
 /** \file
  *
  *  Version constants for informational purposes and version-specific macro creation. This header file contains the
- *  current MyUSB version number in several forms, for use in the user-application (for example, for printing out 
+ *  current LUFA version number in several forms, for use in the user-application (for example, for printing out 
  *  whilst debugging, or for testing for version compatibility).
  */
 
-#ifndef __MYUSB_VERSION_H__
-#define __MYUSB_VERSION_H__
+#ifndef __LUFA_VERSION_H__
+#define __LUFA_VERSION_H__
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			/** Indicates the major version number of the library as an integer. */
-			#define MYUSB_VERSION_MAJOR       1
+			#define LUFA_VERSION_MAJOR       1
 
 			/** Indicates the minor version number of the library as an integer. */
-			#define MYUSB_VERSION_MINOR       5
+			#define LUFA_VERSION_MINOR       5
 
 			/** Indicates the revision version number of the library as an integer. */
-			#define MYUSB_VERSION_REVISION    4
+			#define LUFA_VERSION_REVISION    4
 
 			/** Indicates the complete version number of the library, in string form. */
-			#define MYUSB_VERSION_STRING      "1.5.4"
+			#define LUFA_VERSION_STRING      "1.5.4"
 
 #endif

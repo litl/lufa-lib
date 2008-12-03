@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -36,7 +36,7 @@
 		#include <string.h>
 		#include <stdbool.h>
 		
-		#include <MyUSB/Scheduler/Scheduler.h>
+		#include <LUFA/Scheduler/Scheduler.h>
 		
 		#include "EthernetProtocols.h"
 		#include "Ethernet.h"

@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -36,8 +36,6 @@ int16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart)
 
 	ARP_Header_t* ARPHeaderIN  = (ARP_Header_t*)InDataStart;
 	ARP_Header_t* ARPHeaderOUT = (ARP_Header_t*)OutDataStart;
-
-	FrameIN.FrameLength -= sizeof(ARP_Header_t);
 
 	/* Ensure that the ARP request is a IPv4 request packet */
 	if ((SwapEndian_16(ARPHeaderIN->ProtocolType) == ETHERTYPE_IPV4) &&

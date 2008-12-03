@@ -6,14 +6,14 @@
 
 /** \page Page_GettingStarted Getting Started
  *
- *  Out of the box, MyUSB contains a large number of pre-made class demos for you to test, experiment with and
+ *  Out of the box, LUFA contains a large number of pre-made class demos for you to test, experiment with and
  *  ultimately build upon for your own projects. All the demos come pre-configured to build and run correctly
  *  on the AT90USB1287 AVR microcontroller, mounted on the Atmel USBKEY board and running at an 8MHz master clock.
  *  This is due to two reasons; one, it is the hardware the author posesses, and two, it is the most popular Atmel
  *  USB demonstration board to date.
  *
  *  \section Sec_Prerequisites Prerequisites
- *  Before you can compile any of the MyUSB library code or demos, you will need a recent distribution of avr-libc (1.6.2+)
+ *  Before you can compile any of the LUFA library code or demos, you will need a recent distribution of avr-libc (1.6.2+)
  *  and the AVR-GCC (4.2+) compiler. For Windows users, the best way to obtain these is the WinAVR project
  *  (http://winavr.sourceforge.net) as this provides a single-file setup for everything required to compile your
  *  own AVR projects.
@@ -21,7 +21,7 @@
  *  \section Sec_Configuring Configuring the Demos, Bootloaders and Projects
  *  If the target AVR model, clock speed, board or other settings are different to the current settings, they must be changed
  *  and the project recompiled from the source code before being programmed into the AVR microcontroller. Most project
- *  configuration options are located in the "makefile" build script inside each MyUSB application's folder, however some
+ *  configuration options are located in the "makefile" build script inside each LUFA application's folder, however some
  *  demo or application-specific configuration settings (such as the output format in the AudioOut demo) are located in the
  *  main .c source file of the project.
  *
@@ -47,13 +47,13 @@
  *  For supported library AVR models, see main documentation page.
  *
  *  \subsection SSec_BOARD The BOARD Parameter
- *  This parameter indicates the target AVR board hardware for the compiled application. Some MyUSB library drivers are board-specific,
+ *  This parameter indicates the target AVR board hardware for the compiled application. Some LUFA library drivers are board-specific,
  *  such as the LED driver, and the library needs to know the layout of the target board. If you are using one of the board models listed
  *  on the main library page, change this parameter to the board name in all UPPER-case.
  *
- *  If you are not using any board-specific drivers in the MyUSB library, or you are using a custom board layout, change this to read
+ *  If you are not using any board-specific drivers in the LUFA library, or you are using a custom board layout, change this to read
  *  "USER" (no quotes) instead of a standard board name. If the USER board type is selected and the application makes use of one or more
- *  board-specific hardware drivers inside the MyUSB library, then the appropriate stub drives files should be copied from the /BoardStubs/
+ *  board-specific hardware drivers inside the LUFA library, then the appropriate stub drives files should be copied from the /BoardStubs/
  *  directory into a /Board/ folder inside the application directory, and the stub driver completed with the appropriate code to drive the
  *  custom board's hardware.
  *
@@ -72,16 +72,16 @@
  *  Normally, these options do not need to be altered to allow an application to compile and run correctly on a different board or AVR to the
  *  current configuration - if the options are incorrect, then the demo is most likely incompatible with the chosen USB AVR model and cannot be
  *  made to function through the altering of the makefile settings alone (or at all). Settings such as the USB mode (device, host or both), the USB
- *  interface speed (Low or Full speed) and other MyUSB configuration options can be set here - refer to the library documentation for details on the
+ *  interface speed (Low or Full speed) and other LUFA configuration options can be set here - refer to the library documentation for details on the
  *  configuration parameters.
  *
- *  \section Sec_Compiling Compiling a MyUSB Application
- *  Compiling the MyUSB demos, applications and/or bootloaders is very simple. MyUSB comes with makefile scripts for
+ *  \section Sec_Compiling Compiling a LUFA Application
+ *  Compiling the LUFA demos, applications and/or bootloaders is very simple. LUFA comes with makefile scripts for
  *  each individual demo, bootloader and project folder, as well as scripts in the /Demos/, /Bootloaders/, /Projects/
- *  and the MyUSB root directory. This means that compilation can be started from any of the above directories, with
+ *  and the LUFA root directory. This means that compilation can be started from any of the above directories, with
  *  a build started from an upper directory in the directory structure executing build of all child directories under it.
  *  This means that while a build inside a particular demo directory will build only that particular demo, a build stated
- *  from the /Demos/ directory will build all MyUSB demo projects sequentially.
+ *  from the /Demos/ directory will build all LUFA demo projects sequentially.
  *
  *  \subsection SSec_CommandLine Via the Command Line
  *  To build a project from the source via the command line, the command <b>"make all"</b> should be executed from the command line in the directory

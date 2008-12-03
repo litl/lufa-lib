@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -45,8 +45,8 @@
 	
 		#include "Descriptors.h"
 		
-		#include <MyUSB/Drivers/USB/USB.h>
-		#include <MyUSB/Drivers/Board/LEDs.h>
+		#include <LUFA/Drivers/USB/USB.h>
+		#include <LUFA/Drivers/Board/LEDs.h>
 		
 	/* Macros: */
 		/** Major bootloader version number. */

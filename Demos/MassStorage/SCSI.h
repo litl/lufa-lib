@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -35,9 +35,9 @@
 		#include <avr/io.h>
 		#include <avr/pgmspace.h>
 
-		#include <MyUSB/Common/Common.h>              // Function Attribute, Atomic, Debug and ISR Macros
-		#include <MyUSB/Drivers/USB/USB.h>            // USB Functionality
-		#include <MyUSB/Drivers/Board/LEDs.h>         // LEDs driver
+		#include <LUFA/Common/Common.h>              // Function Attribute, Atomic, Debug and ISR Macros
+		#include <LUFA/Drivers/USB/USB.h>            // USB Functionality
+		#include <LUFA/Drivers/Board/LEDs.h>         // LEDs driver
 
 		#include "MassStorage.h"
 		#include "Descriptors.h"

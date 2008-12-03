@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -33,7 +33,7 @@
 
 /* Global Variables: */
 static MAC_Address_t PROGMEM AdapterMACAddress          = {ADAPTER_MAC_ADDRESS};
-static char          PROGMEM AdapterVendorDescription[] = "MyUSB RNDIS Adapter";
+static char          PROGMEM AdapterVendorDescription[] = "LUFA RNDIS Adapter";
 static uint32_t      PROGMEM AdapterSupportedOIDList[]  =
 							{
 								OID_GEN_SUPPORTED_LIST,
