@@ -33,16 +33,38 @@
 
 	/* Includes: */
 		#include <avr/io.h>
+		#include <string.h>
 	
 		#include "EthernetProtocols.h"
 		#include "Ethernet.h"
 		#include "ProtocolDecoders.h"
+
+	/* Macros: */
+		#define DHCP_OP_BOOTREQUEST       0x01
+		#define DHCP_OP_BOOTREPLY         0x02
+		
+		#define DHCP_HTYPE_ETHERNET       0x01
+		
+		#define DHCP_MAGIC_COOKIE         0x63825363
+		
+		#define DHCP_OPTION_SUBNETMASK    1
+		#define DHCP_OPTION_MESSAGETYPE   53
+		#define DHCP_OPTION_PAD           0
+		#define DHCP_OPTION_END           255
 			
+		#define DHCP_MESSAGETYPE_DISCOVER 1
+		#define DHCP_MESSAGETYPE_OFFER    2
+		#define DHCP_MESSAGETYPE_REQUEST  3
+		#define DHCP_MESSAGETYPE_DECLINE  4
+		#define DHCP_MESSAGETYPE_ACK      5
+		#define DHCP_MESSAGETYPE_NACK     6
+		#define DHCP_MESSAGETYPE_RELEASE  7
+
 	/* Type Defines: */
 	typedef struct
 	{
 		uint8_t  Operation;
-		uint8_t  HardwareAddressType;
+		uint8_t  HardwareType;
 		uint8_t  HardwareAddressLength;
 		uint8_t  Hops;
 
@@ -59,11 +81,11 @@
 		uint8_t ClientHardwareAddress[16];
 		uint8_t ServerHostnameString[64];
 		uint8_t BootFileName[128];
-
-		uint8_t Options[];
+		
+		uint32_t Cookie;
 	} DHCP_Header_t;
 
 	/* Function Prototypes: */
-		int16_t DHCP_ProcessDHCPPacket(void* DHCPHeaderInStart, void* DHCPHeaderOutStart);
+		int16_t DHCP_ProcessDHCPPacket(void* IPHeaderInStart, void* DHCPHeaderInStart, void* DHCPHeaderOutStart);
 
 #endif

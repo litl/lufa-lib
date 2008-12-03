@@ -33,7 +33,6 @@
 
 int16_t UDP_ProcessUDPPacket(void* IPHeaderInStart, void* UDPHeaderInStart, void* UDPHeaderOutStart)
 {
-	IP_Header_t*  IPHeaderIN   = (IP_Header_t*)IPHeaderInStart;
 	UDP_Header_t* UDPHeaderIN  = (UDP_Header_t*)UDPHeaderInStart;
 	UDP_Header_t* UDPHeaderOUT = (UDP_Header_t*)UDPHeaderOutStart;
 	
@@ -44,51 +43,23 @@ int16_t UDP_ProcessUDPPacket(void* IPHeaderInStart, void* UDPHeaderInStart, void
 	/* Check to see if the UDP packet is a DHCP packet */
 	if (SwapEndian_16(UDPHeaderIN->DestinationPort) == UDP_PORT_DHCP_REQUEST)
 	{
-		RetSize = DHCP_ProcessDHCPPacket(&((uint8_t*)UDPHeaderInStart)[sizeof(UDP_Header_t)],
+		RetSize = DHCP_ProcessDHCPPacket(IPHeaderInStart,
+		                                 &((uint8_t*)UDPHeaderInStart)[sizeof(UDP_Header_t)],
 	                                     &((uint8_t*)UDPHeaderOutStart)[sizeof(UDP_Header_t)]);
 	}
 	
+	/* Check to see if the protocol processing routine has filled out a response */
 	if (RetSize > 0)
 	{
-		UDPHeaderOUT->SourcePort = UDPHeaderOUT->DestinationPort;
-		UDPHeaderOUT->DestinationPort = UDPHeaderOUT->SourcePort;
-		UDPHeaderOUT->Checksum = 0;
-		UDPHeaderOUT->Length = RetSize;
-		
-		UDPHeaderOUT->Checksum = UDP_Checksum16(UDPHeaderOUT, IPHeaderIN->DestinationAddress, 
-			                                    IPHeaderIN->SourceAddress,
-			                                    (sizeof(UDP_Header_t) + RetSize));
+		/* Fill out the response UDP packet header */
+		UDPHeaderOUT->SourcePort      = UDPHeaderIN->DestinationPort;
+		UDPHeaderOUT->DestinationPort = UDPHeaderIN->SourcePort;
+		UDPHeaderOUT->Checksum        = 0;
+		UDPHeaderOUT->Length          = SwapEndian_16(sizeof(UDP_Header_t) + RetSize);
 
 		/* Return the size of the response so far */
 		return (sizeof(UDP_Header_t) + RetSize);
 	}
 	
 	return NO_RESPONSE;
-}
-
-static uint16_t UDP_Checksum16(void* UDPHeaderOutStart, IP_Address_t SourceAddress,
-                               IP_Address_t DestinationAddress, uint16_t UDPOutSize)
-{
-	uint32_t Checksum = 0;
-	
-	/* UDP/IP checksums are the addition of the one's compliment of each word including the IP psudo-header,
-	   complimented */
-	
-	Checksum += ((uint16_t*)&SourceAddress)[0];
-	Checksum += ((uint16_t*)&SourceAddress)[1];
-	Checksum += ((uint16_t*)&DestinationAddress)[0];
-	Checksum += ((uint16_t*)&DestinationAddress)[1];
-	Checksum += SwapEndian_16(PROTOCOL_UDP);
-	Checksum += SwapEndian_16(UDPOutSize);
-
-	for (uint8_t CurrWord = 0; CurrWord < (UDPOutSize >> 1); CurrWord++)
-	  Checksum += ((uint16_t*)UDPHeaderOutStart)[CurrWord];
-	
-	if (UDPOutSize & 0x01)
-	  Checksum += (((uint16_t*)UDPHeaderOutStart)[UDPOutSize >> 1] & 0x00FF);
-	  
-	while (Checksum & 0xFFFF0000)
-	  Checksum = ((Checksum & 0xFFFF) + (Checksum >> 16));
-	
-	return ~Checksum;
 }

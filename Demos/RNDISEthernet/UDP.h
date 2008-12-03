@@ -53,10 +53,5 @@
 		
 	/* Function Prototypes: */
 		int16_t UDP_ProcessUDPPacket(void* IPHeaderInStart, void* UDPHeaderInStart, void* UDPHeaderOutStart);
-		
-		#if defined(INCLUDE_FROM_UDP_C)
-		static uint16_t UDP_Checksum16(void* UDPHeaderOutStart, IP_Address_t SourceAddress,
-                                       IP_Address_t DestinationAddress, uint16_t UDPOutSize);
-		#endif
 
 #endif

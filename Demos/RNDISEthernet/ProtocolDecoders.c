@@ -127,7 +127,7 @@ void DecodeIPHeader(void* InDataStart)
 	#if !defined(NO_DECODE_IP)
 	IP_Header_t* IPHeader  = (IP_Header_t*)InDataStart;
 
-	uint16_t              HeaderLengthBytes = (IPHeader->HeaderLength * sizeof(uint32_t));
+	uint16_t HeaderLengthBytes = (IPHeader->HeaderLength * sizeof(uint32_t));
 
 	printf_P(PSTR("   \\\r\n    IP\r\n"));
 
@@ -202,15 +202,40 @@ void DecodeUDPHeader(void* InDataStart)
 	printf_P(PSTR("     + Source Port: %u\r\n"), SwapEndian_16(UDPHeader->SourcePort));
 	printf_P(PSTR("     + Destination Port: %u\r\n"), SwapEndian_16(UDPHeader->DestinationPort));
 
-	printf_P(PSTR("     + Data Length: %lu\r\n"), SwapEndian_32(UDPHeader->Length));
+	printf_P(PSTR("     + Data Length: %d\r\n"), SwapEndian_16(UDPHeader->Length));
 	#endif
 }
 
 void DecodeDHCPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_DHCP)
-	DHCP_Header_t* DHCPHeader = (DHCP_Header_t*)InDataStart;
+	uint8_t* DHCPOptions = (InDataStart + sizeof(DHCP_Header_t));
 
 	printf_P(PSTR("     \\\r\n      DHCP\r\n"));
+
+	while (DHCPOptions[0] != DHCP_OPTION_END)
+	{
+		if (DHCPOptions[0] == DHCP_OPTION_MESSAGETYPE)
+		{
+			switch (DHCPOptions[2])
+			{
+				case DHCP_MESSAGETYPE_DISCOVER:
+					printf_P(PSTR("      + DISCOVER\r\n"));
+					break;
+				case DHCP_MESSAGETYPE_REQUEST:
+					printf_P(PSTR("      + REQUEST\r\n"));
+					break;
+				case DHCP_MESSAGETYPE_RELEASE:
+					printf_P(PSTR("      + RELEASE\r\n"));
+					break;
+				case DHCP_MESSAGETYPE_DECLINE:
+					printf_P(PSTR("      + DECLINE\r\n"));
+					break;
+			}
+		}
+		
+		DHCPOptionsINStart += ((DHCPOptionsINStart[0] == DHCP_OPTION_PAD) ? 1 : (DHCPOptionsINStart[1] + 2));
+	}
+
 	#endif
 }

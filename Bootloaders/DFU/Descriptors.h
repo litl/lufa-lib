@@ -106,7 +106,7 @@
 			#define SIGNATURE_BYTE_2              0x95
 			#define SIGNATURE_BYTE_3              0x87	
 		#elif defined(__AVR_ATmega16U4__)
-			#define PRODUCT_ID_CODE               0x2FF4
+			#define PRODUCT_ID_CODE               0x2FF3
 
 			#define SIGNATURE_BYTE_1              0x1E
 			#define SIGNATURE_BYTE_2              0x94

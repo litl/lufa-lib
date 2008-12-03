@@ -38,9 +38,9 @@ int16_t IP_ProcessIPPacket(void* InDataStart, void* OutDataStart)
 	IP_Header_t* IPHeaderOUT = (IP_Header_t*)OutDataStart;
 
 	/* Header length is specified in number of longs in the packet header, convert to bytes */
-	uint16_t     HeaderLengthBytes = (IPHeaderIN->HeaderLength * sizeof(uint32_t));
+	uint16_t HeaderLengthBytes = (IPHeaderIN->HeaderLength * sizeof(uint32_t));
 
-	int16_t      RetSize = NO_RESPONSE;
+	int16_t  RetSize = NO_RESPONSE;
 
 	/* Check to ensure the IP packet is addressed to the virtual webserver's IP or the broadcast IP address */
 	if (!(IP_COMPARE(&IPHeaderIN->DestinationAddress, &ServerIPAddress)) &&

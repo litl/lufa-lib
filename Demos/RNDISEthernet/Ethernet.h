@@ -86,6 +86,7 @@
 		extern IP_Address_t  ServerIPAddress;
 		extern MAC_Address_t BroadcastMACAddress;
 		extern IP_Address_t  BroadcastIPAddress;
+		extern IP_Address_t  ClientIPAddress;
 		
 	/* Function Prototypes: */
 		void     Ethernet_ProcessPacket(void);

@@ -41,6 +41,7 @@
   *  - Removed LED commands from the CDC bootloader, unused by most AVR910 programming software
   *  - Fixed RNDIS demo ICMP ping requests echoing back incorrect data
   *  - Added DHCP server code to RNDIS demo, allowing for hands-free autoconfiguration on any PC
+  *  - Fixed DFU bootloader PID value for the ATMEGA16U4 AVR
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *

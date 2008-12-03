@@ -37,7 +37,8 @@ Ethernet_Frame_Info_t FrameOUT;
 MAC_Address_t ServerMACAddress    = {SERVER_MAC_ADDRESS};
 IP_Address_t  ServerIPAddress     = {SERVER_IP_ADDRESS};
 MAC_Address_t BroadcastMACAddress = {BROADCAST_MAC_ADDRESS};
-IP_Address_t  BroadcastIPAddress = {BROADCAST_IP_ADDRESS};
+IP_Address_t  BroadcastIPAddress  = {BROADCAST_IP_ADDRESS};
+IP_Address_t  ClientIPAddress     = {CLIENT_IP_ADDRESS};
 
 void Ethernet_ProcessPacket(void)
 {
@@ -73,7 +74,7 @@ void Ethernet_ProcessPacket(void)
 			/* Fill out the response Ethernet frame header */
 			FrameOUTHeader->Source          = ServerMACAddress;
 			FrameOUTHeader->Destination     = FrameINHeader->Source;
-			FrameOUTHeader->EtherType       = FrameINHeader->EtherType;			
+			FrameOUTHeader->EtherType       = FrameINHeader->EtherType;
 			
 			/* Set the response length in the buffer and indicate that a response is ready to be sent */
 			FrameOUT.FrameLength            = (sizeof(Ethernet_Frame_Header_t) + RetSize);

@@ -28,7 +28,7 @@
   this software.
 */
 
-#define   INCLUDE_FROM_TCP_C
+#define  INCLUDE_FROM_TCP_C
 #include "TCP.h"
 
 /* Global Variables: */
