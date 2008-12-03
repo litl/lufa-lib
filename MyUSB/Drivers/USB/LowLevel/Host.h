@@ -1,5 +1,5 @@
 /*
-             MyUSB Library
+             LUFA Library
      Copyright (C) Dean Camera, 2008.
               
   dean [at] fourwalledcubicle [dot] com
@@ -130,7 +130,7 @@
 
 		/* Enums: */
 			/** Enum for the various states of the USB Host state machine. Only some states are
-			 *  implemented in the MyUSB library - other states are left to the user to implement.
+			 *  implemented in the LUFA library - other states are left to the user to implement.
 			 *
 			 *  For information on each state, refer to the USB 2.0 specification.
 			 *
