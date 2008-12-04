@@ -78,8 +78,6 @@
 	/* Function Prototypes: */
 		void UnicodeToASCII(uint8_t* restrict UnicodeString, char* restrict Buffer);
 		void ShowCommandError(uint8_t ErrorCode, bool ResponseCodeError);
-
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

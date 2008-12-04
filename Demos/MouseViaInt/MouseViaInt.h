@@ -105,10 +105,7 @@
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Function Prototypes: */
-		/** Function prototype for the GetNextReport() routine, to generate HID reports for transmission to the host. */
 		bool GetNextReport(USB_MouseReport_Data_t* ReportData);
-
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

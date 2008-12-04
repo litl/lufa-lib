@@ -200,32 +200,13 @@
 		
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_BOOTLOADER_C)
-			/** Prototype for the DiscardFillerBytes() routine, to discard a given number of bytes from the host
-			 *  on the control endpoint.
-			 */
 			static void DiscardFillerBytes(uint8_t NumberOfBytes);
-			
-			/** Prototype for the ProcessBootloaderCommand() routine, to process a DFU command issued from the host. */
 			static void ProcessBootloaderCommand(void);
-			
-			/** Prototype for the LoadStartEndAddresses() routine, to load in the given pair of 16-bit memory
-			 *  addresses from the host.
-			 */
 			static void LoadStartEndAddresses(void);
-			
-			/** Prototype for the ProcessMemProgCommand() routine, to process a Memory Program command from the host. */
 			static void ProcessMemProgCommand(void);
-
-			/** Prototype for the ProcessMemReadCommand() routine, to process a Memory Read command from the host. */
 			static void ProcessMemReadCommand(void);
-
-			/** Prototype for the ProcessWriteCommand() routine, to process a Write command from the host. */
 			static void ProcessWriteCommand(void);
-
-			/** Prototype for the ProcessReadCommand() routine, to process a Read command from the host. */
 			static void ProcessReadCommand(void);
-			
-			/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 			static void UpdateStatus(uint8_t CurrentStatus);
 		#endif
 		

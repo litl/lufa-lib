@@ -104,7 +104,6 @@
 
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_TESTEVENTS_C) || defined(__DOXYGEN__)
-			/** Prototype for the Abort_Program function, which logs and aborts the program execution when called. */
 			static void Abort_Program(void) ATTR_NO_RETURN;
 		#endif
 

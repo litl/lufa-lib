@@ -55,13 +55,8 @@
 		#include <LUFA/Drivers/Board/Temperature.h>             // Temperature sensor driver
 		
 	/* Task Definitions: */
-		/** Task prototype for the joystick checking task. */
 		TASK(TestApp_CheckJoystick);
-
-		/** Task prototype for the HWB button checking task. */
 		TASK(TestApp_CheckHWB);
-
-		/** Task prototype for the temperature checking task. */
 		TASK(TestApp_CheckTemp);
 
 #endif

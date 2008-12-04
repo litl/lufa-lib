@@ -73,8 +73,6 @@
 				
 	/* Function Prototypes: */
 		void ShowDiskReadError(uint8_t ErrorCode);
-
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);		
 
 #endif

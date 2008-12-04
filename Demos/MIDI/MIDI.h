@@ -73,9 +73,7 @@
 
    /* Function Prototypes: */
 		void SendMIDINoteChange(const uint8_t Pitch, const bool OnOff,
-		                        const uint8_t CableID, const uint8_t Channel);
-		
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
+		                        const uint8_t CableID, const uint8_t Channel);		
 		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

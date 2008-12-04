@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Descriptors.c.
+ */
+ 
 #ifndef _DESCRIPTORS_H_
 #define _DESCRIPTORS_H_
 
@@ -37,11 +42,20 @@
 		#include <avr/pgmspace.h>
 
 	/* Macros: */
+		/** Endpoint number of the Mass Storage device-to-host data IN endpoint. */
 		#define MASS_STORAGE_IN_EPNUM          3	
+
+		/** Endpoint number of the Mass Storage host-to-device data OUT endpoint. */
 		#define MASS_STORAGE_OUT_EPNUM         4	
+
+		/** Size in bytes of the Mass Storage data endpoints. */
 		#define MASS_STORAGE_IO_EPSIZE         64
 		
-	/* Type Defines: */
+	/* Type Defines: */		
+		/** Type define for the device configuration descriptor structure. This must be defined in the
+		 *  application code, as the configuration descriptor contains several sub-descriptors which
+		 *  vary between devices, and which describe the device's usage to the host.
+		 */
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;

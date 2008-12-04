@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for MassStorage.c.
+ */
+
 #ifndef _MASS_STORAGE_H_
 #define _MASS_STORAGE_H_
 
@@ -47,53 +52,63 @@
 		#include <LUFA/Scheduler/Scheduler.h>        // Simple scheduler for task management
 
 	/* Macros: */
-		#define MASS_STORAGE_RESET         0xFF
-		#define GET_MAX_LUN                0xFE
+		/** Mass Storage Class specific request to reset the Mass Storage interface, ready for the next command. */
+		#define REQ_MassStorageReset       0xFF
 
+		/** Mass Storage Class specific request to retrieve the total number of Logical Units (drives) in the SCSI device. */
+		#define REQ_GetMaxLUN              0xFE
+
+		/** Maximum length of a SCSI command which can be issued by the device or host in a Mass Storage bulk wrapper. */
 		#define MAX_SCSI_COMMAND_LENGTH    16
 		
+		/** Total number of Logical Units (drives) in the device. By default, the total device capacity is shared equally between
+		 *  each drive - this can be set to any positive non-zero amount. */
 		#define TOTAL_LUNS                 2
+		
+		/** Size of each LUN, calculated from the total capacity divided by the total number of Logical Units in the device. */
 		#define LUN_MEDIA_SIZE             (VIRTUAL_MEMORY_BLOCKS / TOTAL_LUNS)    
 		
+		/** Magic signature for a Command Block Wrapper used in the Mass Storage Bulk-Only transport protocol. */
 		#define CBW_SIGNATURE              0x43425355UL
+
+		/** Magic signature for a Command Status Wrapper used in the Mass Storage Bulk-Only transport protocol. */
 		#define CSW_SIGNATURE              0x53425355UL
 		
+		/** Mask for a Command Block Wrapper's flags attribute to specify a command with data sent from host-to-device. */
 		#define COMMAND_DIRECTION_DATA_OUT (0 << 7)
+
+		/** Mask for a Command Block Wrapper's flags attribute to specify a command with data sent from device-to-host. */
 		#define COMMAND_DIRECTION_DATA_IN  (1 << 7)
 
 	/* Type defines: */
+		/** Type define for a Command Block Wrapper, used in the Mass Storage Bulk-Only Transport protocol. */
 		typedef struct
 		{
-			struct
-			{
-				uint32_t Signature;
-				uint32_t Tag;
-				uint32_t DataTransferLength;
-				uint8_t  Flags;
-				uint8_t  LUN;
-				uint8_t  SCSICommandLength;			
-			} Header;
-			
-			uint8_t SCSICommandData[16];
+			uint32_t Signature; /**< Command block signature, must be CBW_SIGNATURE to indicate a valid Command Block */
+			uint32_t Tag; /**< Unique command ID value, to associate a command block wrapper with its command status wrapper */
+			uint32_t DataTransferLength; /** Length of the optional data portion of the issued command, in bytes */
+			uint8_t  Flags; /**< Command block flags, indicating command data direction */
+			uint8_t  LUN; /**< Logical Unit number this command is issued to */
+			uint8_t  SCSICommandLength; /**< Length of the issued SCSI command within the SCSI command data array */
+			uint8_t  SCSICommandData[MAX_SCSI_COMMAND_LENGTH]; /**< Issued SCSI command in the Command Block */
 		} CommandBlockWrapper_t;
 		
+		/** Type define for a Command Status Wrapper, used in the Mass Storage Bulk-Only Transport protocol. */
 		typedef struct
 		{
-			struct
-			{
-				const uint32_t Signature;
-					  uint32_t Tag;
-					  uint32_t SCSICommandResidue;
-					  uint8_t  Status;
-			} Header;
+			uint32_t Signature; /**< Status block signature, must be CSW_SIGNATURE to indicate a valid Command Status */
+			uint32_t Tag; /**< Unique command ID value, to associate a command block wrapper with its command status wrapper */
+			uint32_t SCSICommandResidue; /**< Number of bytes of data not processed in the SCSI command */
+			uint8_t  Status; /**< Status code of the issued command - a value from the MassStorage_CommandStatusCodes_t enum */
 		} CommandStatusWrapper_t;
 		
 	/* Enums: */
+		/** Enum for the possible command status wrapper return status codes. */
 		enum MassStorage_CommandStatusCodes_t
 		{
-			Command_Pass = 0,
-			Command_Fail = 1,
-			Phase_Error  = 2
+			Command_Pass = 0, /**< Command completed with no error */
+			Command_Fail = 1, /**< Command failed to complete - host may check the exact error via a SCSI REQUEST SENSE command */
+			Phase_Error  = 2  /**< Command failed due to being invalid in the current phase */
 		};
 
 		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
@@ -118,14 +133,22 @@
 		STREAM_CALLBACK(AbortOnMassStoreReset);
 
 	/* Event Handlers: */
+		/** Indicates that this module will catch the USB_Reset event when thrown by the library. */
 		HANDLES_EVENT(USB_Reset);
+
+		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
 		HANDLES_EVENT(USB_Connect);
+
+		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
+
+		/** Indicates that this module will catch the USB_ConfigurationChanged event when thrown by the library. */
 		HANDLES_EVENT(USB_ConfigurationChanged);
+
+		/** Indicates that this module will catch the USB_UnhandledControlPacket event when thrown by the library. */
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Function Prototypes: */
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);
 
 		#if defined(INCLUDE_FROM_MASSSTORAGEDUALLUN_C)

@@ -28,6 +28,13 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header containing macros for possible SCSI commands and SENSE data. Refer to
+ *  the SCSI standard documentation for more information on each SCSI command and
+ *  the SENSE data.
+ */
+ 
 #ifndef _SCSI_CODES_H_
 #define _SCSI_CODES_H_
 

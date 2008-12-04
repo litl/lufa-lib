@@ -85,7 +85,6 @@
 		TASK(Ethernet_Task);
 
 	/* Function Prototypes: */
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);
 	
 #endif

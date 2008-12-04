@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for SCSI.c.
+ */
+ 
 #ifndef _SCSI_H_
 #define _SCSI_H_
 
@@ -45,14 +50,28 @@
 		#include "SCSI_Codes.h"
 	
 	/* Macros: */
-		#define SCSI_SET_SENSE(key, acode, aqual)  		   MACROS{ SenseData.SenseKey = key;              \
-		                                                           SenseData.AdditionalSenseCode = acode; \
-		                                                           SenseData.AdditionalSenseQualifier = aqual; }MACROE
+		/** Macro to set the current SCSI sense data to the given key, additional sense code and additional sense qualifier. This
+		 *  is for convenience, as it allows for all three sense values (returned upon request to the host to give information about
+		 *  the last command failure) in a quick and easy manner.
+		 *
+		 *  \param key    New SCSI sense key to set the sense code to
+		 *  \param acode  New SCSI additional sense key to set the additional sense code to
+		 *  \param aqual  New SCSI additional sense key qualifier to set the additional sense qualifier code to
+		 */
+		#define SCSI_SET_SENSE(key, acode, aqual)  MACROS{ SenseData.SenseKey = key;              \
+		                                                   SenseData.AdditionalSenseCode = acode; \
+		                                                   SenseData.AdditionalSenseQualifier = aqual; }MACROE
 
-		#define DATA_READ                                  true
-		#define DATA_WRITE                                 false
+		/** Macro for the SCSI_Command_ReadWrite_10() function, to indicate that data is to be read from the storage medium. */
+		#define DATA_READ      true
+
+		/** Macro for the SCSI_Command_ReadWrite_10() function, to indicate that data is to be written to the storage medium. */
+		#define DATA_WRITE     false
 		
 	/* Type Defines: */
+		/** Type define for a SCSI response structure to a SCSI INQUIRY command. For details of the
+		 *  structure contents, refer to the SCSI specifications.
+		 */
 		typedef struct
 		{
 			unsigned int DeviceType          : 5;
@@ -86,6 +105,9 @@
 			uint8_t      RevisionID[4];
 		} SCSI_Inquiry_Response_t;
 		
+		/** Type define for a SCSI sense structure to a SCSI REQUEST SENSE command. For details of the
+		 *  structure contents, refer to the SCSI specifications.
+		 */
 		typedef struct
 		{
 			uint8_t      ResponseCode;

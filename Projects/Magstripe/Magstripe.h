@@ -146,21 +146,10 @@
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 		
 	/* Function Prototypes: */
-		/* Prototype for the GetNextReport() function, to construct the next HID report for the host. */
 		bool GetNextReport(USB_KeyboardReport_Data_t* ReportData);
-
-		/** Prototype for the ProcessLEDReport() function, to process LED status reports from the host and display
-		 *  them on the board LEDs.
-		 */
 		void ProcessLEDReport(uint8_t LEDReport);
-
-		/** Prototype for the SendKey() function, to send a HID report indicating the given key is being pressed. */
 		void SendKey(USB_KeyboardReport_Data_t* KeyboardReportData, uint8_t Key);
-
-		/** Prototype for the Send() function, to send the given HID report to the host. */
 		void Send(USB_KeyboardReport_Data_t* KeyboardReportData, bool SendReport);
-
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

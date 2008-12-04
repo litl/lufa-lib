@@ -28,7 +28,7 @@
   this software.
 */
 
-#define INCLUDE_FROM_DYNALLOC_C
+#define  INCLUDE_FROM_DYNALLOC_C
 #include "DynAlloc.h"
 
 struct

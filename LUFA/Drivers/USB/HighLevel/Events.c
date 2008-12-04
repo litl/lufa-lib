@@ -30,7 +30,7 @@
 
 #include "../LowLevel/USBMode.h"
 
-#define INCLUDE_FROM_EVENTS_C
+#define  INCLUDE_FROM_EVENTS_C
 #include "Events.h"
 
 static void __stub(void)

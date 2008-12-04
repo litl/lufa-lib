@@ -112,9 +112,6 @@
 		} USB_Descriptor_Configuration_t;
 
 	/* Function Prototypes: */
-		/** Prototype for the function to return the address and size of a given descriptor when requested by
-		 *  the host. See StdDescriptors.h for more details.
-		 */	
 		bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 		                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
 		                       ATTR_WARN_UNUSED_RESULT ATTR_WEAK ATTR_NON_NULL_PTR_ARG(3, 4);

@@ -334,7 +334,7 @@ void ProcessLEDReport(uint8_t LEDReport)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
-/** Task to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
+/** Function to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
  *  log to a serial port, or anything else that is suitable for status updates.
  *
  *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum

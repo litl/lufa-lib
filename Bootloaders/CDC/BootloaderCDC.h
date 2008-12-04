@@ -137,23 +137,13 @@
 		};
 		
 	/* Tasks: */
-		/** Task prototype for the bootloader CDC management and processing task. */
 		TASK(CDC_Task);
 
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_BOOTLOADERCDC_C) || defined(__DOXYGEN__)
-			/** Prototype for the ProgramReadWriteMemoryBlock() function, for reading or writing EEPROM and
-			 *  flash memory.
-			 */
 			static void ProgramReadWriteMemoryBlock(const uint8_t Command);
-			
-			/** Prototype for the FetchNextCommandByte() routine, to retrieve the next byte sent from the host. */
 			static uint8_t FetchNextCommandByte(void);
-
-			/** Prototype for the WriteNextResponseByte() routine, to send the next response byte to the host. */
 			static void WriteNextResponseByte(const uint8_t Response);
-
-			/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 			static void UpdateStatus(uint8_t CurrentStatus);
 		#endif
 

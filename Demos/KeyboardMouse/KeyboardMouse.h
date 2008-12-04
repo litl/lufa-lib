@@ -49,10 +49,7 @@
 		#include <LUFA/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
 	/* Task Definitions: */
-		/** Task to manage the keyboard HID interface, generating and processing HID reports to and from the host. */
 		TASK(USB_Keyboard);
-
-		/** Task to manage the mouse HID interface, generating and processing HID reports to and from the host. */
 		TASK(USB_Mouse);
 
 	/* Enums: */
@@ -112,7 +109,6 @@
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Function Prototypes: */
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

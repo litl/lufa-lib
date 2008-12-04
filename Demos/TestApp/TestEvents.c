@@ -36,7 +36,7 @@
  *  Each event is caught and printed to the USART so that they may be monitored.
  */
  
-#define INCLUDE_FROM_TESTEVENTS_C
+#define  INCLUDE_FROM_TESTEVENTS_C
 #include "TestEvents.h"
 
 /** Simple routine which aborts the program execution when a fatal error occurs, and is passed to the

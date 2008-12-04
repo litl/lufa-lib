@@ -28,38 +28,7 @@
   this software.
 */
 
-/*
-	Dual LUN Mass Storage demonstration application. This gives a simple
-	reference application for implementing a multiple LUN USB Mass Storage
-	device using the basic USB UFI drivers in all modern OSes (i.e. no
-	special drivers required).
-	
-	On startup the system will automatically enumerate and function as an
-	external mass storage device with two LUNs (seperate disks) which may
-	be formatted and used in the same manner as commercial USB Mass Storage
-	devices.
-		
-	You will need to format the mass storage drives upon first run of this
-	demonstration.
-	
-	This demo is not restricted to only two LUNs; by changing the TOTAL_LUNS
-	value in MassStorageDualLUN.h, any number of LUNs can be used (from 1 to
-	255), with each LUN being allocated an equal portion of the available
-	Dataflash memory.
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Mass Storage Device
-	USB Subclass:       Bulk Only
-	Relevant Standards: USBIF Mass Storage Standard
-	                    USB Bulk-Only Transport Standard
-	                    SCSI Primary Commands Specification
-	                    SCSI Block Commands Specification
-	Usable Speeds:      Full Speed Mode
-*/
-
-#define INCLUDE_FROM_MASSSTORAGEDUALLUN_C
+#define  INCLUDE_FROM_MASSSTORAGEDUALLUN_C
 #include "MassStorage.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -75,11 +44,18 @@ TASK_LIST
 };
 
 /* Global Variables */
+/** Structure to hold the latest Command Block Wrapper issued by the host, containing a SCSI command to execute. */
 CommandBlockWrapper_t  CommandBlock;
-CommandStatusWrapper_t CommandStatus = { Header: {Signature: CSW_SIGNATURE } };
+
+/** Structure to hold the latest Command Status Wrapper to return to the host, containing the status of the last issued command. */
+CommandStatusWrapper_t CommandStatus = { Signature: CSW_SIGNATURE };
+
+/** Flag to asyncronously abort any in-progress data transfers upon the reception of a mass storage reset command. */
 volatile bool          IsMassStoreReset = false;
 
-
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -109,6 +85,10 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Reset event. This fires when the USB interface is reset by the USB host, before the
+ *  enumeration process begins, and enables the control endpoint interrupt so that control requests can be handled
+ *  asynchronously when they arrive rather than when the control endpoint is polled manually.
+ */
 EVENT_HANDLER(USB_Reset)
 {
 	/* Select the control endpoint */
@@ -118,6 +98,7 @@ EVENT_HANDLER(USB_Reset)
 	USB_INT_Enable(ENDPOINT_INT_SETUP);
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs. */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Indicate USB enumerating */
@@ -127,6 +108,9 @@ EVENT_HANDLER(USB_Connect)
 	IsMassStoreReset = false;
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs and stops the Mass Storage management task.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop running mass storage task */
@@ -136,6 +120,9 @@ EVENT_HANDLER(USB_Disconnect)
 	UpdateStatus(Status_USBNotReady);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
+ *  of the USB device after enumeration - the device endpoints are configured and the Mass Storage management task started.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup Mass Storage In and Out Endpoints */
@@ -154,12 +141,16 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(USB_MassStorage, TASK_RUN);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the Mass Storage class-specific
+ *  requests) so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Process UFI specific control requests */
 	switch (bRequest)
 	{
-		case MASS_STORAGE_RESET:
+		case REQ_MassStorageReset:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				/* Indicate that the current transfer should be aborted */
@@ -170,7 +161,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 			}
 
 			break;
-		case GET_MAX_LUN:
+		case REQ_GetMaxLUN:
 			if (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
 			{
 				/* Indicate to the host the number of supported LUNs (virtual disks) on the device */
@@ -183,7 +174,7 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 	}
 }
 
-/** Task to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
+/** Function to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
  *  log to a serial port, or anything else that is suitable for status updates.
  *
  *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
@@ -216,6 +207,9 @@ void UpdateStatus(uint8_t CurrentStatus)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** Task to manage the Mass Storage interface, reading in Command Block Wrappers from the host, processing the SCSI commands they
+ *  contain, and returning Command Status Wrappers back to the host to indicate the success or failure of the last issued command.
+ */
 TASK(USB_MassStorage)
 {
 	/* Check if the USB System is connected to a Host */
@@ -234,20 +228,20 @@ TASK(USB_MassStorage)
 			if (ReadInCommandBlock())
 			{
 				/* Check direction of command, select Data IN endpoint if data is from the device */
-				if (CommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
+				if (CommandBlock.Flags & COMMAND_DIRECTION_DATA_IN)
 				  Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 
 				/* Decode the received SCSI command */
 				SCSI_DecodeSCSICommand();
 
 				/* Load in the CBW tag into the CSW to link them together */
-				CommandStatus.Header.Tag = CommandBlock.Header.Tag;
+				CommandStatus.Tag = CommandBlock.Tag;
 
 				/* Load in the Command Data residue into the CSW */
-				CommandStatus.Header.SCSICommandResidue = CommandBlock.Header.DataTransferLength;
+				CommandStatus.SCSICommandResidue = CommandBlock.DataTransferLength;
 
 				/* Stall the selected data pipe if command failed (if data is still to be transferred) */
-				if ((CommandStatus.Header.Status == Command_Fail) && (CommandStatus.Header.SCSICommandResidue))
+				if ((CommandStatus.Status == Command_Fail) && (CommandStatus.SCSICommandResidue))
 				  Endpoint_StallTransaction();
 
 				/* Return command status block to the host */
@@ -268,19 +262,24 @@ TASK(USB_MassStorage)
 	}
 }
 
+/** Function to read in a command block from the host, via the bulk data OUT endpoint. This function reads in the next command block
+ *  if one has been issued, and performs validation to ensure that the block command is valid.
+ *
+ *  \return Boolean true if a valid command block has been read in from the endpoint, false otherwise
+ */
 static bool ReadInCommandBlock(void)
 {
 	/* Select the Data Out endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 
 	/* Read in command block header */
-	Endpoint_Read_Stream_LE(&CommandBlock.Header, sizeof(CommandBlock.Header),
+	Endpoint_Read_Stream_LE(&CommandBlock, (sizeof(CommandBlock) - sizeof(CommandBlock.SCSICommandData)),
 	                        AbortOnMassStoreReset);
 
 	/* Verify the command block - abort if invalid */
-	if ((CommandBlock.Header.Signature != CBW_SIGNATURE) ||
-	    (CommandBlock.Header.LUN >= TOTAL_LUNS) ||
-		(CommandBlock.Header.SCSICommandLength > MAX_SCSI_COMMAND_LENGTH))
+	if ((CommandBlock.Signature != CBW_SIGNATURE) ||
+	    (CommandBlock.LUN >= TOTAL_LUNS) ||
+		(CommandBlock.SCSICommandLength > MAX_SCSI_COMMAND_LENGTH))
 	{
 		/* Stall both data pipes until reset by host */
 		Endpoint_StallTransaction();
@@ -292,7 +291,7 @@ static bool ReadInCommandBlock(void)
 
 	/* Read in command block command data */
 	Endpoint_Read_Stream_LE(&CommandBlock.SCSICommandData,
-	                        CommandBlock.Header.SCSICommandLength,
+	                        CommandBlock.SCSICommandLength,
 	                        AbortOnMassStoreReset);
 	  
 	/* Clear the endpoint */
@@ -301,17 +300,17 @@ static bool ReadInCommandBlock(void)
 	return true;
 }
 
+/** Returns the filled Command Status Wrapper back to the host via the bulk data IN endpoint, waiting for the host to clear any
+ *  stalled data endpoints as needed.
+ */
 static void ReturnCommandStatus(void)
 {
 	/* Select the Data Out endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_OUT_EPNUM);
 
-	/* While data pipe is stalled, process control requests */
+	/* While data pipe is stalled, wait until the host issues a control request to clear the stall */
 	while (Endpoint_IsStalled())
 	{
-		/* Run the USB task manually to process any received control requests */
-		USB_USBTask();
-		
 		/* Check if the current command is being aborted by the host */
 		if (IsMassStoreReset)
 		  return;
@@ -320,12 +319,9 @@ static void ReturnCommandStatus(void)
 	/* Select the Data In endpoint */
 	Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPNUM);
 
-	/* While data pipe is stalled, process control requests */
+	/* While data pipe is stalled, wait until the host issues a control request to clear the stall */
 	while (Endpoint_IsStalled())
 	{
-		/* Run the USB task manually to process any received control requests */
-		USB_USBTask();
-
 		/* Check if the current command is being aborted by the host */
 		if (IsMassStoreReset)
 		  return;
@@ -339,6 +335,9 @@ static void ReturnCommandStatus(void)
 	Endpoint_ClearCurrentBank();
 }
 
+/** Stream callback function for the Endpoint stream read and write functions. This callback will abort the current stream transfer
+ *  if a Mass Storage Reset request has been issued to the control endpoint.
+ */
 STREAM_CALLBACK(AbortOnMassStoreReset)
 {	
 	/* Abort if a Mass Storage reset command was received */
@@ -349,6 +348,11 @@ STREAM_CALLBACK(AbortOnMassStoreReset)
 	return STREAMCALLBACK_Continue;
 }
 
+/** ISR for the general Pipe/Endpoint interrupt vector. This ISR fires when a control request has been issued to the control endpoint,
+ *  so that the request can be processed. As several elements of the Mass Storage implementation require asynchronous control requests
+ *  (such as endpoint stall clearing and Mass Storage Reset requests during data transfers) this is done via interrupts rather than
+ *  polling.
+ */
 ISR(ENDPOINT_PIPE_vect)
 {
 	/* Check if the control endpoint has received a request */

@@ -28,13 +28,28 @@
   this software.
 */
 
-#define INCLUDE_FROM_DATAFLASHMANAGER_C
+/** \file
+ *
+ *  Functions to manage the physical dataflash media, including reading and writing of
+ *  blocks of data. These functions are called by the SCSI layer when data must be stored
+ *  or retrieved to/from the physical storage media. If a different media is used (such
+ *  as a SD card or EEPROM), functions similar to these will need to be generated.
+ */
+
+#define  INCLUDE_FROM_DATAFLASHMANAGER_C
 #include "DataflashManager.h"
 
+/** Writes blocks (OS blocks, not Dataflash pages) to the storage medium, the board dataflash IC(s), from
+ *  the pre-selected data OUT endpoint. This routine reads in OS sized blocks from the endpoint and writes
+ *  them to the dataflash in Dataflash page sized blocks.
+ *
+ *  \param BlockAddress  Data block starting address for the write sequence
+ *  \param TotalBlocks   Number of blocks of data to write
+ */
 void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage = (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-	uint16_t CurrDFByte = (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFPage = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 
 	/* Create a buffer to hold the incomming endpoint packet's data */
 	uint8_t PacketBuffer[VIRTUAL_MEMORY_BLOCK_SIZE];
@@ -75,14 +90,14 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 			uint8_t BytesRemInPageDiv16  = ((DATAFLASH_PAGE_SIZE - CurrDFByte) >> 4);
 			
 			/* Determine which which is smaller - process the smaller amount to ensure that we don't either
-			 * exceed the dataflash page or number of remaining bytes in the block */
+			   exceed the dataflash page or number of remaining bytes in the block */
 			uint8_t BytesToReadDiv16     = (BytesRemInBlockDiv16 < BytesRemInPageDiv16) ? BytesRemInBlockDiv16 :
 			                                                                              BytesRemInPageDiv16;
 
 			/* Data is processed 16 bytes at a time for speed - cavet, dataflash page must be a multiple of 16 */
 			while (BytesToReadDiv16--)
 			{
-				/* Write one 16-bit chunk of data to the dataflash */
+				/* Write one 16-byte chunk of data to the dataflash */
 				Dataflash_SendByte(*(BufferPos++));
 				Dataflash_SendByte(*(BufferPos++));
 				Dataflash_SendByte(*(BufferPos++));
@@ -151,10 +166,17 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 	Dataflash_DeselectChip();
 }
 
+/** Reads blocks (OS blocks, not Dataflash pages) from the storage medium, the board dataflash IC(s), into
+ *  the pre-selected data IN endpoint. This routine reads in Dataflash page sized blocks from the Dataflash
+ *  and writes them in OS sized blocks to the endpoint.
+ *
+ *  \param BlockAddress  Data block starting address for the read sequence
+ *  \param TotalBlocks   Number of blocks of data to read
+ */
 void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage = (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-	uint16_t CurrDFByte = (((uint32_t)BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFPage = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 
 	/* Create a buffer to hold the outgoing endpoint packet's data */
 	uint8_t PacketBuffer[VIRTUAL_MEMORY_BLOCK_SIZE];
@@ -195,7 +217,7 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 			/* Data is processed 16 bytes at a time for speed - cavet, dataflash page must be a multiple of 16 */
 			while (BytesToReadDiv16--)
 			{
-				/* Read one 16-bit chunk of data from the dataflash */
+				/* Read one 16-byte chunk of data from the dataflash */
 				*(BufferPos++) = Dataflash_SendByte(0);
 				*(BufferPos++) = Dataflash_SendByte(0);
 				*(BufferPos++) = Dataflash_SendByte(0);
@@ -257,6 +279,7 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 	Dataflash_DeselectChip();
 }
 
+/** Disables the dataflash memory write protection bits on the board Dataflash ICs, if enabled. */
 void VirtualMemory_ResetDataflashProtections(void)
 {
 	/* Select first dataflash chip, send the read status register command */

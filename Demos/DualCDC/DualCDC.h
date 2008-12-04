@@ -117,14 +117,10 @@
 		};
 
 	/* Tasks: */
-		/** Task prototype for the CDC management task of the first CDC interface. */
 		TASK(CDC1_Task);
-
-		/** Task prototype for the CDC management task of the second CDC interface. */
 		TASK(CDC2_Task);
 
 	/* Function Prototypes: */
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

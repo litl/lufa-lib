@@ -28,7 +28,7 @@
   this software.
 */
 
-#define INCLUDE_FROM_MASSSTORE_COMMANDS_C
+#define  INCLUDE_FROM_MASSSTORE_COMMANDS_C
 #include "MassStoreCommands.h"
 
 /* Globals: */

@@ -30,7 +30,7 @@
 
 #include "../LowLevel/USBMode.h"
 
-#define INCLUDE_FROM_USBTASK_C
+#define  INCLUDE_FROM_USBTASK_C
 #include "USBTask.h"
 
 volatile bool      USB_IsConnected;

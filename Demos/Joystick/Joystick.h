@@ -52,7 +52,6 @@
 		#include <LUFA/Scheduler/Scheduler.h>        // Simple scheduler for task management
 		
 	/* Task Definitions: */
-		/** Task prototype for the joystick report generation task. */
 		TASK(USB_Joystick_Report);
 
 	/* Macros: */
@@ -93,10 +92,7 @@
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 		
 	/* Function Prototypes: */
-		/** Function prototype for the GetNextReport() routine, to generate HID reports for transmission to the host. */
 		bool GetNextReport(USB_JoystickReport_Data_t* ReportData);
-
-		/** Function prototype for the UpdateStatus() routine, to display status changes to the user. */
 		void UpdateStatus(uint8_t CurrentStatus);
 
 #endif
