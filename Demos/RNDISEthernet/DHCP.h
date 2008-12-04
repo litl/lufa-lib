@@ -49,6 +49,7 @@
 		
 		#define DHCP_OPTION_SUBNETMASK    1
 		#define DHCP_OPTION_MESSAGETYPE   53
+		#define DHCP_OPTION_DHCPSERVER    54
 		#define DHCP_OPTION_PAD           0
 		#define DHCP_OPTION_END           255
 			
