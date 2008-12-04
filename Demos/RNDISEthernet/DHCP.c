@@ -67,35 +67,30 @@ int16_t DHCP_ProcessDHCPPacket(void* IPHeaderInStart, void* DHCPHeaderInStart, v
 		/* Find the Message Type DHCP option, to determine the type of DHCP packet */
 		if (DHCPOptionsINStart[0] == DHCP_OPTION_MESSAGETYPE)
 		{
-			switch (DHCPOptionsINStart[2])
+			if ((DHCPOptionsINStart[2] == DHCP_MESSAGETYPE_DISCOVER) || (DHCPOptionsINStart[2] == DHCP_MESSAGETYPE_REQUEST))
 			{
-				case DHCP_MESSAGETYPE_DISCOVER:
-					/* Fill out the response DHCP packet options for a DHCP OFFER response */
+				/* Fill out the response DHCP packet options for a DHCP OFFER or ACK response */
 
-					*(DHCPOptionsOUTStart++) = DHCP_OPTION_MESSAGETYPE;
-					*(DHCPOptionsOUTStart++) = 1;
-					*(DHCPOptionsOUTStart++) = DHCP_MESSAGETYPE_OFFER;
+				*(DHCPOptionsOUTStart++) = DHCP_OPTION_MESSAGETYPE;
+				*(DHCPOptionsOUTStart++) = 1;
+				*(DHCPOptionsOUTStart++) = (DHCPOptionsINStart[2] == DHCP_MESSAGETYPE_DISCOVER) ? DHCP_MESSAGETYPE_OFFER
+																								: DHCP_MESSAGETYPE_ACK;
 
-					*(DHCPOptionsOUTStart++) = DHCP_OPTION_SUBNETMASK;
-					*(DHCPOptionsOUTStart++) = 4;
-					*(DHCPOptionsOUTStart++) = 0xFF;
-					*(DHCPOptionsOUTStart++) = 0xFF;
-					*(DHCPOptionsOUTStart++) = 0xFF;
-					*(DHCPOptionsOUTStart++) = 0x00;
+				*(DHCPOptionsOUTStart++) = DHCP_OPTION_SUBNETMASK;
+				*(DHCPOptionsOUTStart++) = 4;
+				*(DHCPOptionsOUTStart++) = 0xFF;
+				*(DHCPOptionsOUTStart++) = 0xFF;
+				*(DHCPOptionsOUTStart++) = 0xFF;
+				*(DHCPOptionsOUTStart++) = 0x00;
 
-					*(DHCPOptionsOUTStart++) = DHCP_OPTION_END;
-					
-					return (sizeof(DHCP_Header_t) + 10);
-				case DHCP_MESSAGETYPE_REQUEST:
-					/* Fill out the response DHCP packet options for a DHCP ACK response */
+				*(DHCPOptionsOUTStart++) = DHCP_OPTION_DHCPSERVER;
+				*(DHCPOptionsOUTStart++) = sizeof(IP_Address_t);
+				memcpy(DHCPOptionsOUTStart, &ServerIPAddress, sizeof(IP_Address_t));
+				DHCPOptionsOUTStart     += sizeof(IP_Address_t);
 
-					*(DHCPOptionsOUTStart++) = DHCP_OPTION_MESSAGETYPE;
-					*(DHCPOptionsOUTStart++) = 1;
-					*(DHCPOptionsOUTStart++) = DHCP_MESSAGETYPE_ACK;
-					
-					*(DHCPOptionsOUTStart++) = DHCP_OPTION_END;
-					
-					return (sizeof(DHCP_Header_t) + 4);
+				*(DHCPOptionsOUTStart++) = DHCP_OPTION_END;
+				
+				return (sizeof(DHCP_Header_t) + 16);
 			}
 		}
 		
