@@ -335,7 +335,8 @@
 			/** Event for USB interface reset. This event fires when a the USB interface is in device mode, and
 			 *  a the USB host requests that the device reset its interface. This is generally hooked so that
 			 *  the USB control endpoint can be switched to interrupt driven mode, by selecting it and calling
-			 *  USB_INT_Enable(ENDPOINT_INT_SETUP).
+			 *  USB_INT_Enable(ENDPOINT_INT_SETUP). Before this event fires, all device endpoints are reset and
+			 *  disabled.
 			 *
 			 *  \note This event does not exist if the USB_HOST_ONLY token is supplied to the compiler (see
 			 *        LowLevel.h documentation).

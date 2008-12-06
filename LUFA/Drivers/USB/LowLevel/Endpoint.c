@@ -31,24 +31,46 @@
 #include "USBMode.h"
 #if defined(USB_CAN_BE_DEVICE)
 
+#define  INCLUDE_FROM_ENDPOINT_C
 #include "Endpoint.h"
 
 #if !defined(FIXED_CONTROL_ENDPOINT_SIZE)
 uint8_t USB_ControlEndpointSize = ENDPOINT_CONTROLEP_DEFAULT_SIZE;
 #endif
 
-void Endpoint_ConfigureEndpoint_P(const uint8_t  EndpointNum,
-                                  const uint16_t EndpointSize,
-                                  const uint8_t  UECFG0Xdata,
-                                  const uint8_t  UECFG1Xdata)
+static uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes)
 {
-	Endpoint_SelectEndpoint(EndpointNum);
+	#if defined(USB_FULL_CONTROLLER)
+	for (uint8_t SizeCheck = 0; SizeCheck <= 5; SizeCheck++)
+	{
+		if (Bytes <= (8 << SizeCheck))
+		  return (SizeCheck << EPSIZE0);
+	}
+
+	return (5 << EPSIZE0);
+	#else
+	for (uint8_t SizeCheck = 0; SizeCheck <= 3; SizeCheck++)
+	{
+		if (Bytes <= (8 << SizeCheck))
+		  return (SizeCheck << EPSIZE0);
+	}
+
+	return (3 << EPSIZE0);	
+	#endif
+};
+
+bool Endpoint_ConfigureEndpoint(const uint8_t  Number, const uint8_t Type, const uint8_t Direction,
+			                    const uint16_t Size, const uint8_t Banks)
+{
+	Endpoint_SelectEndpoint(Number);
 	Endpoint_EnableEndpoint();
-	
-	UECFG0X = UECFG0Xdata;
-	UECFG1X = ((UECFG1X & (1 << ALLOC)) | UECFG1Xdata | Endpoint_BytesToEPSizeMask(EndpointSize));
-	
-	Endpoint_AllocateMemory();
+
+	UECFG1X = 0;	
+
+	UECFG0X = ((Type << EPTYPE0) | Direction);
+	UECFG1X = ((1 << ALLOC) | Banks | Endpoint_BytesToEPSizeMask(Size));
+
+	return Endpoint_IsConfigured();
 }
 
 void Endpoint_ClearEndpoints(void)

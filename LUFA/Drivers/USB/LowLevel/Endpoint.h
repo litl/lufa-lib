@@ -196,29 +196,6 @@
 			 */
 			#define Endpoint_ReadWriteAllowed()              ((UEINTX  & (1 << RWAL)) ? true : false)
 
-			/** Configures the specified endpoint number with the given endpoint type, direction, bank size
-			 *  and banking mode. Endpoints should be allocated in ascending order by their address in the
-			 *  device (i.e. endpoint 1 should be configured before endpoint 2 and so on).
-			 *
-			 *  The endpoint type may be one of the EP_TYPE_* macros listed in LowLevel.h and the direction
-			 *  may be either ENDPOINT_DIR_OUT or ENDPOINT_DIR_IN.
-			 *
-			 *  The bank size must indicate the maximum packet size that the endpoint can handle. Different
-			 *  endpoint numbers can handle different maximum packet sizes - refer to the chosen USB AVR's
-			 *  datasheet to determine the maximum bank size for each endpoint.
-			 *
-			 *  The banking mode may be either ENDPOINT_BANK_SINGLE or ENDPOINT_BANK_DOUBLE.
-			 *
-			 *  The success of this routine can be determined via the Endpoint_IsConfigured() macro.
-			 *
-			 *  \note This routine will select the specified endpoint, and the endpoint will remain selected
-			 *        once the routine completes regardless of if the endpoint configuration succeeds.
-			 */
-			#define Endpoint_ConfigureEndpoint(num, type, dir, size, banks)                           \
-												       Endpoint_ConfigureEndpoint_P(num, size,        \
-                                                       ((type << EPTYPE0) | dir),                     \
-											           banks)
-													   
 			/** Returns true if the currently selected endpoint is configured, false otherwise. */
 			#define Endpoint_IsConfigured()                  ((UESTA0X & (1 << CFGOK)) ? true : false)
 
@@ -497,6 +474,29 @@
 			#endif
 
 		/* Function Prototypes: */
+			/** Configures the specified endpoint number with the given endpoint type, direction, bank size
+			 *  and banking mode. Endpoints should be allocated in ascending order by their address in the
+			 *  device (i.e. endpoint 1 should be configured before endpoint 2 and so on).
+			 *
+			 *  The endpoint type may be one of the EP_TYPE_* macros listed in LowLevel.h and the direction
+			 *  may be either ENDPOINT_DIR_OUT or ENDPOINT_DIR_IN.
+			 *
+			 *  The bank size must indicate the maximum packet size that the endpoint can handle. Different
+			 *  endpoint numbers can handle different maximum packet sizes - refer to the chosen USB AVR's
+			 *  datasheet to determine the maximum bank size for each endpoint. If a 
+			 *
+			 *  The banking mode may be either ENDPOINT_BANK_SINGLE or ENDPOINT_BANK_DOUBLE.
+			 *
+			 *  The success of this routine can be determined via the Endpoint_IsConfigured() macro.
+			 *
+			 *  \note This routine will select the specified endpoint, and the endpoint will remain selected
+			 *        once the routine completes regardless of if the endpoint configuration succeeds.
+			 *
+			 *  \return Boolean true if the configuration succeeded, false otherwise
+			 */
+			bool Endpoint_ConfigureEndpoint(const uint8_t  Number, const uint8_t Type, const uint8_t Direction,
+			                                const uint16_t Size, const uint8_t Banks);
+
 			/** Spinloops until the currently selected non-control endpoint is ready for the next packet of data
 			 *  to be read or written to it.
 			 *
@@ -761,42 +761,17 @@
 			
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
-		/* Macros: */	
+		/* Macros: */
 			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);                  }MACROE
 			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);                  }MACROE
 
-		/* Inline Functions: */
-			static inline uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes)
-			                                                 ATTR_WARN_UNUSED_RESULT ATTR_CONST;
-			static inline uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes)
-			{
-				Bytes &= ENDPOINT_EPSIZE_MASK;
-			
-				if (Bytes <= 8)
-				  return (0 << EPSIZE0);
-				else if (Bytes <= 16)
-				  return (1 << EPSIZE0);
-				else if (Bytes <= 32)
-				  return (2 << EPSIZE0);
-				#if defined(USB_LIMITED_CONTROLLER)
-				else
-				  return (3 << EPSIZE0);
-				#else
-				else if (Bytes <= 64)
-				  return (3 << EPSIZE0);
-				else if (Bytes <= (8 << 4))
-				  return (4 << EPSIZE0);
-				else
-				  return (5 << EPSIZE0);
-				#endif
-			};
-
 		/* Function Prototypes: */
 			void Endpoint_ClearEndpoints(void);
-			void Endpoint_ConfigureEndpoint_P(const uint8_t  EndpointNum,
-			                                  const uint16_t EndpointSize,
-			                                  const uint8_t  UECFG0Xdata,
-			                                  const uint8_t  UECFG1Xdata);
+
+			#if defined(INCLUDE_FROM_ENDPOINT_C)
+				static uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes) ATTR_WARN_UNUSED_RESULT ATTR_CONST;
+			#endif
+
 	#endif
 
 	/* Disable C linkage for C++ Compilers: */

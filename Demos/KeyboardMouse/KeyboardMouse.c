@@ -119,17 +119,17 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	/* Setup Keyboard Report Endpoint */
 	Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, HID_EPSIZE,
-	                           ENDPOINT_BANK_DOUBLE);
+	                           ENDPOINT_BANK_SINGLE);
 
 	/* Setup Keyboard LED Report Endpoint */
 	Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_OUT, HID_EPSIZE,
-	                           ENDPOINT_BANK_DOUBLE);
+	                           ENDPOINT_BANK_SINGLE);
 
 	/* Setup Mouse Report Endpoint */
 	Endpoint_ConfigureEndpoint(MOUSE_IN_EPNUM, EP_TYPE_INTERRUPT,
 		                       ENDPOINT_DIR_IN, HID_EPSIZE,
-	                           ENDPOINT_BANK_DOUBLE);
+	                           ENDPOINT_BANK_SINGLE);
 
 	/* Indicate USB connected and ready */
 	UpdateStatus(Status_USBReady);

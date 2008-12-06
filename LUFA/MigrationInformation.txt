@@ -36,6 +36,8 @@
  *      currently initialized.
  *    - Interrupts are now disabled when processing control requests, to avoid problems with interrupts causing the library
  *      or user request processing code to exceed the strict USB timing requirements on control transfers.
+ *    - The USB Reset event now resets and disables all device endpoints. If user code depends on endpoints remaining configured
+ *      after a Reset event, it should be altered to explicitly re-initialize all user endpoints.
  *
  *  <b>Host Mode</b>
  *    - The MANUAL_PLL_CONTROL compile time token has been removed, and replaced with a USB_OPT_MANUAL_PLL mask

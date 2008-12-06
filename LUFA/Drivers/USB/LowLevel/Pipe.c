@@ -30,23 +30,34 @@
 #include "USBMode.h"
 #if defined(USB_CAN_BE_HOST)
 
+#define  INCLUDE_FROM_PIPE_C
 #include "Pipe.h"
 
 uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 
-void Pipe_ConfigurePipe_P(const uint8_t  PipeNum,
-                          const uint16_t PipeSize,
-                          const uint8_t  UPCFG0Xdata,
-                          const uint8_t  UPCFG1Xdata)
+static uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
 {
-	Pipe_SelectPipe(PipeNum);
+	for (uint8_t SizeCheck = 0; SizeCheck <= 5; SizeCheck++)
+	{
+		if (Bytes <= (8 << SizeCheck))
+		  return (SizeCheck << EPSIZE0);
+	}
+
+	return (5 << EPSIZE0);
+};
+			
+bool Pipe_ConfigurePipe(const uint8_t  Number, const uint8_t Type, const uint8_t Token, const uint8_t EndpointNumber,
+						const uint16_t Size, const uint8_t Banks)
+{
+	Pipe_SelectPipe(Number);
 	Pipe_EnablePipe();
+
+	UPCFG1X = 0;
 	
-	UPCFG0X = UPCFG0Xdata;
-	UPCFG1X = ((UPCFG1X & (1 << ALLOC)) | UPCFG1Xdata | Pipe_BytesToEPSizeMask(PipeSize));
-	UPCFG2X = 0;
-	
-	Pipe_AllocateMemory();
+	UPCFG0X = ((Type << EPTYPE0) | Token | (EndpointNumber << PEPNUM0));
+	UPCFG1X = ((1 << ALLOC) | Banks | Pipe_BytesToEPSizeMask(Size));
+
+	return Pipe_IsConfigured();
 }
 
 void Pipe_ClearPipes(void)

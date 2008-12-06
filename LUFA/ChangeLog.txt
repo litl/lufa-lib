@@ -31,7 +31,7 @@
   *  - MouseHostWithParser and KeyboardHostWithParser now support multiple-report devices
   *  - RNDIS demo can now close connections correctly using the new TCP_APP_CLOSECONNECTION() macro - used in Webserver  
   *  - Fixed the DFU bootloader, no longer freezes up when certain files are programmed into an AVR, made reading/writing faster
-  *  - Fixed mouse up/down movements reversed - X/Y coordinates use a left-handed system on the OS, not a normal right-handed system
+  *  - Fixed mouse up/down movements reversed - HID mouse X/Y coordinates use a left-handed system, not a normal right-handed system
   *  - Added stub code to the CDC and USBtoSerial demos showing how to read and set the RS-232 handshake lines - not currently used in
   *    the demos, but the example code and supporting defines are now in place
   *  - Interrupts are now disabled when processing a control request in device mode, to avoid exceeding the strict control request
@@ -42,6 +42,8 @@
   *  - Fixed RNDIS demo ICMP ping requests echoing back incorrect data
   *  - Added DHCP server code to RNDIS demo, allowing for hands-free autoconfiguration on any PC
   *  - Fixed DFU bootloader PID value for the ATMEGA16U4 AVR
+  *  - Endpoint and Pipe configuration functions now return an error code indicating success or failure
+  *  - USB Reset in device mode now resets and disables all device endpoints
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *

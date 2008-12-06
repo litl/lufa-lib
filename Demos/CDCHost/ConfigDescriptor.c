@@ -82,7 +82,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 			{							   
 				/* Configure the notification pipe */
 				Pipe_ConfigurePipe(CDC_NOTIFICATIONPIPE, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
-								   EndpointData->EndpointAddress, EndpointData->EndpointSize, PIPE_BANK_SINGLE);							   
+								   EndpointData->EndpointAddress, EndpointData->EndpointSize, PIPE_BANK_SINGLE);
 
 				Pipe_SetInfiniteINRequests();
 				Pipe_SetInterruptPeriod(EndpointData->PollingIntervalMS);

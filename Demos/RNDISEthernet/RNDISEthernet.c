@@ -281,6 +281,7 @@ TASK(RNDIS_Task)
 		/* Send the notification to the host */
 		Endpoint_ClearCurrentBank();
 
+		/* Indicate a response is no longer ready */
 		ResponseReady = false;
 	}
 	

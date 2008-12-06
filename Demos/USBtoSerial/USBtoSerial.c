@@ -133,11 +133,11 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 
 	Endpoint_ConfigureEndpoint(CDC_TX_EPNUM, EP_TYPE_BULK,
 		                       ENDPOINT_DIR_IN, CDC_TXRX_EPSIZE,
-	                           ENDPOINT_BANK_DOUBLE);
+	                           ENDPOINT_BANK_SINGLE);
 
 	Endpoint_ConfigureEndpoint(CDC_RX_EPNUM, EP_TYPE_BULK,
 		                       ENDPOINT_DIR_OUT, CDC_TXRX_EPSIZE,
-	                           ENDPOINT_BANK_DOUBLE);
+	                           ENDPOINT_BANK_SINGLE);
 
 	/* Indicate USB connected and ready */
 	UpdateStatus(Status_USBReady);

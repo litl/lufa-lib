@@ -264,30 +264,6 @@
 			 *  accepted by the pipe before it is automatically frozen.
 			 */
 			#define Pipe_SetFiniteINRequests(n)    MACROS{ UPCONX  &= ~(1 << INMODE); UPINRQX = n;                 }MACROE
-			
-			/** Configures the specified pipe number with the given pipe type, token, target endpoint number in the
-			 *  attached device, bank size and banking mode. Pipes should be allocated in ascending order by their
-			 *  address in the device (i.e. pipe 1 should be configured before pipe 2 and so on).
-			 *
-			 *  The pipe type may be one of the EP_TYPE_* macros listed in LowLevel.h, the token may be one of the
-			 *  PIPE_TOKEN_* masks.
-			 *
-			 *  The bank size must indicate the maximum packet size that the pipe can handle. Different pipe
-			 *  numbers can handle different maximum packet sizes - refer to the chosen USB AVR's datasheet to
-			 *  determine the maximum bank size for each pipe.
-			 *
-			 *  The banking mode may be either PIPE_BANK_SINGLE or PIPE_BANK_DOUBLE.
-			 *
-			 *  The success of this routine can be determined via the Pipe_IsConfigured() macro. A newly configured
-			 *  pipe is frozen by default, and must be unfrozen before use via the Pipe_Unfreeze() macro.
-			 *
-			 *  \note This routine will select the specified pipe, and the pipe will remain selected once the
-			 *        routine completes regardless of if the pipe configuration succeeds.
-			 */			
-			#define Pipe_ConfigurePipe(num, type, token, epnum, size, banks)                 \
-												   MACROS{ Pipe_ConfigurePipe_P(num, size,   \
-																			  ((type << PTYPE0) | token | ((epnum & PIPE_EPNUM_MASK) << PEPNUM0)),   \
-																			  banks); }MACROE
 
 			/** Returns true if the currently selected pipe is configured, false otherwise. */
 			#define Pipe_IsConfigured()                  ((UPSTAX  & (1 << CFGOK)) ? true : false)
@@ -581,6 +557,29 @@
 			extern uint8_t USB_ControlPipeSize;
 
 		/* Function Prototypes: */
+			/** Configures the specified pipe number with the given pipe type, token, target endpoint number in the
+			 *  attached device, bank size and banking mode. Pipes should be allocated in ascending order by their
+			 *  address in the device (i.e. pipe 1 should be configured before pipe 2 and so on).
+			 *
+			 *  The pipe type may be one of the EP_TYPE_* macros listed in LowLevel.h, the token may be one of the
+			 *  PIPE_TOKEN_* masks.
+			 *
+			 *  The bank size must indicate the maximum packet size that the pipe can handle. Different pipe
+			 *  numbers can handle different maximum packet sizes - refer to the chosen USB AVR's datasheet to
+			 *  determine the maximum bank size for each pipe.
+			 *
+			 *  The banking mode may be either PIPE_BANK_SINGLE or PIPE_BANK_DOUBLE.
+			 *
+			 *  A newly configured pipe is frozen by default, and must be unfrozen before use via the Pipe_Unfreeze() macro.
+			 *
+			 *  \note This routine will select the specified pipe, and the pipe will remain selected once the
+			 *        routine completes regardless of if the pipe configuration succeeds.
+			 *
+			 *  \return Boolean true if the configuration is successful, false otherwise
+			 */
+			bool Pipe_ConfigurePipe(const uint8_t  Number, const uint8_t Type, const uint8_t Token, const uint8_t EndpointNumber,
+			                        const uint16_t Size, const uint8_t Banks);
+
 			/** Spinloops until the currently selected non-control pipe is ready for the next packed of data
 			 *  to be read or written to it.
 			 *
@@ -757,34 +756,14 @@
 
 			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X |=  (1 << ALLOC);                               }MACROE
 			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X &= ~(1 << ALLOC);                               }MACROE
-
-		/* Inline Functions: */
-			static inline uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
-			                                             ATTR_WARN_UNUSED_RESULT ATTR_CONST;
-			static inline uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
-			{
-				Bytes &= PIPE_EPSIZE_MASK;
-			
-				if (Bytes <= 8)
-				  return (0 << EPSIZE0);
-				else if (Bytes <= 16)
-				  return (1 << EPSIZE0);
-				else if (Bytes <= 32)
-				  return (2 << EPSIZE0);
-				else if (Bytes <= 64)
-				  return (3 << EPSIZE0);
-				else if (Bytes <= (8 << 4))
-				  return (4 << EPSIZE0);
-				else
-				  return (5 << EPSIZE0);
-			};
 		
 		/* Function Prototypes: */
 			void Pipe_ClearPipes(void);
-			void Pipe_ConfigurePipe_P(const uint8_t  PipeNum,
-			                          const uint16_t PipeSize,
-			                          const uint8_t  UPCFG0Xdata,
-			                          const uint8_t  UPCFG1Xdata);
+
+			#if defined(INCLUDE_FROM_PIPE_C)
+				static uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes) ATTR_WARN_UNUSED_RESULT ATTR_CONST;
+			#endif
+			
 	#endif
 
 	/* Disable C linkage for C++ Compilers: */
