@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Projects/Magstripe
- *  \brief Denver Gingerich's USBSnoop Magnetic Card Reader Project
+/** \mainpage Denver Gingerich's USBSnoop Magnetic Card Reader Project
  * 
  *  Firmware for a USB AVR powered USB TTL magnetic stripe reader (using a card
  *  reader such as the Omron V3B-4K) by Denver Gingerich. This project is designed

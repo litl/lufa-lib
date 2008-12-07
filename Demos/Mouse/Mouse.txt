@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/Mouse
- *  \brief Mouse Device Demo
+/** \mainpage Mouse Device Demo
  *
  *  Mouse demonstration application. This gives a simple reference
  *  application for implementing a USB Mouse using the basic USB HID

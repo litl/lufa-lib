@@ -150,7 +150,7 @@ EVENT_HANDLER(USB_DeviceEnumerationFailed)
 /** Function to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
  *  log to a serial port, or anything else that is suitable for status updates.
  *
- *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
+ *  \param CurrentStatus  Current status of the system, from the MouseHost_StatusCodes_t enum
  */
 void UpdateStatus(uint8_t CurrentStatus)
 {

@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/USBtoSerial
- *  \brief USB to Serial Converter Demo (via CDC-ACM class)
+/** \mainpage USB to Serial Converter Demo (via CDC-ACM class)
  *
  *  Communications Device Class demonstration application.
  *  This gives a simple reference application for implementing

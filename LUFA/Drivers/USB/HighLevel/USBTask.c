@@ -96,9 +96,29 @@ static void USB_DeviceTask(void)
 static void USB_HostTask(void)
 {
 	uint8_t ErrorCode = HOST_ENUMERROR_NoError;
+	
+	static uint8_t WaitMSRemaining;
+	static uint8_t PostWaitState;
 
 	switch (USB_HostState)
 	{
+		case HOST_STATE_WaitForDevice:
+			if (WaitMSRemaining)
+			{
+				if (USB_Host_WaitMS(1) != HOST_WAITERROR_Successful)
+				{
+					ErrorCode = HOST_ENUMERROR_WaitStage;
+					break;
+				}
+				
+				WaitMSRemaining--;
+			}
+			else
+			{
+				USB_HostState = PostWaitState;
+			}
+		
+			break;
 		case HOST_STATE_Attached:
 			if (USB_INT_HasOccurred(USB_INT_DCONNI))
 			{	
@@ -110,46 +130,41 @@ static void USB_HostTask(void)
 					
 				USB_Host_ResumeBus();
 				Pipe_ClearPipes();
-
-				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
-				{
-					ErrorCode = HOST_ENUMERROR_WaitStage;
-					break;
-				}
-					
-				USB_Host_ResetDevice();
-
-				if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
-				{
-					ErrorCode = HOST_ENUMERROR_WaitStage;
-					break;
-				}
-
-				USB_HostState = HOST_STATE_Powered;
+				
+				HOST_TASK_NONBLOCK_WAIT(100, HOST_STATE_Attached_DoReset);
 			}
 
+			break;
+		case HOST_STATE_Attached_DoReset:
+			USB_Host_ResetDevice();
+
+			HOST_TASK_NONBLOCK_WAIT(200, HOST_STATE_Attached_PostReset);
+			break;
+		case HOST_STATE_Attached_PostReset:
 			if (USB_INT_HasOccurred(USB_INT_BCERRI))
 			{
 				USB_INT_Clear(USB_INT_BCERRI);
 
 				ErrorCode = HOST_ENUMERROR_NoDeviceDetected;
-				break;
 			}
-
+			else
+			{
+				USB_HostState = HOST_STATE_Powered;
+			}
+			
 			break;
 		case HOST_STATE_Powered:
-			if (USB_Host_WaitMS(100) != HOST_WAITERROR_Successful)
-			{
-				ErrorCode = HOST_ENUMERROR_WaitStage;
-				break;
-			}
-
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,
 							   PIPE_TOKEN_SETUP, PIPE_CONTROLPIPE,
 							   PIPE_CONTROLPIPE_DEFAULT_SIZE, PIPE_BANK_SINGLE);		
 		
+			if (!(Pipe_IsConfigured()))
+			{
+				ErrorCode = HOST_ENUMERROR_PipeConfigError;
+				break;
+			}
+
 			USB_HostState = HOST_STATE_Default;
-			
 			break;
 		case HOST_STATE_Default:
 			USB_HostRequest = (USB_Host_Request_Header_t)
@@ -181,12 +196,9 @@ static void USB_HostTask(void)
 			
 			USB_Host_ResetDevice();
 			
-			if (USB_Host_WaitMS(200) != HOST_WAITERROR_Successful)
-			{
-				ErrorCode = HOST_ENUMERROR_WaitStage;
-				break;
-			}
-
+			HOST_TASK_NONBLOCK_WAIT(200, HOST_STATE_Default_PostReset);
+			break;
+		case HOST_STATE_Default_PostReset:
 			Pipe_DisablePipe();
 			Pipe_DeallocateMemory();
 			Pipe_ResetPipe(PIPE_CONTROLPIPE);
@@ -220,8 +232,9 @@ static void USB_HostTask(void)
 
 			USB_Host_SetDeviceAddress(USB_HOST_DEVICEADDRESS);
 
-			USB_Host_WaitMS(10);
-			
+			HOST_TASK_NONBLOCK_WAIT(10, HOST_STATE_Default_PostAddressSet);
+			break;
+		case HOST_STATE_Default_PostAddressSet:
 			RAISE_EVENT(USB_DeviceEnumerationComplete);
 			USB_HostState = HOST_STATE_Addressed;
 

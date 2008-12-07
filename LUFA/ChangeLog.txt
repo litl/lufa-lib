@@ -44,6 +44,8 @@
   *  - Fixed DFU bootloader PID value for the ATMEGA16U4 AVR
   *  - Endpoint and Pipe configuration functions now return an error code indicating success or failure
   *  - USB Reset in device mode now resets and disables all device endpoints
+  *  - Added intermediate states to the host mode state machine, reducing the USB task blocking time to no more than 1ms explicitly per
+  *    invocation when in host mode
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *

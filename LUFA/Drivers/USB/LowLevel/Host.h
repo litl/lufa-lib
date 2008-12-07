@@ -132,21 +132,26 @@
 			/** Enum for the various states of the USB Host state machine. Only some states are
 			 *  implemented in the LUFA library - other states are left to the user to implement.
 			 *
-			 *  For information on each state, refer to the USB 2.0 specification.
+			 *  For information on each state, refer to the USB 2.0 specification. Some states have
 			 *
 			 *  \see USBTask.h for information on the global variable USB_HostState, which stores the
 			 *       current host state machine state.
 			 */
 			enum USB_Host_States_t
 			{
-				HOST_STATE_Unattached           = 0, /**< Internally implemented by the library. */
-				HOST_STATE_Attached             = 1, /**< Internally implemented by the library. */
-				HOST_STATE_Powered              = 2, /**< Internally implemented by the library. */
-				HOST_STATE_Default              = 3, /**< Internally implemented by the library. */
-				HOST_STATE_Addressed            = 4, /**< May be implemented by the user project. */
-				HOST_STATE_Configured           = 5, /**< May be implemented by the user project. */
-				HOST_STATE_Ready                = 6, /**< May be implemented by the user project. */
-				HOST_STATE_Suspended            = 7, /**< May be implemented by the user project. */
+				HOST_STATE_WaitForDevice          = 0,  /**< Internally implemented by the library. */
+				HOST_STATE_Unattached             = 1,  /**< Internally implemented by the library. */
+				HOST_STATE_Attached               = 2,  /**< Internally implemented by the library. */
+				HOST_STATE_Attached_DoReset       = 3,  /**< Internally implemented by the library. */
+				HOST_STATE_Attached_PostReset     = 4,  /**< Internally implemented by the library. */
+				HOST_STATE_Powered                = 5,  /**< Internally implemented by the library. */
+				HOST_STATE_Default                = 6,  /**< Internally implemented by the library. */
+				HOST_STATE_Default_PostReset      = 7,  /**< Internally implemented by the library. */
+				HOST_STATE_Default_PostAddressSet = 8,  /**< Internally implemented by the library. */
+				HOST_STATE_Addressed              = 9, /**< May be implemented by the user project. */
+				HOST_STATE_Configured             = 10, /**< May be implemented by the user project. */
+				HOST_STATE_Ready                  = 11, /**< May be implemented by the user project. */
+				HOST_STATE_Suspended              = 12, /**< May be implemented by the user project. */
 			};
 			
 			/** Enum for the error codes for the USB_HostError event.

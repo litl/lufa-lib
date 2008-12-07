@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/KeyboardMouse
- *  \brief Dual HID Keyboard and Mouse Device Demo
+/** \mainpage Dual HID Keyboard and Mouse Device Demo
  *
  *  Keyboard/Mouse demonstration application. This gives a simple reference
  *  application for implementing a composite device containing both USB Keyboard

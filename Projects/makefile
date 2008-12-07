@@ -22,3 +22,6 @@ clean:
 	
 clean_list:
 	make -C Magstripe clean_list
+
+doxygen:
+	make -C Magstripe doxygen

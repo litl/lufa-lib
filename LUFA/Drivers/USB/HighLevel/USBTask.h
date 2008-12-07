@@ -174,6 +174,9 @@
 			#if defined(USB_CAN_BE_BOTH)
 				void USB_InitTaskPointer(void);
 			#endif
+			
+		/* Macros: */
+		#define HOST_TASK_NONBLOCK_WAIT(duration, nextstate) {USB_HostState = HOST_STATE_WaitForDevice; WaitMSRemaining = duration; PostWaitState = nextstate; }
 	#endif
 	
 	/* Disable C linkage for C++ Compilers: */

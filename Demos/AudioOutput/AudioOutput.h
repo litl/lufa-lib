@@ -70,7 +70,7 @@
 		
 	/* Enums: */
 		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
-		enum StatusCodes_t
+		enum AudioOutput_StatusCodes_t
 		{
 			Status_USBNotReady    = 0, /**< USB is not ready (disconnected from a USB host) */
 			Status_USBEnumerating = 1, /**< USB interface is enumerating */

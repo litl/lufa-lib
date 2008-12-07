@@ -16,15 +16,6 @@
 # to remove all the commands from the output. This gives a much easier to read
 # report of the entire build process.
 
-all:
-
-doxygen:
-	@echo Generating library documentation.
-	@echo
-	doxygen doxygen.conf
-	@echo
-	@echo Generation of library documentation complete.
-
 %:
 	@echo Executing \"make $@\" on all LUFA library elements.
 	@echo

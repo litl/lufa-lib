@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Bootloaders/CDC
- *  \brief CDC Class USB AVR Bootloader
+/** \mainpage CDC Class USB AVR Bootloader
  * 
  * This bootloader enumerates to the host as a CDC Class device (virtual serial port), allowing for AVR109
  * protocol compatible programming software to load firmware onto the AVR.	

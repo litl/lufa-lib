@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/TestApp
- *  \brief Test Application for the LUFA library
+/** \mainpage Test Application for the LUFA library
  *
  *  Test application. Demonstrates several aspects of the LUFA
  *  Library. On startup the current temperature will be printed

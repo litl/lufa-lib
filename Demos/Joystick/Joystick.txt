@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/Joystick
- *  \brief Joystick Device Demo
+/** \mainpage Joystick Device Demo
  *
  *  Joystick demonstration application. This gives a simple reference
  *  application for implementing a USB Keyboard device, for USB Joysticks

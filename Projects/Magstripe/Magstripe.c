@@ -8,6 +8,7 @@
 
 /*
   Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -337,7 +338,7 @@ void ProcessLEDReport(uint8_t LEDReport)
 /** Function to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
  *  log to a serial port, or anything else that is suitable for status updates.
  *
- *  \param CurrentStatus  Current status of the system, from the StatusCodes_t enum
+ *  \param CurrentStatus  Current status of the system, from the Magstripe_StatusCodes_t enum
  */
 void UpdateStatus(uint8_t CurrentStatus)
 {

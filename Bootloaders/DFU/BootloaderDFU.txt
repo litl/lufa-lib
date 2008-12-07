@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Bootloaders/DFU
- *  \brief DFU Class USB AVR Bootloader
+/** \mainpage DFU Class USB AVR Bootloader
  *  
  *  This bootloader enumerates to the host as a DFU Class device, allowing for DFU-compatible programming
  *  software to load firmware onto the AVR.

@@ -147,3 +147,31 @@ clean_list:
 	make -C StillImageHost clean_list
 	make -C TestApp clean_list
 	make -C USBtoSerial clean_list
+
+doxygen:
+	make -C AudioInput doxygen
+	make -C AudioOutput doxygen
+	make -C CDC doxygen
+	make -C CDCHost doxygen
+	make -C DualCDC doxygen
+	make -C Joystick doxygen
+	make -C KeyboardMouse doxygen
+	make -C Keyboard doxygen
+	make -C KeyboardFullInt doxygen
+	make -C KeyboardViaInt doxygen
+	make -C KeyboardHost doxygen
+	make -C KeyboardHostWithParser doxygen
+	make -C KeyboardHostViaInt doxygen
+	make -C MassStorage doxygen
+	make -C MassStorageHost doxygen
+	make -C MIDI doxygen
+	make -C Mouse doxygen
+	make -C MouseFullInt doxygen
+	make -C MouseViaInt doxygen
+	make -C MouseHost doxygen
+	make -C MouseHostWithParser doxygen
+	make -C MouseHostViaInt doxygen
+	make -C RNDISEthernet doxygen
+	make -C StillImageHost doxygen
+	make -C TestApp doxygen
+	make -C USBtoSerial doxygen

@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/DualCDC
- *  \brief Dual Communications Device Class Device (Dual Virtual Serial Port)
+/** \mainpage Dual Communications Device Class Device (Dual Virtual Serial Port)
  *
  *  Dual Communications Device Class demonstration application.
  *  This gives a simple reference application for implementing

@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/MouseViaInt
- *  \brief Partially Interrupt Driven Mouse Device Demo
+/** \mainpage Partially Interrupt Driven Mouse Device Demo
  *
  *  Mouse demonstration application, using endpoint interrupts for the
  *  exchange of data to the USB host. This gives a simple reference

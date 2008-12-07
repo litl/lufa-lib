@@ -8,6 +8,7 @@
 
 /*
   Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
+  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -125,7 +126,7 @@
 			
 	/* Enums: */
 		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
-		enum StatusCodes_t
+		enum Magstripe_StatusCodes_t
 		{
 			Status_USBNotReady    = 0, /**< USB is not ready (disconnected from a USB host) */
 			Status_USBEnumerating = 1, /**< USB interface is enumerating */

@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/MouseFullInt
- *  \brief Fully Interrupt Driven Mouse Device Demo
+/** \mainpage Fully Interrupt Driven Mouse Device Demo
  *
  *  Mouse demonstration application, using endpoint interrupts for the
  *  exchange of data to the USB host, and control requests on the control

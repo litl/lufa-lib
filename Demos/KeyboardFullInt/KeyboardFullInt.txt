@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/KeyboardFullInt
- *  \brief Fully Interrupt Driven Keyboard Device Demo
+/** \mainpage Fully Interrupt Driven Keyboard Device Demo
  *  
  *  Keyboard demonstration application, using endpoint interrupts for the
  *  exchange of data to the USB host, and control requests on the control

@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/CDC
- *  \brief Communications Device Class Device (Virtual Serial Port)
+/** \mainpage Communications Device Class Device (Virtual Serial Port)
  *
  *  Communications Device Class demonstration application.
  *  This gives a simple reference application for implementing

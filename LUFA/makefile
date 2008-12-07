@@ -32,3 +32,8 @@ clean:
 	rm -f $(LUFA_SRC_FILES:%.c=%.o)
 	
 clean_list:
+
+doxygen:
+	@echo Generating Library Documentation...
+	@doxygen Doxygen.conf
+	@echo Documentation Generation Complete.

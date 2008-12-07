@@ -642,6 +642,11 @@ clean_list:
 	$(REMOVEDIR) .dep
 
 
+doxygen:
+	@echo Generating Project Documentation...
+	@doxygen Doxygen.conf
+	@echo Documentation Generation Complete.
+
 # Create object files directory
 $(shell mkdir $(OBJDIR) 2>/dev/null)
 
@@ -655,4 +660,4 @@ $(shell mkdir $(OBJDIR) 2>/dev/null)
 finish end sizebefore sizeafter gccversion  \
 build elf hex eep lss sym coff extcoff      \
 clean clean_list clean_binary program debug \
-gdb-config
+gdb-config doxygen

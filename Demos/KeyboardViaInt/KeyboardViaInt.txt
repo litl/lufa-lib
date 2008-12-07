@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/KeyboardViaInt
- *  \brief Partially Interrupt Driven Keyboard Device Demo
+/** \mainpage Partially Interrupt Driven Keyboard Device Demo
  *  
  *  Keyboard demonstration application, using endpoint interrupts for the
  *  exchange of data to the USB host. This gives a simple reference

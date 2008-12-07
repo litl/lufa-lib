@@ -59,7 +59,7 @@
 		} USB_KeyboardReport_Data_t;
 
 		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
-		enum StatusCodes_t
+		enum KeyboardHostViaInt_StatusCodes_t
 		{
 			Status_USBNotReady      = 0, /**< USB is not ready (disconnected from a USB device) */
 			Status_USBEnumerating   = 1, /**< USB interface is enumerating */

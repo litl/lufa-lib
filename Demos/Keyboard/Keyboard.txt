@@ -4,8 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \dir Demos/Keyboard
- *  \brief Keyboard Device Demo
+/** \mainpage Keyboard Device Demo
  *  
  *  Keyboard demonstration application. This gives a simple reference
  *  application for implementing a USB Keyboard using the basic USB HID
