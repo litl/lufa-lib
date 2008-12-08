@@ -149,7 +149,7 @@ int main (void)
 	AppStartPtr();
 }
 
-/** Event handler for the USB_Connect event. This indicates the presence of a USB host by the board LEDs. */
+/** Event handler for the USB_Connect event. This indicates the presence of a USB host by the board LEDs.*/
 EVENT_HANDLER(USB_Connect)
 {	
 	/* Indicate USB connected */

@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for AudioOutput.c.
+ */
+
 #ifndef _AUDIO_OUTPUT_H_
 #define _AUDIO_OUTPUT_H_
 
@@ -56,15 +61,34 @@
 			#define COMxB0          COM3B0
 			#define CSx0            CS30
 		#else
+			/** Timer count register used for left channel PWM audio output (or mixed output in mono output mode) */
 			#define TCCRxA          TCCR1A
+
+			/** Timer count register used for right channel PWM audio output */
 			#define TCCRxB          TCCR1B
+
+			/** Timer compare register used for left channel PWM audio output (or mixed output in mono output mode) */
 			#define OCRxA           OCR1A
+
+			/** Timer compare register used for right channel PWM audio output */
 			#define OCRxB           OCR1B
+
+			/** Timer control register mask used to select Phase Correct 8-bit PWM */
 			#define WGMx0           WGM10
+
+			/** Timer control register mask used to set, clear or toggle channel output pin on match */
 			#define COMxA1          COM1A1
+
+			/** Timer control register mask used to set, clear or toggle channel output pin on match */
 			#define COMxA0          COM1A0
+
+			/** Timer control register mask used to set, clear or toggle channel output pin on match */
 			#define COMxB1          COM1B1
+
+			/** Timer control register mask used to set, clear or toggle channel output pin on match */
 			#define COMxB0          COM1B0
+
+			/** Timer control register mask used to start the timer at Fcpu clock rate */
 			#define CSx0            CS10
 		#endif
 		
@@ -81,9 +105,16 @@
 		TASK(USB_Audio_Task);
 
 	/* Event Handlers: */
+		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
 		HANDLES_EVENT(USB_Connect);
+
+		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
+
+		/** Indicates that this module will catch the USB_ConfigurationChanged event when thrown by the library. */
 		HANDLES_EVENT(USB_ConfigurationChanged);
+
+		/** Indicates that this module will catch the USB_UnhandledControlPacket event when thrown by the library. */
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 	
 	/* Function Prototypes: */

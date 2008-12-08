@@ -28,6 +28,12 @@
   this software.
 */
 
+/** \file
+ *
+ *  Main source file for the Mass Storage demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
+
 #define  INCLUDE_FROM_MASSSTORAGEDUALLUN_C
 #include "MassStorage.h"
 

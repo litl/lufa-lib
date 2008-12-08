@@ -28,35 +28,12 @@
   this software.
 */
 
-/*
-	Audio demonstration application. This gives a simple reference
-	application for implementing a USB Audio Output device using the
-	basic USB Audio drivers in all modern OSes (i.e. no special drivers
-	required).
-	
-	On startup the system will automatically enumerate and function
-	as a USB speaker. Incomming audio will output in 8-bit PWM onto
-	the timer output (timer 3 for the AT90USBXXX6/7 USB AVRs, timer 1 for
-	the AT90USBXXX2 controller AVRs) compare channel A for AUDIO_OUT_MONO
-	mode, on channels A and B for AUDIO_OUT_STEREO and on the board LEDs
-	for AUDIO_OUT_LEDS mode. Decouple audio outputs with a capacitor and
-	attach to a speaker to hear the audio.
-	
-	Under Windows, if a driver request dialogue pops up, select the option
-	to automatically install the appropriate drivers.
-	
-	      ( Input Terminal )--->---( Output Terminal )
-	      (  USB Endpoint  )       (     Speaker     )
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Audio Class
-	USB Subclass:       Standard Audio Device
-	Relevant Standards: USBIF Audio Class Specification
-	Usable Speeds:      Full Speed Mode
-*/
-
+/** \file
+ *
+ *  Main source file for the Audio Output demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
+ 
 /* ---   Project Configuration (Choose ONE)   --- */
 //#define AUDIO_OUT_MONO
 //#define AUDIO_OUT_STEREO
@@ -79,6 +56,10 @@ TASK_LIST
 	{ Task: USB_Audio_Task       , TaskStatus: TASK_STOP },
 };
 
+
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -104,6 +85,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs, and
+ *  configures the sample update and PWM timers.
+ */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
@@ -136,6 +120,9 @@ EVENT_HANDLER(USB_Connect)
 #endif	
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs, disables the sample update and PWM output timers and stops the USB and Audio management tasks.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop the timers */
@@ -163,6 +150,9 @@ EVENT_HANDLER(USB_Disconnect)
 	UpdateStatus(Status_USBNotReady);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
+ *  of the USB device after enumeration - the device endpoints are configured.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup audio stream endpoint */
@@ -174,6 +164,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	UpdateStatus(Status_USBReady);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the Audio class-specific
+ *  requests) so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Process General and Audio specific control requests */
@@ -234,6 +228,9 @@ void UpdateStatus(uint8_t CurrentStatus)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** Task to manage the Audio interface, reading in audio samples from the host, and outputting them to the speakers/LEDs as
+ *  desired.
+ */
 TASK(USB_Audio_Task)
 {
 	/* Select the audio stream endpoint */

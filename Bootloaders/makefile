@@ -20,14 +20,6 @@ all:
 	make -C 'CDC/' clean
 	make -C 'CDC/' all
 
-clean:
-	make -C 'DFU/' clean
-	make -C 'CDC/' clean
-
-clean_list:
-	make -C 'DFU/' clean_list
-	make -C 'CDC/' clean_list
-	
-doxygen:
-	make -C 'DFU/' doxygen
-	make -C 'CDC/' doxygen
+%:
+	make -C 'DFU/' $@
+	make -C 'CDC/' $@

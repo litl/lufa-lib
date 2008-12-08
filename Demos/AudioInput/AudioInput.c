@@ -28,33 +28,12 @@
   this software.
 */
 
-/*
-	Audio demonstration application. This gives a simple reference
-	application for implementing a USB Audio Input device using the
-	basic USB Audio drivers in all modern OSes (i.e. no special drivers
-	required).
-	
-	On startup the system will automatically enumerate and function
-	as a USB microphone. Incomming audio from the ADC channel 1 will
-	be sampled and sent to the host computer.
-	
-	To use, connect a microphone to the ADC channel 2.
-	
-	Under Windows, if a driver request dialogue pops up, select the option
-	to automatically install the appropriate drivers.
-
-	      ( Input Terminal )--->---( Output Terminal )
-	      (   Microphone   )       (  USB Endpoint   )
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Audio Class
-	USB Subclass:       Standard Audio Device
-	Relevant Standards: USBIF Audio Class Specification
-	Usable Speeds:      Full Speed Mode
-*/
-
+/** \file
+ *
+ *  Main source file for the Audio Input demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
+ 
 /* ---  Project Configuration  --- */
 //#define MICROPHONE_BIASED_TO_HALF_RAIL
 /* --- --- --- --- --- --- --- --- */
@@ -74,6 +53,10 @@ TASK_LIST
 	{ Task: USB_Audio_Task       , TaskStatus: TASK_STOP },
 };
 
+
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -104,6 +87,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs, and
+ *  configures the sample update and PWM timers.
+ */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
@@ -118,6 +104,9 @@ EVENT_HANDLER(USB_Connect)
 	TCCR0B  = (1 << CS00);   // Fcpu speed
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs, disables the sample update and PWM output timers and stops the USB and Audio management tasks.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop the sample reload timer */
@@ -131,6 +120,9 @@ EVENT_HANDLER(USB_Disconnect)
 	UpdateStatus(Status_USBNotReady);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
+ *  of the USB device after enumeration - the device endpoints are configured.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup audio stream endpoint */
@@ -142,6 +134,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	UpdateStatus(Status_USBReady);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the Audio class-specific
+ *  requests) so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Process General and Audio specific control requests */
@@ -202,6 +198,7 @@ void UpdateStatus(uint8_t CurrentStatus)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** Task to manage the Audio interface, reading in ADC samples from the microphone, and them to the host. */
 TASK(USB_Audio_Task)
 {
 	/* Select the audio stream endpoint */

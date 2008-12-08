@@ -4,13 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
 
-/** \dir
- *  \brief Main directory for the LUFA library and supporting elements.
- *  
- *  This is the main LUFA library folder, containing all the library code including drivers and utility functions. For
- *  an application to be built on top of LUFA, it must be able to access the files within this folder.
- *
- *  \dir Common
+/** \dir Common
  *  \brief Common library header files.
  *  
  *  This folder contains header files which are common to all parts of the LUFA library. They may be used freely in

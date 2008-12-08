@@ -17,11 +17,5 @@ all:
 	make -C Magstripe clean
 	make -C Magstripe all
 
-clean:
-	make -C Magstripe clean
-	
-clean_list:
-	make -C Magstripe clean_list
-
-doxygen:
-	make -C Magstripe doxygen
+%:
+	make -C Magstripe $@
