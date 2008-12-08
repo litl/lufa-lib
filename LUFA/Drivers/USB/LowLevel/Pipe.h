@@ -756,14 +756,28 @@
 
 			#define Pipe_AllocateMemory()          MACROS{ UPCFG1X |=  (1 << ALLOC);                               }MACROE
 			#define Pipe_DeallocateMemory()        MACROS{ UPCFG1X &= ~(1 << ALLOC);                               }MACROE
-		
+
 		/* Function Prototypes: */
 			void Pipe_ClearPipes(void);
 
-			#if defined(INCLUDE_FROM_PIPE_C)
-				static uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes) ATTR_WARN_UNUSED_RESULT ATTR_CONST;
-			#endif
-			
+		/* Inline Functions: */
+			static inline uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes) ATTR_WARN_UNUSED_RESULT ATTR_CONST ATTR_ALWAYSINLINE;
+			static inline uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
+			{
+				if (Bytes <= 8)
+				  return (0 << EPSIZE0);
+				else if (Bytes <= 16)
+				  return (1 << EPSIZE0);
+				else if (Bytes <= 32)
+				  return (2 << EPSIZE0);
+				else if (Bytes <= 64)
+				  return (3 << EPSIZE0);
+				else if (Bytes <= (8 << 4))
+				  return (4 << EPSIZE0);
+				else
+				  return (5 << EPSIZE0);
+			};
+
 	#endif
 
 	/* Disable C linkage for C++ Compilers: */

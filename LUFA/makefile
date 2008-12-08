@@ -37,3 +37,6 @@ doxygen:
 	@echo Generating Library Documentation...
 	@doxygen Doxygen.conf
 	@echo Documentation Generation Complete.
+
+clean_doxygen:
+	rm -rf Documentation

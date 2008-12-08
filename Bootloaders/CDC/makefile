@@ -143,7 +143,7 @@ BOOT_START = 0x1E000
 
 
 # Place -D or -U options here for C sources
-CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD) -DUSE_NONSTANDARD_DESCRIPTOR_NAMES
+CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD) -DUSE_NONSTANDARD_DESCRIPTOR_NAMES -DSTATIC_ENDPOINT_CONFIGURATION
 CDEFS += -DUSB_DEVICE_ONLY -DUSE_STATIC_OPTIONS="(USB_DEVICE_OPT_FULLSPEED | USB_OPT_REG_ENABLED | USB_OPT_AUTO_PLL)"
 CDEFS += -DUSE_RAM_DESCRIPTORS -DBOOT_START_ADDR=$(BOOT_START)UL -DFIXED_CONTROL_ENDPOINT_SIZE=8 -DUSE_SINGLE_DEVICE_CONFIGURATION
 
@@ -646,6 +646,9 @@ doxygen:
 	@echo Generating Project Documentation...
 	@doxygen Doxygen.conf
 	@echo Documentation Generation Complete.
+	
+clean_doxygen:
+	rm -rf Documentation
 
 # Create object files directory
 $(shell mkdir $(OBJDIR) 2>/dev/null)

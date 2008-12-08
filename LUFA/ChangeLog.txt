@@ -47,6 +47,7 @@
   *  - Added intermediate states to the host mode state machine, reducing the USB task blocking time to no more than 1ms explicitly per
   *    invocation when in host mode
   *  - Added support for the ATMEGA32U6 microcontroller.
+  *  - Added STATIC_ENDPOINT_CONFIGURATION compile time option, enabled in the bootloaders to minimize space usage
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *

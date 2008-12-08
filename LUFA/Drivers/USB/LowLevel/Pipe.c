@@ -35,17 +35,6 @@
 
 uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 
-static uint8_t Pipe_BytesToEPSizeMask(uint16_t Bytes)
-{
-	for (uint8_t SizeCheck = 0; SizeCheck <= 5; SizeCheck++)
-	{
-		if (Bytes <= (8 << SizeCheck))
-		  return (SizeCheck << EPSIZE0);
-	}
-
-	return (5 << EPSIZE0);
-};
-			
 bool Pipe_ConfigurePipe(const uint8_t  Number, const uint8_t Type, const uint8_t Token, const uint8_t EndpointNumber,
 						const uint16_t Size, const uint8_t Banks)
 {

@@ -80,6 +80,11 @@
 			 *  function will not be inlined under any circumstances.
 			 */
 			#define ATTR_NOINLINE               __attribute__ ((noinline))
+
+			/** Forces the compiler to inline the specified function. When applied, the given function will be
+			 *  inlined under all circumstances.
+			 */
+			#define ATTR_ALWAYSINLINE           __attribute__ ((always_inline))
 			
 			/** Indicates that the specified function is pure, in that it has no side-effects other than global
 			 *  or parameter variable access.

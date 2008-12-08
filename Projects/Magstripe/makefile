@@ -651,6 +651,9 @@ doxygen:
 	@doxygen Doxygen.conf
 	@echo Documentation Generation Complete.
 
+clean_doxygen:
+	rm -rf Documentation
+
 # Create object files directory
 $(shell mkdir $(OBJDIR) 2>/dev/null)
 

@@ -38,27 +38,7 @@
 uint8_t USB_ControlEndpointSize = ENDPOINT_CONTROLEP_DEFAULT_SIZE;
 #endif
 
-static uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes)
-{
-	#if defined(USB_FULL_CONTROLLER)
-	for (uint8_t SizeCheck = 0; SizeCheck <= 5; SizeCheck++)
-	{
-		if (Bytes <= (8 << SizeCheck))
-		  return (SizeCheck << EPSIZE0);
-	}
-
-	return (5 << EPSIZE0);
-	#else
-	for (uint8_t SizeCheck = 0; SizeCheck <= 3; SizeCheck++)
-	{
-		if (Bytes <= (8 << SizeCheck))
-		  return (SizeCheck << EPSIZE0);
-	}
-
-	return (3 << EPSIZE0);	
-	#endif
-};
-
+#if !defined(STATIC_ENDPOINT_CONFIGURATION)
 bool Endpoint_ConfigureEndpoint(const uint8_t  Number, const uint8_t Type, const uint8_t Direction,
 			                    const uint16_t Size, const uint8_t Banks)
 {
@@ -72,6 +52,20 @@ bool Endpoint_ConfigureEndpoint(const uint8_t  Number, const uint8_t Type, const
 
 	return Endpoint_IsConfigured();
 }
+#else
+bool Endpoint_ConfigureEndpointStatic(const uint8_t Number, const uint8_t UECFG0XData, const uint8_t UECFG1XData)
+{
+	Endpoint_SelectEndpoint(Number);
+	Endpoint_EnableEndpoint();
+
+	UECFG1X = 0;	
+
+	UECFG0X = UECFG0XData;
+	UECFG1X = UECFG1XData;
+
+	return Endpoint_IsConfigured();
+}
+#endif
 
 void Endpoint_ClearEndpoints(void)
 {
@@ -144,6 +138,7 @@ uint8_t Endpoint_Discard_Stream(uint16_t Length
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
 }
+
 uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length
 #if !defined(NO_STREAM_CALLBACKS)
                                  , uint8_t (* const Callback)(void)

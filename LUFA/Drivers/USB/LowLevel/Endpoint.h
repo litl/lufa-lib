@@ -483,11 +483,16 @@
 			 *
 			 *  The bank size must indicate the maximum packet size that the endpoint can handle. Different
 			 *  endpoint numbers can handle different maximum packet sizes - refer to the chosen USB AVR's
-			 *  datasheet to determine the maximum bank size for each endpoint. If a 
+			 *  datasheet to determine the maximum bank size for each endpoint.
 			 *
 			 *  The banking mode may be either ENDPOINT_BANK_SINGLE or ENDPOINT_BANK_DOUBLE.
 			 *
 			 *  The success of this routine can be determined via the Endpoint_IsConfigured() macro.
+			 *
+			 *  By default, the routine is entirely dynamic, and will accept both constant and variable inputs.
+			 *  If dynamic configuration is unused, a small space savings can be made by defining the
+			 *  STATIC_ENDPOINT_CONFIGURATION macro via the -D switch to the compiler, to optimize for constant
+			 *  input values.
 			 *
 			 *  \note This routine will select the specified endpoint, and the endpoint will remain selected
 			 *        once the routine completes regardless of if the endpoint configuration succeeds.
@@ -765,12 +770,39 @@
 			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);                  }MACROE
 			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);                  }MACROE
 
+			#if defined(STATIC_ENDPOINT_CONFIGURATION)
+				#define Endpoint_ConfigureEndpoint(Number, Type, Direction, Size, Banks)        \
+				                                     Endpoint_ConfigureEndpointStatic(Number,   \
+				                                              ((Type << EPTYPE0) | Direction),  \
+				                                              ((1 << ALLOC) | Banks | Endpoint_BytesToEPSizeMask(Size)));
+			#endif
+
 		/* Function Prototypes: */
 			void Endpoint_ClearEndpoints(void);
-
-			#if defined(INCLUDE_FROM_ENDPOINT_C)
-				static uint8_t Endpoint_BytesToEPSizeMask(uint16_t Bytes) ATTR_WARN_UNUSED_RESULT ATTR_CONST;
-			#endif
+			bool Endpoint_ConfigureEndpointStatic(const uint8_t Number, const uint8_t UECFG0XData, const uint8_t UECFG1XData);
+			
+		/* Inline Functions: */
+			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes) ATTR_WARN_UNUSED_RESULT ATTR_CONST ATTR_ALWAYSINLINE;
+			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes)
+			{
+				if (Bytes <= 8)
+				  return (0 << EPSIZE0);
+				else if (Bytes <= 16)
+				  return (1 << EPSIZE0);
+				else if (Bytes <= 32)
+				  return (2 << EPSIZE0);
+				#if defined(USB_LIMITED_CONTROLLER)
+				else
+				  return (3 << EPSIZE0);
+				#else
+				else if (Bytes <= 64)
+				  return (3 << EPSIZE0);
+				else if (Bytes <= (8 << 4))
+				  return (4 << EPSIZE0);
+				else
+				  return (5 << EPSIZE0);
+				#endif
+			};
 
 	#endif
 
