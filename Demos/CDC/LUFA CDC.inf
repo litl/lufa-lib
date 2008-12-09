@@ -1,4 +1,4 @@
-;       Windows MyUSB CDC Setup File
+;       Windows LUFA CDC Setup File
 ; Copyright (c) 2000 Microsoft Corporation
 
 [Version] 
