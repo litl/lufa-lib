@@ -358,7 +358,7 @@
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Macros: */
-			#define ALIAS_STUB(e)                       EVENT_HANDLER(e) ATTR_WEAK ATTR_ALIAS(__stub)
+			#define ALIAS_STUB(e)                       EVENT_HANDLER(e) ATTR_WEAK ATTR_ALIAS(USB_Event_Stub)
 		
 			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 				#define USB_VBUSChange_P                (void)
@@ -393,7 +393,7 @@
 
 		/* Function Prototypes: */
 			#if defined(INCLUDE_FROM_EVENTS_C)
-				static void __stub (void) ATTR_CONST;
+				void USB_Event_Stub (void) ATTR_CONST;
 
 				#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 					ALIAS_STUB(USB_VBUSChange);

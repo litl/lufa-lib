@@ -207,7 +207,7 @@
 			static void ProcessMemReadCommand(void);
 			static void ProcessWriteCommand(void);
 			static void ProcessReadCommand(void);
-			static void UpdateStatus(uint8_t CurrentStatus);
+			static inline void UpdateStatus(uint8_t CurrentStatus) ATTR_ALWAYSINLINE;
 		#endif
 		
 #endif

@@ -143,7 +143,7 @@
 			static void ProgramReadWriteMemoryBlock(const uint8_t Command);
 			static uint8_t FetchNextCommandByte(void);
 			static void WriteNextResponseByte(const uint8_t Response);
-			static void UpdateStatus(uint8_t CurrentStatus);
+			static inline void UpdateStatus(uint8_t CurrentStatus) ATTR_ALWAYSINLINE;
 		#endif
 
 #endif

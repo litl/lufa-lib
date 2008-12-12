@@ -42,14 +42,13 @@ void USB_Device_ProcessControlPacket(void)
 {
 	uint8_t bmRequestType  = Endpoint_Read_Byte();
 	uint8_t bRequest       = Endpoint_Read_Byte();
-	bool    RequestHandled = false;
+	bool    RequestHandled = false;	
 	
 	switch (bRequest)
 	{
 		case REQ_GetStatus:
-			if (((bmRequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
-			                            (REQDIR_DEVICETOHOST | REQTYPE_STANDARD)) &&
-			    ((bmRequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
+			if ((bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE)) ||
+			    (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_ENDPOINT)))
 			{
 				USB_Device_GetStatus(bmRequestType);
 				RequestHandled = true;
@@ -58,9 +57,7 @@ void USB_Device_ProcessControlPacket(void)
 			break;
 		case REQ_ClearFeature:
 		case REQ_SetFeature:
-			if (((bmRequestType & (CONTROL_REQTYPE_DIRECTION | CONTROL_REQTYPE_TYPE)) ==
-			                            (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD)) &&
-			    ((bmRequestType & CONTROL_REQTYPE_RECIPIENT) != REQREC_OTHER))
+			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_ENDPOINT))
 			{
 				USB_Device_ClearSetFeature(bRequest, bmRequestType);
 				RequestHandled = true;
@@ -126,22 +123,21 @@ static void USB_Device_SetAddress(void)
 
 static void USB_Device_SetConfiguration(void)
 {
-	uint16_t                 wValue               = Endpoint_Read_Word_LE();
-	bool                     NotAlreadyConfigured = !(USB_ConfigurationNumber);
+	uint8_t                  wValue_LSB           = Endpoint_Read_Byte();
 
 #if defined(USE_SINGLE_DEVICE_CONFIGURATION)
-	if (wValue > 1)
+	if (wValue_LSB > 1)
 #else
 	USB_Descriptor_Device_t* DevDescriptorPtr;
 	uint16_t                 DevDescriptorSize;
 
 	if ((USB_GetDescriptor((DTYPE_Device << 8), 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false) ||
 	#if defined(USE_RAM_DESCRIPTORS)
-	    (wValue > DevDescriptorPtr->NumberOfConfigurations))
+	    (wValue_LSB > DevDescriptorPtr->NumberOfConfigurations))
 	#elif defined (USE_EEPROM_DESCRIPTORS)
-	    (wValue > eeprom_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
+	    (wValue_LSB > eeprom_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
 	#else
-	    (wValue > pgm_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
+	    (wValue_LSB > pgm_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
 	#endif
 #endif
 	{
@@ -150,11 +146,11 @@ static void USB_Device_SetConfiguration(void)
 	
 	Endpoint_ClearSetupReceived();
 
-	USB_ConfigurationNumber = wValue;
+	USB_ConfigurationNumber = wValue_LSB;
 
 	Endpoint_ClearSetupIN();
 
-	if (NotAlreadyConfigured)
+	if (!(USB_ConfigurationNumber))
 	  RAISE_EVENT(USB_DeviceEnumerationComplete);
 
 	RAISE_EVENT(USB_ConfigurationChanged);
@@ -254,8 +250,6 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 
 			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			  
 			break;
-		case REQREC_OTHER:
-			return;
 	}
 	
 	Endpoint_ClearSetupReceived();
@@ -273,36 +267,30 @@ static void USB_Device_ClearSetFeature(const uint8_t bRequest, const uint8_t bmR
 	uint16_t wValue     = Endpoint_Read_Word_LE();
 	uint16_t wIndex_LSB = Endpoint_Read_Byte();
 	
-	switch (bmRequestType & CONTROL_REQTYPE_RECIPIENT)
+	if (wValue == FEATURE_ENDPOINT_HALT)
 	{
-		case REQREC_ENDPOINT:
-			if (wValue == FEATURE_ENDPOINT_HALT)
-			{
-				if (wIndex_LSB != ENDPOINT_CONTROLEP)
+		if (wIndex_LSB != ENDPOINT_CONTROLEP)
+		{
+			Endpoint_SelectEndpoint(wIndex_LSB);
+
+			if (Endpoint_IsEnabled())
+			{				
+				if (bRequest == REQ_ClearFeature)
 				{
-					Endpoint_SelectEndpoint(wIndex_LSB);
-
-					if (Endpoint_IsEnabled())
-					{				
-						if (bRequest == REQ_ClearFeature)
-						{
-							Endpoint_ClearStall();
-							Endpoint_ResetFIFO(wIndex_LSB);
-							Endpoint_ResetDataToggle();
-						}
-						else
-						{
-							Endpoint_StallTransaction();						
-						}
-					}
-
-					Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
-					Endpoint_ClearSetupReceived();
-					Endpoint_ClearSetupIN();
+					Endpoint_ClearStall();
+					Endpoint_ResetFIFO(wIndex_LSB);
+					Endpoint_ResetDataToggle();
+				}
+				else
+				{
+					Endpoint_StallTransaction();						
 				}
 			}
-			
-			break;
+
+			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+			Endpoint_ClearSetupReceived();
+			Endpoint_ClearSetupIN();
+		}
 	}
 }
 

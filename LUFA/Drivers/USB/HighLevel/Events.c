@@ -33,7 +33,7 @@
 #define  INCLUDE_FROM_EVENTS_C
 #include "Events.h"
 
-static void __stub(void)
+void USB_Event_Stub(void)
 {
 
 }

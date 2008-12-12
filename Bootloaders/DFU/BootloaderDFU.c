@@ -715,7 +715,7 @@ static void ProcessReadCommand(void)
  *
  *  \param CurrentStatus  Current status of the system, from the BootloaderDFU_StatusCodes_t enum
  */
-static void UpdateStatus(uint8_t CurrentStatus)
+static inline void UpdateStatus(uint8_t CurrentStatus)
 {
 	uint8_t LEDMask = LEDS_NO_LEDS;
 	
