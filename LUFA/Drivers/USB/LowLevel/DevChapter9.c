@@ -233,31 +233,13 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 {
 	uint16_t CurrentStatus = 0;
 	
-	USB_Descriptor_Configuration_Header_t* ConfigDescriptorPtr;
-	uint16_t                               ConfigDescriptorSize;
-	uint8_t                                ConfigAttributes;
-
 	Endpoint_Discard_Word();
 
-	uint16_t wIndex = Endpoint_Read_Word_LE();
+	uint8_t wIndex_LSB = Endpoint_Read_Byte();
 	
 	switch (bmRequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
 		case REQREC_DEVICE:
-			if (USB_GetDescriptor(((DTYPE_Configuration << 8) | USB_ConfigurationNumber), 0,
-			                      (void*)&ConfigDescriptorPtr, &ConfigDescriptorSize) == false)
-			{
-				return;
-			}
-			
-#if defined(USE_RAM_DESCRIPTORS)
-			ConfigAttributes = ConfigDescriptorPtr->ConfigAttributes;
-#elif defined(USE_EEPROM_DESCRIPTORS)
-			ConfigAttributes = eeprom_read_byte(&ConfigDescriptorPtr->ConfigAttributes);
-#else
-			ConfigAttributes = pgm_read_byte(&ConfigDescriptorPtr->ConfigAttributes);
-#endif
-
 			if (USB_CurrentlySelfPowered)
 			  CurrentStatus |= FEATURE_SELFPOWERED_ENABLED;
 			
@@ -265,18 +247,14 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 			  CurrentStatus |= FEATURE_REMOTE_WAKEUP_ENABLED;
 			
 			break;
-		case REQREC_INTERFACE:
-			// No bits set, all bits currently reserved
-				
-			break;
 		case REQREC_ENDPOINT:
-			Endpoint_SelectEndpoint(wIndex);
+			Endpoint_SelectEndpoint(wIndex_LSB);
 
 			CurrentStatus = Endpoint_IsStalled();
 
 			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			  
 			break;
-		default:
+		case REQREC_OTHER:
 			return;
 	}
 	
@@ -292,26 +270,24 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 
 static void USB_Device_ClearSetFeature(const uint8_t bRequest, const uint8_t bmRequestType)
 {
-	uint16_t wValue = Endpoint_Read_Word_LE();
-	uint16_t wIndex = Endpoint_Read_Word_LE();
+	uint16_t wValue     = Endpoint_Read_Word_LE();
+	uint16_t wIndex_LSB = Endpoint_Read_Byte();
 	
 	switch (bmRequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
 		case REQREC_ENDPOINT:
 			if (wValue == FEATURE_ENDPOINT_HALT)
 			{
-				uint8_t EndpointIndex = (wIndex & ENDPOINT_EPNUM_MASK);
-				
-				if (EndpointIndex != ENDPOINT_CONTROLEP)
+				if (wIndex_LSB != ENDPOINT_CONTROLEP)
 				{
-					Endpoint_SelectEndpoint(EndpointIndex);
+					Endpoint_SelectEndpoint(wIndex_LSB);
 
 					if (Endpoint_IsEnabled())
 					{				
 						if (bRequest == REQ_ClearFeature)
 						{
 							Endpoint_ClearStall();
-							Endpoint_ResetFIFO(EndpointIndex);
+							Endpoint_ResetFIFO(wIndex_LSB);
 							Endpoint_ResetDataToggle();
 						}
 						else

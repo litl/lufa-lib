@@ -31,7 +31,8 @@
   *  - MouseHostWithParser and KeyboardHostWithParser now support multiple-report devices
   *  - RNDIS demo can now close connections correctly using the new TCP_APP_CLOSECONNECTION() macro - used in Webserver  
   *  - Fixed the DFU bootloader, no longer freezes up when certain files are programmed into an AVR, made reading/writing faster
-  *  - Fixed mouse up/down movements reversed - HID mouse X/Y coordinates use a left-handed system, not a normal right-handed system
+  *  - Fixed mouse/joystick up/down movements reversed - HID mouse X/Y coordinates use a left-handed coordinate system, not a normal 
+  *    right-handed system
   *  - Added stub code to the CDC and USBtoSerial demos showing how to read and set the RS-232 handshake lines - not currently used in
   *    the demos, but the example code and supporting defines are now in place
   *  - Interrupts are now disabled when processing a control request in device mode, to avoid exceeding the strict control request
@@ -46,8 +47,9 @@
   *  - USB Reset in device mode now resets and disables all device endpoints
   *  - Added intermediate states to the host mode state machine, reducing the USB task blocking time to no more than 1ms explicitly per
   *    invocation when in host mode
-  *  - Added support for the ATMEGA32U6 microcontroller.
+  *  - Added support for the ATMEGA32U6 microcontroller
   *  - Added STATIC_ENDPOINT_CONFIGURATION compile time option, enabled in the bootloaders to minimize space usage
+  *  - Removed redudant code from the USB device GetStatus() chapter 9 processing routine
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *

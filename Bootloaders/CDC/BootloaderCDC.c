@@ -79,7 +79,6 @@ int main(void)
 	MCUCR = (1 << IVSEL);
 
 	/* Hardware Initialization */
-	Joystick_Init();
 	LEDs_Init();
 	
 	/* Indicate USB not ready */

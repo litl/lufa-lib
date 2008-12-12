@@ -46,7 +46,6 @@
 		#include "Descriptors.h"
 
 		#include <LUFA/Drivers/USB/USB.h>                // USB Functionality
-		#include <LUFA/Drivers/Board/Joystick.h>         // Joystick driver
 		#include <LUFA/Drivers/Board/LEDs.h>             // LEDs driver
 
 	/* Macros: */

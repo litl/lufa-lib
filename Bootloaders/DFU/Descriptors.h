@@ -68,19 +68,19 @@
 
 			#define SIGNATURE_BYTE_1              0x1E
 			#define SIGNATURE_BYTE_2              0x97
-			#define SIGNATURE_BYTE_3              0x82	
+			#define SIGNATURE_BYTE_3              0x82
 		#elif defined(__AVR_AT90USB1287__)
 			#define PRODUCT_ID_CODE               0x2FFB
 			
 			#define SIGNATURE_BYTE_1              0x1E
 			#define SIGNATURE_BYTE_2              0x97
-			#define SIGNATURE_BYTE_3              0x82	
+			#define SIGNATURE_BYTE_3              0x82
 		#elif defined(__AVR_AT90USB646__)
 			#define PRODUCT_ID_CODE               0x2FF9
 
 			#define SIGNATURE_BYTE_1              0x1E
 			#define SIGNATURE_BYTE_2              0x96
-			#define SIGNATURE_BYTE_3              0x82	
+			#define SIGNATURE_BYTE_3              0x82
 		#elif defined(__AVR_AT90USB647__)
 			#define PRODUCT_ID_CODE               0x2FF9
 
@@ -99,6 +99,12 @@
 			#define SIGNATURE_BYTE_1              0x1E
 			#define SIGNATURE_BYTE_2              0x94
 			#define SIGNATURE_BYTE_3              0x82
+		#elif defined(__AVR_ATmega32U6__)
+			#define PRODUCT_ID_CODE               0x2FFB
+
+			#define SIGNATURE_BYTE_1              0x1E
+			#define SIGNATURE_BYTE_2              0x95
+			#define SIGNATURE_BYTE_3              0x88
 		#elif defined(__AVR_ATmega32U4__)
 			#define PRODUCT_ID_CODE               0x2FF4
 

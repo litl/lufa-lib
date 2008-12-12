@@ -180,9 +180,9 @@ bool GetNextReport(USB_JoystickReport_Data_t* ReportData)
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Data_t));
 
 	if (JoyStatus_LCL & JOY_UP)
-	  ReportData->Y =  100;
-	else if (JoyStatus_LCL & JOY_DOWN)
 	  ReportData->Y = -100;
+	else if (JoyStatus_LCL & JOY_DOWN)
+	  ReportData->Y =  100;
 
 	if (JoyStatus_LCL & JOY_RIGHT)
 	  ReportData->X =  100;

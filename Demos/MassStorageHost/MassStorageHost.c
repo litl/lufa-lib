@@ -173,7 +173,7 @@ void UpdateStatus(uint8_t CurrentStatus)
 			LEDMask = (LEDS_LED1 | LEDS_LED3);
 			break;
 		case Status_Busy:
-			LEDMask = (LEDS_LED1 | LEDS_LED3 | LEDS_LED4);
+			LEDMask = (LEDS_LED1 | LEDS_LED4);
 			break;
 	}
 	
