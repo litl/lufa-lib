@@ -8,7 +8,7 @@
 
 /*
   Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
-
+	  
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
   granted, provided that the above copyright notice appear in all
@@ -37,6 +37,26 @@
 
 #include "Descriptors.h"
 
+/** HID class report descriptor. This is a special descriptor constructed with values from the
+ *  USBIF HID class specification to describe the reports and capabilities of the HID device. This
+ *  descriptor is parsed by the host and its contents used to determine what data (and in what encoding)
+ *  the device will send, and what it may be sent back from the host. Refer to the HID specification for
+ *  more details on HID report descriptors.
+ */
+USB_Descriptor_HIDReport_Datatype_t HIDReport[] =
+{
+	0x06, 0x9c, 0xff,     /* Usage Page (Vendor Defined)                     */
+	0x09, 0x19,           /* Usage (Vendor Defined)                          */
+	0xa1, 0x01,           /* Collection (Vendor Defined)                     */
+	0x0a, 0x19, 0x00,     /*   Usage (Vendor Defined)                        */
+	0x75, 0x08,           /*   Report Size (8)                               */
+	0x95, 0x82,           /*   Report Count (130)                            */
+	0x15, 0x00,           /*   Logical Minimum (0)                           */
+	0x25, 0xff,           /*   Logical Maximum (255)                         */
+	0x91, 0x02,           /*   Output (Data, Variable, Absolute)             */
+	0xc0                  /* End Collection                                  */
+};
+
 /** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall
  *  device characteristics, including the supported USB version, control endpoint size and the
  *  number of device configurations. The descriptor is read out by the USB host when the enumeration
@@ -51,11 +71,11 @@ USB_Descriptor_Device_t DeviceDescriptor =
 	SubClass:               0x00,
 	Protocol:               0x00,
 				
-	Endpoint0Size:          FIXED_CONTROL_ENDPOINT_SIZE,
+	Endpoint0Size:          8,
 		
-	VendorID:               0x03EB,
-	ProductID:              PRODUCT_ID_CODE,
-	ReleaseNumber:          0x0000,
+	VendorID:               0x16C0,
+	ProductID:              0x0478,
+	ReleaseNumber:          0x0010,
 		
 	ManufacturerStrIndex:   NO_DESCRIPTOR_STRING,
 	ProductStrIndex:        0x01,
@@ -73,52 +93,61 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 {
 	Config:
 		{
-			Header:                   {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
+			Header:                 {Size: sizeof(USB_Descriptor_Configuration_Header_t), Type: DTYPE_Configuration},
 
-			TotalConfigurationSize:   sizeof(USB_Descriptor_Configuration_t),
-			TotalInterfaces:          1,
-
-			ConfigurationNumber:      1,
-			ConfigurationStrIndex:    NO_DESCRIPTOR_STRING,
+			TotalConfigurationSize: sizeof(USB_Descriptor_Configuration_t),
+			TotalInterfaces:        1,
 				
-			ConfigAttributes:         (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
+			ConfigurationNumber:    1,
+			ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
+				
+			ConfigAttributes:       (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
 			
-			MaxPowerConsumption:      USB_CONFIG_POWER_MA(100)
+			MaxPowerConsumption:    USB_CONFIG_POWER_MA(100)
 		},
 		
-	DFUInterface:
+	Interface:
 		{
 			Header:                 {Size: sizeof(USB_Descriptor_Interface_t), Type: DTYPE_Interface},
 
-			InterfaceNumber:        0,
-			AlternateSetting:       0,
+			InterfaceNumber:        0x00,
+			AlternateSetting:       0x00,
 			
-			TotalEndpoints:         0,
+			TotalEndpoints:         1,
 				
-			Class:                  0xFE,
-			SubClass:               0x01,
-			Protocol:               0x02,
-
+			Class:                  0x03,
+			SubClass:               0x00,
+			Protocol:               0x00,
+				
 			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
 		},
-		
-	DFUFunctional:
-		{
-			Header:                 {Size: sizeof(USB_DFU_Functional_Descriptor_t), Type: DTYPE_DFUFunctional},
-			
-			Attributes:             (ATTR_CAN_UPLOAD | ATTR_CAN_DOWNLOAD),
 
-			DetatchTimeout:         0x0000,
-			TransferSize:           0x0c00,
+	HIDDescriptor:
+		{  
+			Header:                 {Size: sizeof(USB_Descriptor_HID_t), Type: DTYPE_HID},
+			
+			HIDSpec:                VERSION_BCD(01.11),
+			CountryCode:            0x00,
+			TotalHIDReports:        0x01,
+			HIDReportType:          DTYPE_Report,
+			HIDReportLength:        sizeof(HIDReport)
+		},
 		
-			DFUSpecification:       VERSION_BCD(01.01)
-		}
+	HIDEndpoint:
+		{
+			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
+
+			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_IN | HID_EPNUM),
+			Attributes:             EP_TYPE_INTERRUPT,
+			EndpointSize:           HID_EPSIZE,
+			PollingIntervalMS:      0x40
+		},
 };
 
 /** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests
  *  the string descriptor with index 0 (the first index). It is actually an array of 16-bit integers, which indicate
  *  via the language ID table available at USB.org what languages the device supports for its string descriptors.
- */ 
+ */
 USB_Descriptor_String_t LanguageString =
 {
 	Header:                 {Size: USB_STRING_LEN(1), Type: DTYPE_String},
@@ -132,9 +161,9 @@ USB_Descriptor_String_t LanguageString =
  */
 USB_Descriptor_String_t ProductString =
 {
-	Header:                 {Size: USB_STRING_LEN(15), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(21), Type: DTYPE_String},
 		
-	UnicodeString:          L"AVR DFU Bootloader"
+	UnicodeString:          L"Teensy HID Bootloader"
 };
 
 /** This function is called by the library when in device mode, and must be overridden (see StdDescriptors.h
@@ -174,6 +203,14 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 				Size    = ProductString.Header.Size;
 			}
 			
+			break;
+		case DTYPE_HID:
+			Address = DESCRIPTOR_ADDRESS(ConfigurationDescriptor.HIDDescriptor);
+			Size    = sizeof(USB_Descriptor_HID_t);
+			break;
+		case DTYPE_Report:
+			Address = DESCRIPTOR_ADDRESS(HIDReport);
+			Size    = sizeof(HIDReport);
 			break;
 	}
 	

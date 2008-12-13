@@ -212,10 +212,13 @@ USB_Descriptor_String_t ProductString =
 bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
                        void** const DescriptorAddress, uint16_t* const DescriptorSize)
 {
+	const uint8_t  DescriptorType   = (wValue >> 8);
+	const uint8_t  DescriptorNumber = (wValue & 0xFF);
+
 	void*    Address = NULL;
 	uint16_t Size    = 0;
 
-	switch (wValue >> 8)
+	switch (DescriptorType)
 	{
 		case DTYPE_Device:
 			Address = DESCRIPTOR_ADDRESS(DeviceDescriptor);
@@ -226,7 +229,7 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 			Size    = sizeof(USB_Descriptor_Configuration_t);
 			break;
 		case DTYPE_String:
-			if (!(wValue))
+			if (!(DescriptorNumber))
 			{
 				Address = DESCRIPTOR_ADDRESS(LanguageString);
 				Size    = LanguageString.Header.Size;

@@ -189,9 +189,16 @@ static void USB_Device_GetDescriptor(void)
 	  
 	SendZLP = !(wLength % USB_ControlEndpointSize);
 	
-	while (wLength && (!(Endpoint_IsSetupOUTReceived())))
+	while (wLength)
 	{
-		while (!(Endpoint_IsSetupINReady()));
+		while (!(Endpoint_IsSetupINReady()))
+		{
+			if (Endpoint_IsSetupOUTReceived())
+			{
+				Endpoint_ClearSetupOUT();
+				return;
+			}		
+		}
 		
 		while (wLength && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
 		{
@@ -207,12 +214,6 @@ static void USB_Device_GetDescriptor(void)
 		}
 		
 		Endpoint_ClearSetupIN();
-	}
-	
-	if (Endpoint_IsSetupOUTReceived())
-	{
-		Endpoint_ClearSetupOUT();
-		return;
 	}
 	
 	if (SendZLP)

@@ -50,6 +50,7 @@
   *  - Added support for the ATMEGA32U6 microcontroller
   *  - Added STATIC_ENDPOINT_CONFIGURATION compile time option, enabled in the bootloaders to minimize space usage
   *  - Removed redudant code from the USB device GetStatus() chapter 9 processing routine
+  *  - Added new TeensyHID bootloader, compatible with the Teensy HID protocol (http://www.pjrc.com/teensy/)
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *
