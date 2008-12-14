@@ -6,7 +6,7 @@
  
  /** \page Page_ChangeLog Project Changelog
   *
-  *  \section Sec_ChangeLog154 Version 1.5.4 - UNRELEASED
+  *  \section Sec_ChangeLog241208 Version 241208
   *
   *  - MyUSB name changed to LUFA, the Lightweight USB Framework for AVRs
   *  - Fixed Mass Storage Host demo's MassStore_SendCommand() delay in the incorrect place
@@ -51,6 +51,8 @@
   *  - Added STATIC_ENDPOINT_CONFIGURATION compile time option, enabled in the bootloaders to minimize space usage
   *  - Removed redudant code from the USB device GetStatus() chapter 9 processing routine
   *  - Added new TeensyHID bootloader, compatible with the Teensy HID protocol (http://www.pjrc.com/teensy/)
+  *  - Versions are now numbered by release dates, rather than arbitrary major/minor revision numbers
+  *  - USB_RemoteWakeupEnabled is now correctly set and cleared by SetFeature and ClearFeature requests from the host
   *
   *  \section Sec_ChangeLog153 Version 1.5.3 - Released 2nd October, 2008
   *

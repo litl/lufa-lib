@@ -46,17 +46,6 @@
 
 		#include <LUFA/Version.h>                    // Library Version Information
 		#include <LUFA/Drivers/USB/USB.h>            // USB Functionality
-		#include <LUFA/Drivers/Board/LEDs.h>         // LEDs driver
-		#include <LUFA/Scheduler/Scheduler.h>        // Simple scheduler for task management
-			
-	/* Enums: */
-		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
-		enum Keyboard_StatusCodes_t
-		{
-			Status_USBNotReady    = 0, /**< USB is not ready (disconnected from a USB host) */
-			Status_USBEnumerating = 1, /**< USB interface is enumerating */
-			Status_USBReady       = 2, /**< USB interface is connected and ready */
-		};
 
 	/* Type Defines: */
 		/** Type define for a non-returning pointer to the start of the loaded application in flash memory. */
@@ -74,9 +63,6 @@
 		#define TEENSY_STARTAPPLICATION 0xFFFF
 
 	/* Event Handlers: */
-		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
-		HANDLES_EVENT(USB_Connect);
-
 		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
 
@@ -85,10 +71,5 @@
 
 		/** Indicates that this module will catch the USB_UnhandledControlPacket event when thrown by the library. */
 		HANDLES_EVENT(USB_UnhandledControlPacket);
-		
-	/* Function Prototypes: */
-		#if defined(INCLUDE_FROM_TEENSYHID_C)
-			static inline void UpdateStatus(uint8_t CurrentStatus) ATTR_ALWAYSINLINE;
-		#endif
 		
 #endif

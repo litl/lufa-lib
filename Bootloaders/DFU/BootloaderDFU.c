@@ -116,12 +116,6 @@ int main (void)
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
 
-	/* Hardware initialization */
-	LEDs_Init();
-	
-	/* Indicate USB not connected */
-	UpdateStatus(Status_USBNotReady);
-
 	/* Initialize the USB subsystem */
 	USB_Init();
 
@@ -149,13 +143,6 @@ int main (void)
 	AppStartPtr();
 }
 
-/** Event handler for the USB_Connect event. This indicates the presence of a USB host by the board LEDs.*/
-EVENT_HANDLER(USB_Connect)
-{	
-	/* Indicate USB connected */
-	UpdateStatus(Status_USBReady);
-}
-
 /** Event handler for the USB_Disconnect event. This indicates that the bootloader should exit and the user
  *  application started.
  */
@@ -179,9 +166,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 	/* Get the size of the command and data from the wLength value */
 	SentCommand.DataSize = Endpoint_Read_Word_LE();
-
-	/* Indicate processing request */
-	UpdateStatus(Status_ProcessingDFUCommand);
 
 	switch (bRequest)
 	{
@@ -466,9 +450,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 
 			break;
 	}
-
-	/* Indicate command processing finished */
-	UpdateStatus(Status_USBReady);
 }
 
 /** Routine to discard the specified number of bytes from the control endpoint stream. This is used to
@@ -708,34 +689,4 @@ static void ProcessReadCommand(void)
 	{
 		ResponseByte = SignatureInfo[DataIndexToRead - 0x30];
 	}
-}
-
-/** Function to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
- *  log to a serial port, or anything else that is suitable for status updates.
- *
- *  \param CurrentStatus  Current status of the system, from the BootloaderDFU_StatusCodes_t enum
- */
-static inline void UpdateStatus(uint8_t CurrentStatus)
-{
-	uint8_t LEDMask = LEDS_NO_LEDS;
-	
-	/* Set the LED mask to the appropriate LED mask based on the given status code */
-	switch (CurrentStatus)
-	{
-		case Status_USBNotReady:
-			LEDMask = (LEDS_LED2);
-			break;
-		case Status_USBEnumerating:
-			LEDMask = (LEDS_LED1 | LEDS_LED2);
-			break;
-		case Status_USBReady:
-			LEDMask = (LEDS_LED2);
-			break;
-		case Status_ProcessingDFUCommand:
-			LEDMask = (LEDS_LED2 | LEDS_LED3);
-			break;		
-	}
-	
-	/* Set the board LEDs to the new LED mask */
-	LEDs_SetAllLEDs(LEDMask);
 }

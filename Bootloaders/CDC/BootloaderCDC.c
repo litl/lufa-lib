@@ -77,13 +77,7 @@ int main(void)
 	/* Relocate the interrupt vector table to the bootloader section */
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
-
-	/* Hardware Initialization */
-	LEDs_Init();
 	
-	/* Indicate USB not ready */
-	UpdateStatus(Status_USBNotReady);
-
 	/* Initialize USB Subsystem */
 	USB_Init();
 
@@ -122,13 +116,6 @@ int main(void)
 	AppStartPtr();	
 }
 
-/** Event handler for the USB_Connect event. This indicates the presence of a USB host by the board LEDs. */
-EVENT_HANDLER(USB_Connect)
-{
-	/* Indicate USB connected */
-	UpdateStatus(Status_USBEnumerating);
-}
-
 /** Event handler for the USB_Disconnect event. This indicates that the bootloader should exit and the user
  *  application started.
  */
@@ -155,9 +142,6 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Endpoint_ConfigureEndpoint(CDC_RX_EPNUM, EP_TYPE_BULK,
 		                       ENDPOINT_DIR_OUT, CDC_TXRX_EPSIZE,
 	                           ENDPOINT_BANK_SINGLE);
-
-	/* Indicate USB connected and ready */
-	UpdateStatus(Status_USBReady);
 }
 
 /** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
@@ -387,9 +371,6 @@ TASK(CDC_Task)
 	/* Check if endpoint has a command in it sent from the host */
 	if (Endpoint_ReadWriteAllowed())
 	{
-		/* Indicate current processing a CDC bootloader command */
-		UpdateStatus(Status_ProcessingCDCCommand);
-
 		/* Read in the bootloader command (first byte sent from host) */
 		uint8_t Command = FetchNextCommandByte();
 
@@ -585,38 +566,5 @@ TASK(CDC_Task)
 
 		/* Acknowledge the command from the host */
 		Endpoint_ClearCurrentBank();
-
-		/* Indicate USB ready */
-		UpdateStatus(Status_USBReady);
 	}
-}
-
-/** Function to manage status updates to the user. This is done via LEDs on the given board, if available, but may be changed to
- *  log to a serial port, or anything else that is suitable for status updates.
- *
- *  \param CurrentStatus  Current status of the system, from the BootloaderCDC_StatusCodes_t enum
- */
-static inline void UpdateStatus(uint8_t CurrentStatus)
-{
-	uint8_t LEDMask = LEDS_NO_LEDS;
-	
-	/* Set the LED mask to the appropriate LED mask based on the given status code */
-	switch (CurrentStatus)
-	{
-		case Status_USBNotReady:
-			LEDMask = (LEDS_LED2);
-			break;
-		case Status_USBEnumerating:
-			LEDMask = (LEDS_LED1 | LEDS_LED2);
-			break;
-		case Status_USBReady:
-			LEDMask = (LEDS_LED2);
-			break;
-		case Status_ProcessingCDCCommand:
-			LEDMask = (LEDS_LED2 | LEDS_LED3);
-			break;		
-	}
-	
-	/* Set the board LEDs to the new LED mask */
-	LEDs_SetAllLEDs(LEDMask);
 }

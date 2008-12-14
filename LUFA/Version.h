@@ -40,16 +40,10 @@
 
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
-			/** Indicates the major version number of the library as an integer. */
-			#define LUFA_VERSION_MAJOR       1
+			/** Indicates the version number of the library, as an integer. */
+			#define LUFA_VERSION_INTEGER     241208
 
-			/** Indicates the minor version number of the library as an integer. */
-			#define LUFA_VERSION_MINOR       5
-
-			/** Indicates the revision version number of the library as an integer. */
-			#define LUFA_VERSION_REVISION    4
-
-			/** Indicates the complete version number of the library, in string form. */
-			#define LUFA_VERSION_STRING      "1.5.4"
+			/** Indicates the version number of the library, as a string. */
+			#define LUFA_VERSION_STRING      "241208"
 
 #endif

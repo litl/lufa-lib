@@ -334,7 +334,7 @@ void UpdateStatus(uint8_t CurrentStatus)
  *  HID packets to the host each time the HID interrupt endpoints polling period elapses, as managed by the USB
  *  controller.
  */
-ISR(ENDPOINT_PIPE_vect)
+ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 {
 	/* Save previously selected endpoint before selecting a new endpoint */
 	uint8_t PrevSelectedEndpoint = Endpoint_GetCurrentEndpoint();

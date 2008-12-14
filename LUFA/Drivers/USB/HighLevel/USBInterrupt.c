@@ -65,7 +65,7 @@ void USB_INT_ClearAllInterrupts(void)
 	#endif
 }
 
-ISR(USB_GEN_vect)
+ISR(USB_GEN_vect, ISR_BLOCK)
 {
 	#if defined(USB_CAN_BE_DEVICE)
 	#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)

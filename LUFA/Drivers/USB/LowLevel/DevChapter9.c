@@ -59,7 +59,7 @@ void USB_Device_ProcessControlPacket(void)
 		case REQ_SetFeature:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_ENDPOINT))
 			{
-				USB_Device_ClearSetFeature(bRequest, bmRequestType);
+				USB_Device_ClearSetFeature(bRequest);
 				RequestHandled = true;
 			}
 
@@ -228,15 +228,15 @@ static void USB_Device_GetDescriptor(void)
 
 static void USB_Device_GetStatus(const uint8_t bmRequestType)
 {
-	uint16_t CurrentStatus = 0;
-	
+	uint8_t CurrentStatus = 0;
+
 	Endpoint_Discard_Word();
 
 	uint8_t wIndex_LSB = Endpoint_Read_Byte();
 	
-	switch (bmRequestType & CONTROL_REQTYPE_RECIPIENT)
+	switch (bmRequestType)
 	{
-		case REQREC_DEVICE:
+		case (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE):
 			if (USB_CurrentlySelfPowered)
 			  CurrentStatus |= FEATURE_SELFPOWERED_ENABLED;
 			
@@ -244,17 +244,16 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 			  CurrentStatus |= FEATURE_REMOTE_WAKEUP_ENABLED;
 			
 			break;
-		case REQREC_ENDPOINT:
+		case (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_ENDPOINT):
 			Endpoint_SelectEndpoint(wIndex_LSB);
 
 			CurrentStatus = Endpoint_IsStalled();
 
-			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			  
 			break;
 	}
 	
+	Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);			  
 	Endpoint_ClearSetupReceived();
-	
 	Endpoint_Write_Word_LE(CurrentStatus);
 
 	Endpoint_ClearSetupIN();
@@ -263,15 +262,19 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 	Endpoint_ClearSetupOUT();
 }
 
-static void USB_Device_ClearSetFeature(const uint8_t bRequest, const uint8_t bmRequestType)
+static void USB_Device_ClearSetFeature(const uint8_t bRequest)
 {
-	uint16_t wValue     = Endpoint_Read_Word_LE();
-	uint16_t wIndex_LSB = Endpoint_Read_Byte();
+	uint8_t wValue_LSB = Endpoint_Read_Byte();
+	Endpoint_Discard_Byte();
+
+	uint8_t wIndex_LSB = Endpoint_Read_Byte();
 	
-	if (wValue == FEATURE_ENDPOINT_HALT)
+	switch (wValue_LSB)
 	{
-		if (wIndex_LSB != ENDPOINT_CONTROLEP)
-		{
+		case FEATURE_ENDPOINT_HALT:
+			if (wIndex_LSB == ENDPOINT_CONTROLEP)
+			  return;
+
 			Endpoint_SelectEndpoint(wIndex_LSB);
 
 			if (Endpoint_IsEnabled())
@@ -284,15 +287,21 @@ static void USB_Device_ClearSetFeature(const uint8_t bRequest, const uint8_t bmR
 				}
 				else
 				{
-					Endpoint_StallTransaction();						
+					Endpoint_StallTransaction();
 				}
-			}
 
-			Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
-			Endpoint_ClearSetupReceived();
-			Endpoint_ClearSetupIN();
-		}
+				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+			}
+			
+			break;
+		case FEATURE_REMOTE_WAKEUP:
+			USB_RemoteWakeupEnabled = (bRequest == REQ_SetFeature);
+		
+			break;
 	}
+	
+	Endpoint_ClearSetupReceived();
+	Endpoint_ClearSetupIN();
 }
 
 #endif

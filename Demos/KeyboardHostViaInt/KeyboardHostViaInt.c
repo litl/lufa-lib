@@ -239,7 +239,7 @@ void UpdateStatus(uint8_t CurrentStatus)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
-ISR(ENDPOINT_PIPE_vect)
+ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 {
 	USB_KeyboardReport_Data_t KeyboardReport;
 	char                      PressedKey = 0;

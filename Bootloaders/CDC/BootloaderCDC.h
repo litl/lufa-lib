@@ -46,7 +46,6 @@
 		#include "Descriptors.h"
 
 		#include <LUFA/Drivers/USB/USB.h>                // USB Functionality
-		#include <LUFA/Drivers/Board/LEDs.h>             // LEDs driver
 
 	/* Macros: */
 		/** CDC Class Specific request to get the line encoding on a CDC-ACM virtual serial port, including the
@@ -80,9 +79,6 @@
 		#define SOFTWARE_IDENTIFIER          "LUFA-CDC"
 
 	/* Event Handlers: */
-		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
-		HANDLES_EVENT(USB_Connect);
-
 		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
 
@@ -125,15 +121,6 @@
 			Parity_Mark         = 3, /**< Mark data parity checking */
 			Parity_Space        = 4, /**< Space data parity checking */
 		};
-
-		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
-		enum BootloaderCDC_StatusCodes_t
-		{
-			Status_USBNotReady    = 0,       /**< USB is not ready (disconnected from a USB host) */
-			Status_USBEnumerating = 1,       /**< USB interface is enumerating */
-			Status_USBReady       = 2,       /**< USB interface is connected and ready */
-			Status_ProcessingCDCCommand = 3, /**< Currently processing a CDC bootloader command from the host */
-		};
 		
 	/* Tasks: */
 		TASK(CDC_Task);
@@ -143,7 +130,6 @@
 			static void ProgramReadWriteMemoryBlock(const uint8_t Command);
 			static uint8_t FetchNextCommandByte(void);
 			static void WriteNextResponseByte(const uint8_t Response);
-			static inline void UpdateStatus(uint8_t CurrentStatus) ATTR_ALWAYSINLINE;
 		#endif
 
 #endif

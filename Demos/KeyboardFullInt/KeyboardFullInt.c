@@ -383,7 +383,7 @@ void UpdateStatus(uint8_t CurrentStatus)
  *  controller. It is also used to respond to standard and class specific requests send to the device on the control
  *  endpoint, by handing them off to the LUFA library when they are received.
  */
-ISR(ENDPOINT_PIPE_vect)
+ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 {
 	/* Check if the control endpoint has received a request */
 	if (Endpoint_HasEndpointInterrupted(ENDPOINT_CONTROLEP))

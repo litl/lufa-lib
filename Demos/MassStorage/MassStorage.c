@@ -359,7 +359,7 @@ STREAM_CALLBACK(AbortOnMassStoreReset)
  *  (such as endpoint stall clearing and Mass Storage Reset requests during data transfers) this is done via interrupts rather than
  *  polling.
  */
-ISR(ENDPOINT_PIPE_vect)
+ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 {
 	/* Check if the control endpoint has received a request */
 	if (Endpoint_HasEndpointInterrupted(ENDPOINT_CONTROLEP))

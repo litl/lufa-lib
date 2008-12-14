@@ -307,7 +307,7 @@ TASK(CDC_Task)
  *  data register with the next byte from the Rx_Buffer circular buffer if a character is available, or stops the transmission if
  *  the buffer is currently empty.
  */
-ISR(USART1_TX_vect)
+ISR(USART1_TX_vect, ISR_BLOCK)
 {
 	/* Send next character if available */
 	if (Rx_Buffer.Elements)
@@ -319,7 +319,7 @@ ISR(USART1_TX_vect)
 /** ISR to handle the USART receive complete interrupt, fired each time the USART has received a character. This stores the received
  *  character into the Tx_Buffer circular buffer for later transmission to the host.
  */
-ISR(USART1_RX_vect)
+ISR(USART1_RX_vect, ISR_BLOCK)
 {
 	/* Character received, store it into the buffer */
 	Buffer_StoreElement(&Tx_Buffer, UDR1);

@@ -241,7 +241,7 @@ TASK(USB_Mouse_Host)
 	}
 }
 
-ISR(ENDPOINT_PIPE_vect)
+ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 {
 	USB_MouseReport_Data_t MouseReport;
 

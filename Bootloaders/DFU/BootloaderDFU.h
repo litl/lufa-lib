@@ -45,8 +45,7 @@
 	
 		#include "Descriptors.h"
 		
-		#include <LUFA/Drivers/USB/USB.h>
-		#include <LUFA/Drivers/Board/LEDs.h>
+		#include <LUFA/Drivers/USB/USB.h>                // USB Functionality
 		
 	/* Macros: */
 		/** Major bootloader version number. */
@@ -178,20 +177,8 @@
 			errUNKNOWN                   = 14,
 			errSTALLEDPKT	             = 15
 		};
-
-		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
-		enum BootloaderDFU_StatusCodes_t
-		{
-			Status_USBNotReady          = 0, /**< USB is not ready (disconnected from a USB host) */
-			Status_USBEnumerating       = 1, /**< USB interface is enumerating */
-			Status_USBReady             = 2, /**< USB interface is connected and ready */
-			Status_ProcessingDFUCommand = 3, /**< Currently processing a DFU command from the host */
-		};
 		
 	/* Event Handlers: */
-		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
-		HANDLES_EVENT(USB_Connect);
-
 		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
 
@@ -207,7 +194,6 @@
 			static void ProcessMemReadCommand(void);
 			static void ProcessWriteCommand(void);
 			static void ProcessReadCommand(void);
-			static inline void UpdateStatus(uint8_t CurrentStatus) ATTR_ALWAYSINLINE;
 		#endif
 		
 #endif
