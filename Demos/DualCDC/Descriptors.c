@@ -59,7 +59,7 @@ USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 		
 	ManufacturerStrIndex:   0x01,
 	ProductStrIndex:        0x02,
-	SerialNumStrIndex:      NO_DESCRIPTOR_STRING,
+	SerialNumStrIndex:      NO_DESCRIPTOR,
 		
 	NumberOfConfigurations: 1
 };
@@ -79,7 +79,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			TotalInterfaces:        4,
 				
 			ConfigurationNumber:    1,
-			ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
+			ConfigurationStrIndex:  NO_DESCRIPTOR,
 				
 			ConfigAttributes:       (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
 			
@@ -97,7 +97,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SubClass:               0x02,
 			Protocol:               0x01,
 
-			IADStrIndex:            NO_DESCRIPTOR_STRING
+			IADStrIndex:            NO_DESCRIPTOR
 		},
 
 	CDC1_CCI_Interface:
@@ -113,7 +113,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SubClass:               0x02,
 			Protocol:               0x01,
 				
-			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
+			InterfaceStrIndex:      NO_DESCRIPTOR
 		},
 
 	CDC1_Functional_IntHeader:
@@ -171,7 +171,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SubClass:               0x00,
 			Protocol:               0x00,
 				
-			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
+			InterfaceStrIndex:      NO_DESCRIPTOR
 		},
 
 	CDC1_DataOutEndpoint:
@@ -205,7 +205,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SubClass:               0x02,
 			Protocol:               0x01,
 
-			IADStrIndex:            NO_DESCRIPTOR_STRING
+			IADStrIndex:            NO_DESCRIPTOR
 		},
 
 	CDC2_CCI_Interface:
@@ -221,7 +221,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SubClass:               0x02,
 			Protocol:               0x01,
 				
-			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
+			InterfaceStrIndex:      NO_DESCRIPTOR
 		},
 
 	CDC2_Functional_IntHeader:
@@ -279,7 +279,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SubClass:               0x00,
 			Protocol:               0x00,
 				
-			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
+			InterfaceStrIndex:      NO_DESCRIPTOR
 		},
 
 	CDC2_DataOutEndpoint:
@@ -342,13 +342,15 @@ USB_Descriptor_String_t PROGMEM ProductString =
  *  is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
  *  USB host.
  */
-bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
-                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
+uint16_t USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex, void** const DescriptorAddress)
 {
-	void*    Address = NULL;
-	uint16_t Size    = 0;
+	const uint8_t  DescriptorType   = (wValue >> 8);
+	const uint8_t  DescriptorNumber = (wValue & 0xFF);
 
-	switch (wValue >> 8)
+	void*    Address = NULL;
+	uint16_t Size    = NO_DESCRIPTOR;
+
+	switch (DescriptorType)
 	{
 		case DTYPE_Device:
 			Address = DESCRIPTOR_ADDRESS(DeviceDescriptor);
@@ -359,7 +361,7 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 			Size    = sizeof(USB_Descriptor_Configuration_t);
 			break;
 		case DTYPE_String:
-			switch (wValue & 0xFF)
+			switch (DescriptorNumber)
 			{
 				case 0x00:
 					Address = DESCRIPTOR_ADDRESS(LanguageString);
@@ -378,13 +380,6 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 			break;
 	}
 	
-	if (Address != NULL)
-	{
-		*DescriptorAddress = Address;
-		*DescriptorSize    = Size;
-
-		return true;
-	}
-		
-	return false;
+	*DescriptorAddress = Address;	
+	return Size;
 }

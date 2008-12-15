@@ -60,6 +60,10 @@
 			 *  different configurations which the host can select between; this indicates the currently selected
 			 *  value, or 0 if no configuration has been selected.
 			 *
+			 *  If a device has only one single configuration, the token USE_SINGLE_DEVICE_CONFIGURATION may be
+			 *  defined in the project makefile and passed to the compiler using the -D switch. This optimize for
+			 *  a single configuration, saving a small amount of space in the resulting compiled binary.
+			 *
 			 *  \note This variable should be treated as read-only in the user application, and never manually
 			 *        changed in value.
 			 */

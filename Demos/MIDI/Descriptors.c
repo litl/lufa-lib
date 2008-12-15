@@ -59,7 +59,7 @@ USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 		
 	ManufacturerStrIndex:   0x01,
 	ProductStrIndex:        0x02,
-	SerialNumStrIndex:      NO_DESCRIPTOR_STRING,
+	SerialNumStrIndex:      NO_DESCRIPTOR,
 		
 	NumberOfConfigurations: 1
 };
@@ -79,7 +79,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			TotalInterfaces:          2,
 
 			ConfigurationNumber:      1,
-			ConfigurationStrIndex:    NO_DESCRIPTOR_STRING,
+			ConfigurationStrIndex:    NO_DESCRIPTOR,
 				
 			ConfigAttributes:         (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
 			
@@ -99,7 +99,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SubClass:                 0x01,
 			Protocol:                 0x00,
 				
-			InterfaceStrIndex:        NO_DESCRIPTOR_STRING			
+			InterfaceStrIndex:        NO_DESCRIPTOR			
 		},
 	
 	AudioControlInterface_SPC:
@@ -127,7 +127,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SubClass:                 0x03,
 			Protocol:                 0x00,
 				
-			InterfaceStrIndex:        NO_DESCRIPTOR_STRING
+			InterfaceStrIndex:        NO_DESCRIPTOR
 		},
 		
 	AudioStreamInterface_SPC:
@@ -148,7 +148,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			JackType:                 JACKTYPE_EMBEDDED,
 			JackID:                   0x01,
 			
-			JackStrIndex:             NO_DESCRIPTOR_STRING
+			JackStrIndex:             NO_DESCRIPTOR
 		},
 
 	MIDI_In_Jack_Ext:
@@ -159,7 +159,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			JackType:                 JACKTYPE_EXTERNAL,
 			JackID:                   0x02,
 			
-			JackStrIndex:             NO_DESCRIPTOR_STRING
+			JackStrIndex:             NO_DESCRIPTOR
 		},
 		
 	MIDI_Out_Jack_Emb:
@@ -174,7 +174,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SourceJackID:             {0x02},
 			SourcePinID:              {0x01},
 			
-			JackStrIndex:             NO_DESCRIPTOR_STRING
+			JackStrIndex:             NO_DESCRIPTOR
 		},
 
 	MIDI_Out_Jack_Ext:
@@ -189,7 +189,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			SourceJackID:             {0x01},
 			SourcePinID:              {0x01},
 			
-			JackStrIndex:             NO_DESCRIPTOR_STRING
+			JackStrIndex:             NO_DESCRIPTOR
 		},
 
 	MIDI_In_Jack_Endpoint:
@@ -282,13 +282,15 @@ USB_Descriptor_String_t PROGMEM ProductString =
  *  is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
  *  USB host.
  */
-bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
-                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
+uint16_t USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex, void** const DescriptorAddress)
 {
-	void*    Address = NULL;
-	uint16_t Size    = 0;
+	const uint8_t  DescriptorType   = (wValue >> 8);
+	const uint8_t  DescriptorNumber = (wValue & 0xFF);
 
-	switch (wValue >> 8)
+	void*    Address = NULL;
+	uint16_t Size    = NO_DESCRIPTOR;
+
+	switch (DescriptorType)
 	{
 		case DTYPE_Device:
 			Address = DESCRIPTOR_ADDRESS(DeviceDescriptor);
@@ -299,7 +301,7 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 			Size    = sizeof(USB_Descriptor_Configuration_t);
 			break;
 		case DTYPE_String:
-			switch (wValue & 0xFF)
+			switch (DescriptorNumber)
 			{
 				case 0x00:
 					Address = DESCRIPTOR_ADDRESS(LanguageString);
@@ -318,13 +320,6 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 			break;
 	}
 	
-	if (Address != NULL)
-	{
-		*DescriptorAddress = Address;
-		*DescriptorSize    = Size;
-
-		return true;
-	}
-		
-	return false;
+	*DescriptorAddress = Address;
+	return Size;
 }

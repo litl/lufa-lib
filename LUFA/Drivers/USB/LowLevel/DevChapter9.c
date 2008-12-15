@@ -129,9 +129,8 @@ static void USB_Device_SetConfiguration(void)
 	if (wValue_LSB > 1)
 #else
 	USB_Descriptor_Device_t* DevDescriptorPtr;
-	uint16_t                 DevDescriptorSize;
 
-	if ((USB_GetDescriptor((DTYPE_Device << 8), 0, (void*)&DevDescriptorPtr, &DevDescriptorSize) == false) ||
+	if ((USB_GetDescriptor((DTYPE_Device << 8), 0, (void*)&DevDescriptorPtr) == NO_DESCRIPTOR) ||
 	#if defined(USE_RAM_DESCRIPTORS)
 	    (wValue_LSB > DevDescriptorPtr->NumberOfConfigurations))
 	#elif defined (USE_EEPROM_DESCRIPTORS)
@@ -179,7 +178,7 @@ static void USB_Device_GetDescriptor(void)
 	
 	bool     SendZLP;
 	
-	if (!(USB_GetDescriptor(wValue, wIndex, &DescriptorPointer, &DescriptorSize)))
+	if (!(DescriptorSize = USB_GetDescriptor(wValue, wIndex, &DescriptorPointer)))
 	  return;
 	
 	Endpoint_ClearSetupReceived();

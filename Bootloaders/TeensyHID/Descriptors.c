@@ -77,9 +77,9 @@ USB_Descriptor_Device_t DeviceDescriptor =
 	ProductID:              0x0478,
 	ReleaseNumber:          0x0010,
 		
-	ManufacturerStrIndex:   NO_DESCRIPTOR_STRING,
+	ManufacturerStrIndex:   NO_DESCRIPTOR,
 	ProductStrIndex:        0x01,
-	SerialNumStrIndex:      NO_DESCRIPTOR_STRING,
+	SerialNumStrIndex:      NO_DESCRIPTOR,
 		
 	NumberOfConfigurations: 1
 };
@@ -99,7 +99,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 			TotalInterfaces:        1,
 				
 			ConfigurationNumber:    1,
-			ConfigurationStrIndex:  NO_DESCRIPTOR_STRING,
+			ConfigurationStrIndex:  NO_DESCRIPTOR,
 				
 			ConfigAttributes:       (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
 			
@@ -119,7 +119,7 @@ USB_Descriptor_Configuration_t ConfigurationDescriptor =
 			SubClass:               0x00,
 			Protocol:               0x00,
 				
-			InterfaceStrIndex:      NO_DESCRIPTOR_STRING
+			InterfaceStrIndex:      NO_DESCRIPTOR
 		},
 
 	HIDDescriptor:
@@ -172,14 +172,13 @@ USB_Descriptor_String_t ProductString =
  *  is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
  *  USB host.
  */
-bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
-                       void** const DescriptorAddress, uint16_t* const DescriptorSize)
+uint16_t USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex, void** const DescriptorAddress)
 {
 	const uint8_t  DescriptorType   = (wValue >> 8);
 	const uint8_t  DescriptorNumber = (wValue & 0xFF);
 
 	void*    Address = NULL;
-	uint16_t Size    = 0;
+	uint16_t Size    = NO_DESCRIPTOR;
 
 	switch (DescriptorType)
 	{
@@ -214,13 +213,6 @@ bool USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
 			break;
 	}
 	
-	if (Address != NULL)
-	{
-		*DescriptorAddress = Address;
-		*DescriptorSize    = Size;
-
-		return true;
-	}
-		
-	return false;
+	*DescriptorAddress = Address;
+	return Size;
 }
