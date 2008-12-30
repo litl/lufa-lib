@@ -318,7 +318,7 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 	  ReportData->KeyCode[0] = 0x08; // E
 	  
 	/* Check if the new report is different to the previous report */
-	InputChanged = PrevJoyStatus ^ JoyStatus_LCL;
+	InputChanged = (uint8_t)(PrevJoyStatus ^ JoyStatus_LCL);
 
 	/* Save the current joystick status for later comparison */
 	PrevJoyStatus = JoyStatus_LCL;

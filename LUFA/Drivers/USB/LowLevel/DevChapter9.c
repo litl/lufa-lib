@@ -178,7 +178,7 @@ static void USB_Device_GetDescriptor(void)
 	
 	bool     SendZLP;
 	
-	if (!(DescriptorSize = USB_GetDescriptor(wValue, wIndex, &DescriptorPointer)))
+	if ((DescriptorSize = USB_GetDescriptor(wValue, wIndex, &DescriptorPointer)) == NO_DESCRIPTOR)
 	  return;
 	
 	Endpoint_ClearSetupReceived();

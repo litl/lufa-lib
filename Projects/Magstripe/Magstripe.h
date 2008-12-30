@@ -46,18 +46,20 @@
 		#include <util/delay.h>
 
 		#include "Descriptors.h"
+		#include "MagstripeHW.h"
+		#include "RingBuff.h"
 
 		#include <LUFA/Version.h>                    // Library Version Information
 		#include <LUFA/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project
 		#include <LUFA/Drivers/USB/USB.h>            // USB Functionality
-		#include <LUFA/Drivers/Board/LEDs.h>         // LEDs driver
 		#include <LUFA/Scheduler/Scheduler.h>        // Simple scheduler for task management
 
-		#include "MagstripeHW.h"
 		
 	/* Task Definitions: */
 		/** Task definition for the keyboard and magnetic card reading task. */
 		TASK(USB_Keyboard_Report);
+		
+		TASK(Magstripe_Read);
 
 	/* Macros: */
 		/** HID Class Specific Request to get the current HID report from the device. */
@@ -77,31 +79,6 @@
 
 		/** HID Class Specific Request to set the current HID report protocol mode. */
 		#define REQ_SetProtocol    0x0B
-
-		/** Maximum number of bits per track.
-		 *
-		 * ISO 7811 specifies a maximum recording density of
-		 * 210 bits per inch.  The width of a card is 3.375", giving
-		 * 3.375 * 210 = 709 bits per track.  Thus, 1024 bits should
-		 * store a complete track with room to spare.  In practice,
-		 * cards have been shown to use up to 707 bits per track so
-		 * 709 bits per track is a very tight approximation.
-		 *
-		 * See http://www.cyberd.co.uk/support/technotes/isocards.htm for more information.
-		 */
-		#define MAX_BITS           1024
-		
-		/** Maximum number of bits for the first track on the card. */
-		#define T1_MAX_BITS        MAX_BITS
-
-		/** Maximum number of bits for the second track on the card. */
-		#define T2_MAX_BITS        MAX_BITS
-
-		/** Maximum number of bits for the third track on the card. */
-		#define T3_MAX_BITS        MAX_BITS
-
-		/** HID keyboard keycode to indicate no key currently pressed. */
-		#define KEY_NO_EVENT        0
 		
 		/** HID keyboard keycode to indicate that the "1" key is currently pressed. */
 		#define KEY_1              30
@@ -123,15 +100,6 @@
 			uint8_t Reserved; /**< Reserved for OEM use, always set to 0 */
 			uint8_t KeyCode[6]; /**< Key code array for pressed keys - up to six can be given simultaneously */
 		} USB_KeyboardReport_Data_t;
-			
-	/* Enums: */
-		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
-		enum Magstripe_StatusCodes_t
-		{
-			Status_USBNotReady    = 0, /**< USB is not ready (disconnected from a USB host) */
-			Status_USBEnumerating = 1, /**< USB interface is enumerating */
-			Status_USBReady       = 2, /**< USB interface is connected and ready */
-		};
 
 	/* Event Handlers: */
 		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
@@ -148,9 +116,7 @@
 		
 	/* Function Prototypes: */
 		bool GetNextReport(USB_KeyboardReport_Data_t* ReportData);
-		void ProcessLEDReport(uint8_t LEDReport);
 		void SendKey(USB_KeyboardReport_Data_t* KeyboardReportData, uint8_t Key);
 		void Send(USB_KeyboardReport_Data_t* KeyboardReportData, bool SendReport);
-		void UpdateStatus(uint8_t CurrentStatus);
 		
 #endif

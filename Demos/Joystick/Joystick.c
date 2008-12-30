@@ -196,7 +196,7 @@ bool GetNextReport(USB_JoystickReport_Data_t* ReportData)
 	  ReportData->Button |= (1 << 0);
 	  
 	/* Check if the new report is different to the previous report */
-	InputChanged = PrevJoyStatus ^ JoyStatus_LCL;
+	InputChanged = (uint8_t)(PrevJoyStatus ^ JoyStatus_LCL);
 
 	/* Save the current joystick status for later comparison */
 	PrevJoyStatus = JoyStatus_LCL;

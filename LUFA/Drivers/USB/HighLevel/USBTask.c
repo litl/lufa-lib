@@ -138,20 +138,7 @@ static void USB_HostTask(void)
 		case HOST_STATE_Attached_DoReset:
 			USB_Host_ResetDevice();
 
-			HOST_TASK_NONBLOCK_WAIT(200, HOST_STATE_Attached_PostReset);
-			break;
-		case HOST_STATE_Attached_PostReset:
-			if (USB_INT_HasOccurred(USB_INT_BCERRI))
-			{
-				USB_INT_Clear(USB_INT_BCERRI);
-
-				ErrorCode = HOST_ENUMERROR_NoDeviceDetected;
-			}
-			else
-			{
-				USB_HostState = HOST_STATE_Powered;
-			}
-			
+			HOST_TASK_NONBLOCK_WAIT(200, HOST_STATE_Powered);
 			break;
 		case HOST_STATE_Powered:
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,
@@ -241,7 +228,7 @@ static void USB_HostTask(void)
 			break;
 	}
 
-	if (ErrorCode != HOST_ENUMERROR_NoError)
+	if ((ErrorCode != HOST_ENUMERROR_NoError) && (USB_HostState != HOST_STATE_Unattached))
 	{
 		RAISE_EVENT(USB_DeviceEnumerationFailed, ErrorCode);
 

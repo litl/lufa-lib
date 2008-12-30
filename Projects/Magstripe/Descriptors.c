@@ -60,15 +60,6 @@ USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardReport[] =
 	0x95, 0x01,          /*   Report Count (1)                              */
 	0x75, 0x08,          /*   Report Size (8)                               */
 	0x81, 0x03,          /*   Input (Const, Variable, Absolute)             */
-	0x95, 0x05,          /*   Report Count (5)                              */
-	0x75, 0x01,          /*   Report Size (1)                               */
-	0x05, 0x08,          /*   Usage Page (LEDs)                             */
-	0x19, 0x01,          /*   Usage Minimum (Num Lock)                      */
-	0x29, 0x05,          /*   Usage Maximum (Kana)                          */
-	0x91, 0x02,          /*   Output (Data, Variable, Absolute)             */
-	0x95, 0x01,          /*   Report Count (1)                              */
-	0x75, 0x03,          /*   Report Size (3)                               */
-	0x91, 0x03,          /*   Output (Const, Variable, Absolute)            */
 	0x95, 0x06,          /*   Report Count (6)                              */
 	0x75, 0x08,          /*   Report Size (8)                               */
 	0x15, 0x00,          /*   Logical Minimum (0)                           */
@@ -136,7 +127,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			InterfaceNumber:        0x00,
 			AlternateSetting:       0x00,
 			
-			TotalEndpoints:         2,
+			TotalEndpoints:         1,
 				
 			Class:                  0x03,
 			SubClass:               0x01,
@@ -165,16 +156,6 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			EndpointSize:           KEYBOARD_EPSIZE,
 			PollingIntervalMS:      0x02
 		},
-
-	KeyboardLEDsEndpoint:
-		{
-			Header:                 {Size: sizeof(USB_Descriptor_Endpoint_t), Type: DTYPE_Endpoint},
-
-			EndpointAddress:        (ENDPOINT_DESCRIPTOR_DIR_OUT | KEYBOARD_LEDS_EPNUM),
-			Attributes:             EP_TYPE_INTERRUPT,
-			EndpointSize:           KEYBOARD_EPSIZE,
-			PollingIntervalMS:      0x02
-		}
 };
 
 /** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests
@@ -193,9 +174,9 @@ USB_Descriptor_String_t PROGMEM LanguageString =
  */
 USB_Descriptor_String_t PROGMEM ManufacturerString =
 {
-	Header:                 {Size: USB_STRING_LEN(16), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(32), Type: DTYPE_String},
 		
-	UnicodeString:          L"Denver Gingerich"
+	UnicodeString:          L"Dean Camera and Denver Gingerich"
 };
 
 /** Product descriptor string. This is a Unicode string containing the product's details in human readable form,

@@ -72,31 +72,9 @@
 			#define MAG_MASK    (MAG_T1_DATA | MAG_T1_CLOCK | \
 			                     MAG_T2_DATA | MAG_T2_CLOCK | \
 			                     MAG_T3_DATA | MAG_T3_CLOCK | \
-			                     MAG_CLS)
+			                     MAG_CARDPRESENT)
 
 	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			/** Mask for the first track data line. */
-			#define MAG_T1_DATA    (1 << MAG_T1_DATA_PIN)
-
-			/** Mask for the first track clock line. */
-			#define MAG_T1_CLOCK   (1 << MAG_T1_CLOCK_PIN)
-
-			/** Mask for the second track data line. */
-			#define MAG_T2_DATA    (1 << MAG_T2_DATA_PIN)
-
-			/** Mask for the second track clock line. */
-			#define MAG_T2_CLOCK   (1 << MAG_T2_CLOCK_PIN)
-
-			/** Mask for the third track data line. */
-			#define MAG_T3_DATA    (1 << MAG_T3_DATA_PIN)
-
-			/** Mask for the third track clock line. */
-			#define MAG_T3_CLOCK   (1 << MAG_T3_CLOCK_PIN)
-
-			/** Mask for the card detection line. */
-			#define MAG_CLS        (1 << MAG_CLS_PIN)
-
 		/* Inline Functions: */
 			/** Initializes the magnetic stripe card reader ports and pins so that the card reader
 			 *  device can be controlled and read by the card reader driver. This must be called before
@@ -104,8 +82,8 @@
 			 */
 			static inline void Magstripe_Init(void)
 			{
-				MAG_DDR &= ~(MAG_MASK);
-				MAG_PORT |= MAG_MASK;
+				MAG_DDR  &= ~MAG_MASK;
+				MAG_PORT |=  MAG_MASK;
 			};
 
 			/** Returns the status of all the magnetic card reader's outputs.
@@ -116,7 +94,7 @@
 			static inline uint8_t Magstripe_GetStatus(void)
 			{
 				/* Magstripe IOs are active low and must be inverted when read */
-				return (~MAG_PIN & MAG_MASK);
+				return ((uint8_t)~MAG_PIN & MAG_MASK);
 			}
 
 #endif

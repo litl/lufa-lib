@@ -34,9 +34,6 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <stdbool.h>
-		#include <string.h>
-
-		#include <LUFA/Drivers/AT90USBXXX/Serial_Stream.h>
 		
 		#include "RNDISEthernet.h"
 		#include "Ethernet.h"

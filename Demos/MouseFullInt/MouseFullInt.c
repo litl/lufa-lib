@@ -294,7 +294,7 @@ bool GetNextReport(USB_MouseReport_Data_t* ReportData)
 	  ReportData->Button |= (1 << 1);
 
 	/* Check if the new report is different to the previous report */
-	InputChanged = ((PrevJoyStatus ^ JoyStatus_LCL) | (HWB_GetStatus() ^ PrevHWBStatus));
+	InputChanged = ((uint8_t)(PrevJoyStatus ^ JoyStatus_LCL) | (uint8_t)(HWB_GetStatus() ^ PrevHWBStatus));
 
 	/* Save the current joystick and HWB status for later comparison */
 	PrevJoyStatus = JoyStatus_LCL;

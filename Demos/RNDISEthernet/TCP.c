@@ -319,12 +319,6 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 						ConnectionInfo->SequenceNumberIn  = (SwapEndian_32(TCPHeaderIN->SequenceNumber) + 1);
 						ConnectionInfo->SequenceNumberOut = 0;
 						ConnectionInfo->Buffer.InUse      = false;
-
-						printf_P(PSTR("\r\n  # TCP: LISTENING->SYNRECEIVED\r\n"));
-					}
-					else
-					{
-						printf_P(PSTR("\r\n  # TCP: LISTENING->SELF\r\n"));				
 					}
 					
 					break;
@@ -340,12 +334,6 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 															   TCPHeaderIN->SourcePort);
 															   
 						ConnectionInfo->SequenceNumberOut++;
-
-						printf_P(PSTR("\r\n  # TCP: SYNRECEIVED->ESTABLISHED\r\n"));
-					}
-					else
-					{
-						printf_P(PSTR("\r\n  # TCP: SYNRECEIVED->SELF\r\n"));				
 					}
 					
 					break;
@@ -365,13 +353,9 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 
 						ConnectionInfo->SequenceNumberIn++;
 						ConnectionInfo->SequenceNumberOut++;
-
-						printf_P(PSTR("\r\n  # TCP: ESTABLISHED->CLOSEWAIT\r\n"));
 					}
 					else if ((TCPHeaderIN->Flags == TCP_FLAG_ACK) || (TCPHeaderIN->Flags == (TCP_FLAG_ACK | TCP_FLAG_PSH)))
 					{
-						printf_P(PSTR("\r\n  # TCP: ESTABLISHED->SELF\r\n"));
-
 						ConnectionInfo = TCP_GetConnectionInfo(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
 															   TCPHeaderIN->SourcePort);
 
@@ -411,7 +395,7 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 						}
 						else
 						{
-							printf_P(PSTR("\r\n  # TCP: Processing deferred, buffer full.\r\n"));
+							/* Buffer is currently in use by the application, defer processing of the incomming packet */
 							return NO_PROCESS;
 						}
 					}
@@ -429,8 +413,6 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 						TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
 											   TCPHeaderIN->SourcePort, TCP_Connection_FINWait1);
 
-						printf_P(PSTR("\r\n  # TCP: ESTABLISHED->FINWAIT1\r\n"));
-						
 					break;
 				case TCP_Connection_FINWait1:
 					if (TCPHeaderIN->Flags == (TCP_FLAG_FIN | TCP_FLAG_ACK))
@@ -446,19 +428,11 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 						
 						TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
 											   TCPHeaderIN->SourcePort, TCP_Connection_Closed);
-
-						printf_P(PSTR("\r\n  # TCP: FINWAIT1->CLOSED\r\n"));
 					}
 					else if (TCPHeaderIN->Flags == TCP_FLAG_ACK)
 					{
 						TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
 											   TCPHeaderIN->SourcePort, TCP_Connection_FINWait2);
-
-						printf_P(PSTR("\r\n  # TCP: FINWAIT1->FINWAIT2\r\n"));				
-					}
-					else
-					{
-						printf_P(PSTR("\r\n  # TCP: FINWAIT1->SELF\r\n"));				
 					}
 					
 					break;
@@ -476,12 +450,6 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 						
 						TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
 											   TCPHeaderIN->SourcePort, TCP_Connection_Closed);
-
-						printf_P(PSTR("\r\n  # TCP: FINWAIT2->CLOSED\r\n"));
-					}
-					else
-					{
-						printf_P(PSTR("\r\n  # TCP: FINWAIT2->SELF\r\n"));			
 					}
 				
 					break;
@@ -490,12 +458,6 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 					{
 						TCP_SetConnectionState(TCPHeaderIN->DestinationPort, IPHeaderIN->SourceAddress,
 											   TCPHeaderIN->SourcePort, TCP_Connection_Closed);
-
-						printf_P(PSTR("\r\n  # TCP: CLOSEWAIT->CLOSED\r\n"));
-					}
-					else
-					{
-						printf_P(PSTR("\r\n  # TCP: CLOSEWAIT->SELF\r\n"));			
 					}
 					
 					break;

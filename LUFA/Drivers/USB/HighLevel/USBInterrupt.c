@@ -179,8 +179,6 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		USB_INT_Clear(USB_INT_DCONNI);
 		USB_INT_Disable(USB_INT_DDISCI);
 			
-		USB_IsConnected = false;
-		
 		RAISE_EVENT(USB_DeviceUnattached);
 		RAISE_EVENT(USB_Disconnect);
 
@@ -193,19 +191,16 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 
 		USB_Host_VBUS_Manual_Off();
 
-		USB_IsConnected = false;
-
 		RAISE_EVENT(USB_HostError, HOST_ERROR_VBusVoltageDip);
 		RAISE_EVENT(USB_DeviceUnattached);
 
-		USB_HostState   = HOST_STATE_Unattached;
+		USB_HostState = HOST_STATE_Unattached;
 	}
 
 	if (USB_INT_HasOccurred(USB_INT_SRPI) && USB_INT_IsEnabled(USB_INT_SRPI))
 	{
 		USB_INT_Clear(USB_INT_SRPI);
 		USB_INT_Disable(USB_INT_SRPI);
-		USB_INT_Disable(USB_INT_BCERRI);
 	
 		RAISE_EVENT(USB_DeviceAttached);
 
@@ -224,7 +219,12 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 	{
 		USB_INT_Clear(USB_INT_BCERRI);
 		
-		USB_Host_VBUS_Manual_Off();
+		RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_NoDeviceDetected);
+		RAISE_EVENT(USB_DeviceUnattached);
+		
+		if (USB_IsConnected)
+		  RAISE_EVENT(USB_Disconnect);
+
 		USB_Host_PrepareForDeviceConnect();
 	}
 	#endif
@@ -243,11 +243,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		}
 
 		RAISE_EVENT(USB_UIDChange);
-
-		USB_Host_VBUS_Manual_Off();
-		USB_Host_VBUS_Auto_Enable();
-		USB_OTGPAD_On();
-
+		
 		USB_SetupInterface();	
 	}
 	#endif

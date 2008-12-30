@@ -83,9 +83,6 @@
 		/** Endpoint number of the keyboard key press reporting endpoint. */
 		#define KEYBOARD_EPNUM               1
 		
-		/** Endpoint number of the keyboard LED status reporting endpoint. */
-		#define KEYBOARD_LEDS_EPNUM          2
-		
 		/** Size of the keyboard report endpoints, in bytes. */
 		#define KEYBOARD_EPSIZE              8
 

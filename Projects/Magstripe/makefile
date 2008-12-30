@@ -68,7 +68,7 @@ BOARD  = USBKEY
 #         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
-F_CPU = 8000000
+F_CPU = 16000000
 
 
 # Output format. (can be srec, ihex, binary)
@@ -88,6 +88,7 @@ OBJDIR = .
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c                                          \
 	  Descriptors.c                                        \
+	  RingBuff.c                                           \
 	  ../../LUFA/Scheduler/Scheduler.c                     \
 	  ../../LUFA/Drivers/USB/LowLevel/LowLevel.c           \
 	  ../../LUFA/Drivers/USB/LowLevel/Endpoint.c           \
@@ -143,16 +144,16 @@ CSTANDARD = -std=gnu99
 CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD) -DUSE_NONSTANDARD_DESCRIPTOR_NAMES -DNO_STREAM_CALLBACKS
 CDEFS += -DUSB_DEVICE_ONLY -DUSE_STATIC_OPTIONS="(USB_DEVICE_OPT_FULLSPEED | USB_OPT_REG_ENABLED | USB_OPT_AUTO_PLL)"
 
-CDEFS += -DMAG_T1_CLOCK_PIN=PORTC1
-CDEFS += -DMAG_T1_DATA_PIN=PORTC2
-CDEFS += -DMAG_T2_CLOCK_PIN=PORTC3
-CDEFS += -DMAG_T2_DATA_PIN=PORTC0
-CDEFS += -DMAG_T3_CLOCK_PIN=PORTC5
-CDEFS += -DMAG_T3_DATA_PIN=PORTC6
-CDEFS += -DMAG_CLS_PIN=PORTC4
-CDEFS += -DMAG_PIN=PINC
-CDEFS += -DMAG_DDR=DDRC
-CDEFS += -DMAG_PORT=PORTC
+CDEFS += -DMAG_T1_CLOCK=(1 << 0)
+CDEFS += -DMAG_T1_DATA=(1 << 1)
+CDEFS += -DMAG_T2_CLOCK=(1 << 2)
+CDEFS += -DMAG_T2_DATA=(1 << 3)
+CDEFS += -DMAG_T3_CLOCK=(1 << 4)
+CDEFS += -DMAG_T3_DATA=(1 << 5)
+CDEFS += -DMAG_CARDPRESENT=(1 << 6)
+CDEFS += -DMAG_PIN=PINB
+CDEFS += -DMAG_DDR=DDRB
+CDEFS += -DMAG_PORT=PORTB
 
 # Place -D or -U options here for ASM sources
 ADEFS = -DF_CPU=$(F_CPU)

@@ -143,15 +143,14 @@
 				HOST_STATE_Unattached             = 1,  /**< Internally implemented by the library. */
 				HOST_STATE_Attached               = 2,  /**< Internally implemented by the library. */
 				HOST_STATE_Attached_DoReset       = 3,  /**< Internally implemented by the library. */
-				HOST_STATE_Attached_PostReset     = 4,  /**< Internally implemented by the library. */
-				HOST_STATE_Powered                = 5,  /**< Internally implemented by the library. */
-				HOST_STATE_Default                = 6,  /**< Internally implemented by the library. */
-				HOST_STATE_Default_PostReset      = 7,  /**< Internally implemented by the library. */
-				HOST_STATE_Default_PostAddressSet = 8,  /**< Internally implemented by the library. */
-				HOST_STATE_Addressed              = 9, /**< May be implemented by the user project. */
-				HOST_STATE_Configured             = 10, /**< May be implemented by the user project. */
-				HOST_STATE_Ready                  = 11, /**< May be implemented by the user project. */
-				HOST_STATE_Suspended              = 12, /**< May be implemented by the user project. */
+				HOST_STATE_Powered                = 4,  /**< Internally implemented by the library. */
+				HOST_STATE_Default                = 5,  /**< Internally implemented by the library. */
+				HOST_STATE_Default_PostReset      = 6,  /**< Internally implemented by the library. */
+				HOST_STATE_Default_PostAddressSet = 7,  /**< Internally implemented by the library. */
+				HOST_STATE_Addressed              = 8,  /**< May be implemented by the user project. */
+				HOST_STATE_Configured             = 9,  /**< May be implemented by the user project. */
+				HOST_STATE_Ready                  = 10, /**< May be implemented by the user project. */
+				HOST_STATE_Suspended              = 11, /**< May be implemented by the user project. */
 			};
 			
 			/** Enum for the error codes for the USB_HostError event.

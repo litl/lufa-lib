@@ -81,7 +81,7 @@
 		#if !defined(__DOXYGEN__)
 			static inline void Joystick_Init(void)
 			{
-				DDRB  &= ~(JOY_BMASK);
+				DDRB  &= ~JOY_BMASK;
 
 				PORTB |= JOY_BMASK;
 			};
@@ -89,7 +89,7 @@
 			static inline uint8_t Joystick_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Joystick_GetStatus(void)
 			{
-				return (~PINB & JOY_BMASK);
+				return ((uint8_t)~PINB & JOY_BMASK);
 			}
 		#endif
 

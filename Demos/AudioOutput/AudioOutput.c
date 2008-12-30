@@ -116,7 +116,7 @@ EVENT_HANDLER(USB_Connect)
 	/* PWM speaker timer initialization */
 	TCCRxA  = ((1 << WGMx0) | (1 << COMxA1) | (1 << COMxA0)
 							| (1 << COMxB1) | (1 << COMxB0)); // Set on match, clear on TOP
-	TCCRxB  = ((1 << CSx0));  // Phase Correct 8-Bit PWM, Fcpu speed
+	TCCRxB  = ((1 << WGMx2) | (1 << CSx0));  // Fast 8-Bit PWM, Fcpu speed
 #endif	
 }
 

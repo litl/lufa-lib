@@ -124,6 +124,7 @@ void USB_Host_PrepareForDeviceConnect(void)
 	USB_INT_Enable(USB_INT_SRPI);
 	USB_INT_Enable(USB_INT_BCERRI);
 
-	USB_HostState = HOST_STATE_Unattached;
+	USB_HostState   = HOST_STATE_Unattached;
+	USB_IsConnected = false;
 }
 #endif

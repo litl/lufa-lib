@@ -33,7 +33,6 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-		#include <string.h>
 		#include <stdbool.h>
 		
 		#include <LUFA/Scheduler/Scheduler.h>

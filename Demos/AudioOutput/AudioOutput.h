@@ -55,6 +55,7 @@
 			#define OCRxA           OCR3A
 			#define OCRxB           OCR3B
 			#define WGMx0           WGM30
+			#define WGMx2           WGM32
 			#define COMxA1          COM3A1
 			#define COMxA0          COM3A0
 			#define COMxB1          COM3B1
@@ -73,8 +74,11 @@
 			/** Timer compare register used for right channel PWM audio output */
 			#define OCRxB           OCR1B
 
-			/** Timer control register mask used to select Phase Correct 8-bit PWM */
+			/** Timer control register mask used to select PWM mode */
 			#define WGMx0           WGM10
+
+			/** Timer control register mask used to select PWM mode */
+			#define WGMx2           WGM12
 
 			/** Timer control register mask used to set, clear or toggle channel output pin on match */
 			#define COMxA1          COM1A1
