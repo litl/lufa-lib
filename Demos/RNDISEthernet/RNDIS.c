@@ -1,13 +1,13 @@
 /*
              LUFA Library
-     Copyright (C) Dean Camera, 2008.
+     Copyright (C) Dean Camera, 2009.
               
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
 
 /*
-  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2009  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -32,9 +32,9 @@
 #include "RNDIS.h"
 
 /* Global Variables: */
-static MAC_Address_t PROGMEM AdapterMACAddress          = {ADAPTER_MAC_ADDRESS};
-static char          PROGMEM AdapterVendorDescription[] = "LUFA RNDIS Adapter";
-static uint32_t      PROGMEM AdapterSupportedOIDList[]  =
+static MAC_Address_t  PROGMEM AdapterMACAddress          = {ADAPTER_MAC_ADDRESS};
+static char           PROGMEM AdapterVendorDescription[] = "LUFA RNDIS Adapter";
+static const uint32_t PROGMEM AdapterSupportedOIDList[]  =
 							{
 								OID_GEN_SUPPORTED_LIST,
 								OID_GEN_HARDWARE_STATUS,

@@ -1,13 +1,13 @@
 /*
              LUFA Library
-     Copyright (C) Dean Camera, 2008.
+     Copyright (C) Dean Camera, 2009.
               
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
 
 /*
-  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2009  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -30,7 +30,7 @@
 
 /* Buffer Configuration: */
    /* Buffer length - select static size of created ringbuffers: */
-	 #define BUFF_STATICSIZE 1030     // Set to the static ringbuffer size for all ringbuffers (place size after define)
+	 #define BUFF_STATICSIZE 2048     // Set to the static ringbuffer size for all ringbuffers (place size after define)
 
    /* Volatile mode - uncomment to make buffers volatile, for use in ISRs, etc: */
 	 #define BUFF_VOLATILE            // Uncomment to cause all ring buffers to become volatile (and atomic if multi-byte) in access

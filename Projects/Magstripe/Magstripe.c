@@ -1,14 +1,14 @@
 /*
              LUFA Library
-     Copyright (C) Dean Camera, 2008.
+     Copyright (C) Dean Camera, 2009.
               
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
 
 /*
-  Copyright 2008  Denver Gingerich (denver [at] ossguy [dot] com)
-  Copyright 2008  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2009  Denver Gingerich (denver [at] ossguy [dot] com)
+  Copyright 2009  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, and distribute this software
   and its documentation for any purpose and without fee is hereby
@@ -318,9 +318,9 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 TASK(Magstripe_Read)
 {
 	/* Arrays to hold the buffer pointers, clock and data bit masks for the seperate card tracks */
-	RingBuff_t* TrackBuffer[3]  = {&Track1Data, &Track2Data, &Track3Data};
-	uint8_t     TrackClock[3]   = {MAG_T1_CLOCK, MAG_T2_CLOCK, MAG_T3_CLOCK};
-	uint8_t     TrackData[3]    = {MAG_T1_DATA,  MAG_T2_DATA,  MAG_T3_DATA};
+	const RingBuff_t* TrackBuffer[3]  = {&Track1Data,  &Track2Data,  &Track3Data};
+	const uint8_t     TrackClock[3]   = {MAG_T1_CLOCK, MAG_T2_CLOCK, MAG_T3_CLOCK};
+	const uint8_t     TrackData[3]    = {MAG_T1_DATA,  MAG_T2_DATA,  MAG_T3_DATA};
 
 	/* Previous magnetic card control line' status, for later comparison */
 	uint8_t Magstripe_Prev = 0;
@@ -349,7 +349,7 @@ TASK(Magstripe_Read)
 		
 			/* Sample the next bit on the falling edge of the track's clock line, store key code into the track's buffer */
 			if (ClockLevel && ClockChanged)
-			  Buffer_StoreElement(TrackBuffer[Track], DataLevel ? KEY_1 : KEY_0);
+			  Buffer_StoreElement((RingBuff_t*)TrackBuffer[Track], DataLevel ? KEY_1 : KEY_0);
 		}
 
 		/* Retain the current card reader control line' status for later edge detection */
@@ -362,17 +362,9 @@ TASK(Magstripe_Read)
 	/* Loop through each of the track buffers after the card data has been read */
 	for (uint8_t Track = 0; Track < 3; Track++)
 	{
-		/* Check if the track buffer contains data */
-		if (TrackBuffer[Track]->Elements)
-		{
-			/* Add some enter key presses at the end of each track buffer that contains data */
-			Buffer_StoreElement(TrackBuffer[Track], KEY_ENTER);
-			Buffer_StoreElement(TrackBuffer[Track], KEY_ENTER);		
-		}
+		/* Add an enter key press at the end of each track buffer */
+		Buffer_StoreElement((RingBuff_t*)TrackBuffer[Track], KEY_ENTER);
 	}
-
-	/* Add an extra enter key press to the last track, to seperate out between card reads */
-	Buffer_StoreElement(&Track3Data, KEY_ENTER);
 }
 
 /** Task for the magnetic card reading and keyboard report generation. This task waits until a card is inserted,
@@ -383,41 +375,43 @@ TASK(USB_Keyboard_Report)
 	USB_KeyboardReport_Data_t KeyboardReportData;
 	bool                      SendReport = false;
 	
-	/* Only fetch the next key to send once the period between key presses has elapsed */
-	if (!(KeyDelayRemaining))
-	{
-		/* Create the next keyboard report for transmission to the host */
-		SendReport = GetNextReport(&KeyboardReportData);
-		
-		/* If a key is being sent, reset the key delay period counter */
-		if (SendReport)
-		  KeyDelayRemaining = 2;
-	}
-	
-	/* Check if the idle period is set and has elapsed */
-	if (IdleCount && !(IdleMSRemaining))
-	{
-		/* Idle period elapsed, indicate that a report must be sent */
-		SendReport = true;
-		
-		/* Reset the idle time remaining counter, must multiply by 4 to get the duration in milliseconds */
-		IdleMSRemaining = (IdleCount << 2);
-	}
-	
 	/* Check if the USB system is connected to a host */
 	if (USB_IsConnected)
 	{
 		/* Select the Keyboard Report Endpoint */
 		Endpoint_SelectEndpoint(KEYBOARD_EPNUM);
 
-		/* Check if Keyboard Endpoint Ready for Read/Write, and if we should send a report */
-		if (Endpoint_ReadWriteAllowed() && SendReport)
+		/* Check if Keyboard Endpoint Ready for Read/Write */
+		if (Endpoint_ReadWriteAllowed())
 		{
-			/* Write Keyboard Report Data */
-			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(USB_KeyboardReport_Data_t));
+			/* Only fetch the next key to send once the period between key presses has elapsed */
+			if (!(KeyDelayRemaining))
+			{
+				/* Create the next keyboard report for transmission to the host */
+				SendReport = GetNextReport(&KeyboardReportData);
+			}
+			
+			/* Check if the idle period is set and has elapsed */
+			if (IdleCount && !(IdleMSRemaining))
+			{
+				/* Idle period elapsed, indicate that a report must be sent */
+				SendReport = true;
+				
+				/* Reset the idle time remaining counter, must multiply by 4 to get the duration in milliseconds */
+				IdleMSRemaining = (IdleCount << 2);
+			}
 
-			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_ClearCurrentBank();
+			if (SendReport)
+			{
+				/* Write Keyboard Report Data */
+				Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(USB_KeyboardReport_Data_t));
+
+				/* Handshake the IN Endpoint - send the data to the host */
+				Endpoint_ClearCurrentBank();
+
+				/* Reset the key delay period counter */
+				KeyDelayRemaining = 2;
+			}
 		}
 	}
 }
