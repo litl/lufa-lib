@@ -46,7 +46,7 @@
 
 		#include "Descriptors.h"
 		#include "MagstripeHW.h"
-		#include "RingBuff.h"
+		#include "CircularBitBuffer.h"
 
 		#include <LUFA/Version.h>                    // Library Version Information
 		#include <LUFA/Common/ButtLoadTag.h>         // PROGMEM tags readable by the ButtLoad project

@@ -46,10 +46,10 @@
  *  \param BlockAddress  Data block starting address for the write sequence
  *  \param TotalBlocks   Number of blocks of data to write
  */
-void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
+void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-	uint16_t CurrDFByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFPage     = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFPageByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 
 	/* Create a buffer to hold the incomming endpoint packet's data */
 	uint8_t PacketBuffer[VIRTUAL_MEMORY_BLOCK_SIZE];
@@ -65,7 +65,7 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 	/* Send the dataflash buffer write command */
 	Dataflash_ToggleSelectedChipCS();
 	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
-	Dataflash_SendAddressBytes(0, CurrDFByte);
+	Dataflash_SendAddressBytes(0, CurrDFPageByte);
 
 	while (TotalBlocks && !(IsMassStoreReset))
 	{
@@ -79,7 +79,7 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 		/* Pointer to the block buffer for fast access */
 		uint8_t* BufferPos = (uint8_t*)&PacketBuffer;
 		
-		/* Counter for the number of bytes processed in the current block */
+		/* Counter for the number of 16 byte chunks processed in the current block */
 		uint16_t BufferByteDiv16 = 0;
 
 		/* Write one block of data to the dataflash */
@@ -87,7 +87,7 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 		{
 			/* Determine how many 16 byte blocks remain to be read from the current dataflash page and data block */
 			uint8_t BytesRemInBlockDiv16 = ((VIRTUAL_MEMORY_BLOCK_SIZE >> 4) - BufferByteDiv16);
-			uint8_t BytesRemInPageDiv16  = ((DATAFLASH_PAGE_SIZE - CurrDFByte) >> 4);
+			uint8_t BytesRemInPageDiv16  = ((DATAFLASH_PAGE_SIZE - CurrDFPageByte) >> 4);
 			
 			/* Determine which which is smaller - process the smaller amount to ensure that we don't either
 			   exceed the dataflash page or number of remaining bytes in the block */
@@ -116,14 +116,14 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 				Dataflash_SendByte(*(BufferPos++));
 				
 				/* Increment the dataflash page byte counter by the number of bytes processed */
-				CurrDFByte += 16;
+				CurrDFPageByte += 16;
 
 				/* Increment the number of 16 byte chunks processed counter */
 				BufferByteDiv16++;
 			}
 
 			/* Check if end of dataflash page reached */
-			if (CurrDFByte == DATAFLASH_PAGE_SIZE)
+			if (CurrDFPageByte == DATAFLASH_PAGE_SIZE)
 			{
 				/* Write the dataflash buffer contents back to the dataflash page */
 				Dataflash_ToggleSelectedChipCS();
@@ -131,7 +131,7 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 				Dataflash_SendAddressBytes(CurrDFPage, 0);
 
 				/* Reset the dataflash buffer counter, increment the page counter */
-				CurrDFByte = 0;
+				CurrDFPageByte = 0;
 				CurrDFPage++;
 
 				/* Select the next dataflash chip based on the new dataflash page index */
@@ -141,6 +141,7 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
 				Dataflash_WaitWhileBusy();
 
 				/* Copy selected dataflash's current page contents to the dataflash buffer */
+				Dataflash_ToggleSelectedChipCS();
 				Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
 				Dataflash_SendAddressBytes(CurrDFPage, 0);
 				Dataflash_WaitWhileBusy();
@@ -173,10 +174,10 @@ void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks
  *  \param BlockAddress  Data block starting address for the read sequence
  *  \param TotalBlocks   Number of blocks of data to read
  */
-void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
+void DataflashManager_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-	uint16_t CurrDFByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFPage     = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFPageByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 
 	/* Create a buffer to hold the outgoing endpoint packet's data */
 	uint8_t PacketBuffer[VIRTUAL_MEMORY_BLOCK_SIZE];
@@ -186,7 +187,7 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 	
 	/* Send the dataflash page read command */
 	Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
-	Dataflash_SendAddressBytes(CurrDFPage, CurrDFByte);
+	Dataflash_SendAddressBytes(CurrDFPage, CurrDFPageByte);
 
 	/* Initialize the internal dataflash buffers - four dummy bytes when using SPI interface */
 	Dataflash_SendByte(0);
@@ -207,7 +208,7 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 		{
 			/* Determine how many 16 byte blocks remain to be read from the current dataflash page and data block */
 			uint8_t BytesRemInBlockDiv16 = ((VIRTUAL_MEMORY_BLOCK_SIZE >> 4) - BufferByteDiv16);
-			uint8_t BytesRemInPageDiv16  = ((DATAFLASH_PAGE_SIZE - CurrDFByte) >> 4);
+			uint8_t BytesRemInPageDiv16  = ((DATAFLASH_PAGE_SIZE - CurrDFPageByte) >> 4);
 			
 			/* Determine which which is smaller - process the smaller amount to ensure that we don't either
 			 * exceed the dataflash page or number of remaining bytes in the block */
@@ -236,17 +237,17 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 				*(BufferPos++) = Dataflash_SendByte(0);
 				
 				/* Increment the dataflash page byte counter by the number of bytes processed */
-				CurrDFByte += 16;
+				CurrDFPageByte += 16;
 
 				/* Increment the number of 16 byte chunks processed counter */
 				BufferByteDiv16++;
 			}
 
 			/* Check if end of dataflash page reached */		
-			if (CurrDFByte == DATAFLASH_PAGE_SIZE)
+			if (CurrDFPageByte == DATAFLASH_PAGE_SIZE)
 			{
 				/* Reset the dataflash page byte counter, increment page index counter */
-				CurrDFByte = 0;
+				CurrDFPageByte = 0;
 				CurrDFPage++;
 
 				/* Select the next dataflash chip based on the new dataflash page index */
@@ -280,7 +281,7 @@ void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 }
 
 /** Disables the dataflash memory write protection bits on the board Dataflash ICs, if enabled. */
-void VirtualMemory_ResetDataflashProtections(void)
+void DataflashManager_ResetDataflashProtections(void)
 {
 	/* Select first dataflash chip, send the read status register command */
 	Dataflash_SelectChip(DATAFLASH_CHIP1);

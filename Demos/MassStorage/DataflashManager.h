@@ -60,8 +60,8 @@
 		#define VIRTUAL_MEMORY_BLOCKS               ((VIRTUAL_MEMORY_BYTES / VIRTUAL_MEMORY_BLOCK_SIZE) - 1)
 		
 	/* Function Prototypes: */
-		void VirtualMemory_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks);
-		void VirtualMemory_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks);
-		void VirtualMemory_ResetDataflashProtections(void);
+		void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks);
+		void DataflashManager_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks);
+		void DataflashManager_ResetDataflashProtections(void);
 		
 #endif

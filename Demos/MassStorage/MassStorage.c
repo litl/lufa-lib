@@ -76,7 +76,7 @@ int main(void)
 	Dataflash_Init(SPI_SPEED_FCPU_DIV_2);
 
 	/* Clear Dataflash sector protections, if enabled */
-	VirtualMemory_ResetDataflashProtections();
+	DataflashManager_ResetDataflashProtections();
 	
 	/* Indicate USB not ready */
 	UpdateStatus(Status_USBNotReady);

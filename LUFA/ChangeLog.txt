@@ -11,6 +11,8 @@
   *  - PWM timer mode in AudioOut demo changed to Fast PWM for speed
   *  - Updated Magstripe project to work with the latest hardware revision
   *  - Fixed library not responding to the BCERRI flag correctly in host mode, leading to device lockups
+  *  - Fixed library handling Get Descriptor requests when not addressed as standard requests to the device or interface
+  *  - Fixed serious data corruption issue in MassStorage demo dataflash write routine
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

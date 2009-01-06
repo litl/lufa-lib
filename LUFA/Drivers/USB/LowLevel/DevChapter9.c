@@ -73,8 +73,12 @@ void USB_Device_ProcessControlPacket(void)
 
 			break;
 		case REQ_GetDescriptor:
-			USB_Device_GetDescriptor();
-			RequestHandled = true;
+			if ((bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE)) ||
+			    (bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_INTERFACE)))
+			{
+				USB_Device_GetDescriptor();
+				RequestHandled = true;
+			}
 			
 			break;
 		case REQ_GetConfiguration:
