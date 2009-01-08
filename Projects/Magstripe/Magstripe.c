@@ -280,22 +280,11 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 {
 	static bool OddReport   = false;
 	static bool MustRelease = false;
-	static bool MustNewLine = false;
 
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_KeyboardReport_Data_t));
 
-	if (MustNewLine)
-	{
-		/* Set the keycode to the code for an enter key press */
-		ReportData->KeyCode[0] = KEY_ENTER;
-		
-		/* Newline has been sent, clear flag */
-		MustNewLine = false;
-		
-		return true;
-	}
-	else if (Track1Data.Elements || Track2Data.Elements || Track3Data.Elements)
+	if (Track1Data.Elements || Track2Data.Elements || Track3Data.Elements)
 	{
 		/* Toggle the odd report number indicator */
 		OddReport   = !OddReport;
@@ -319,9 +308,12 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 			/* Set the report key code to the key code for the next data bit */
 			ReportData->KeyCode[0] = BitBuffer_GetNextBit(Buffer) ? KEY_1 : KEY_0;
 			
-			/* If buffer is now empty, indicate that a new line must be sent next */
+			/* If buffer is now empty, a new line must be sent instead of the terminating bit */
 			if (!(Buffer->Elements))
-			  MustNewLine = true;
+			{
+				/* Set the keycode to the code for an enter key press */
+				ReportData->KeyCode[0] = KEY_ENTER;				
+			}
 		}
 
 		return true;
@@ -341,7 +333,7 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 TASK(Magstripe_Read)
 {
 	/* Arrays to hold the buffer pointers, clock and data bit masks for the seperate card tracks */
-	const BitBuffer_t* TrackBuffer[3] = {&Track1Data,  &Track2Data,  &Track3Data};
+	BitBuffer_t* const TrackBuffer[3] = {&Track1Data,  &Track2Data,  &Track3Data};
 	const uint8_t      TrackClock[3]  = {MAG_T1_CLOCK, MAG_T2_CLOCK, MAG_T3_CLOCK};
 	const uint8_t      TrackData[3]   = {MAG_T1_DATA,  MAG_T2_DATA,  MAG_T3_DATA};
 
@@ -372,7 +364,7 @@ TASK(Magstripe_Read)
 		
 			/* Sample the next bit on the falling edge of the track's clock line, store key code into the track's buffer */
 			if (ClockLevel && ClockChanged)
-			  BitBuffer_StoreNextBit((BitBuffer_t*)TrackBuffer[Track], DataLevel);
+			  BitBuffer_StoreNextBit(TrackBuffer[Track], DataLevel);
 		}
 
 		/* Retain the current card reader control line' status for later edge detection */
@@ -381,6 +373,11 @@ TASK(Magstripe_Read)
 		/* Retrieve the new card reader control line states */
 		Magstripe_LCL  = Magstripe_GetStatus();
 	}
+	
+	/* Add terminators to the end of each track buffer */
+	BitBuffer_StoreNextBit(&Track1Data, 0);
+	BitBuffer_StoreNextBit(&Track2Data, 0);
+	BitBuffer_StoreNextBit(&Track3Data, 0);
 }
 
 /** Task for the magnetic card reading and keyboard report generation. This task waits until a card is inserted,
