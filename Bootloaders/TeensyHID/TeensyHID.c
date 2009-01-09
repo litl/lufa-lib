@@ -39,7 +39,7 @@
 /* Global Variables: */
 /** Flag to indicate if the bootloader should be running, or should exit and allow the application code to run
  *  via a soft reset. When cleared, the bootloader will abort, the USB interface will shut down and the application
- *  jumped to via an indirect jump to location 0x0000.
+ *  started via a forced watchdog reset.
  */
 bool RunBootloader = true;
 
@@ -60,34 +60,16 @@ int main(void)
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
 
-	/* Initialize USB Subsystem */
+	/* Initialize USB subsystem */
 	USB_Init();
 	
 	while (RunBootloader)
 	  USB_USBTask();
-	
-	/* Shut down the USB subsystem */
-	USB_ShutDown();
-	
-	/* Relocate the interrupt vector table back to the application section */
-	MCUCR = (1 << IVCE);
-	MCUCR = 0;
 
-	/* Reset any used hardware ports back to their defaults */
-	PORTD = 0;
-	DDRD  = 0;
-	
-	#if defined(PORTE)
-	PORTE = 0;
-	DDRE  = 0;
-	#endif
-	
-	/* Re-enable RWW section */
-	boot_rww_enable();
-
-	/* Start the user application */
-	AppPtr_t AppStartPtr = (AppPtr_t)0x0000;
-	AppStartPtr();	
+	/* Enable the watchdog and force a timeout to reset the AVR */
+	wdt_enable(WDTO_250MS);
+					
+	for (;;);
 }
 
 /** Event handler for the USB_Disconnect event. This indicates that the bootloader should exit and the user
@@ -95,7 +77,6 @@ int main(void)
  */
 EVENT_HANDLER(USB_Disconnect)
 {
-	/* Upon disconnection, run user application */
 	RunBootloader = false;
 }
 
@@ -133,7 +114,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Check if the command is a program page command, or a start application command */
 				if (PageAddress == TEENSY_STARTAPPLICATION)
 				{
-					/* Exit the bootloader at next opportunity */
 					RunBootloader = false;
 				}
 				else
@@ -159,6 +139,9 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					/* Write the filled FLASH page to memory */
 					boot_page_write(PageAddress);
 					boot_spm_busy_wait();
+
+					/* Re-enable RWW section */
+					boot_rww_enable();
 				}
 
 				Endpoint_ClearSetupOUT();

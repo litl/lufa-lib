@@ -151,7 +151,7 @@
 	/* Function Prototypes: */
 		void UpdateStatus(uint8_t CurrentStatus);
 
-		#if defined(INCLUDE_FROM_MASSSTORAGEDUALLUN_C)
+		#if defined(INCLUDE_FROM_MASSSTORAGE_C)
 			static bool ReadInCommandBlock(void);
 			static void ReturnCommandStatus(void);
 		#endif

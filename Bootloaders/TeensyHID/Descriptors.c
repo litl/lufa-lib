@@ -161,9 +161,9 @@ USB_Descriptor_String_t LanguageString =
  */
 USB_Descriptor_String_t ProductString =
 {
-	Header:                 {Size: USB_STRING_LEN(24), Type: DTYPE_String},
+	Header:                 {Size: USB_STRING_LEN(21), Type: DTYPE_String},
 		
-	UnicodeString:          L"AVR TeensyHID Bootloader"
+	UnicodeString:          L"AVR Teensy Bootloader"
 };
 
 /** This function is called by the library when in device mode, and must be overridden (see StdDescriptors.h

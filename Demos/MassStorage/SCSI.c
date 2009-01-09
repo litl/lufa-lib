@@ -187,7 +187,8 @@ static bool SCSI_Command_Inquiry(void)
 	Endpoint_ClearCurrentBank();
 
 	/* Succeed the command and update the bytes transferred counter */
-	CommandBlock.DataTransferLength -= BytesTransferred;	
+	CommandBlock.DataTransferLength -= BytesTransferred;
+	
 	return true;
 }
 
@@ -246,6 +247,7 @@ static bool SCSI_Command_Read_Capacity_10(void)
 
 	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.DataTransferLength -= 8;
+	
 	return true;
 }
 
@@ -306,7 +308,9 @@ static bool SCSI_Command_Send_Diagnostic(void)
 	}
 	#endif
 	
-	/* All Dataflash ICs are working correctly, succeed the command */
+	/* Succeed the command and update the bytes transferred counter */
+	CommandBlock.DataTransferLength = 0;
+	
 	return true;
 }
 
@@ -354,6 +358,7 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	  DataflashManager_WriteBlocks(BlockAddress, TotalBlocks);
 
 	/* Update the bytes transferred counter and succeed the command */
-	CommandBlock.DataTransferLength -= (VIRTUAL_MEMORY_BLOCK_SIZE * TotalBlocks);
+	CommandBlock.DataTransferLength = 0;
+	
 	return true;
 }

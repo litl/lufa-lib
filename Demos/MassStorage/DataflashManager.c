@@ -56,11 +56,13 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 		
 	/* Select the dataflash IC based on the page number */
 	Dataflash_SelectChipFromPage(CurrDFPage);
+	Dataflash_WaitWhileBusy();
 	
 	/* Copy selected dataflash's current page contents to the dataflash buffer */
+	Dataflash_ToggleSelectedChipCS();
 	Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
 	Dataflash_SendAddressBytes(CurrDFPage, 0);
-	Dataflash_WaitWhileBusy();	
+	Dataflash_WaitWhileBusy();
 
 	/* Send the dataflash buffer write command */
 	Dataflash_ToggleSelectedChipCS();
@@ -136,8 +138,6 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 
 				/* Select the next dataflash chip based on the new dataflash page index */
 				Dataflash_SelectChipFromPage(CurrDFPage);
-				
-				/* Wait until the selected dataflash is ready to be written to */
 				Dataflash_WaitWhileBusy();
 
 				/* Copy selected dataflash's current page contents to the dataflash buffer */
@@ -184,8 +184,10 @@ void DataflashManager_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBloc
 		
 	/* Select the dataflash IC based on the page number */
 	Dataflash_SelectChipFromPage(CurrDFPage);
+	Dataflash_WaitWhileBusy();
 	
 	/* Send the dataflash page read command */
+	Dataflash_ToggleSelectedChipCS();
 	Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
 	Dataflash_SendAddressBytes(CurrDFPage, CurrDFPageByte);
 
@@ -252,8 +254,10 @@ void DataflashManager_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBloc
 
 				/* Select the next dataflash chip based on the new dataflash page index */
 				Dataflash_SelectChipFromPage(CurrDFPage);
+				Dataflash_WaitWhileBusy();
 
 				/* Send the dataflash page read command */
+				Dataflash_ToggleSelectedChipCS();
 				Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
 				Dataflash_SendAddressBytes(CurrDFPage, 0);
 

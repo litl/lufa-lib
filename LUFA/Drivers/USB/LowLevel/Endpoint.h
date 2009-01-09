@@ -101,22 +101,26 @@
 			 */
 			#define ENDPOINT_EPSIZE_MASK                       0x7FF
 			
+			/** Maximum size in bytes of a given endpoint.
+			 *
+			 *  \param n  Endpoint number, a value between 0 and (ENDPOINT_TOTAL_ENDPOINTS - 1)
+			 */				
+			#define ENDPOINT_MAX_SIZE(n)                      _ENDPOINT_GET_MAXSIZE(n)
+
+			/** Indicates if the given endpoint supports double banking.
+			 *
+			 *  \param n  Endpoint number, a value between 0 and (ENDPOINT_TOTAL_ENDPOINTS - 1)
+			 */				
+			#define ENDPOINT_DOUBLEBANK_SUPPORTED(n)          _ENDPOINT_GET_DOUBLEBANK(n)
+
 			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER) || defined(__DOXYGEN__)
 				/** Total number of endpoints (including the default control endpoint at address 0) which may
 				 *  be used in the device. Different USB AVR models support different amounts of endpoints,
 				 *  this value reflects the maximum number of endpoints for the currently selected AVR model.
 				 */
-				#define ENDPOINT_MAX_ENDPOINTS                  7
-
-				/** Size in bytes of the largest endpoint bank size possible in the device. Not all banks on
-				 *  each AVR model supports the largest bank size possible on the device; different endpoint
-				 *  numbers support different maximum bank sizes. This value reflects the largest possible
-				 *  bank of any endpoint on the currently selected USB AVR model.
-				 */
-				#define ENDPOINT_MAX_SIZE                       256
+				#define ENDPOINT_TOTAL_ENDPOINTS                7
 			#else
-				#define ENDPOINT_MAX_ENDPOINTS                  5			
-				#define ENDPOINT_MAX_SIZE                       64			
+				#define ENDPOINT_TOTAL_ENDPOINTS                5			
 			#endif
 
 			/** Interrupt definition for the endpoint SETUP interrupt (for CONTROL type endpoints). Should be
@@ -767,8 +771,32 @@
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Macros: */
-			#define Endpoint_AllocateMemory()          MACROS{ UECFG1X |=  (1 << ALLOC);                  }MACROE
-			#define Endpoint_DeallocateMemory()        MACROS{ UECFG1X &= ~(1 << ALLOC);                  }MACROE
+			#define Endpoint_AllocateMemory()              MACROS{ UECFG1X |=  (1 << ALLOC);                  }MACROE
+			#define Endpoint_DeallocateMemory()            MACROS{ UECFG1X &= ~(1 << ALLOC);                  }MACROE
+			
+			#define _ENDPOINT_GET_MAXSIZE(n)               _ENDPOINT_GET_MAXSIZE2(ENDPOINT_DETAILS_EP ## n)
+			#define _ENDPOINT_GET_MAXSIZE2(details)        _ENDPOINT_GET_MAXSIZE3(details)
+			#define _ENDPOINT_GET_MAXSIZE3(maxsize, db)    maxsize
+
+			#define _ENDPOINT_GET_DOUBLEBANK(n)            _ENDPOINT_GET_DOUBLEBANK2(ENDPOINT_DETAILS_EP ## n)
+			#define _ENDPOINT_GET_DOUBLEBANK2(details)     _ENDPOINT_GET_DOUBLEBANK3(details)
+			#define _ENDPOINT_GET_DOUBLEBANK3(maxsize, db) db
+			
+			#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
+				#define ENDPOINT_DETAILS_EP0               64,  true
+				#define ENDPOINT_DETAILS_EP1               256, true
+				#define ENDPOINT_DETAILS_EP2               64,  true
+				#define ENDPOINT_DETAILS_EP3               64,  true
+				#define ENDPOINT_DETAILS_EP4               64,  true
+				#define ENDPOINT_DETAILS_EP5               64,  true
+				#define ENDPOINT_DETAILS_EP6               64,  true
+			#else
+				#define ENDPOINT_DETAILS_EP0               64,  true
+				#define ENDPOINT_DETAILS_EP1               64,  false
+				#define ENDPOINT_DETAILS_EP2               64,  false
+				#define ENDPOINT_DETAILS_EP3               64,  true
+				#define ENDPOINT_DETAILS_EP4               64,  true			
+			#endif
 
 			#if defined(STATIC_ENDPOINT_CONFIGURATION)
 				#define Endpoint_ConfigureEndpoint(Number, Type, Direction, Size, Banks)        \

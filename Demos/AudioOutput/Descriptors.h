@@ -148,7 +148,7 @@
 		 *  at least 192 bytes for correct output, thus the smaller 128 byte maximum endpoint size on some of the smaller
 		 *  USB AVR models will result in unavoidable distorted output.
 		 */
-		#define AUDIO_STREAM_EPSIZE          ENDPOINT_MAX_SIZE
+		#define AUDIO_STREAM_EPSIZE          ENDPOINT_MAX_SIZE(AUDIO_STREAM_EPNUM)
 		
 		/** Sample frequency of the data being transmitted through the streaming endpoint. */
 		#define AUDIO_SAMPLE_FREQUENCY       48000

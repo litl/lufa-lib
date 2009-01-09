@@ -71,7 +71,7 @@ void Endpoint_ClearEndpoints(void)
 {
 	UEINT = 0;
 
-	for (uint8_t EPNum = 0; EPNum < ENDPOINT_MAX_ENDPOINTS; EPNum++)
+	for (uint8_t EPNum = 0; EPNum < ENDPOINT_TOTAL_ENDPOINTS; EPNum++)
 	{
 		Endpoint_SelectEndpoint(EPNum);	
 		UEIENX = 0;
@@ -114,6 +114,9 @@ uint8_t Endpoint_Discard_Stream(uint16_t Length
 {
 	uint8_t  ErrorCode;
 	
+	if ((ErrorCode = Endpoint_WaitUntilReady()))
+	  return ErrorCode;
+
 	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
@@ -148,6 +151,9 @@ uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length
 	uint8_t* DataStream   = (uint8_t*)Buffer;
 	uint8_t  ErrorCode;
 	
+	if ((ErrorCode = Endpoint_WaitUntilReady()))
+	  return ErrorCode;
+
 	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
@@ -182,6 +188,9 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
 	uint8_t  ErrorCode;
 	
+	if ((ErrorCode = Endpoint_WaitUntilReady()))
+	  return ErrorCode;
+
 	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
@@ -216,6 +225,9 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length
 	uint8_t* DataStream = (uint8_t*)Buffer;
 	uint8_t  ErrorCode;
 	
+	if ((ErrorCode = Endpoint_WaitUntilReady()))
+	  return ErrorCode;
+
 	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
@@ -250,6 +262,9 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
 	uint8_t  ErrorCode;
 	
+	if ((ErrorCode = Endpoint_WaitUntilReady()))
+	  return ErrorCode;
+
 	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))

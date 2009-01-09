@@ -13,6 +13,13 @@
   *  - Fixed library not responding to the BCERRI flag correctly in host mode, leading to device lockups
   *  - Fixed library handling Get Descriptor requests when not addressed as standard requests to the device or interface
   *  - Fixed serious data corruption issue in MassStorage demo dataflash write routine
+  *  - Added new NO_CLEARSET_FEATURE_REQUEST compile time token
+  *  - USB task now retores previous global interrupt state after execution, rather than forcing global interrupts to be enabled
+  *  - Fixed USB_DeviceEnumerationComplete event firing after each configuration change, rather than once after the initial configuration
+  *  - Added ENDPOINT_DOUBLEBANK_SUPPORTED() macros to Endpoint.h, altered ENDPOINT_MAX_SIZE() to allow user to specify endpoint
+  *  - ENDPOINT_MAX_ENDPOINTS changed to ENDPOINT_TOTAL_ENDPOINTS
+  *  - Endpoint and Pipe non-control stream functions now ensure endpoint or pipe is ready before reading or writing
+  *  - Changed Teensy bootloader to use a watchdog reset when exiting rather than a software jump
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

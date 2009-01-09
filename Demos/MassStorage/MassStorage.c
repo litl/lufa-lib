@@ -34,7 +34,7 @@
  *  is responsible for the initial application hardware configuration.
  */
 
-#define  INCLUDE_FROM_MASSSTORAGEDUALLUN_C
+#define  INCLUDE_FROM_MASSSTORAGE_C
 #include "MassStorage.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -134,11 +134,11 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	/* Setup Mass Storage In and Out Endpoints */
 	Endpoint_ConfigureEndpoint(MASS_STORAGE_IN_EPNUM, EP_TYPE_BULK,
 		                       ENDPOINT_DIR_IN, MASS_STORAGE_IO_EPSIZE,
-	                           ENDPOINT_BANK_SINGLE);
+	                           ENDPOINT_BANK_DOUBLE);
 
 	Endpoint_ConfigureEndpoint(MASS_STORAGE_OUT_EPNUM, EP_TYPE_BULK,
 		                       ENDPOINT_DIR_OUT, MASS_STORAGE_IO_EPSIZE,
-	                           ENDPOINT_BANK_SINGLE);
+	                           ENDPOINT_BANK_DOUBLE);
 
 	/* Indicate USB connected and ready */
 	UpdateStatus(Status_USBReady);
@@ -332,7 +332,7 @@ static void ReturnCommandStatus(void)
 		if (IsMassStoreReset)
 		  return;
 	}
-
+	
 	/* Write the CSW to the endpoint */
 	Endpoint_Write_Stream_LE(&CommandStatus, sizeof(CommandStatus),
 	                          AbortOnMassStoreReset);

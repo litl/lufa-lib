@@ -37,7 +37,7 @@ volatile bool      USB_IsConnected;
 volatile bool      USB_IsInitialized;
 
 #if defined(USB_CAN_BE_BOTH)
-         TaskPtr_t USB_TaskPtr;
+TaskPtr_t          USB_TaskPtr;
 #endif
 
 #if defined(USB_CAN_BE_HOST)
@@ -82,9 +82,10 @@ static void USB_DeviceTask(void)
 
 		if (Endpoint_IsSetupReceived())
 		{
-			cli();
-			USB_Device_ProcessControlPacket();
-			sei();
+			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+			{
+				USB_Device_ProcessControlPacket();
+			}
 		}
 		
 		Endpoint_SelectEndpoint(PrevEndpoint);

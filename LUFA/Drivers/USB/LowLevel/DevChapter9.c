@@ -55,15 +55,17 @@ void USB_Device_ProcessControlPacket(void)
 			}
 
 			break;
+#if !defined(NO_CLEARSET_FEATURE_REQUEST)
 		case REQ_ClearFeature:
 		case REQ_SetFeature:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_ENDPOINT))
 			{
-				USB_Device_ClearSetFeature(bRequest);
+				USB_Device_ClearSetFeature(bRequest, bmRequestType);
 				RequestHandled = true;
 			}
 
 			break;
+#endif
 		case REQ_SetAddress:
 			if (bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE))
 			{
@@ -127,7 +129,8 @@ static void USB_Device_SetAddress(void)
 
 static void USB_Device_SetConfiguration(void)
 {
-	uint8_t                  wValue_LSB           = Endpoint_Read_Byte();
+	uint8_t wValue_LSB        = Endpoint_Read_Byte();
+	bool    AlreadyConfigured = (USB_ConfigurationNumber != 0);
 
 #if defined(USE_SINGLE_DEVICE_CONFIGURATION)
 	if (wValue_LSB > 1)
@@ -153,7 +156,7 @@ static void USB_Device_SetConfiguration(void)
 
 	Endpoint_ClearSetupIN();
 
-	if (!(USB_ConfigurationNumber))
+	if (!(AlreadyConfigured) && USB_ConfigurationNumber)
 	  RAISE_EVENT(USB_DeviceEnumerationComplete);
 
 	RAISE_EVENT(USB_ConfigurationChanged);
@@ -265,46 +268,46 @@ static void USB_Device_GetStatus(const uint8_t bmRequestType)
 	Endpoint_ClearSetupOUT();
 }
 
-static void USB_Device_ClearSetFeature(const uint8_t bRequest)
+#if !defined(NO_CLEARSET_FEATURE_REQUEST)
+static void USB_Device_ClearSetFeature(const uint8_t bRequest, const uint8_t bmRequestType)
 {
-	uint8_t wValue_LSB = Endpoint_Read_Byte();
-	Endpoint_Discard_Byte();
-
-	uint8_t wIndex_LSB = Endpoint_Read_Byte();
+	uint16_t wValue = Endpoint_Read_Word_LE();
+	uint16_t wIndex = Endpoint_Read_Word_LE();
 	
-	switch (wValue_LSB)
+	switch (bmRequestType & CONTROL_REQTYPE_RECIPIENT)
 	{
-		case FEATURE_ENDPOINT_HALT:
-			if (wIndex_LSB == ENDPOINT_CONTROLEP)
-			  return;
-
-			Endpoint_SelectEndpoint(wIndex_LSB);
-
-			if (Endpoint_IsEnabled())
-			{				
-				if (bRequest == REQ_ClearFeature)
+		case REQREC_ENDPOINT:
+			if (wValue == FEATURE_ENDPOINT_HALT)
+			{
+				uint8_t EndpointIndex = (wIndex & ENDPOINT_EPNUM_MASK);
+				
+				if (EndpointIndex != ENDPOINT_CONTROLEP)
 				{
-					Endpoint_ClearStall();
-					Endpoint_ResetFIFO(wIndex_LSB);
-					Endpoint_ResetDataToggle();
-				}
-				else
-				{
-					Endpoint_StallTransaction();
-				}
+					Endpoint_SelectEndpoint(EndpointIndex);
 
-				Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+					if (Endpoint_IsEnabled())
+					{				
+						if (bRequest == REQ_ClearFeature)
+						{
+							Endpoint_ClearStall();
+							Endpoint_ResetFIFO(EndpointIndex);
+							Endpoint_ResetDataToggle();
+						}
+						else
+						{
+							Endpoint_StallTransaction();						
+						}
+					}
+
+					Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+					Endpoint_ClearSetupReceived();
+					Endpoint_ClearSetupIN();
+				}
 			}
 			
 			break;
-		case FEATURE_REMOTE_WAKEUP:
-			USB_RemoteWakeupEnabled = (bRequest == REQ_SetFeature);
-		
-			break;
 	}
-	
-	Endpoint_ClearSetupReceived();
-	Endpoint_ClearSetupIN();
 }
+#endif
 
 #endif
