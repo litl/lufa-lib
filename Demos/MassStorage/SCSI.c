@@ -337,8 +337,10 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	((uint8_t*)&TotalBlocks)[1]  = CommandBlock.SCSICommandData[7];
 	((uint8_t*)&TotalBlocks)[0]  = CommandBlock.SCSICommandData[8];
 	
+	#if (TOTAL_LUNS > 1)
 	/* Adjust the given block address to the real media address based on the selected LUN */
 	BlockAddress += (CommandBlock.LUN * LUN_MEDIA_SIZE);
+	#endif
 	
 	/* Check if the block address is outside the maximum allowable value */
 	if (BlockAddress > VIRTUAL_MEMORY_BLOCKS)
@@ -358,7 +360,7 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	  DataflashManager_WriteBlocks(BlockAddress, TotalBlocks);
 
 	/* Update the bytes transferred counter and succeed the command */
-	CommandBlock.DataTransferLength = 0;
+	CommandBlock.DataTransferLength -= ((uint32_t)TotalBlocks * VIRTUAL_MEMORY_BLOCK_SIZE);
 	
 	return true;
 }

@@ -38,8 +38,8 @@ uint32_t               MassStore_Tag = 1;
 
 static void MassStore_SendCommand(void)
 {
-	/* Each transmission should have a unique tag value */
-	if (MassStore_Tag++ == 0xFFFFFFFE)
+	/* Each transmission should have a unique tag value, excluding valued 0 and 0xFFFFFFFF */
+	if (++MassStore_Tag == 0xFFFFFFFF)
 	  MassStore_Tag = 1;
 
 	/* Select the OUT data pipe for CBW transmission */
@@ -51,9 +51,6 @@ static void MassStore_SendCommand(void)
 
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_ClearCurrentBank();
-
-	/* Some buggy devices require a delay here before the pipe freezing or they will lock up */
-	USB_Host_WaitMS(1);
 
 	/* Freeze pipe after use */
 	Pipe_Freeze();
@@ -144,8 +141,6 @@ static uint8_t MassStore_SendReceiveData(void* BufferPtr)
 	
 	/* Acknowedge the packet */
 	Pipe_ClearCurrentBank();
-	
-	USB_Host_WaitMS(1);
 
 	/* Freeze used pipe after use */
 	Pipe_Freeze();
@@ -164,8 +159,6 @@ void MassStore_GetReturnedStatus(void)
 	
 	/* Clear the data ready for next reception */
 	Pipe_ClearCurrentBank();
-
-	USB_Host_WaitMS(1);
 
 	/* Freeze the IN pipe after use */
 	Pipe_Freeze();
@@ -242,7 +235,7 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 				{
 					Signature:          CBW_SIGNATURE,
 					Tag:                MassStore_Tag,
-					DataTransferLength: (Blocks * DEVICE_BLOCK_SIZE),
+					DataTransferLength: ((uint32_t)Blocks * DEVICE_BLOCK_SIZE),
 					Flags:              COMMAND_DIRECTION_DATA_IN,
 					LUN:                LUNIndex,
 					SCSICommandLength:  10
@@ -292,7 +285,7 @@ uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockA
 				{
 					Signature:          CBW_SIGNATURE,
 					Tag:                MassStore_Tag,
-					DataTransferLength: (Blocks * DEVICE_BLOCK_SIZE),
+					DataTransferLength: ((uint32_t)Blocks * DEVICE_BLOCK_SIZE),
 					Flags:              COMMAND_DIRECTION_DATA_OUT,
 					LUN:                LUNIndex,
 					SCSICommandLength:  10

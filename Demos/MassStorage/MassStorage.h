@@ -65,7 +65,7 @@
 		 *  each drive - this can be set to any positive non-zero amount. */
 		#define TOTAL_LUNS                 1
 		
-		/** Size of each LUN, calculated from the total capacity divided by the total number of Logical Units in the device. */
+		/** Blocks in each LUN, calculated from the total capacity divided by the total number of Logical Units in the device. */
 		#define LUN_MEDIA_SIZE             (VIRTUAL_MEMORY_BLOCKS / TOTAL_LUNS)    
 		
 		/** Magic signature for a Command Block Wrapper used in the Mass Storage Bulk-Only transport protocol. */

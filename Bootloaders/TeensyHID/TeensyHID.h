@@ -41,16 +41,13 @@
 		#include <avr/wdt.h>
 		#include <avr/boot.h>
 		#include <avr/wdt.h>
+		#include <util/delay.h>
 		#include <stdbool.h>
 
 		#include "Descriptors.h"
 
 		#include <LUFA/Version.h>                    // Library Version Information
 		#include <LUFA/Drivers/USB/USB.h>            // USB Functionality
-
-	/* Type Defines: */
-		/** Type define for a non-returning pointer to the start of the loaded application in flash memory. */
-		typedef void (*AppPtr_t)(void) ATTR_NO_RETURN;
 		
 	/* Preprocessor Checks: */
 		#if !defined(__AVR_AT90USB162__)

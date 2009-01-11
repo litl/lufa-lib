@@ -20,6 +20,7 @@
   *  - ENDPOINT_MAX_ENDPOINTS changed to ENDPOINT_TOTAL_ENDPOINTS
   *  - Endpoint and Pipe non-control stream functions now ensure endpoint or pipe is ready before reading or writing
   *  - Changed Teensy bootloader to use a watchdog reset when exiting rather than a software jump
+  *  - Fixed integer promotion error in MassStorage and MassStorageHost demos, corrupting read/write transfers
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *
