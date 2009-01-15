@@ -79,17 +79,14 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		{
 			RAISE_EVENT(USB_VBUSConnect);
 			
-			if (USB_IsInitialized)
-			{
-				if (USB_IsConnected)
-				  RAISE_EVENT(USB_Disconnect);
+			if (USB_IsConnected)
+			  RAISE_EVENT(USB_Disconnect);
 
-				USB_SetupInterface();
+			USB_SetupInterface();
 				
-				USB_IsConnected = true;
-					
-				RAISE_EVENT(USB_Connect);
-			}
+			USB_IsConnected = true;
+				
+			RAISE_EVENT(USB_Connect);
 		}
 		else
 		{
@@ -100,11 +97,11 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 			USB_PLL_Off();
 			USB_REG_Off();
 
+			USB_IsConnected = false;
+
 			RAISE_EVENT(USB_VBUSDisconnect);
 			
 			USB_INT_Clear(USB_INT_VBUS);
-			
-			USB_IsConnected = false;
 		}
 	}
 	#endif
@@ -120,6 +117,8 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		
 		if (!(USB_Options & USB_OPT_MANUAL_PLL))
 		  USB_PLL_Off();
+
+		USB_IsSuspended = true;
 
 		RAISE_EVENT(USB_Suspend);
 
@@ -148,6 +147,8 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		USB_IsConnected = true;
 		RAISE_EVENT(USB_Connect);
 		#endif
+
+		USB_IsSuspended = false;
 
 		RAISE_EVENT(USB_WakeUp);
 	}
@@ -244,7 +245,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 
 		RAISE_EVENT(USB_UIDChange);
 		
-		USB_SetupInterface();	
+		USB_SetupInterface();
 	}
 	#endif
 }

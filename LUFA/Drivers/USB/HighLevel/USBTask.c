@@ -33,12 +33,9 @@
 #define  INCLUDE_FROM_USBTASK_C
 #include "USBTask.h"
 
+volatile bool      USB_IsSuspended;
 volatile bool      USB_IsConnected;
 volatile bool      USB_IsInitialized;
-
-#if defined(USB_CAN_BE_BOTH)
-TaskPtr_t          USB_TaskPtr;
-#endif
 
 #if defined(USB_CAN_BE_HOST)
 volatile uint8_t   USB_HostState;
@@ -51,25 +48,12 @@ TASK(USB_USBTask)
 	#elif defined(USB_DEVICE_ONLY)
 		USB_DeviceTask();
 	#else
-		if (USB_IsInitialized)
-		  (*USB_TaskPtr)();
+		if (USB_CurrentMode == USB_MODE_DEVICE)
+		  USB_DeviceTask();
+		else (USB_CurrentMode == USB_MODE_HOST)
+		  USB_HostTask();
 	#endif
 }
-
-#if defined(USB_CAN_BE_BOTH)
-void USB_InitTaskPointer(void)
-{
-	if (USB_CurrentMode != USB_MODE_NONE)
-	{
-		if (USB_CurrentMode == USB_MODE_DEVICE)
-		  USB_TaskPtr = (TaskPtr_t)USB_DeviceTask;
-		else
-		  USB_TaskPtr = (TaskPtr_t)USB_HostTask;
-
-		USB_IsInitialized = true;
-	}
-}
-#endif
 
 #if defined(USB_CAN_BE_DEVICE)
 static void USB_DeviceTask(void)

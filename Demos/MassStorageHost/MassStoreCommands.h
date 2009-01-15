@@ -76,7 +76,7 @@
 		{
 			uint32_t Signature;
 			uint32_t Tag;
-			uint32_t SCSICommandResidue;
+			uint32_t DataTransferResidue;
 			uint8_t  Status;			
 		} CommandStatusWrapper_t;
 		
@@ -104,8 +104,8 @@
 
 		typedef struct
 		{
-			uint32_t BlockSize;
 			uint32_t Blocks;
+			uint32_t BlockSize;
 		} SCSI_Capacity_t;
 
 	/* Enums: */
@@ -116,37 +116,28 @@
 			Phase_Error  = 2
 		};
 		
-		enum MassStorageHost_ReadWriteErrorCodes_t
-		{
-			NoError            = 0,
-			InPipeStalled      = 1,
-			OutPipeStalled     = 2,
-			DeviceDisconnected = 3,
-			CommandTimeout     = 4
-		};
-		
 	/* External Variables: */
 		extern CommandStatusWrapper_t SCSICommandStatus;
 		
 	/* Function Prototypes: */
 		#if defined(INCLUDE_FROM_MASSSTORE_COMMANDS_C)
-			static void    MassStore_SendCommand(void);
+			static uint8_t MassStore_SendCommand(void);
 			static uint8_t MassStore_WaitForDataReceived(void);
 			static uint8_t MassStore_SendReceiveData(void* BufferPtr) ATTR_NON_NULL_PTR_ARG(1);
 		#endif
 		
-		void    MassStore_GetReturnedStatus(void);
+		uint8_t MassStore_GetReturnedStatus(void);
 		uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum);
 
 		uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_Response_t* const SensePtr)
 		                               ATTR_NON_NULL_PTR_ARG(2);
 		uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
-		                                  const uint8_t Blocks, void* BufferPtr) ATTR_NON_NULL_PTR_ARG(4);
+		                                  const uint8_t Blocks, const uint16_t BlockSize, void* BufferPtr) ATTR_NON_NULL_PTR_ARG(5);
 		uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
-                                           const uint8_t Blocks, void* BufferPtr);
+                                           const uint8_t Blocks, const uint16_t BlockSize, void* BufferPtr) ATTR_NON_NULL_PTR_ARG(5);
 		uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* const CapacityPtr)
 		                               ATTR_NON_NULL_PTR_ARG(2);
-		void    MassStore_TestUnitReady(const uint8_t LUNIndex);
-		void    MassStore_PreventAllowMediumRemoval(const uint8_t LUNIndex, const bool PreventRemoval);
+		uint8_t MassStore_TestUnitReady(const uint8_t LUNIndex);
+		uint8_t MassStore_PreventAllowMediumRemoval(const uint8_t LUNIndex, const bool PreventRemoval);
 
 #endif

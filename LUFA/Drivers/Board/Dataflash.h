@@ -108,11 +108,32 @@
 			 *
 			 *  \return Last response byte from the dataflash
 			 */
-			static inline uint8_t Dataflash_SendByte(const uint8_t Byte)
+			static inline uint8_t Dataflash_TransferByte(const uint8_t Byte) ATTR_ALWAYSINLINE;
+			static inline uint8_t Dataflash_TransferByte(const uint8_t Byte)
 			{
-				return SPI_SendByte(Byte);
+				return SPI_TransferByte(Byte);
 			}
 
+			/** Sends a byte to the currently selected dataflash IC, and ignores the next byte from the dataflash.
+			 *
+			 *  \param Byte of data to send to the dataflash
+			 */
+			static inline void Dataflash_SendByte(const uint8_t Byte) ATTR_ALWAYSINLINE;
+			static inline void Dataflash_SendByte(const uint8_t Byte)
+			{
+				SPI_SendByte(Byte);
+			}
+			
+			/** Sends a dummy byte to the currently selected dataflash IC, and returns the next byte from the dataflash.
+			 *
+			 *  \return Last response byte from the dataflash
+			 */
+			static inline uint8_t Dataflash_ReceiveByte(void) ATTR_ALWAYSINLINE ATTR_WARN_UNUSED_RESULT;
+			static inline uint8_t Dataflash_ReceiveByte(void)
+			{
+				return SPI_ReceiveByte();
+			}
+			
 			/** Toggles the select line of the currently selected dataflash IC, so that it is ready to receive
 			 *  a new command.
 			 */
@@ -136,7 +157,7 @@
 			{
 				Dataflash_ToggleSelectedChipCS();
 				Dataflash_SendByte(DF_CMD_GETSTATUS);
-				while (!(Dataflash_SendByte(0x00) & DF_STATUS_READY));
+				while (!(Dataflash_ReceiveByte() & DF_STATUS_READY));
 			}
 
 			/** Selects a dataflash IC from the given page number, which should range from 0 to

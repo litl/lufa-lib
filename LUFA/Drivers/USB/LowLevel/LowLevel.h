@@ -205,7 +205,7 @@
 				 *  This value may be overridden in the user project makefile as the value of the 
 				 *  USB_STREAM_TIMEOUT_MS token, and passed to the compiler using the -D switch.
 				 */
-				#define USB_STREAM_TIMEOUT_MS       50
+				#define USB_STREAM_TIMEOUT_MS       100
 			#endif
 
 		/* Function Prototypes: */

@@ -36,8 +36,10 @@ CommandBlockWrapper_t  SCSICommandBlock;
 CommandStatusWrapper_t SCSICommandStatus;
 uint32_t               MassStore_Tag = 1;
 
-static void MassStore_SendCommand(void)
+static uint8_t MassStore_SendCommand(void)
 {
+	uint8_t ErrorCode = PIPE_RWSTREAM_ERROR_NoError;
+
 	/* Each transmission should have a unique tag value, excluding valued 0 and 0xFFFFFFFF */
 	if (++MassStore_Tag == 0xFFFFFFFF)
 	  MassStore_Tag = 1;
@@ -47,13 +49,16 @@ static void MassStore_SendCommand(void)
 	Pipe_Unfreeze();
 
 	/* Write the CBW command to the OUT pipe */
-	Pipe_Write_Stream_LE(&SCSICommandBlock, sizeof(CommandBlockWrapper_t));
+	if ((ErrorCode = Pipe_Write_Stream_LE(&SCSICommandBlock, sizeof(CommandBlockWrapper_t))) != PIPE_RWSTREAM_ERROR_NoError)
+	  return ErrorCode;
 
 	/* Send the data in the OUT pipe to the attached device */
 	Pipe_ClearCurrentBank();
 
 	/* Freeze pipe after use */
 	Pipe_Freeze();
+	
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
 static uint8_t MassStore_WaitForDataReceived(void)
@@ -80,7 +85,7 @@ static uint8_t MassStore_WaitForDataReceived(void)
 
 			/* Check to see if the timeout period for the command has elapsed */
 			if (!(TimeoutMSRem))
-			  return CommandTimeout;
+			  return PIPE_RWSTREAM_ERROR_Timeout;
 		}
 	
 		Pipe_SelectPipe(MASS_STORE_DATA_OUT_PIPE);
@@ -91,7 +96,7 @@ static uint8_t MassStore_WaitForDataReceived(void)
 			/* Clear the stall condition on the OUT pipe */
 			MassStore_ClearPipeStall(MASS_STORE_DATA_OUT_PIPE);
 
-			return OutPipeStalled;
+			return PIPE_RWSTREAM_ERROR_PipeStalled;
 		}
 
 		Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
@@ -102,20 +107,21 @@ static uint8_t MassStore_WaitForDataReceived(void)
 			/* Clear the stall condition on the IN pipe */
 			MassStore_ClearPipeStall(MASS_STORE_DATA_IN_PIPE);
 
-			return InPipeStalled;
+			return PIPE_RWSTREAM_ERROR_PipeStalled;
 		}
 		  
 		/* Check to see if the device was disconnected, if so exit function */
 		if (!(USB_IsConnected))
-		  return DeviceDisconnected;
+		  return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 	};
 
-	return NoError;
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
 static uint8_t MassStore_SendReceiveData(void* BufferPtr)
 {
-	uint16_t BytesRem = SCSICommandBlock.Header.DataTransferLength;
+	uint8_t  ErrorCode = PIPE_RWSTREAM_ERROR_NoError;
+	uint16_t BytesRem  = SCSICommandBlock.Header.DataTransferLength;
 
 	/* Check the direction of the SCSI command data stage */
 	if (SCSICommandBlock.Header.Flags & COMMAND_DIRECTION_DATA_IN)
@@ -125,8 +131,8 @@ static uint8_t MassStore_SendReceiveData(void* BufferPtr)
 		Pipe_Unfreeze();
 		
 		/* Read in the block data from the pipe */
-		if (Pipe_Read_Stream_LE(BufferPtr, BytesRem) == PIPE_RWSTREAM_ERROR_DeviceDisconnected)
-		  return DeviceDisconnected;
+		if ((ErrorCode = Pipe_Read_Stream_LE(BufferPtr, BytesRem)) != PIPE_RWSTREAM_ERROR_NoError)
+		  return ErrorCode;
 	}
 	else
 	{
@@ -135,33 +141,38 @@ static uint8_t MassStore_SendReceiveData(void* BufferPtr)
 		Pipe_Unfreeze();
 
 		/* Write the block data to the pipe */
-		if (Pipe_Write_Stream_LE(BufferPtr, BytesRem) == PIPE_RWSTREAM_ERROR_DeviceDisconnected)
-		  return DeviceDisconnected;
+		if ((ErrorCode = Pipe_Write_Stream_LE(BufferPtr, BytesRem)) != PIPE_RWSTREAM_ERROR_NoError)
+		  return ErrorCode;
 	}
 	
-	/* Acknowedge the packet */
+	/* Acknowledge the packet */
 	Pipe_ClearCurrentBank();
 
 	/* Freeze used pipe after use */
 	Pipe_Freeze();
 
-	return NoError;
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
-void MassStore_GetReturnedStatus(void)
+uint8_t MassStore_GetReturnedStatus(void)
 {
+	uint8_t ErrorCode = PIPE_RWSTREAM_ERROR_NoError;
+
 	/* Select the IN data pipe for data reception */
 	Pipe_SelectPipe(MASS_STORE_DATA_IN_PIPE);
 	Pipe_Unfreeze();
 	
 	/* Load in the CSW from the attached device */
-	Pipe_Read_Stream_LE(&SCSICommandStatus, sizeof(CommandStatusWrapper_t));
-	
+	if ((ErrorCode = Pipe_Read_Stream_LE(&SCSICommandStatus, sizeof(CommandStatusWrapper_t))) != PIPE_RWSTREAM_ERROR_NoError)
+	  return ErrorCode;
+	  
 	/* Clear the data ready for next reception */
 	Pipe_ClearCurrentBank();
 
 	/* Freeze the IN pipe after use */
 	Pipe_Freeze();
+	
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
 uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum)
@@ -180,7 +191,7 @@ uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum)
 
 uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_Response_t* const SensePtr)
 {
-	uint8_t ReturnCode = NoError;
+	uint8_t ReturnCode = PIPE_RWSTREAM_ERROR_NoError;
 
 	/* Create a CBW with a SCSI command to issue REQUEST SENSE command */
 	SCSICommandBlock = (CommandBlockWrapper_t)
@@ -210,23 +221,24 @@ uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_
 	MassStore_SendCommand();
 
 	/* Wait until data received from the device */
-	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
+	if ((ReturnCode = MassStore_WaitForDataReceived()) != PIPE_RWSTREAM_ERROR_NoError)
 	  return ReturnCode;
 
 	/* Read the returned sense data into the buffer */
-	if ((ReturnCode = MassStore_SendReceiveData((uint8_t*)SensePtr)) != NoError)
+	if ((ReturnCode = MassStore_SendReceiveData((uint8_t*)SensePtr)) != PIPE_RWSTREAM_ERROR_NoError)
 	  return ReturnCode;	
 	
 	/* Read in the returned CSW from the device */
-	MassStore_GetReturnedStatus();
+	if ((ReturnCode = MassStore_GetReturnedStatus()) != PIPE_RWSTREAM_ERROR_NoError)
+	  return ReturnCode;
 	
-	return ReturnCode;
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
 uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
-                                  const uint8_t Blocks, void* BufferPtr)
+                                  const uint8_t Blocks, const uint16_t BlockSize, void* BufferPtr)
 {
-	uint8_t ReturnCode = NoError;
+	uint8_t ReturnCode = PIPE_RWSTREAM_ERROR_NoError;
 
 	/* Create a CBW with a SCSI command to read in the given blocks from the device */
 	SCSICommandBlock = (CommandBlockWrapper_t)
@@ -235,7 +247,7 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 				{
 					Signature:          CBW_SIGNATURE,
 					Tag:                MassStore_Tag,
-					DataTransferLength: ((uint32_t)Blocks * DEVICE_BLOCK_SIZE),
+					DataTransferLength: ((uint32_t)Blocks * BlockSize),
 					Flags:              COMMAND_DIRECTION_DATA_IN,
 					LUN:                LUNIndex,
 					SCSICommandLength:  10
@@ -260,23 +272,24 @@ uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAd
 	MassStore_SendCommand();
 
 	/* Wait until data received from the device */
-	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
+	if ((ReturnCode = MassStore_WaitForDataReceived()) != PIPE_RWSTREAM_ERROR_NoError)
 	  return ReturnCode;
 
 	/* Read the returned block data into the buffer */
-	if ((ReturnCode = MassStore_SendReceiveData(BufferPtr)) != NoError)
+	if ((ReturnCode = MassStore_SendReceiveData(BufferPtr)) != PIPE_RWSTREAM_ERROR_NoError)
 	  return ReturnCode;	
 	
 	/* Read in the returned CSW from the device */
-	MassStore_GetReturnedStatus();
+	if ((ReturnCode = MassStore_GetReturnedStatus()) != PIPE_RWSTREAM_ERROR_NoError)
+	  return ReturnCode;
 	
-	return ReturnCode;
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
 uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,
-                                   const uint8_t Blocks, void* BufferPtr)
+                                   const uint8_t Blocks, const uint16_t BlockSize, void* BufferPtr)
 {
-	uint8_t ReturnCode = NoError;
+	uint8_t ReturnCode = PIPE_RWSTREAM_ERROR_NoError;
 
 	/* Create a CBW with a SCSI command to write the given blocks to the device */
 	SCSICommandBlock = (CommandBlockWrapper_t)
@@ -285,7 +298,7 @@ uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockA
 				{
 					Signature:          CBW_SIGNATURE,
 					Tag:                MassStore_Tag,
-					DataTransferLength: ((uint32_t)Blocks * DEVICE_BLOCK_SIZE),
+					DataTransferLength: ((uint32_t)Blocks * BlockSize),
 					Flags:              COMMAND_DIRECTION_DATA_OUT,
 					LUN:                LUNIndex,
 					SCSICommandLength:  10
@@ -310,16 +323,17 @@ uint8_t MassStore_WriteDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockA
 	MassStore_SendCommand();
 
 	/* Write the data to the device from the buffer */
-	if ((ReturnCode = MassStore_SendReceiveData(BufferPtr)) != NoError)
+	if ((ReturnCode = MassStore_SendReceiveData(BufferPtr)) != PIPE_RWSTREAM_ERROR_NoError)
 	  return ReturnCode;	
 	
 	/* Read in the returned CSW from the device */
-	MassStore_GetReturnedStatus();
+	if ((ReturnCode = MassStore_GetReturnedStatus()) != PIPE_RWSTREAM_ERROR_NoError)
+	  return ReturnCode;
 	
-	return ReturnCode;
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
-void MassStore_TestUnitReady(const uint8_t LUNIndex)
+uint8_t MassStore_TestUnitReady(const uint8_t LUNIndex)
 {
 	/* Create a CBW with a SCSI command to issue TEST UNIT READY command */
 	SCSICommandBlock = (CommandBlockWrapper_t)
@@ -349,12 +363,12 @@ void MassStore_TestUnitReady(const uint8_t LUNIndex)
 	MassStore_SendCommand();
 
 	/* Read in the returned CSW from the device */
-	MassStore_GetReturnedStatus();
+	return MassStore_GetReturnedStatus();
 }
 
 uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* const CapacityPtr)
 {
-	uint8_t ReturnCode = NoError;
+	uint8_t ReturnCode = PIPE_RWSTREAM_ERROR_NoError;
 
 	/* Create a CBW with a SCSI command to issue READ CAPACITY command */
 	SCSICommandBlock = (CommandBlockWrapper_t)
@@ -388,27 +402,25 @@ uint8_t MassStore_ReadCapacity(const uint8_t LUNIndex, SCSI_Capacity_t* const Ca
 	MassStore_SendCommand();
 
 	/* Wait until data received from the device */
-	if ((ReturnCode = MassStore_WaitForDataReceived()) != NoError)
+	if ((ReturnCode = MassStore_WaitForDataReceived()) != PIPE_RWSTREAM_ERROR_NoError)
 	  return ReturnCode;
-	  
-	/* Create a tempoary buffer to hold the received data */
-	uint8_t CapacityDataBuffer[8];
 
 	/* Read the returned capacity data into the buffer */
-	if ((ReturnCode = MassStore_SendReceiveData(&CapacityDataBuffer)) != NoError)
+	if ((ReturnCode = MassStore_SendReceiveData(CapacityPtr)) != PIPE_RWSTREAM_ERROR_NoError)
 	  return ReturnCode;
 	  
-	/* Fill the capacity structure with the endian-corrected buffer data */
-	CapacityPtr->Blocks    = SwapEndian_32(((uint32_t*)&CapacityDataBuffer)[0]);
-	CapacityPtr->BlockSize = SwapEndian_32(((uint32_t*)&CapacityDataBuffer)[1]);
+	/* Endian-correct the read data */
+	CapacityPtr->Blocks    = SwapEndian_32(CapacityPtr->Blocks);
+	CapacityPtr->BlockSize = SwapEndian_32(CapacityPtr->BlockSize);
 	
 	/* Read in the returned CSW from the device */
-	MassStore_GetReturnedStatus();
+	if ((ReturnCode = MassStore_GetReturnedStatus()) != PIPE_RWSTREAM_ERROR_NoError)
+	  return ReturnCode;
 	
-	return ReturnCode;
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
-void MassStore_PreventAllowMediumRemoval(const uint8_t LUNIndex, const bool PreventRemoval)
+uint8_t MassStore_PreventAllowMediumRemoval(const uint8_t LUNIndex, const bool PreventRemoval)
 {
 	/* Create a CBW with a SCSI command to issue PREVENT ALLOW MEDIUM REMOVAL command */
 	SCSICommandBlock = (CommandBlockWrapper_t)
@@ -438,5 +450,5 @@ void MassStore_PreventAllowMediumRemoval(const uint8_t LUNIndex, const bool Prev
 	MassStore_SendCommand();
 
 	/* Read in the returned CSW from the device */
-	MassStore_GetReturnedStatus();
+	return MassStore_GetReturnedStatus();
 }

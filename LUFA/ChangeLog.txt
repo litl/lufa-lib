@@ -21,6 +21,14 @@
   *  - Endpoint and Pipe non-control stream functions now ensure endpoint or pipe is ready before reading or writing
   *  - Changed Teensy bootloader to use a watchdog reset when exiting rather than a software jump
   *  - Fixed integer promotion error in MassStorage and MassStorageHost demos, corrupting read/write transfers
+  *  - SPI_SendByte is now SPI_TransferByte, added new SPI_SendByte and SPI_ReceiveByte functions for fast one-way transfer
+  *  - MassStorage demo changed to use new fast one-way SPI transfers to increase throughput
+  *  - MassStorage handling of Mass Storage Reset class request improved
+  *  - Altered MassStorage demo dataflash block read code for speed
+  *  - Added USB_IsSuspended global flag
+  *  - Simplified internal Dual Mode (OTG) USB library code to reduce code size
+  *  - Extended stream timeout period to 100ms from 50ms
+  *  - Mass Storage Host demo commands now all return an error code from the Pipe_Stream_RW_ErrorCodes_t enum
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

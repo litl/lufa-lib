@@ -243,11 +243,11 @@ TASK(USB_MassStorage)
 				/* Load in the CBW tag into the CSW to link them together */
 				CommandStatus.Tag = CommandBlock.Tag;
 
-				/* Load in the Command Data residue into the CSW */
-				CommandStatus.SCSICommandResidue = CommandBlock.DataTransferLength;
+				/* Load in the data residue counter into the CSW */
+				CommandStatus.DataTransferResidue = CommandBlock.DataTransferLength;
 
 				/* Stall the selected data pipe if command failed (if data is still to be transferred) */
-				if ((CommandStatus.Status == Command_Fail) && (CommandStatus.SCSICommandResidue))
+				if ((CommandStatus.Status == Command_Fail) && (CommandStatus.DataTransferResidue))
 				  Endpoint_StallTransaction();
 
 				/* Return command status block to the host */
@@ -282,6 +282,10 @@ static bool ReadInCommandBlock(void)
 	Endpoint_Read_Stream_LE(&CommandBlock, (sizeof(CommandBlock) - sizeof(CommandBlock.SCSICommandData)),
 	                        AbortOnMassStoreReset);
 
+	/* Check if the current command is being aborted by the host */
+	if (IsMassStoreReset)
+	  return false;
+
 	/* Verify the command block - abort if invalid */
 	if ((CommandBlock.Signature != CBW_SIGNATURE) ||
 	    (CommandBlock.LUN >= TOTAL_LUNS) ||
@@ -300,6 +304,10 @@ static bool ReadInCommandBlock(void)
 	                        CommandBlock.SCSICommandLength,
 	                        AbortOnMassStoreReset);
 	  
+	/* Check if the current command is being aborted by the host */
+	if (IsMassStoreReset)
+	  return false;
+
 	/* Clear the endpoint */
 	Endpoint_ClearCurrentBank();
 	
@@ -337,6 +345,10 @@ static void ReturnCommandStatus(void)
 	Endpoint_Write_Stream_LE(&CommandStatus, sizeof(CommandStatus),
 	                          AbortOnMassStoreReset);
 	
+	/* Check if the current command is being aborted by the host */
+	if (IsMassStoreReset)
+	  return;
+
 	/* Send the CSW */
 	Endpoint_ClearCurrentBank();
 }

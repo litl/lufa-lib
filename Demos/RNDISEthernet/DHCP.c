@@ -90,7 +90,7 @@ int16_t DHCP_ProcessDHCPPacket(void* IPHeaderInStart, void* DHCPHeaderInStart, v
 
 				*(DHCPOptionsOUTStart++) = DHCP_OPTION_END;
 				
-				return (sizeof(DHCP_Header_t) + 16);
+				return (sizeof(DHCP_Header_t) + 12 + sizeof(IP_Address_t));
 			}
 		}
 		

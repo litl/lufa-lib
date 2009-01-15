@@ -207,10 +207,10 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Read in the wValue parameter containing the new protocol mode */
 				uint16_t wValue = Endpoint_Read_Word_LE();
 				
+				Endpoint_ClearSetupReceived();
+				
 				/* Set or clear the flag depending on what the host indicates that the current Protocol should be */
 				UsingReportProtocol = (wValue != 0x0000);
-				
-				Endpoint_ClearSetupReceived();
 				
 				/* Send an empty packet to acknowedge the command */
 				Endpoint_ClearSetupIN();

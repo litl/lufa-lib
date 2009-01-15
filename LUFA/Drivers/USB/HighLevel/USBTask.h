@@ -81,6 +81,20 @@
 			 */
 			extern volatile bool USB_IsInitialized;
 
+			#if defined(USB_CAN_BE_DEVICE) || defined(__DOXYGEN__)
+			/** Indicates if the USB interface is currently suspended by the host when in device mode. When suspended,
+			 *  the device should consume minimal power, and cannot communicate to the host. If Remote Wakeup is
+			 *  supported by the device and USB_RemoteWakeupEnabled is true, suspension can be terminated by the device
+			 *  by issuing a Remote Wakup request.
+			 *
+			 *  \note This global is only present if the user application can be a USB device.
+			 *
+			 *  \note This variable should be treated as read-only in the user application, and never manually
+			 *        changed in value.
+			 */
+			extern volatile bool USB_IsSuspended;
+			#endif
+
 			#if defined(USB_CAN_BE_HOST) || defined(__DOXYGEN__)
 			/** Indicates the current host state machine state. When in host mode, this indicates the state
 			 *  via one of the values of the USB_Host_States_t enum values in Host.h.
@@ -170,10 +184,6 @@
 				#if defined(USB_CAN_BE_DEVICE)
 					static void USB_DeviceTask(void);
 				#endif
-			#endif
-
-			#if defined(USB_CAN_BE_BOTH)
-				void USB_InitTaskPointer(void);
 			#endif
 			
 		/* Macros: */

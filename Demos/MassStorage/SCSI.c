@@ -175,9 +175,15 @@ static bool SCSI_Command_Inquiry(void)
 		if (Endpoint_BytesInEndpoint() == MASS_STORAGE_IO_EPSIZE)
 		{
 			Endpoint_ClearCurrentBank();
-			while (!(Endpoint_ReadWriteAllowed()));
+
+			while (!(Endpoint_ReadWriteAllowed()))
+			{
+				/* Check if the current command is being aborted by the host */
+				if (IsMassStoreReset)
+				  return false;			
+			}
 		}
-					
+
 		Endpoint_Write_Byte(0x00);
 		
 		BytesTransferred++;
@@ -242,6 +248,10 @@ static bool SCSI_Command_Read_Capacity_10(void)
 	/* Send the logical block size of the device (must be 512 bytes) */
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCK_SIZE);
 
+	/* Check if the current command is being aborted by the host */
+	if (IsMassStoreReset)
+	  return false;
+
 	/* Send the endpoint data packet to the host */
 	Endpoint_ClearCurrentBank();
 
@@ -275,7 +285,7 @@ static bool SCSI_Command_Send_Diagnostic(void)
 	/* Test first Dataflash IC is present and responding to commands */
 	Dataflash_SelectChip(DATAFLASH_CHIP1);
 	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
-	ReturnByte = Dataflash_SendByte(0x00);
+	ReturnByte = Dataflash_ReceiveByte();
 	Dataflash_DeselectChip();
 
 	/* If returned data is invalid, fail the command */
@@ -293,7 +303,7 @@ static bool SCSI_Command_Send_Diagnostic(void)
 	/* Test second Dataflash IC is present and responding to commands */
 	Dataflash_SelectChip(DATAFLASH_CHIP2);
 	Dataflash_SendByte(DF_CMD_READMANUFACTURERDEVICEINFO);
-	ReturnByte = Dataflash_SendByte(0x00);
+	ReturnByte = Dataflash_ReceiveByte();
 	Dataflash_DeselectChip();
 
 	/* If returned data is invalid, fail the command */

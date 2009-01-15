@@ -117,7 +117,7 @@ uint8_t Endpoint_Discard_Stream(uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length)
+	while (Length--)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -133,10 +133,6 @@ uint8_t Endpoint_Discard_Stream(uint16_t Length
 		}
 		
 		Endpoint_Discard_Byte();
-		Length--;
-		
-		if (!(USB_IsConnected))
-		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
@@ -154,7 +150,7 @@ uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length)
+	while (Length--)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -170,10 +166,6 @@ uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length
 		}
 
 		Endpoint_Write_Byte(*(DataStream++));
-		Length--;
-		
-		if (!(USB_IsConnected))
-		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
@@ -191,7 +183,7 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length)
+	while (Length--)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -207,10 +199,6 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length
 		}
 		
 		Endpoint_Write_Byte(*(DataStream--));
-		Length--;
-		
-		if (!(USB_IsConnected))
-		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
@@ -228,7 +216,7 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length)
+	while (Length--)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -244,10 +232,6 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length
 		}
 		
 		*(DataStream++) = Endpoint_Read_Byte();
-		Length--;
-		
-		if (!(USB_IsConnected))
-		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
@@ -265,7 +249,7 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length)
+	while (Length--)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -281,10 +265,6 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
 		}
 		
 		*(DataStream--) = Endpoint_Read_Byte();
-		Length--;
-		
-		if (!(USB_IsConnected))
-		  return ENDPOINT_RWSTREAM_ERROR_DeviceDisconnected;
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;

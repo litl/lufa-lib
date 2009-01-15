@@ -92,13 +92,41 @@
 				  SPSR = (1 << SPI2X);
 			}
 			
-			/** Sends a byte through the SPI interface, blocking until the transfer is complete.
+			/** Sends and receives a byte through the SPI interface, blocking until the transfer is complete.
 			 *
 			 *  \param Byte  Byte to send through the SPI interface
+			 *
+			 *  \return Response byte from the attached SPI device
 			 */
-			static inline uint8_t SPI_SendByte(const uint8_t Byte)
+			static inline uint8_t SPI_TransferByte(const uint8_t Byte) ATTR_ALWAYSINLINE;
+			static inline uint8_t SPI_TransferByte(const uint8_t Byte)
 			{
 				SPDR = Byte;
+				while (!(SPSR & (1 << SPIF)));
+				return SPDR;
+			}
+
+			/** Sends a byte through the SPI interface, blocking until the transfer is complete. The response
+			 *  byte sent to from the attached SPI device is ignored.
+			 *
+			 *  \param Byte Byte to send through the SPI interface
+			 */
+			static inline void SPI_SendByte(const uint8_t Byte) ATTR_ALWAYSINLINE;
+			static inline void SPI_SendByte(const uint8_t Byte)
+			{
+				SPDR = Byte;
+				while (!(SPSR & (1 << SPIF)));
+			}
+
+			/** Sends a dummy byte through the SPI interface, blocking until the transfer is complete. The response
+			 *  byte from the attached SPI device is returned.
+			 *
+			 *  \return The response byte from the attached SPI device
+			 */
+			static inline uint8_t SPI_ReceiveByte(void) ATTR_ALWAYSINLINE ATTR_WARN_UNUSED_RESULT;
+			static inline uint8_t SPI_ReceiveByte(void)
+			{
+				SPDR = 0x00;
 				while (!(SPSR & (1 << SPIF)));
 				return SPDR;
 			}

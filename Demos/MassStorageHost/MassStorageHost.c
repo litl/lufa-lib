@@ -298,7 +298,11 @@ TASK(USB_MassStore_Host)
 			printf_P(PSTR("Total LUNs: %d.\r\n"), MassStore_NumberOfLUNs);
 
 			/* Set the prevent removal flag for the device, allowing it to be accessed */
-			MassStore_PreventAllowMediumRemoval(0, true);
+			if ((ErrorCode = MassStore_PreventAllowMediumRemoval(0, true)) != 0)
+			{
+				ShowDiskReadError(ErrorCode);
+				break;
+			}
 			
 			/* Get sense data from the device - many devices will not accept any other commands until the sense data
 			 * is read - both on startup and after a failed command */
@@ -323,7 +327,7 @@ TASK(USB_MassStore_Host)
 			if (!(USB_IsConnected))
 			  break;
 
-			puts_P(PSTR("\r\nRetrieving Capacity.\r\n"));
+			puts_P(PSTR("\r\nRetrieving Capacity... "));
 
 			/* Create new structure for the disk's capacity in blocks and block size */
 			SCSI_Capacity_t DiskCapacity;
@@ -336,28 +340,31 @@ TASK(USB_MassStore_Host)
 			}
 			
 			/* Display the disk capacity in blocks * block size bytes */
-			printf_P(PSTR("Capacity: %lu*%lu bytes.\r\n"), DiskCapacity.Blocks, DiskCapacity.BlockSize);
+			printf_P(PSTR("%lu blocks of %lu bytes.\r\n"), DiskCapacity.Blocks, DiskCapacity.BlockSize);
 			
 			/* Create a new buffer capabable of holding a single block from the device */
-			uint8_t BlockBuffer[DEVICE_BLOCK_SIZE];
+			uint8_t BlockBuffer[DiskCapacity.BlockSize];
 
 			/* Read in the first 512 byte block from the device */
-			if ((ErrorCode = MassStore_ReadDeviceBlock(0, 0, 1, BlockBuffer)) != 0)
+			if ((ErrorCode = MassStore_ReadDeviceBlock(0, 0x00000000, 1, DiskCapacity.BlockSize, BlockBuffer)) != 0)
 			{
 				ShowDiskReadError(ErrorCode);
 				break;
 			}
 			
-			puts_P(PSTR("Contents of first block:\r\n"));
+			/* Show the number of bytes not transferred in the previous command */
+			printf_P(PSTR("Transfer Residue: %lu\r\n"), SCSICommandStatus.DataTransferResidue);
 			
-			/* Print the block bytes out through the serial USART */
-			for (uint16_t Byte = 0; Byte < DEVICE_BLOCK_SIZE; Byte++)
+			puts_P(PSTR("\r\nContents of first block:\r\n"));
+			
+			/* Print the block bytes in hex out through the serial USART */
+			for (uint16_t Byte = 0; Byte < DiskCapacity.BlockSize; Byte++)
 			  printf_P(PSTR("0x%.2X "), BlockBuffer[Byte]);
 			
 			puts_P(PSTR("\r\n\r\nASCII Data:\r\n"));
 			
 			/* Do the same in ASCII characters */
-			for (uint16_t Byte = 0; Byte < DEVICE_BLOCK_SIZE; Byte++)
+			for (uint16_t Byte = 0; Byte < DiskCapacity.BlockSize; Byte++)
 			{
 				if ((BlockBuffer[Byte] >= '0' && BlockBuffer[Byte] <= '9') ||
 				    (BlockBuffer[Byte] >= 'a' && BlockBuffer[Byte] <= 'z') ||

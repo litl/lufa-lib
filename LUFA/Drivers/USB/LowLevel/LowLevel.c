@@ -93,12 +93,6 @@ void USB_Init(
 	}
 	#endif
 
-	#if defined(USB_CAN_BE_BOTH)
-	USB_InitTaskPointer();
-	#else
-	USB_IsInitialized = true;
-	#endif
-
 	#if defined(USB_CAN_BE_HOST)
 	USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 	#endif
@@ -126,6 +120,8 @@ void USB_Init(
 	  USB_SetupInterface();
 	#endif
 	
+	USB_IsInitialized = true;
+
 	sei();
 }
 
@@ -139,8 +135,8 @@ void USB_ShutDown(void)
 	USB_INT_DisableAllInterrupts();
 	USB_INT_ClearAllInterrupts();
 
-	USB_IsConnected         = false;
-	USB_IsInitialized       = false;
+	USB_IsConnected   = false;
+	USB_IsInitialized = false;
 
 	#if defined(USB_CAN_BE_HOST)
 	USB_HostState           = HOST_STATE_Unattached;
@@ -176,9 +172,9 @@ void USB_SetupInterface(void)
 	USB_INT_ClearAllInterrupts();
 
 	USB_IsConnected         = false;
-	
-	#if defined(USB_CAN_BE_BOTH)
-	USB_IsInitialized       = false;
+
+	#if defined(USB_CAN_BE_DEVICE)
+	USB_IsSuspended         = false;
 	#endif
 
 	#if defined(USB_CAN_BE_HOST)
@@ -273,9 +269,5 @@ void USB_SetupInterface(void)
 	{
 		USB_Host_HostMode_On();
 	}
-	#endif
-	
-	#if defined(USB_CAN_BE_BOTH)
-	USB_InitTaskPointer();
 	#endif
 }
