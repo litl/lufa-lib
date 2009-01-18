@@ -262,12 +262,16 @@
 			 *  \param ErrorCode  Error code indicating the failure reason, a value in 
 			 *                    USB_Host_EnumerationErrorCodes_t located in Host.h.
 			 *
+			 *  \param SubErrorCode  Sub error code indicating the reason for failure - for example, if the
+			 *                       ErrorCode parameter indicates a control error, this will give the error
+			 *                       code returned by the USB_Host_SendControlRequest() function.
+			 *
 			 *  \note This event only exists on USB AVR models which supports host mode.
 			 *
 			 *  \note This event does not exist if the USB_DEVICE_ONLY token is supplied to the compiler (see
 			 *        LowLevel.h documentation).
 			 */
-			void USB_DeviceEnumerationFailed(const uint8_t ErrorCode);
+			void USB_DeviceEnumerationFailed(const uint8_t ErrorCode, const uint8_t SubErrorCode);
 
 			/** Event for USB device enumeration completion. This event fires when a the USB interface is
 			 *  in host mode and an attached USB device has been completely enumerated and is ready to be
@@ -379,7 +383,7 @@
 				#define USB_HostError_P                 (const uint8_t ErrorCode)
 				#define USB_DeviceAttached_P            (void)
 				#define USB_DeviceUnattached_P          (void)
-				#define USB_DeviceEnumerationFailed_P   (const uint8_t ErrorCode)
+				#define USB_DeviceEnumerationFailed_P   (const uint8_t ErrorCode, const uint8_t SubErrorCode)
 			#endif
 			
 			#if defined(USB_CAN_BE_DEVICE)

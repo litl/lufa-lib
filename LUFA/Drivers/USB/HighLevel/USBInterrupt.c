@@ -220,7 +220,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 	{
 		USB_INT_Clear(USB_INT_BCERRI);
 		
-		RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_NoDeviceDetected);
+		RAISE_EVENT(USB_DeviceEnumerationFailed, HOST_ENUMERROR_NoDeviceDetected, 0);
 		RAISE_EVENT(USB_DeviceUnattached);
 		
 		if (USB_IsConnected)

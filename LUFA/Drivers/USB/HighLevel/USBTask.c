@@ -80,7 +80,8 @@ static void USB_DeviceTask(void)
 #if defined(USB_CAN_BE_HOST)
 static void USB_HostTask(void)
 {
-	uint8_t ErrorCode = HOST_ENUMERROR_NoError;
+	uint8_t ErrorCode    = HOST_ENUMERROR_NoError;
+	uint8_t SubErrorCode = HOST_ENUMERROR_NoError;
 	
 	static uint8_t WaitMSRemaining;
 	static uint8_t PostWaitState;
@@ -90,10 +91,10 @@ static void USB_HostTask(void)
 		case HOST_STATE_WaitForDevice:
 			if (WaitMSRemaining)
 			{
-				if (USB_Host_WaitMS(1) != HOST_WAITERROR_Successful)
+				if ((SubErrorCode = USB_Host_WaitMS(1)) != HOST_WAITERROR_Successful)
 				{
 					USB_HostState = PostWaitState;
-					ErrorCode = HOST_ENUMERROR_WaitStage;
+					ErrorCode    = HOST_ENUMERROR_WaitStage;
 					break;
 				}
 				
@@ -133,7 +134,8 @@ static void USB_HostTask(void)
 		
 			if (!(Pipe_IsConfigured()))
 			{
-				ErrorCode = HOST_ENUMERROR_PipeConfigError;
+				ErrorCode    = HOST_ENUMERROR_PipeConfigError;
+				SubErrorCode = 0;
 				break;
 			}
 
@@ -155,7 +157,7 @@ static void USB_HostTask(void)
 			uint8_t* DataBuffer = alloca(offsetof(USB_Descriptor_Device_t, bMaxPacketSize0) + 1);			
 			#endif
 			
-			if (USB_Host_SendControlRequest(DataBuffer) != HOST_SENDCONTROL_Successful)
+			if ((SubErrorCode = USB_Host_SendControlRequest(DataBuffer)) != HOST_SENDCONTROL_Successful)
 			{
 				ErrorCode = HOST_ENUMERROR_ControlError;
 				break;
@@ -182,7 +184,8 @@ static void USB_HostTask(void)
 
 			if (!(Pipe_IsConfigured()))
 			{
-				ErrorCode = HOST_ENUMERROR_PipeConfigError;
+				ErrorCode    = HOST_ENUMERROR_PipeConfigError;
+				SubErrorCode = 0;
 				break;
 			}
 
@@ -197,7 +200,7 @@ static void USB_HostTask(void)
 					wLength:       0,
 				};
 
-			if (USB_Host_SendControlRequest(NULL) != HOST_SENDCONTROL_Successful)
+			if ((SubErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
 			{
 				ErrorCode = HOST_ENUMERROR_ControlError;
 				break;
@@ -216,7 +219,7 @@ static void USB_HostTask(void)
 
 	if ((ErrorCode != HOST_ENUMERROR_NoError) && (USB_HostState != HOST_STATE_Unattached))
 	{
-		RAISE_EVENT(USB_DeviceEnumerationFailed, ErrorCode);
+		RAISE_EVENT(USB_DeviceEnumerationFailed, ErrorCode, SubErrorCode);
 
 		USB_Host_VBUS_Auto_Off();
 
