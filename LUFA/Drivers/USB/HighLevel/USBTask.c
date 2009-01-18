@@ -92,6 +92,7 @@ static void USB_HostTask(void)
 			{
 				if (USB_Host_WaitMS(1) != HOST_WAITERROR_Successful)
 				{
+					USB_HostState = PostWaitState;
 					ErrorCode = HOST_ENUMERROR_WaitStage;
 					break;
 				}
@@ -186,7 +187,7 @@ static void USB_HostTask(void)
 			}
 
 			Pipe_SetInfiniteINRequests();
-
+			
 			USB_HostRequest = (USB_Host_Request_Header_t)
 				{
 					bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE),
@@ -202,11 +203,11 @@ static void USB_HostTask(void)
 				break;
 			}
 
-			USB_Host_SetDeviceAddress(USB_HOST_DEVICEADDRESS);
-
-			HOST_TASK_NONBLOCK_WAIT(10, HOST_STATE_Default_PostAddressSet);
+			HOST_TASK_NONBLOCK_WAIT(100, HOST_STATE_Default_PostAddressSet);
 			break;
 		case HOST_STATE_Default_PostAddressSet:
+			USB_Host_SetDeviceAddress(USB_HOST_DEVICEADDRESS);
+
 			RAISE_EVENT(USB_DeviceEnumerationComplete);
 			USB_HostState = HOST_STATE_Addressed;
 
