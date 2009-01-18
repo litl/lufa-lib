@@ -273,7 +273,7 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
 uint8_t Endpoint_Write_Control_Stream_LE(const void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)Buffer;
-	bool     SendZLP    = (!(Length % USB_ControlEndpointSize) || (Length == 0));
+	bool     SendZLP    = true;
 	
 	while (Length && !(Endpoint_IsSetupOUTReceived()))
 	{
@@ -286,6 +286,7 @@ uint8_t Endpoint_Write_Control_Stream_LE(const void* Buffer, uint16_t Length)
 			Length--;
 		}
 		
+		SendZLP = (Endpoint_BytesInEndpoint() == USB_ControlEndpointSize);
 		Endpoint_ClearSetupIN();
 	}
 	
@@ -306,7 +307,7 @@ uint8_t Endpoint_Write_Control_Stream_LE(const void* Buffer, uint16_t Length)
 uint8_t Endpoint_Write_Control_Stream_BE(const void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
-	bool     SendZLP    = (!(Length % USB_ControlEndpointSize) || (Length == 0));
+	bool     SendZLP    = true;
 	
 	while (Length && !(Endpoint_IsSetupOUTReceived()))
 	{
@@ -319,6 +320,7 @@ uint8_t Endpoint_Write_Control_Stream_BE(const void* Buffer, uint16_t Length)
 			Length--;
 		}
 		
+		SendZLP = (Endpoint_BytesInEndpoint() == USB_ControlEndpointSize);
 		Endpoint_ClearSetupIN();
 	}
 	

@@ -46,6 +46,11 @@
 		#include <LUFA/Drivers/USB/USB.h>            // USB Functionality
 		#include <LUFA/Drivers/Board/Dataflash.h>    // Dataflash chip driver
 
+	/* Preprocessor Checks: */
+		#if (DATAFLASH_PAGE_SIZE % 16)
+			#error Dataflash page size must be a multiple of 16 bytes.
+		#endif
+
 	/* Defines: */
 		/** Total number of bytes of the storage medium, comprised of one or more dataflash ICs. */
 		#define VIRTUAL_MEMORY_BYTES                ((uint32_t)(DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS) \
