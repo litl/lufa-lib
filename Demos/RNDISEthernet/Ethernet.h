@@ -82,11 +82,11 @@
 		extern Ethernet_Frame_Info_t FrameIN;
 		extern Ethernet_Frame_Info_t FrameOUT;
 
-		extern MAC_Address_t ServerMACAddress;
-		extern IP_Address_t  ServerIPAddress;
-		extern MAC_Address_t BroadcastMACAddress;
-		extern IP_Address_t  BroadcastIPAddress;
-		extern IP_Address_t  ClientIPAddress;
+		extern const MAC_Address_t ServerMACAddress;
+		extern const IP_Address_t  ServerIPAddress;
+		extern const MAC_Address_t BroadcastMACAddress;
+		extern const IP_Address_t  BroadcastIPAddress;
+		extern const IP_Address_t  ClientIPAddress;
 		
 	/* Function Prototypes: */
 		void     Ethernet_ProcessPacket(void);

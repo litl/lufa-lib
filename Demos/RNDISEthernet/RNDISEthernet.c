@@ -28,46 +28,11 @@
   this software.
 */
 
-/*
-	Remote Network Driver Interface demonstration application.
-	This gives a simple reference application for implementing
-	a CDC RNDIS device acting as a simple network interface for
-	ethernet packet exchange. RNDIS is a proprietary Microsoft
-	standard; this demo will only work on Windows 2000 (manually
-	patched with the Microsoft RNDIS hotfix) and above (with no
-	manual patches), or on the latest Linux kernels.
-	
-	Before running, you will need to install the INF file that
-	is located in the RNDISEthernet project directory. This will
-	enable Windows to use its inbuilt RNDIS drivers, negating the
-	need for special Windows drivers for the device. To install,
-	right-click the .INF file and choose the Install option. If
-	Windows 2000 is used, the Microsoft INF file in the hotfix
-	will need to be altered to use the VID/PID of the demo and
-	then chosen instead of the LUFA RNDIS INF file when prompted.
-
-	When enumerated, this demo will install as a new network
-	adapter which ethernet packets can be sent to and received
-	from. Running on top of the adapter is a very simple TCP/IP
-	stack with a HTTP webserver and TELNET host which can be
-	accessed through a web browser at IP address 10.0.0.2:80 or
-	through a TELNET client at 10.0.0.2:25. This device also supports
-	ping echos via the ICMP protocol.
-	
-	**NOTE:** The TCP/IP stack in this demo has a number of limitations
-	and should serve as an example only - it is not fully featured nor
-	compliant to the TCP/IP specification. For complete projects, it is 
-	recommended that it be replaced with an external open source TCP/IP
-	stack that is feature complete, such as the uIP stack.
-*/
-
-/*
-	USB Mode:           Device
-	USB Class:          Communications Device Class (CDC)
-	USB Subclass:       Remote NDIS (Microsoft Proprietary CDC Class Networking Standard)
-	Relevant Standards: Microsoft RNDIS Specification
-	Usable Speeds:      Full Speed Mode
-*/
+/** \file
+ *
+ *  Main source file for the RNDISEthernet demo. This file contains the main tasks of the demo and
+ *  is responsible for the initial application hardware configuration.
+ */
 
 #include "RNDISEthernet.h"
 
@@ -86,6 +51,9 @@ TASK_LIST
 	{ Task: RNDIS_Task           , TaskStatus: TASK_STOP },
 };
 
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the USB management task.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -119,6 +87,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
+ *  starts the library USB task to begin the enumeration and USB management process.
+ */
 EVENT_HANDLER(USB_Connect)
 {
 	/* Start USB management task */
@@ -128,6 +99,9 @@ EVENT_HANDLER(USB_Connect)
 	UpdateStatus(Status_USBEnumerating);
 }
 
+/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
+ *  the status LEDs and stops all the relevent tasks.
+ */
 EVENT_HANDLER(USB_Disconnect)
 {
 	/* Stop running TCP/IP and USB management tasks */
@@ -140,6 +114,9 @@ EVENT_HANDLER(USB_Disconnect)
 	UpdateStatus(Status_USBNotReady);
 }
 
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host sets the current configuration
+ *  of the USB device after enumeration, and configures the RNDIS device endpoints and starts the relevent tasks.
+ */
 EVENT_HANDLER(USB_ConfigurationChanged)
 {
 	/* Setup CDC Notification, Rx and Tx Endpoints */
@@ -164,6 +141,10 @@ EVENT_HANDLER(USB_ConfigurationChanged)
 	Scheduler_SetTaskMode(TCP_Task, TASK_RUN);
 }
 
+/** Event handler for the USB_UnhandledControlPacket event. This is used to catch standard and class specific
+ *  control requests that are not handled internally by the USB library (including the RNDIS control commands,
+ *  which set up the USB RNDIS network adapter), so that they can be handled appropriately for the application.
+ */
 EVENT_HANDLER(USB_UnhandledControlPacket)
 {
 	/* Discard the unused wValue parameter */
@@ -258,6 +239,10 @@ void UpdateStatus(uint8_t CurrentStatus)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** Task to manage the sending and receiving of encapsulated RNDIS data and notifications. This removes the RNDIS
+ *  wrapper from recieved Ethernet frames and places them in the FrameIN global buffer, or adds the RNDIS wrapper
+ *  to a frame in the FrameOUT global before sending the buffer contents to the host.
+ */
 TASK(RNDIS_Task)
 {
 	/* Select the notification endpoint */
@@ -269,7 +254,7 @@ TASK(RNDIS_Task)
 		USB_Notification_t Notification = (USB_Notification_t)
 			{
 				bmRequestType: (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE),
-				bNotification: RESPONSE_AVAILABLE,
+				bNotification: NOTIF_RESPONSE_AVAILABLE,
 				wValue:        0,
 				wIndex:        0,
 				wLength:       0,
@@ -356,6 +341,9 @@ TASK(RNDIS_Task)
 	}
 }
 
+/** Ethernet frame processing task. This task checks to see if a frame has been received, and if so hands off the processing
+ *  of the frame to the Ethernet processing routines.
+ */
 TASK(Ethernet_Task)
 {
 	/* Task for Ethernet processing. Incoming ethernet frames are loaded into the FrameIN structure, and

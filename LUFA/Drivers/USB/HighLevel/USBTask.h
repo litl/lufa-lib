@@ -74,7 +74,7 @@
 			extern volatile bool USB_IsConnected;
 
 			/** Indicates if the USB interface is currently initialized but not neccesarily connected to a host
-			 *  or device (i.e. if USB_Init() has been run).
+			 *  or device (i.e. if USB_Init() has been run). If this is false, all other library globals are invalid.
 			 *
 			 *  \note This variable should be treated as read-only in the user application, and never manually
 			 *        changed in value.

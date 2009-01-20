@@ -47,8 +47,6 @@
 		#define SEND_ENCAPSULATED_COMMAND             0x00
 		#define GET_ENCAPSULATED_RESPONSE             0x01
 		
-		#define RESPONSE_AVAILABLE                    0x01
-		
 		#define REMOTE_NDIS_PACKET_MSG                0x00000001UL
 		#define REMOTE_NDIS_INITIALIZE_MSG            0x00000002UL
 		#define REMOTE_NDIS_HALT_MSG                  0x00000003UL

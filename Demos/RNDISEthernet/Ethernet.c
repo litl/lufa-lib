@@ -34,11 +34,11 @@
 Ethernet_Frame_Info_t FrameIN;
 Ethernet_Frame_Info_t FrameOUT;
 
-MAC_Address_t ServerMACAddress    = {SERVER_MAC_ADDRESS};
-IP_Address_t  ServerIPAddress     = {SERVER_IP_ADDRESS};
-MAC_Address_t BroadcastMACAddress = {BROADCAST_MAC_ADDRESS};
-IP_Address_t  BroadcastIPAddress  = {BROADCAST_IP_ADDRESS};
-IP_Address_t  ClientIPAddress     = {CLIENT_IP_ADDRESS};
+const MAC_Address_t ServerMACAddress    = {SERVER_MAC_ADDRESS};
+const IP_Address_t  ServerIPAddress     = {SERVER_IP_ADDRESS};
+const MAC_Address_t BroadcastMACAddress = {BROADCAST_MAC_ADDRESS};
+const IP_Address_t  BroadcastIPAddress  = {BROADCAST_IP_ADDRESS};
+const IP_Address_t  ClientIPAddress     = {CLIENT_IP_ADDRESS};
 
 void Ethernet_ProcessPacket(void)
 {

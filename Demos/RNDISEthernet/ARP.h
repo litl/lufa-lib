@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for ARP.c.
+ */
+ 
 #ifndef _ARP_H_
 #define _ARP_H_
 
@@ -41,20 +46,28 @@
 		#include "Ethernet.h"
 		#include "ProtocolDecoders.h"
 		
-	/* Type Defines: */	
+	/* Macros: */
+		/** ARP header operation constant, indicating a request from a host for an address translation */
+		#define ARP_OPERATION_REQUEST            1
+
+		/** ARP header operation constant, indicating a reply from a host giving an address translation */
+		#define ARP_OPERATION_REPLY              2
+
+	/* Type Defines: */
+		/** Type define for an ARP packet inside an Ethernet frame. */
 		typedef struct
 		{
-			uint16_t      HardwareType;
-			uint16_t      ProtocolType;
+			uint16_t      HardwareType; /**< Hardware type constant, indicating the hardware used */
+			uint16_t      ProtocolType; /**< Protocol being resolved, usually ETHERTYPE_IPV4 */
 			
-			uint8_t       HLEN;
-			uint8_t       PLEN;
-			uint16_t      Operation;
+			uint8_t       HLEN; /**< Length in bytes of the source/destination hardware addresses */
+			uint8_t       PLEN; /**< Length in bytes of the source/destination protocol addresses */
+			uint16_t      Operation; /**< Type of operation, either ARP_OPERATION_REQUEST or ARP_OPERATION_REPLY */
 			
-			MAC_Address_t SHA;
-			IP_Address_t  SPA;
-			MAC_Address_t THA;
-			IP_Address_t  TPA;
+			MAC_Address_t SHA; /**< Sender's hardware address */
+			IP_Address_t  SPA; /**< Sender's protocol address */
+			MAC_Address_t THA; /**< Target's hardware address */
+			IP_Address_t  TPA; /**< Target's protocol address */
 		} ARP_Header_t;
 		
 	/* Function Prototypes: */

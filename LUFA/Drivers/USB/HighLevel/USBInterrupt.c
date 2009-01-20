@@ -81,11 +81,11 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 			
 			if (USB_IsConnected)
 			  RAISE_EVENT(USB_Disconnect);
-
-			USB_SetupInterface();
+				
+			USB_ResetInterface();
 				
 			USB_IsConnected = true;
-				
+
 			RAISE_EVENT(USB_Connect);
 		}
 		else
@@ -183,7 +183,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		RAISE_EVENT(USB_DeviceUnattached);
 		RAISE_EVENT(USB_Disconnect);
 
-		USB_Host_PrepareForDeviceConnect();
+		USB_ResetInterface();
 	}
 	
 	if (USB_INT_HasOccurred(USB_INT_VBERRI) && USB_INT_IsEnabled(USB_INT_VBERRI))
@@ -191,6 +191,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		USB_INT_Clear(USB_INT_VBERRI);
 
 		USB_Host_VBUS_Manual_Off();
+		USB_Host_VBUS_Auto_Off();
 
 		RAISE_EVENT(USB_HostError, HOST_ERROR_VBusVoltageDip);
 		RAISE_EVENT(USB_DeviceUnattached);
@@ -204,6 +205,8 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		USB_INT_Disable(USB_INT_SRPI);
 	
 		RAISE_EVENT(USB_DeviceAttached);
+
+		USB_INT_Disable(USB_INT_VBERRI);
 
 		USB_Host_VBUS_Manual_Off();
 
@@ -226,7 +229,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		if (USB_IsConnected)
 		  RAISE_EVENT(USB_Disconnect);
 
-		USB_Host_PrepareForDeviceConnect();
+		USB_ResetInterface();
 	}
 	#endif
 
@@ -245,7 +248,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 
 		RAISE_EVENT(USB_UIDChange);
 		
-		USB_SetupInterface();
+		USB_ResetInterface();
 	}
 	#endif
 }

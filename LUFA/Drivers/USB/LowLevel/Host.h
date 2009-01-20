@@ -221,7 +221,6 @@
 		/* Function Prototypes: */
 			uint8_t USB_Host_WaitMS(uint8_t MS);
 			void    USB_Host_ResetDevice(void);
-			void    USB_Host_PrepareForDeviceConnect(void);
 	#endif
 
 	/* Disable C linkage for C++ Compilers: */

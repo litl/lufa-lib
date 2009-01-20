@@ -30,6 +30,8 @@
   *  - Extended stream timeout period to 100ms from 50ms
   *  - Mass Storage Host demo commands now all return an error code from the Pipe_Stream_RW_ErrorCodes_t enum
   *  - Added SubErrorCode parameter to the USB_DeviceEnumerationFailed event
+  *  - VBUS drop interrupt now disabled during the manual-to-auto VBUS delivery handoff
+  *  - Simplified low level backend so that device/host mode initialization uses the same code paths
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

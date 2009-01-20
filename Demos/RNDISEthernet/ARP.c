@@ -28,8 +28,21 @@
   this software.
 */
 
+/** \file
+ *
+ *  Address Resolution Protocol (ARP) packet handling routines. This protocol
+ *  handles the IP to MAC address translations of devices on the network. This 
+ *  is designed to be very basic, as the devices in the network are fixed (host
+ *  and virtual server device).
+ */
+
 #include "ARP.h"
 
+/** Processes an ARP packet inside an Ethernet frame, and writes the appropriate response
+ *  to the output Ethernet frame if the request is targeted at the virtual server IP.
+ *
+ *  \return The number of bytes written to the out Ethernet frame if any, NO_RESPONSE otherwise
+ */
 int16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart)
 {
 	DecodeARPHeader(InDataStart);
@@ -47,9 +60,9 @@ int16_t ARP_ProcessARPPacket(void* InDataStart, void* OutDataStart)
 		{
 			/* Fill out the ARP response header */
 			ARPHeaderOUT->HardwareType = ARPHeaderIN->HardwareType;
-			ARPHeaderOUT->ProtocolType = ARPHeaderIN->ProtocolType;
-			ARPHeaderOUT->HLEN         = ARPHeaderIN->HLEN;
-			ARPHeaderOUT->PLEN         = ARPHeaderIN->PLEN;
+			ARPHeaderOUT->ProtocolType = ETHERTYPE_IPV4;
+			ARPHeaderOUT->HLEN         = sizeof(MAC_Address_t);
+			ARPHeaderOUT->PLEN         = sizeof(IP_Address_t);
 			ARPHeaderOUT->Operation    = SwapEndian_16(ARP_OPERATION_REPLY);
 
 			/* Copy over the sender MAC/IP to the target fields for the response */

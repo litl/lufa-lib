@@ -39,6 +39,12 @@
 		#include "Ethernet.h"
 		#include "ProtocolDecoders.h"
 	
+	/* Macros: */
+		#define ICMP_ECHOREPLY_ECHOREPLY         0
+		#define ICMP_ECHOREQUEST_ECHOREQUEST     0
+		#define ICMP_DESTUNREACHABLE_NETWORK     0
+		#define ICMP_DESTUNREACHABLE_HOST        1
+	
 	/* Type Defines: */
 		typedef struct
 		{

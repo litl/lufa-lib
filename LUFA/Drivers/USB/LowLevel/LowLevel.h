@@ -267,6 +267,11 @@
 			 */
 			void USB_ShutDown(void);
 
+			/** Resets the interface, when already initialized. This will re-enumerate the device if already connected
+			 *  to a host, or re-enumerate an already attached device when in host mode.
+			 */
+			void USB_ResetInterface(void);
+
 		/* Enums: */
 			/** Enum for error codes relating to the powering on of the USB interface. These error codes are
 			 *  used in the ErrorCode parameter value of the USB_PowerOnFail event.
@@ -356,9 +361,6 @@
 				return USB_MODE_DEVICE;
 				#endif
 			}
-
-		/* Function Prototypes: */
-			void USB_SetupInterface(void);
 	#endif
 	
 	/* Disable C linkage for C++ Compilers: */

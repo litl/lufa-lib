@@ -58,23 +58,24 @@ void USB_Init(
 {
 	USB_ShutDown();
 
-	#if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
+	#if defined(USB_CAN_BE_BOTH)
 	USB_CurrentMode = Mode;
 	#endif
+
+	#if !defined(USE_STATIC_OPTIONS)
+	USB_Options = Options;
+	#endif
+
+	#if defined(USB_CAN_BE_HOST)
+	USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
+	#endif
 	
-	#if defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER)
-		UHWCON |= (1 << UIMOD);
-		#endif
+	#if defined(USB_DEVICE_ONLY) && defined(USB_FULL_CONTROLLER)
+	UHWCON |= (1 << UIMOD);
 	#elif defined(USB_HOST_ONLY)
 	UHWCON &= ~(1 << UIMOD);
-	#else
-	if (Mode == USB_MODE_NONE)
-	{
-		RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_NoUSBModeSpecified);
-		return;
-	}
-	else if (Mode == USB_MODE_UID)
+	#elif defined(USB_CAN_BE_BOTH)
+	if (Mode == USB_MODE_UID)
 	{
 		UHWCON |=  (1 << UIDE);
 
@@ -91,35 +92,19 @@ void USB_Init(
 	{
 		UHWCON &= ~(1 << UIMOD);
 	}
-	#endif
-
-	#if defined(USB_CAN_BE_HOST)
-	USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
+	else
+	{
+		RAISE_EVENT(USB_PowerOnFail, POWERON_ERROR_NoUSBModeSpecified);
+		return;
+	}
 	#endif
 	
+	USB_ResetInterface();
+
 	#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
 	USB_OTGPAD_On();
 	#endif
-	
-	#if !defined(USE_STATIC_OPTIONS)
-	USB_Options = Options;
-	#endif
 
-	#if defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
-		USB_INT_Enable(USB_INT_VBUS);
-		#else
-		USB_SetupInterface();
-		#endif
-	#elif defined(USB_HOST_ONLY)
-	USB_SetupInterface();
-	#else
-	if (USB_CurrentMode == USB_MODE_DEVICE)
-	  USB_INT_Enable(USB_INT_VBUS);
-	else
-	  USB_SetupInterface();
-	#endif
-	
 	USB_IsInitialized = true;
 
 	sei();
@@ -139,19 +124,15 @@ void USB_ShutDown(void)
 	USB_IsInitialized = false;
 
 	#if defined(USB_CAN_BE_HOST)
-	USB_HostState           = HOST_STATE_Unattached;
+	USB_HostState = HOST_STATE_Unattached;
 	#endif
 
 	#if defined(USB_CAN_BE_DEVICE)
 	USB_ConfigurationNumber = 0;
 	#endif
 
-	#if (!defined(USB_HOST_ONLY) && !defined(USB_DEVICE_ONLY))
+	#if defined(CAN_BE_BOTH)
 	USB_CurrentMode = USB_MODE_NONE;
-	#endif
-	
-	#if !defined(USE_STATIC_OPTIONS)
-	USB_Options     = 0;
 	#endif
 
 	USB_Interface_Disable();
@@ -166,34 +147,30 @@ void USB_ShutDown(void)
 	#endif
 }
 
-void USB_SetupInterface(void)
+void USB_ResetInterface(void)
 {
 	USB_INT_DisableAllInterrupts();
 	USB_INT_ClearAllInterrupts();
 
-	USB_IsConnected         = false;
-
-	#if defined(USB_CAN_BE_DEVICE)
-	USB_IsSuspended         = false;
-	#endif
+	USB_IsConnected          = false;
 
 	#if defined(USB_CAN_BE_HOST)
-	USB_HostState           = HOST_STATE_Unattached;
+	USB_HostState            = HOST_STATE_Unattached;
 	#endif
 
 	#if defined(USB_CAN_BE_DEVICE)
 	USB_ConfigurationNumber  = 0;
+	USB_IsSuspended          = false;
 	USB_RemoteWakeupEnabled  = false;
 	USB_CurrentlySelfPowered = false;
 	#endif
-	
-	#if defined(USB_MODIFIED_FULL_CONTROLLER)
-	if (!(USB_Options & USB_OPT_MANUAL_PLL))
-	  PLLFRQ = ((1 << PLLUSB) | (1 << PDIV3) | (1 << PDIV1));
-	#endif
-	
+		
 	if (!(USB_Options & USB_OPT_MANUAL_PLL))
 	{
+		#if defined(USB_MODIFIED_FULL_CONTROLLER)
+		PLLFRQ = ((1 << PLLUSB) | (1 << PDIV3) | (1 << PDIV1));
+		#endif
+
 		USB_PLL_On();
 		while (!(USB_PLL_IsReady()));
 	}
@@ -207,10 +184,6 @@ void USB_SetupInterface(void)
 		USB_INT_Enable(USB_INT_IDTI);
 		USB_CurrentMode = USB_GetUSBModeFromUID();
 	}
-	#elif defined(USB_DEVICE_ONLY)
-		#if defined(USB_FULL_CONTROLLER) || defined(USB_MODIFIED_FULL_CONTROLLER)
-		USB_INT_Enable(USB_INT_VBUS);
-		#endif
 	#endif
 		
 	if (!(USB_Options & USB_OPT_REG_DISABLED))
@@ -229,26 +202,22 @@ void USB_SetupInterface(void)
 		USB_INT_Enable(USB_INT_VBUS);
 	}
 	#endif
-
-	#if defined(USB_CAN_BE_HOST)
-	USB_INT_Enable(USB_INT_VBERRI);
-	
-	if (USB_CurrentMode == USB_MODE_HOST)
-	  USB_Host_PrepareForDeviceConnect();
-	#endif
 	
 	#if (defined(USB_CAN_BE_DEVICE) && !defined(FIXED_CONTROL_ENDPOINT_SIZE))
-	USB_Descriptor_Device_t* DeviceDescriptorPtr;
+	if (USB_CurrentMode == USB_MODE_DEVICE)
+	{
+		USB_Descriptor_Device_t* DeviceDescriptorPtr;
 
-	if (USB_GetDescriptor((DTYPE_Device << 8), 0, (void*)&DeviceDescriptorPtr) != NO_DESCRIPTOR)
-	{		  
-		#if defined(USE_RAM_DESCRIPTORS)
-			USB_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;
-		#elif defined(USE_EEPROM_DESCRIPTORS)
-			USB_ControlEndpointSize = eeprom_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
-		#else
-			USB_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
-		#endif
+		if (USB_GetDescriptor((DTYPE_Device << 8), 0, (void*)&DeviceDescriptorPtr) != NO_DESCRIPTOR)
+		{		  
+			#if defined(USE_RAM_DESCRIPTORS)
+				USB_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;
+			#elif defined(USE_EEPROM_DESCRIPTORS)
+				USB_ControlEndpointSize = eeprom_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
+			#else
+				USB_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
+			#endif
+		}
 	}
 	#endif
 
@@ -259,6 +228,16 @@ void USB_SetupInterface(void)
 	USB_INT_Enable(USB_INT_EORSTI);	
 	#elif defined(USB_HOST_ONLY)
 	USB_Host_HostMode_On();
+	
+	USB_Host_VBUS_Auto_Off();
+	USB_OTGPAD_Off();
+
+	USB_Host_VBUS_Manual_Enable();
+	USB_Host_VBUS_Manual_On();
+	
+	USB_INT_Enable(USB_INT_SRPI);
+	USB_INT_Enable(USB_INT_BCERRI);
+	USB_INT_Enable(USB_INT_VBERRI);		
 	#else
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
@@ -268,6 +247,16 @@ void USB_SetupInterface(void)
 	else if (USB_CurrentMode == USB_MODE_HOST)
 	{
 		USB_Host_HostMode_On();
+		
+		USB_Host_VBUS_Auto_Off();
+		USB_OTGPAD_Off();
+
+		USB_Host_VBUS_Manual_Enable();
+		USB_Host_VBUS_Manual_On();
+		
+		USB_INT_Enable(USB_INT_SRPI);
+		USB_INT_Enable(USB_INT_BCERRI);
+		USB_INT_Enable(USB_INT_VBERRI);
 	}
 	#endif
 }

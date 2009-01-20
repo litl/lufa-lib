@@ -71,14 +71,6 @@
 		#define ICMP_TYPE_REDIRECTMESSAGE        5
 		#define ICMP_TYPE_ECHOREQUEST            8
 		#define ICMP_TYPE_TIMEEXCEEDED           11
-		
-		#define ICMP_ECHOREPLY_ECHOREPLY         0
-		#define ICMP_ECHOREQUEST_ECHOREQUEST     0
-		#define ICMP_DESTUNREACHABLE_NETWORK     0
-		#define ICMP_DESTUNREACHABLE_HOST        1
-		
-		#define ARP_OPERATION_REQUEST            1
-		#define ARP_OPERATION_REPLY              2
 
 	/* Type Defines: */
 		typedef struct

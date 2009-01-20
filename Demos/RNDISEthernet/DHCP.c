@@ -28,8 +28,20 @@
   this software.
 */
 
+/** \file
+ *
+ *  Dynamic Host Configuration Protocol (DHCP) packet handling routines. This protocol
+ *  handles the automatic IP negotiation to the host, so that the host will use the provided
+ *  IP address given to it by the device.
+ */
+ 
 #include "DHCP.h"
 
+/** Processes a DHCP packet inside an Ethernet frame, and writes the appropriate response
+ *  to the output Ethernet frame if the host is requesting or accepting an IP address.
+ *
+ *  \return The number of bytes written to the out Ethernet frame if any, NO_RESPONSE otherwise
+ */
 int16_t DHCP_ProcessDHCPPacket(void* IPHeaderInStart, void* DHCPHeaderInStart, void* DHCPHeaderOutStart)
 {
 	IP_Header_t*   IPHeaderIN    = (IP_Header_t*)IPHeaderInStart;
@@ -52,14 +64,14 @@ int16_t DHCP_ProcessDHCPPacket(void* IPHeaderInStart, void* DHCPHeaderInStart, v
 	DHCPHeaderOUT->TransactionID         = DHCPHeaderIN->TransactionID;
 	DHCPHeaderOUT->ElapsedSeconds        = 0;
 	DHCPHeaderOUT->Flags                 = DHCPHeaderIN->Flags;
-	memcpy(&DHCPHeaderOUT->YourIP, &ClientIPAddress, sizeof(IP_Address_t));
+	DHCPHeaderOUT->YourIP                = ClientIPAddress;
 	memcpy(&DHCPHeaderOUT->ClientHardwareAddress, &DHCPHeaderIN->ClientHardwareAddress, sizeof(MAC_Address_t));
 	DHCPHeaderOUT->Cookie                = SwapEndian_32(DHCP_MAGIC_COOKIE);
 	
 	/* Alter the incomming IP packet header so that the corrected IP source and destinations are used - this means that
 	   when the response IP header is generated, it will use the corrected addresses and not the null/broatcast addresses */
-	memcpy(&IPHeaderIN->SourceAddress, &ClientIPAddress, sizeof(IP_Address_t));
-	memcpy(&IPHeaderIN->DestinationAddress, &ServerIPAddress, sizeof(IP_Address_t));
+	IPHeaderIN->SourceAddress      = ClientIPAddress;
+	IPHeaderIN->DestinationAddress = ServerIPAddress;
 
 	/* Process the incomming DHCP packet options */
 	while (DHCPOptionsINStart[0] != DHCP_OPTION_END)

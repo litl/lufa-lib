@@ -50,7 +50,7 @@ TASK(USB_USBTask)
 	#else
 		if (USB_CurrentMode == USB_MODE_DEVICE)
 		  USB_DeviceTask();
-		else (USB_CurrentMode == USB_MODE_HOST)
+		else if (USB_CurrentMode == USB_MODE_HOST)
 		  USB_HostTask();
 	#endif
 }
@@ -111,6 +111,9 @@ static void USB_HostTask(void)
 			{	
 				USB_INT_Clear(USB_INT_DCONNI);
 				USB_INT_Clear(USB_INT_DDISCI);
+
+				USB_INT_Clear(USB_INT_VBERRI);
+				USB_INT_Enable(USB_INT_VBERRI);
 
 				USB_IsConnected = true;
 				RAISE_EVENT(USB_Connect);
@@ -228,7 +231,7 @@ static void USB_HostTask(void)
 		if (USB_IsConnected)
 		  RAISE_EVENT(USB_Disconnect);
 
-		USB_Host_PrepareForDeviceConnect();
+		USB_ResetInterface();
 	}
 }
 #endif

@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for RNDISEthernet.c.
+ */
+ 
 #ifndef _RNDISETHERNET_H_
 #define _RNDISETHERNET_H_
 
@@ -54,20 +59,34 @@
 
 		#include <LUFA/Drivers/AT90USBXXX/Serial_Stream.h>
 	
+	/* Macros: */
+		/** Notification value to indicate that a frame is ready to be read by the host. */
+		#define NOTIF_RESPONSE_AVAILABLE                 0x01
+		
 	/* Event Handlers: */
+		/** Indicates that this module will catch the USB_Connect event when thrown by the library. */
 		HANDLES_EVENT(USB_Connect);
+
+		/** Indicates that this module will catch the USB_Disconnect event when thrown by the library. */
 		HANDLES_EVENT(USB_Disconnect);
+
+		/** Indicates that this module will catch the USB_ConfigurationChanged event when thrown by the library. */
 		HANDLES_EVENT(USB_ConfigurationChanged);
+
+		/** Indicates that this module will catch the USB_UnhandledControlPacket event when thrown by the library. */
 		HANDLES_EVENT(USB_UnhandledControlPacket);
 
 	/* Type Defines: */
+		/** Type define for a RNDIS notification message, for transmission to the RNDIS host via the notification
+		 *  Endpoint.
+		 */
 		typedef struct
 		{
-			uint8_t  bmRequestType;
-			uint8_t  bNotification;
-			uint16_t wValue;
-			uint16_t wIndex;
-			uint16_t wLength;
+			uint8_t  bmRequestType; /**< Notification type, a mask of values from SrdRequestType.h */
+			uint8_t  bNotification; /**< Notification index, indicating what the RNDIS notification relates to */
+			uint16_t wValue; /**< Two byte notification value parameter */
+			uint16_t wIndex; /**< Two byte notification index parameter */
+			uint16_t wLength; /**< Size of data payload following the notification header */
 		} USB_Notification_t;
 
 	/* Enums: */

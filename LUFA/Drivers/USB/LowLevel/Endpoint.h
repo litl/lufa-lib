@@ -825,7 +825,7 @@
 				#else
 				else if (Bytes <= 64)
 				  return (3 << EPSIZE0);
-				else if (Bytes <= (8 << 4))
+				else if (Bytes <= 128)
 				  return (4 << EPSIZE0);
 				else
 				  return (5 << EPSIZE0);

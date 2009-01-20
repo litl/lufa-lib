@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Descriptors.c.
+ */
+
 #ifndef _DESCRIPTORS_H_
 #define _DESCRIPTORS_H_
 
@@ -37,34 +42,49 @@
 		#include <avr/pgmspace.h>
 
 	/* Macros: */
-		#define CDC_FUNCTIONAL_DESCRIPTOR(size)                      \
-		     struct                                                  \
-		     {                                                       \
-		          USB_Descriptor_CDCFunctional_Header_t FuncHeader;  \
-		          uint8_t                               Data[size];  \
+		/** Macro to define a CDC class-specific functional descriptor. CDC functional descriptors have a
+		 *  uniform structure but variable sized data payloads, thus cannot be represented accurately by
+		 *  a single typedef struct. A macro is used instead so that functional descriptors can be created
+		 *  easily by specifying the size of the payload. This allows sizeof() to work correctly.
+		 *
+		 *  \param DataSize  Size in bytes of the CDC functional descriptor's data payload
+		 */		
+		#define CDC_FUNCTIONAL_DESCRIPTOR(DataSize)        \
+		     struct                                        \
+		     {                                             \
+		          USB_Descriptor_Header_t Header;          \
+			      uint8_t                 SubType;         \
+		          uint8_t                 Data[DataSize];  \
 		     }
 
-		#define CDC_NOTIFICATION_EPNUM         3
-		#define CDC_TX_EPNUM                   1	
-		#define CDC_RX_EPNUM                   2	
+		/** Endpoint number of the CDC device-to-host notification IN endpoint. */
+		#define CDC_NOTIFICATION_EPNUM         2
+
+		/** Endpoint number of the CDC device-to-host data IN endpoint. */
+		#define CDC_TX_EPNUM                   3	
+
+		/** Endpoint number of the CDC host-to-device data OUT endpoint. */
+		#define CDC_RX_EPNUM                   4	
+
+		/** Size in bytes of the CDC device-to-host notification IN endpoint. */
 		#define CDC_NOTIFICATION_EPSIZE        8
-		#define CDC_TXRX_EPSIZE                64	
+
+		/** Size in bytes of the CDC data IN and OUT endpoints. */
+		#define CDC_TXRX_EPSIZE                16
 
 	/* Type Defines: */
-		typedef struct
-		{
-			USB_Descriptor_Header_t               Header;
-			uint8_t                               SubType;
-		} USB_Descriptor_CDCFunctional_Header_t;
-
+		/** Type define for the device configuration descriptor structure. This must be defined in the
+		 *  application code, as the configuration descriptor contains several sub-descriptors which
+		 *  vary between devices, and which describe the device's usage to the host.
+		 */
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t    Config;
 			USB_Descriptor_Interface_t               CCI_Interface;
-			CDC_FUNCTIONAL_DESCRIPTOR(2)             Header_Functional;
-			CDC_FUNCTIONAL_DESCRIPTOR(2)             CallManagement_Functional;
-			CDC_FUNCTIONAL_DESCRIPTOR(1)             ACM_Functional;
-			CDC_FUNCTIONAL_DESCRIPTOR(2)             Union_Functional;
+			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC_Functional_Header;
+			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC_Functional_CallManagement;
+			CDC_FUNCTIONAL_DESCRIPTOR(1)             CDC_Functional_AbstractControlManagement;
+			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC_Functional_Union;
 			USB_Descriptor_Endpoint_t                ManagementEndpoint;
 			USB_Descriptor_Interface_t               DCI_Interface;
 			USB_Descriptor_Endpoint_t                DataOutEndpoint;

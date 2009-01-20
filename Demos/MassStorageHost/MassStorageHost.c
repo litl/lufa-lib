@@ -34,7 +34,8 @@
 	using the standard Mass Storage USB profile.
 	
 	The first 512 bytes (boot sector) of an attached disk's memory will be dumped
-	out of the serial port when it is attached to the AT90USB1287 AVR.
+	out of the serial port in HEX and ASCII form when it is attached to the AT90USB1287
+	AVR.
 	
 	Requires header files from the Mass Storage Device demonstation application.
 */
