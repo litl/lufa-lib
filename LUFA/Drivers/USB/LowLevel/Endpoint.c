@@ -131,8 +131,10 @@ uint8_t Endpoint_Discard_Stream(uint16_t Length
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		
-		Endpoint_Discard_Byte();
+		else
+		{
+			Endpoint_Discard_Byte();
+		}
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
@@ -164,8 +166,10 @@ uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
 		}
-
-		Endpoint_Write_Byte(*(DataStream++));
+		else
+		{
+			Endpoint_Write_Byte(*(DataStream++));
+		}
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
@@ -197,8 +201,10 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		
-		Endpoint_Write_Byte(*(DataStream--));
+		else
+		{
+			Endpoint_Write_Byte(*(DataStream--));
+		}
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
@@ -230,8 +236,10 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		
-		*(DataStream++) = Endpoint_Read_Byte();
+		else
+		{
+			*(DataStream++) = Endpoint_Read_Byte();
+		}
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
@@ -263,8 +271,10 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		
-		*(DataStream--) = Endpoint_Read_Byte();
+		else
+		{
+			*(DataStream--) = Endpoint_Read_Byte();
+		}
 	}
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;

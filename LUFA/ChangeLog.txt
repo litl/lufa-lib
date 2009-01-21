@@ -32,6 +32,7 @@
   *  - Added SubErrorCode parameter to the USB_DeviceEnumerationFailed event
   *  - VBUS drop interrupt now disabled during the manual-to-auto VBUS delivery handoff
   *  - Simplified low level backend so that device/host mode initialization uses the same code paths
+  *  - Added workaround for faulty Mass Storage devices which do not implement the required GET_MAX_LUN request
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

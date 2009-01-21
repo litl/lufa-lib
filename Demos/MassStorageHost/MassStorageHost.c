@@ -281,16 +281,25 @@ TASK(USB_MassStore_Host)
 
 			/* Send the request, display error and wait for device detatch if request fails */
 			if ((ErrorCode = USB_Host_SendControlRequest(&MassStore_NumberOfLUNs)) != HOST_SENDCONTROL_Successful)
-			{
-				puts_P(PSTR("Control error (Get Max LUN)."));
-				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
+			{	
+				/* Check if the device stalled the request */
+				if (ErrorCode == HOST_SENDCONTROL_SetupStalled)
+				{
+					/* Some faulty Mass Storage devices don't implement the GET_MAX_LUN request, so assume a single LUN */
+					MassStore_NumberOfLUNs = 0;
+				}
+				else
+				{
+					puts_P(PSTR("Control error (Get Max LUN)."));
+					printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
 
-				/* Indicate error via status LEDs */
-				UpdateStatus(Status_EnumerationError);
+					/* Indicate error via status LEDs */
+					UpdateStatus(Status_EnumerationError);
 
-				/* Wait until USB device disconnected */
-				while (USB_IsConnected);
-				break;
+					/* Wait until USB device disconnected */
+					while (USB_IsConnected);
+					break;
+				}
 			}
 			
 			/* Device indicates the maximum LUN index, the 1-indexed number of LUNs is one more that this */
