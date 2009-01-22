@@ -50,7 +50,7 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 {
 	uint16_t CurrDFPage     = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
 	uint16_t CurrDFPageByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
-
+	
 	uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
 		
 	/* Select the dataflash IC based on the page number */

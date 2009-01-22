@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for ProtocolDecoders.c.
+ */
+
 #ifndef _PROTOCOL_DECODERS_H_
 #define _PROTOCOL_DECODERS_H_
 

@@ -186,8 +186,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Clear the report data afterwards */
 				memset(&MouseReportData, 0, sizeof(MouseReportData));
 
-				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
-				Endpoint_ClearSetupOUT();
+				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+				Endpoint_Finalize_Write_Control_Stream();
 			}
 		
 			break;
@@ -369,8 +369,8 @@ TASK(USB_Mouse_Report)
 			/* Write Mouse Report Data */
 			Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData));
 			
-			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_ClearCurrentBank();
+			/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+			Endpoint_Finalize_Stream();
 		}
 	}
 }

@@ -36,8 +36,23 @@
    in the project makefile, and pass it to the compiler using the -D switch.
 */
 
+/** \file
+ *
+ *  Protocol decoding routines, for the plain-text decoding of Ethernet frames for debugging purposes.
+ *  Enabled protocol decoders will print incomming Ethernet frame contents through the USART in a human
+ *  readable format.
+ *
+ *  Note that the USART is a slow transmission medium, and will slow down packet processing considerably.
+ *  Packet decoding routines can be disabled by defining NO_DECODE_{Protocol Name} in the project makefile
+ *  and passing it to the compiler via the -D switch.
+ */
+ 
 #include "ProtocolDecoders.h"
 
+/** Decodes an Ethernet frame header and prints its contents to through the USART in a human readable format.
+ *
+ *  \param InDataStart  Pointer to the start of an Ethernet frame header
+ */
 void DecodeEthernetFrameHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_ETHERNET)
@@ -76,6 +91,10 @@ void DecodeEthernetFrameHeader(void* InDataStart)
 	#endif
 }
 
+/** Decodes an ARP header and prints its contents to through the USART in a human readable format.
+ *
+ *  \param InDataStart  Pointer to the start of an ARP packet header
+ */
 void DecodeARPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_ARP)
@@ -122,6 +141,10 @@ void DecodeARPHeader(void* InDataStart)
 	#endif
 }
 
+/** Decodes an IP header and prints its contents to through the USART in a human readable format.
+ *
+ *  \param InDataStart  Pointer to the start of an IP packet header
+ */
 void DecodeIPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_IP)
@@ -156,6 +179,10 @@ void DecodeIPHeader(void* InDataStart)
 	#endif
 }
 
+/** Decodes an ICMP header and prints its contents to through the USART in a human readable format.
+ *
+ *  \param InDataStart  Pointer to the start of an ICMP packet header
+ */
 void DecodeICMPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_ICMP)
@@ -168,6 +195,10 @@ void DecodeICMPHeader(void* InDataStart)
 	#endif
 }
 
+/** Decodes a TCP header and prints its contents to through the USART in a human readable format.
+ *
+ *  \param InDataStart  Pointer to the start of a TCP packet header
+ */
 void DecodeTCPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_TCP)
@@ -192,6 +223,10 @@ void DecodeTCPHeader(void* InDataStart)
 	#endif
 }
 
+/** Decodes an UDP header and prints its contents to through the USART in a human readable format.
+ *
+ *  \param InDataStart  Pointer to the start of a UDP packet header
+ */
 void DecodeUDPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_UDP)
@@ -206,6 +241,10 @@ void DecodeUDPHeader(void* InDataStart)
 	#endif
 }
 
+/** Decodes an DHCP header and prints its contents to through the USART in a human readable format.
+ *
+ *  \param InDataStart  Pointer to the start of a DHCP packet header
+ */
 void DecodeDHCPHeader(void* InDataStart)
 {
 	#if !defined(NO_DECODE_DHCP)

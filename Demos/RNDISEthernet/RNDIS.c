@@ -28,12 +28,25 @@
   this software.
 */
 
+/** \file
+ *
+ *  RNDIS command handler functions. This handles RNDIS commands according to
+ *  the Microsoft RNDIS specification, creating a USB Ethernet network adapter.
+ */
+ 
 #define  INCLUDE_FROM_RNDIS_C
 #include "RNDIS.h"
 
 /* Global Variables: */
+/** Physical MAC address of the network adapter, which becomes the MAC address of the host for packets sent to the adapter. */
 static MAC_Address_t  PROGMEM AdapterMACAddress          = {ADAPTER_MAC_ADDRESS};
+
+/** Vendor description of the adapter. This is overridden by the INF file required to install the appropriate RNDIS drivers for
+ *  the device, but may still be used by the OS in some circumstances.
+ */
 static char           PROGMEM AdapterVendorDescription[] = "LUFA RNDIS Adapter";
+
+/** List of RNDIS OID commands supported by this adapter. */
 static const uint32_t PROGMEM AdapterSupportedOIDList[]  =
 							{
 								OID_GEN_SUPPORTED_LIST,
@@ -64,13 +77,28 @@ static const uint32_t PROGMEM AdapterSupportedOIDList[]  =
 								OID_802_3_XMIT_MORE_COLLISIONS,
 							};
 
+/** Buffer for RNDIS messages (as distinct from Ethernet frames sent through the adapter. This must be big enough to hold the entire
+ *  Supported OID list, plus the response header. The buffer is half-duplex, and is written to as it is read to save on SRAM - for this
+ *  reason, care must be taken when constructing RNDIS responses that unread data is not overwritten when writing in responses.
+ */
 uint8_t                 RNDISMessageBuffer[sizeof(AdapterSupportedOIDList) + sizeof(RNDIS_QUERY_CMPLT_t)];
+
+/** Pointer to the RNDIS message header at the top of the RNDIS message buffer, for convenience. */
 RNDIS_Message_Header_t* MessageHeader = (RNDIS_Message_Header_t*)&RNDISMessageBuffer;
 
+/** Indicates if a RNDIS message response is ready to be sent back to the host. */
 bool                    ResponseReady               = false;
+
+/** Current RNDIS adapter state, a value from the RNDIS_States_t enum. */
 uint8_t                 CurrRNDISState              = RNDIS_Uninitialized;
+
+/** Current Ethernet packet filter mask. This is non-zero when the adapter is initialized, or zero when disabled. */
 uint32_t                CurrPacketFilter            = 0;							
 
+
+/** Processes the RNDIS message received by the host and stored in the RNDISMessageBuffer global buffer. If a response is
+ *  created, the ResponseReady global is updated so that the response is written back to the host upon request.
+ */
 void ProcessRNDISControlMessage(void)
 {
 	/* Note: Only a single buffer is used for both the received message and its response to save SRAM. Because of
@@ -200,6 +228,17 @@ void ProcessRNDISControlMessage(void)
 	}
 }
 
+/** Processes RNDIS query commands, retrieving information from the adapter and reporting it back to the host. The requested
+ *  parameter is given as an OID value.
+ *
+ *  \param OId           OId value of the parameter being queried
+ *  \param QueryData     Pointer to any extra query data being sent by the host to the device inside the RNDIS message buffer
+ *  \param QuerySize     Size in bytes of the extra query data being sent by the host
+ *  \param ResponseData  Pointer to the start of the query response inside the RNDIS message buffer
+ *  \param ResponseSize  Pointer to the size in bytes of the response data being sent to the host
+ *
+ *  \return Boolean true if the query was handled, false otherwise
+ */
 static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
                              void* ResponseData, uint16_t* ResponseSize)
 {
@@ -314,6 +353,15 @@ static bool ProcessNDISQuery(uint32_t OId, void* QueryData, uint16_t QuerySize,
 	}
 }
 
+/** Processes RNDIS set commands, setting adapter parameters to values given by the host. The requested parameter is given 
+ *  as an OID value.
+ *
+ *  \param OId      OId value of the parameter being set
+ *  \param SetData  Pointer to the parameter value in the RNDIS message buffer
+ *  \param SetSize  Size in bytes of the parameter value being sent by the host
+ *
+ *  \return Boolean true if the set was handled, false otherwise
+ */
 static bool ProcessNDISSet(uint32_t OId, void* SetData, uint16_t SetSize)
 {
 	/* Handler for REMOTE_NDIS_SET_MSG messages */

@@ -35,6 +35,9 @@
 
 uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 
+static bool USB_PipeZLPRequired[PIPE_TOTAL_PIPES];
+
+
 bool Pipe_ConfigurePipe(const uint8_t  Number, const uint8_t Type, const uint8_t Token, const uint8_t EndpointNumber,
 						const uint16_t Size, const uint8_t Banks)
 {
@@ -53,7 +56,7 @@ void Pipe_ClearPipes(void)
 {
 	UPINT = 0;
 
-	for (uint8_t PNum = 0; PNum < PIPE_MAX_PIPES; PNum++)
+	for (uint8_t PNum = 0; PNum < PIPE_TOTAL_PIPES; PNum++)
 	{
 		Pipe_ResetPipe(PNum);
 		Pipe_SelectPipe(PNum);

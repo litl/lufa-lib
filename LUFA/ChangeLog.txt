@@ -17,7 +17,7 @@
   *  - USB task now retores previous global interrupt state after execution, rather than forcing global interrupts to be enabled
   *  - Fixed USB_DeviceEnumerationComplete event firing after each configuration change, rather than once after the initial configuration
   *  - Added ENDPOINT_DOUBLEBANK_SUPPORTED() macros to Endpoint.h, altered ENDPOINT_MAX_SIZE() to allow user to specify endpoint
-  *  - ENDPOINT_MAX_ENDPOINTS changed to ENDPOINT_TOTAL_ENDPOINTS
+  *  - ENDPOINT_MAX_ENDPOINTS changed to ENDPOINT_TOTAL_ENDPOINTS, PIPE_MAX_PIPES changed to PIPE_TOTAL_PIPES
   *  - Endpoint and Pipe non-control stream functions now ensure endpoint or pipe is ready before reading or writing
   *  - Changed Teensy bootloader to use a watchdog reset when exiting rather than a software jump
   *  - Fixed integer promotion error in MassStorage and MassStorageHost demos, corrupting read/write transfers
@@ -33,6 +33,8 @@
   *  - VBUS drop interrupt now disabled during the manual-to-auto VBUS delivery handoff
   *  - Simplified low level backend so that device/host mode initialization uses the same code paths
   *  - Added workaround for faulty Mass Storage devices which do not implement the required GET_MAX_LUN request
+  *  - Added new stream Finalize functions for normal and control endpoints to correctly handle ZLPs, updated all demos
+  *  - Removed buggy Telnet application from the RNDIS demo
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

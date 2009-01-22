@@ -28,14 +28,34 @@
   this software.
 */
 
+/** \file
+ *
+ *  Transmission Control Protocol (TCP) packet handling routines. This protocol handles the reliable in-order transmission
+ *  and reception of packets to and from devices on a network, to "ports" on the device. It is used in situations where data
+ *  delivery must be reliable and correct, e.g. HTTP, TELNET and most other non-streaming protocols.
+ */
+ 
 #define  INCLUDE_FROM_TCP_C
 #include "TCP.h"
 
 /* Global Variables: */
+/** Port state table array. This contains the current status of TCP ports in the device. To save on space, only open ports are
+ *  stored - closed ports may be overwritten at any time, and the system will assume any ports not present in the array are closed. This
+ *  allows for MAX_OPEN_TCP_PORTS to be less than the number of ports used by the application if desired.
+ */
 TCP_PortState_t        PortStateTable[MAX_OPEN_TCP_PORTS];
+
+/** Connection state table array. This contains the current status of TCP connections in the device. To save on space, only active
+ *  (non-closed) connections are stored - closed connections may be overwritten at any time, and the system will assume any connections
+ *  not present in the array are closed.
+ */
 TCP_ConnectionState_t  ConnectionStateTable[MAX_TCP_CONNECTIONS];
 
 
+/** Task to handle the calling of each registered application's callback function, to process and generate TCP packets at the application
+ *  level. If an application produces a response, this task constructs the appropriate Ethernet frame and places it into the Ethernet OUT
+ *  buffer for later transmission.
+ */
 TASK(TCP_Task)
 {
 	/* Task to hand off TCP packets to and from the listening applications. */
@@ -135,6 +155,9 @@ TASK(TCP_Task)
 	}
 }
 
+/** Initializes the TCP protocol handler, clearing the port and connection state tables. This must be called before TCP packets are
+ *  processed.
+ */
 void TCP_Init(void)
 {
 	/* Initialize the port state table with all CLOSED entries */
@@ -146,10 +169,19 @@ void TCP_Init(void)
 	  ConnectionStateTable[CSTableEntry].State = TCP_Connection_Closed;
 }
 
+/** Sets the state and callback handler of the given port, specified in big endian to the given state.
+ *
+ *  \param Port     Port whose state and callback function to set, specified in big endian
+ *  \param State    New state of the port, a value from the TCP_PortStates_t enum
+ *  \param Handler  Application callback handler for the port
+ *
+ *  \return Boolean true if the port state was set, false otherwise (no more space in the port state table)
+ */
 bool TCP_SetPortState(uint16_t Port, uint8_t State, void (*Handler)(TCP_ConnectionState_t*, TCP_ConnectionBuffer_t*))
 {
 	/* Note, Port number should be specified in BIG endian to simplfy network code */
 
+	/* Check to see if the port entry is already in the port state table */
 	for (uint8_t PTableEntry = 0; PTableEntry < MAX_TCP_CONNECTIONS; PTableEntry++)
 	{
 		/* Find existing entry for the port in the table, update it if found */
@@ -186,6 +218,12 @@ bool TCP_SetPortState(uint16_t Port, uint8_t State, void (*Handler)(TCP_Connecti
 	}
 }
 
+/** Retrieves the current state of a given TCP port, specified in big endian.
+ *
+ *  \param Port  TCP port whose state is to be retrieved, given in big-endian
+ *
+ *  \return A value from the TCP_PortStates_t enum
+ */
 uint8_t TCP_GetPortState(uint16_t Port)
 {
 	/* Note, Port number should be specified in BIG endian to simplfy network code */
@@ -200,44 +238,17 @@ uint8_t TCP_GetPortState(uint16_t Port)
 	/* Port not in table, assume closed */
 	return TCP_Port_Closed;
 }
-		
-uint8_t TCP_GetConnectionState(uint16_t Port, IP_Address_t RemoteAddress, uint16_t RemotePort)
-{
-	/* Note, Port number should be specified in BIG endian to simplfy network code */
 
-	for (uint8_t CSTableEntry = 0; CSTableEntry < MAX_TCP_CONNECTIONS; CSTableEntry++)
-	{
-		/* Find port entry in the table */
-		if ((ConnectionStateTable[CSTableEntry].Port == Port) &&
-		     IP_COMPARE(&ConnectionStateTable[CSTableEntry].RemoteAddress, &RemoteAddress) &&
-			 ConnectionStateTable[CSTableEntry].RemotePort == RemotePort)
-			 
-		{
-			return ConnectionStateTable[CSTableEntry].State;
-		}
-	}
-	
-	return TCP_Connection_Closed;
-}
-
-TCP_ConnectionInfo_t* TCP_GetConnectionInfo(uint16_t Port, IP_Address_t RemoteAddress, uint16_t RemotePort)
-{
-	/* Note, Port number should be specified in BIG endian to simplfy network code */
-
-	for (uint8_t CSTableEntry = 0; CSTableEntry < MAX_TCP_CONNECTIONS; CSTableEntry++)
-	{
-		/* Find port entry in the table */
-		if ((ConnectionStateTable[CSTableEntry].Port == Port) &&
-		     IP_COMPARE(&ConnectionStateTable[CSTableEntry].RemoteAddress, &RemoteAddress) &&
-			 ConnectionStateTable[CSTableEntry].RemotePort == RemotePort)
-		{
-			return &ConnectionStateTable[CSTableEntry].Info;
-		}
-	}
-	
-	return NULL;
-}
-
+/** Sets the connection state of the given port, remote address and remote port to the given TCP connection state. If the
+ *  connection exists in the connection state table it is updated, otherwise it is created if possible.
+ *
+ *  \param Port           TCP port of the connection on the device, specified in big endian
+ *  \param RemoteAddress  Remote protocol IP address of the connected device
+ *  \param RemotePort     TCP port of the remote device in the connection, specified in big endian
+ *  \param State          TCP connection state, a value from the TCP_ConnectionStates_t enum
+ *
+ *  \return Boolean true if the connection was updated or created, false otherwise (no more space in the connection state table)
+ */
 bool TCP_SetConnectionState(uint16_t Port, IP_Address_t RemoteAddress, uint16_t RemotePort, uint8_t State)
 {
 	/* Note, Port number should be specified in BIG endian to simplfy network code */
@@ -270,6 +281,70 @@ bool TCP_SetConnectionState(uint16_t Port, IP_Address_t RemoteAddress, uint16_t 
 	return false;
 }
 
+/** Retrieves the current state of a given TCP connection to a host.
+ *
+ *  \param Port           TCP port on the device in the connection, specified in big endian
+ *  \param RemoteAddress  Remote protocol IP address of the connected host
+ *  \param RemotePort     Remote TCP port of the connected host, specified in big endian
+ *
+ *  \return A value from the TCP_ConnectionStates_t enum
+ */
+uint8_t TCP_GetConnectionState(uint16_t Port, IP_Address_t RemoteAddress, uint16_t RemotePort)
+{
+	/* Note, Port number should be specified in BIG endian to simplfy network code */
+
+	for (uint8_t CSTableEntry = 0; CSTableEntry < MAX_TCP_CONNECTIONS; CSTableEntry++)
+	{
+		/* Find port entry in the table */
+		if ((ConnectionStateTable[CSTableEntry].Port == Port) &&
+		     IP_COMPARE(&ConnectionStateTable[CSTableEntry].RemoteAddress, &RemoteAddress) &&
+			 ConnectionStateTable[CSTableEntry].RemotePort == RemotePort)
+			 
+		{
+			return ConnectionStateTable[CSTableEntry].State;
+		}
+	}
+	
+	return TCP_Connection_Closed;
+}
+
+/** Retrieves the connection info structure of a given connection to a host.
+ *
+ *  \param Port           TCP port on the device in the connection, specified in big endian
+ *  \param RemoteAddress  Remote protocol IP address of the connected host
+ *  \param RemotePort     Remote TCP port of the connected host, specified in big endian
+ *
+ *  \return ConnectionInfo structure of the connection if found, NULL otherwise
+ */
+TCP_ConnectionInfo_t* TCP_GetConnectionInfo(uint16_t Port, IP_Address_t RemoteAddress, uint16_t RemotePort)
+{
+	/* Note, Port number should be specified in BIG endian to simplfy network code */
+
+	for (uint8_t CSTableEntry = 0; CSTableEntry < MAX_TCP_CONNECTIONS; CSTableEntry++)
+	{
+		/* Find port entry in the table */
+		if ((ConnectionStateTable[CSTableEntry].Port == Port) &&
+		     IP_COMPARE(&ConnectionStateTable[CSTableEntry].RemoteAddress, &RemoteAddress) &&
+			 ConnectionStateTable[CSTableEntry].RemotePort == RemotePort)
+		{
+			return &ConnectionStateTable[CSTableEntry].Info;
+		}
+	}
+	
+	return NULL;
+}
+
+/** Processes a TCP packet inside an Ethernet frame, and writes the appropriate response
+ *  to the output Ethernet frame if one is created by a application handler.
+ *
+ *  \param IPHeaderInStart    Pointer to the start of the incomming packet's IP header
+ *  \param TCPHeaderInStart   Pointer to the start of the incomming packet's TCP header
+ *  \param TCPHeaderOutStart  Pointer to the start of the outgoing packet's TCP header
+ *
+ *  \return The number of bytes written to the out Ethernet frame if any, NO_RESPONSE if no
+ *           response was generated, NO_PROCESS if the packet processing was deferred until the
+ *           next Ethernet packet handler iteration
+ */
 int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void* TCPHeaderOutStart)
 {
 	IP_Header_t*  IPHeaderIN   = (IP_Header_t*)IPHeaderInStart;
@@ -501,6 +576,16 @@ int16_t TCP_ProcessTCPPacket(void* IPHeaderInStart, void* TCPHeaderInStart, void
 	return NO_RESPONSE;
 }
 
+/** Calculates the appropriate TCP checksum, consisting of the addition of the one's compliment of each word,
+ *  complimented.
+ *
+ *  \param TCPHeaderOutStart  Pointer to the start of the packet's outgoing TCP header
+ *  \param SourceAddress      Source protocol IP address of the outgoing IP header
+ *  \param SourceAddress      DestinationAddress protocol IP address of the outgoing IP header
+ *  \param TCPOutSize         Size in bytes of the TCP data header and payload
+ *
+ *  \return A 16-bit TCP checksum value
+ */
 static uint16_t TCP_Checksum16(void* TCPHeaderOutStart, IP_Address_t SourceAddress,
                                IP_Address_t DestinationAddress, uint16_t TCPOutSize)
 {

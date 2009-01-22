@@ -34,9 +34,24 @@
 #define  INCLUDE_FROM_ENDPOINT_C
 #include "Endpoint.h"
 
-#if !defined(FIXED_CONTROL_ENDPOINT_SIZE)
-uint8_t USB_ControlEndpointSize = ENDPOINT_CONTROLEP_DEFAULT_SIZE;
+#if !defined(NO_ENDPOINT_STREAMS)
+static bool USB_EndpointStreamZLP[ENDPOINT_TOTAL_ENDPOINTS];
 #endif
+
+uint16_t    USB_EndpointSize[
+#if !defined(NO_ENDPOINT_STREAMS)
+                             ENDPOINT_TOTAL_ENDPOINTS
+#else
+                             1
+#endif
+                             ] = {
+                                  #if defined(FIXED_CONTROL_ENDPOINT_SIZE)
+                                  FIXED_CONTROL_ENDPOINT_SIZE
+                                  #else
+                                  ENDPOINT_CONTROLEP_DEFAULT_SIZE
+                                  #endif
+                                 };
+
 
 #if !defined(STATIC_ENDPOINT_CONFIGURATION)
 bool Endpoint_ConfigureEndpoint(const uint8_t  Number, const uint8_t Type, const uint8_t Direction,
@@ -45,7 +60,11 @@ bool Endpoint_ConfigureEndpoint(const uint8_t  Number, const uint8_t Type, const
 	Endpoint_SelectEndpoint(Number);
 	Endpoint_EnableEndpoint();
 
-	UECFG1X = 0;	
+	UECFG1X = 0;
+	
+#if !defined(NO_ENDPOINT_STREAMS)
+	USB_EndpointSize[Number] = Endpoint_BytesToBankSize(Size);
+#endif
 
 	UECFG0X = ((Type << EPTYPE0) | Direction);
 	UECFG1X = ((1 << ALLOC) | Banks | Endpoint_BytesToEPSizeMask(Size));
@@ -53,10 +72,18 @@ bool Endpoint_ConfigureEndpoint(const uint8_t  Number, const uint8_t Type, const
 	return Endpoint_IsConfigured();
 }
 #else
-bool Endpoint_ConfigureEndpointStatic(const uint8_t Number, const uint8_t UECFG0XData, const uint8_t UECFG1XData)
+bool Endpoint_ConfigureEndpointStatic(const uint8_t Number, const uint8_t UECFG0XData, const uint8_t UECFG1XData
+#if !defined(NO_ENDPOINT_STREAMS)
+                                      , const uint16_t Size
+#endif
+                                      )
 {
 	Endpoint_SelectEndpoint(Number);
 	Endpoint_EnableEndpoint();
+
+#if !defined(NO_ENDPOINT_STREAMS)
+	USB_EndpointSize[Number] = Size;
+#endif
 
 	UECFG1X = 0;	
 
@@ -106,6 +133,61 @@ uint8_t Endpoint_WaitUntilReady(void)
 	return ENDPOINT_READYWAIT_NoError;
 }
 
+#if !defined(NO_ENDPOINT_STREAMS)
+void Endpoint_Finalize_Stream(void)
+{
+	Endpoint_ClearCurrentBank();
+
+	if (USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()])
+	{
+		Endpoint_WaitUntilReady();
+		Endpoint_ClearCurrentBank();
+	}
+	
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = false;
+}
+
+void Endpoint_Finalize_Write_Control_Stream(void)
+{
+	Endpoint_ClearSetupIN();
+
+	if (!(Endpoint_IsSetupOUTReceived()))
+	{
+		if (USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()])
+		{
+			while (!(Endpoint_IsSetupINReady()));
+			Endpoint_ClearSetupIN();
+		}
+	}
+	
+	while (!(Endpoint_IsSetupOUTReceived()));
+	Endpoint_ClearSetupOUT();
+	
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = false;
+}
+
+void Endpoint_Finalize_Read_Control_Stream(void)
+{
+	Endpoint_ClearSetupOUT();
+
+	if (USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()])
+	{
+		while (!(Endpoint_IsSetupOUTReceived()))
+		{
+			if (Endpoint_IsSetupINReady())
+			  break;
+		}
+
+		if (!(Endpoint_IsSetupINReady()))
+		  Endpoint_ClearSetupOUT();
+	}
+	
+	while (!(Endpoint_IsSetupINReady()));
+	Endpoint_ClearSetupIN();
+	
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = false;
+}
+
 uint8_t Endpoint_Discard_Stream(uint16_t Length
 #if !defined(NO_STREAM_CALLBACKS)
                                 , uint8_t (* const Callback)(void)
@@ -117,11 +199,13 @@ uint8_t Endpoint_Discard_Stream(uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length--)
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
+
+	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
-			Endpoint_ClearCurrentBank();
+			Endpoint_ClearCurrentBank();			
 
 			#if !defined(NO_STREAM_CALLBACKS)
 			if ((Callback != NULL) && (Callback() == STREAMCALLBACK_Abort))
@@ -130,10 +214,13 @@ uint8_t Endpoint_Discard_Stream(uint16_t Length
 
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
+			  
+			USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
 		}
 		else
 		{
 			Endpoint_Discard_Byte();
+			Length--;
 		}
 	}
 	
@@ -152,7 +239,7 @@ uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length--)
+	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -169,8 +256,11 @@ uint8_t Endpoint_Write_Stream_LE(const void* Buffer, uint16_t Length
 		else
 		{
 			Endpoint_Write_Byte(*(DataStream++));
+			Length--;
 		}
 	}
+
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
 }
@@ -187,7 +277,7 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length--)
+	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -204,8 +294,11 @@ uint8_t Endpoint_Write_Stream_BE(const void* Buffer, uint16_t Length
 		else
 		{
 			Endpoint_Write_Byte(*(DataStream--));
+			Length--;
 		}
 	}
+	
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
 	
 	return ENDPOINT_RWSTREAM_ERROR_NoError;
 }
@@ -222,7 +315,9 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length--)
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
+
+	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -235,10 +330,13 @@ uint8_t Endpoint_Read_Stream_LE(void* Buffer, uint16_t Length
 
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
+
+			USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
 		}
 		else
 		{
 			*(DataStream++) = Endpoint_Read_Byte();
+			Length--;
 		}
 	}
 	
@@ -257,7 +355,9 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
 	if ((ErrorCode = Endpoint_WaitUntilReady()))
 	  return ErrorCode;
 
-	while (Length--)
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
+
+	while (Length)
 	{
 		if (!(Endpoint_ReadWriteAllowed()))
 		{
@@ -270,10 +370,13 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
 
 			if ((ErrorCode = Endpoint_WaitUntilReady()))
 			  return ErrorCode;
+
+			USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
 		}
 		else
 		{
 			*(DataStream--) = Endpoint_Read_Byte();
+			Length--;
 		}
 	}
 	
@@ -283,68 +386,66 @@ uint8_t Endpoint_Read_Stream_BE(void* Buffer, uint16_t Length
 uint8_t Endpoint_Write_Control_Stream_LE(const void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)Buffer;
-	bool     SendZLP    = true;
 	
+	while (!(Endpoint_IsSetupINReady()));
+
 	while (Length && !(Endpoint_IsSetupOUTReceived()))
 	{
-		while (!(Endpoint_IsSetupINReady()));
-		
-		while (Length && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
+		if (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()])
+		{
+			Endpoint_ClearSetupIN();
+
+			while (!(Endpoint_IsSetupINReady()))
+			{
+				if (Endpoint_IsSetupOUTReceived())
+				  break;
+			}
+		}
+		else
 		{
 			Endpoint_Write_Byte(*(DataStream++));
-			
 			Length--;
 		}
-		
-		SendZLP = (Endpoint_BytesInEndpoint() == USB_ControlEndpointSize);
-		Endpoint_ClearSetupIN();
 	}
+
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
 	
 	if (Endpoint_IsSetupOUTReceived())
 	  return ENDPOINT_RWCSTREAM_ERROR_HostAborted;
 	
-	if (SendZLP)
-	{
-		while (!(Endpoint_IsSetupINReady()));
-		Endpoint_ClearSetupIN();
-	}
-	
-	while (!(Endpoint_IsSetupOUTReceived()));
-
 	return ENDPOINT_RWCSTREAM_ERROR_NoError;
 }
 
 uint8_t Endpoint_Write_Control_Stream_BE(const void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
-	bool     SendZLP    = true;
-	
+
+	while (!(Endpoint_IsSetupINReady()));
+
 	while (Length && !(Endpoint_IsSetupOUTReceived()))
 	{
-		while (!(Endpoint_IsSetupINReady()));
-		
-		while (Length && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
+		if (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()])
+		{
+			Endpoint_ClearSetupIN();
+			
+			while (!(Endpoint_IsSetupINReady()))
+			{
+				if (Endpoint_IsSetupOUTReceived())
+				  break;
+			}
+		}
+		else
 		{
 			Endpoint_Write_Byte(*(DataStream--));
-			
 			Length--;
 		}
-		
-		SendZLP = (Endpoint_BytesInEndpoint() == USB_ControlEndpointSize);
-		Endpoint_ClearSetupIN();
 	}
+
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
 	
 	if (Endpoint_IsSetupOUTReceived())
 	  return ENDPOINT_RWCSTREAM_ERROR_HostAborted;
 	
-	if (SendZLP)
-	{
-		while (!(Endpoint_IsSetupINReady()));
-		Endpoint_ClearSetupIN();
-	}
-	
-	while (!(Endpoint_IsSetupOUTReceived()));
-
 	return ENDPOINT_RWCSTREAM_ERROR_NoError;
 }
 
@@ -352,22 +453,26 @@ uint8_t Endpoint_Read_Control_Stream_LE(void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)Buffer;
 	
+	while (!(Endpoint_IsSetupOUTReceived()));
+
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
+
 	while (Length)
 	{
-		while (!(Endpoint_IsSetupOUTReceived()));
-		
-		while (Length && Endpoint_BytesInEndpoint())
+		if (!(Endpoint_BytesInEndpoint()))
 		{
-			*(DataStream++) = Endpoint_Read_Byte();
-			
+			Endpoint_ClearSetupOUT();
+			while (!(Endpoint_IsSetupOUTReceived()));
+
+			USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
+		}
+		else
+		{
+			*(DataStream++) = Endpoint_Read_Byte();		
 			Length--;
 		}
-		
-		Endpoint_ClearSetupOUT();
 	}
-	
-	while (!(Endpoint_IsSetupINReady()));
-	
+		
 	return ENDPOINT_RWCSTREAM_ERROR_NoError;
 }
 
@@ -375,23 +480,28 @@ uint8_t Endpoint_Read_Control_Stream_BE(void* Buffer, uint16_t Length)
 {
 	uint8_t* DataStream = (uint8_t*)(Buffer + Length - 1);
 	
+	while (!(Endpoint_IsSetupOUTReceived()));
+
+	USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
+
 	while (Length)
 	{
-		while (!(Endpoint_IsSetupOUTReceived()));
-		
-		while (Length && Endpoint_BytesInEndpoint())
+		if (!(Endpoint_BytesInEndpoint()))
 		{
-			*(DataStream--) = Endpoint_Read_Byte();
-			
+			Endpoint_ClearSetupOUT();
+			while (!(Endpoint_IsSetupOUTReceived()));
+
+			USB_EndpointStreamZLP[Endpoint_GetCurrentEndpoint()] = (Endpoint_BytesInEndpoint() == USB_EndpointSize[Endpoint_GetCurrentEndpoint()]);
+		}
+		else
+		{
+			*(DataStream--) = Endpoint_Read_Byte();		
 			Length--;
 		}
-		
-		Endpoint_ClearSetupOUT();
 	}
-	
-	while (!(Endpoint_IsSetupINReady()));
-
+		
 	return ENDPOINT_RWCSTREAM_ERROR_NoError;
 }
+#endif
 
 #endif

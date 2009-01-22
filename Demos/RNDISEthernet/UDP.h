@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for IP.c.
+ */
+
 #ifndef _UDP_H_
 #define _UDP_H_
 
@@ -39,16 +44,20 @@
 		#include "ProtocolDecoders.h"
 	
 	/* Macros: */
+		/** Source UDP port for a DHCP request */
 		#define UDP_PORT_DHCP_REQUEST 67
+
+		/** Destination UDP port for a DHCP reply */
 		#define UDP_PORT_DHCP_REPLY   68
 			
 	/* Type Defines: */
+		/** Type define for a UDP packet header */
 		typedef struct
 		{
-			uint16_t SourcePort;
-			uint16_t DestinationPort;
-			uint16_t Length;
-			uint16_t Checksum;
+			uint16_t SourcePort; /**< Packet source port */
+			uint16_t DestinationPort; /**< Packet destination port */
+			uint16_t Length; /**< Total packet length, in bytes */
+			uint16_t Checksum; /**< Optional UDP packet checksum */
 		} UDP_Header_t;
 		
 	/* Function Prototypes: */

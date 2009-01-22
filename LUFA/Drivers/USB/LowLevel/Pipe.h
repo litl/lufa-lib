@@ -117,7 +117,7 @@
 			 *  the device. Different USB AVR models support different amounts of pipes, this value reflects
 			 *  the maximum number of pipes for the currently selected AVR model.
 			 */
-			#define PIPE_MAX_PIPES                         7
+			#define PIPE_TOTAL_PIPES                       7
 
 			/** Size in bytes of the largest pipe bank size possible in the device. Not all banks on each AVR
 			 *  model supports the largest bank size possible on the device; different pipe numbers support

@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Webserver.c.
+ */
+ 
 #ifndef _WEBSERVER_H_
 #define _WEBSERVER_H_
 
@@ -40,6 +45,7 @@
 		#include "TCP.h"
 	
 	/* Macros: */
+		/** Maximum size of a HTTP response per transmission */
 		#define  HTTP_REPLY_BLOCK_SIZE     128
 	
 	/* Function Prototypes: */

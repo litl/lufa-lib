@@ -166,8 +166,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the line coding data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(LineCodingData, sizeof(LineCoding));
 				
-				/* Send the line coding data to the host and clear the control endpoint */
-				Endpoint_ClearSetupOUT();
+				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+				Endpoint_Finalize_Write_Control_Stream();
 			}
 			
 			break;
@@ -180,8 +180,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Read the line coding data in from the host into the global struct */
 				Endpoint_Read_Control_Stream_LE(LineCodingData, sizeof(LineCoding));
 
-				/* Send the line coding data to the host and clear the control endpoint */
-				Endpoint_ClearSetupIN();
+				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+				Endpoint_Finalize_Read_Control_Stream();
 				
 				/* Reconfigure the USART with the new settings */
 				ReconfigureUSART();
@@ -239,6 +239,7 @@ TASK(CDC_Task)
 		Endpoint_SelectEndpoint(CDC_NOTIFICATION_EPNUM);
 		Endpoint_Write_Stream_LE(&Notification, sizeof(Notification));
 		Endpoint_Write_Stream_LE(&LineStateMask, sizeof(LineStateMask));
+		Endpoint_Finalize_Stream();
 #endif
 
 		/* Select the Serial Rx Endpoint */

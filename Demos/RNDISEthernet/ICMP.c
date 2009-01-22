@@ -28,8 +28,23 @@
   this software.
 */
 
+/** \file
+ *
+ *  Internet Control Message Protocol (ICMP) packet handling routines. This protocol handles
+ *  Echo requests from the host, to indicate a successful network connection between the host
+ *  and the virtual server.
+ */
+ 
 #include "ICMP.h"
 
+/** Processes an ICMP packet inside an Ethernet frame, and writes the appropriate response
+ *  to the output Ethernet frame if the host is issuing a ICMP ECHO request.
+ *
+ *  \param InDataStart   Pointer to the start of the incomming packet's ICMP header
+ *  \param OutDataStart  Pointer to the start of the outgoing packet's ICMP header
+ *
+ *  \return The number of bytes written to the out Ethernet frame if any, NO_RESPONSE otherwise
+ */
 int16_t ICMP_ProcessICMPPacket(void* InDataStart, void* OutDataStart)
 {
 	ICMP_Header_t* ICMPHeaderIN  = (ICMP_Header_t*)InDataStart;
@@ -42,7 +57,7 @@ int16_t ICMP_ProcessICMPPacket(void* InDataStart, void* OutDataStart)
 	{
 		/* Fill out the ICMP response packet */
 		ICMPHeaderOUT->Type     = ICMP_TYPE_ECHOREPLY;
-		ICMPHeaderOUT->Code     = ICMP_ECHOREPLY_ECHOREPLY;
+		ICMPHeaderOUT->Code     = 0;
 		ICMPHeaderOUT->Checksum = 0;
 		ICMPHeaderOUT->Id       = ICMPHeaderIN->Id;
 		ICMPHeaderOUT->Sequence = ICMPHeaderIN->Sequence;

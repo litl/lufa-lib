@@ -202,7 +202,7 @@ static void USB_Device_GetDescriptor(void)
 			}		
 		}
 		
-		while (wLength && (Endpoint_BytesInEndpoint() < USB_ControlEndpointSize))
+		while (wLength && (Endpoint_BytesInEndpoint() < USB_EndpointSize[ENDPOINT_CONTROLEP]))
 		{
 			#if defined(USE_RAM_DESCRIPTORS)
 			Endpoint_Write_Byte(*((uint8_t*)DescriptorPointer++));
@@ -215,7 +215,7 @@ static void USB_Device_GetDescriptor(void)
 			wLength--;
 		}
 		
-		SendZLP = (Endpoint_BytesInEndpoint() == USB_ControlEndpointSize);
+		SendZLP = (Endpoint_BytesInEndpoint() == USB_EndpointSize[ENDPOINT_CONTROLEP]);
 		Endpoint_ClearSetupIN();
 	}
 	

@@ -177,8 +177,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the line coding data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(LineCodingData, sizeof(CDC_Line_Coding_t));
 				
-				/* Send the line coding data to the host and clear the control endpoint */
-				Endpoint_ClearSetupOUT();
+				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+				Endpoint_Finalize_Write_Control_Stream();
 			}
 			
 			break;
@@ -191,8 +191,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Read the line coding data in from the host into the global struct */
 				Endpoint_Read_Control_Stream_LE(LineCodingData, sizeof(CDC_Line_Coding_t));
 
-				/* Send the line coding data to the host and clear the control endpoint */
-				Endpoint_ClearSetupIN();
+				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+				Endpoint_Finalize_Read_Control_Stream();
 			}
 	
 			break;
@@ -275,6 +275,7 @@ TASK(CDC_Task)
 	Endpoint_SelectEndpoint(CDC_NOTIFICATION_EPNUM);
 	Endpoint_Write_Stream_LE(&Notification, sizeof(Notification));
 	Endpoint_Write_Stream_LE(&LineStateMask, sizeof(LineStateMask));
+	Endpoint_Finalize_Stream();
 #endif
 
 	/* Determine if a joystick action has occurred */
@@ -304,8 +305,8 @@ TASK(CDC_Task)
 		/* Write the String to the Endpoint */
 		Endpoint_Write_Stream_LE(ReportString, strlen(ReportString));
 		
-		/* Send the data */
-		Endpoint_ClearCurrentBank();
+		/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+		Endpoint_Finalize_Stream();
 	}
 
 	/* Select the Serial Rx Endpoint */

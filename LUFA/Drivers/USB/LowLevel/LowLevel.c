@@ -211,11 +211,11 @@ void USB_ResetInterface(void)
 		if (USB_GetDescriptor((DTYPE_Device << 8), 0, (void*)&DeviceDescriptorPtr) != NO_DESCRIPTOR)
 		{		  
 			#if defined(USE_RAM_DESCRIPTORS)
-				USB_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;
+				USB_EndpointSize[ENDPOINT_CONTROLEP] = DeviceDescriptorPtr->Endpoint0Size;
 			#elif defined(USE_EEPROM_DESCRIPTORS)
-				USB_ControlEndpointSize = eeprom_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
+				USB_EndpointSize[ENDPOINT_CONTROLEP] = eeprom_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 			#else
-				USB_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
+				USB_EndpointSize[ENDPOINT_CONTROLEP] = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 			#endif
 		}
 	}

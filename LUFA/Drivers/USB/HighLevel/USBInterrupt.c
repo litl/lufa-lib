@@ -166,7 +166,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		Endpoint_ClearEndpoints();
 
 		Endpoint_ConfigureEndpoint(ENDPOINT_CONTROLEP, EP_TYPE_CONTROL,
-		                           ENDPOINT_DIR_OUT, USB_ControlEndpointSize,
+		                           ENDPOINT_DIR_OUT, USB_EndpointSize[ENDPOINT_CONTROLEP],
 		                           ENDPOINT_BANK_SINGLE);
 
 		RAISE_EVENT(USB_Reset);

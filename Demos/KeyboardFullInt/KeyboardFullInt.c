@@ -190,8 +190,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&KeyboardReportData, wLength);
 				
-				/* Finalize the transfer, acknowedge the host error or success OUT transfer */
-				Endpoint_ClearSetupOUT();
+				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+				Endpoint_Finalize_Write_Control_Stream();
 			}
 		
 			break;
@@ -432,8 +432,8 @@ ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 			/* Write Keyboard Report Data */
 			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
 
-			/* Handshake the IN Endpoint - send the data to the host */
-			Endpoint_ClearCurrentBank();
+			/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+			Endpoint_Finalize_Stream();
 		}
 	}
 

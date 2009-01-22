@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for Ethernet.c.
+ */
+ 
 #ifndef _ETHERNET_H_
 #define _ETHERNET_H_
 
@@ -45,36 +50,52 @@
 		#include "IP.h"
 		
 	/* Macros: */
+		/** Physical MAC address of the virtual server on the network */
 		#define SERVER_MAC_ADDRESS               {0x00, 0x01, 0x00, 0x01, 0x00, 0x01}		
+
+		/** Physical MAC address of the network broadcast address */
 		#define BROADCAST_MAC_ADDRESS            {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 	
-		#define MAC_COMPARE(mac1, mac2)          (memcmp(mac1, mac2, sizeof(MAC_Address_t)) == 0)
+		/** Performs a comparison between two MAC addresses, indicating if they are identical.
+		 *  
+		 *  \param MAC1  First MAC address
+		 *  \param MAC2  Second MAC address
+		 *
+		 *  \return True if the addresses match, false otherwise
+		 */
+		#define MAC_COMPARE(MAC1, MAC2)          (memcmp(MAC1, MAC2, sizeof(MAC_Address_t)) == 0)
 
+		/** Maximum size of an incomming or outgoing Ethernet frame in bytes */
 		#define ETHERNET_FRAME_SIZE_MAX          1500
-		#define ETHERNET_FRAME_SIZE_MIN          64
 		
+		/** Minimum size of an Ethernet packet in bytes, to conform to the Ethernet V2 packet standard */
 		#define ETHERNET_VER2_MINSIZE            0x0600
 		
+		/** Return value for all sub protocol handling routines, indicating that no response packet has been generated */
 		#define NO_RESPONSE                      0		
+
+		/** Return value for all sub protocol handling routines, indicating that the packet has not yet been handled */
 		#define NO_PROCESS                       -1
 
 	/* Type Defines: */
+		/** Type define for an Ethernet frame buffer. */
 		typedef struct
 		{
-			uint8_t       FrameData[ETHERNET_FRAME_SIZE_MAX];
-			uint16_t      FrameLength;
-			bool          FrameInBuffer;			
+			uint8_t       FrameData[ETHERNET_FRAME_SIZE_MAX]; /**< Ethernet frame contents */
+			uint16_t      FrameLength; /**< Length in bytes of the Ethernet frame stored in the buffer */
+			bool          FrameInBuffer; /**< Indicates if a frame is currently stored in the buffer */
 		} Ethernet_Frame_Info_t;
 
+		/** Type define for an Ethernet frame header */
 		typedef struct
 		{
-			MAC_Address_t Destination;
-			MAC_Address_t Source;
+			MAC_Address_t Destination; /**< Physical MAC address of the packet recipient */
+			MAC_Address_t Source; /**< Physics MAC address of the packet source */
 			
 			union
 			{
-				uint16_t  EtherType;
-				uint16_t  Length;
+				uint16_t  EtherType; /**< Ethernet packet subprotocol type, for Ethernet V2 packets */
+				uint16_t  Length; /**< Ethernet frame length, for Ethernet V1 packets */
 			};
 		} Ethernet_Frame_Header_t;
 		

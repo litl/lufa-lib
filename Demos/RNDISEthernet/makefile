@@ -98,7 +98,6 @@ SRC = $(TARGET).c                                          \
 	  ARP.c                                                \
 	  IP.c                                                 \
 	  Webserver.c                                          \
-	  Telnet.c                                             \
       ../../LUFA/Scheduler/Scheduler.c                     \
       ../../LUFA/Drivers/USB/LowLevel/LowLevel.c           \
       ../../LUFA/Drivers/USB/LowLevel/Endpoint.c           \

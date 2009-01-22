@@ -168,29 +168,13 @@ static bool SCSI_Command_Inquiry(void)
 	/* Write the INQUIRY data to the endpoint */
 	Endpoint_Write_Stream_LE(&InquiryData, BytesTransferred, AbortOnMassStoreReset);
 
-	/* Pad out remaining bytes with 0x00 */
-	while (BytesTransferred < AllocationLength)
-	{
-		/* When endpoint filled, send the data and wait until it is ready to be written to again */
-		if (Endpoint_BytesInEndpoint() == MASS_STORAGE_IO_EPSIZE)
-		{
-			Endpoint_ClearCurrentBank();
-
-			while (!(Endpoint_ReadWriteAllowed()))
-			{
-				/* Check if the current command is being aborted by the host */
-				if (IsMassStoreReset)
-				  return false;			
-			}
-		}
-
-		Endpoint_Write_Byte(0x00);
-		
-		BytesTransferred++;
-	}
+	uint8_t PadBytes[AllocationLength - BytesTransferred];
 	
-	/* Send the final endpoint data packet to the host */
-	Endpoint_ClearCurrentBank();
+	/* Pad out remaining bytes with 0x00 */
+	Endpoint_Write_Stream_LE(&PadBytes, (AllocationLength - BytesTransferred), AbortOnMassStoreReset);
+
+	/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+	Endpoint_Finalize_Stream();
 
 	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.DataTransferLength -= BytesTransferred;
@@ -211,23 +195,13 @@ static bool SCSI_Command_Request_Sense(void)
 	/* Send the SENSE data - this indicates to the host the status of the last command */
 	Endpoint_Write_Stream_LE(&SenseData, BytesTransferred, AbortOnMassStoreReset);
 	
+	uint8_t PadBytes[AllocationLength - BytesTransferred];
+	
 	/* Pad out remaining bytes with 0x00 */
-	while (BytesTransferred < AllocationLength)
-	{
-		/* When endpoint filled, send the data and wait until it is ready to be written to again */
-		if (Endpoint_BytesInEndpoint() == MASS_STORAGE_IO_EPSIZE)
-		{
-			Endpoint_ClearCurrentBank();
-			while (!(Endpoint_ReadWriteAllowed()));
-		}
-					
-		Endpoint_Write_Byte(0x00);
-		
-		BytesTransferred++;
-	}
+	Endpoint_Write_Stream_LE(&PadBytes, (AllocationLength - BytesTransferred), AbortOnMassStoreReset);
 
-	/* Send the final endpoint data packet to the host */
-	Endpoint_ClearCurrentBank();
+	/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+	Endpoint_Finalize_Stream();
 
 	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.DataTransferLength -= BytesTransferred;
@@ -349,11 +323,11 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	
 	#if (TOTAL_LUNS > 1)
 	/* Adjust the given block address to the real media address based on the selected LUN */
-	BlockAddress += (CommandBlock.LUN * LUN_MEDIA_SIZE);
+	BlockAddress += ((uint32_t)CommandBlock.LUN * LUN_MEDIA_SIZE);
 	#endif
 	
 	/* Check if the block address is outside the maximum allowable value */
-	if (BlockAddress > VIRTUAL_MEMORY_BLOCKS)
+	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
 	{
 		/* Block address is invalid, update SENSE key and return command fail */
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,

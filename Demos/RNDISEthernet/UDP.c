@@ -28,9 +28,24 @@
   this software.
 */
 
+/** \file
+ *
+ *  User Datagram Protocol (UDP) packet handling routines. This protocol handles high throughput, low
+ *  reliability packets which are typically used to encapsulate streaming data.
+ */
+ 
 #define  INCLUDE_FROM_UDP_C
 #include "UDP.h"
 
+/** Processes a UDP packet inside an Ethernet frame, and writes the appropriate response
+ *  to the output Ethernet frame if a subprotocol handler has created a response packet.
+ *
+ *  \param IPHeaderInStart    Pointer to the start of the incomming packet's IP header
+ *  \param UDPHeaderInStart   Pointer to the start of the incomming packet's UDP header
+ *  \param UDPHeaderOutStart  Pointer to the start of the outgoing packet's UDP header
+ *
+ *  \return The number of bytes written to the out Ethernet frame if any, NO_RESPONSE otherwise
+ */
 int16_t UDP_ProcessUDPPacket(void* IPHeaderInStart, void* UDPHeaderInStart, void* UDPHeaderOutStart)
 {
 	UDP_Header_t* UDPHeaderIN  = (UDP_Header_t*)UDPHeaderInStart;

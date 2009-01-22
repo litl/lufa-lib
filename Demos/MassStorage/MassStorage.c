@@ -253,8 +253,16 @@ TASK(USB_MassStorage)
 				/* Return command status block to the host */
 				ReturnCommandStatus();
 				
-				/* Clear the abort transfer flag */
-				IsMassStoreReset = false;
+				/* Check if a Mass Storage Reset ocurred */
+				if (IsMassStoreReset)
+				{
+					/* Reset the data endpoint banks */
+					Endpoint_ResetFIFO(MASS_STORAGE_OUT_EPNUM);
+					Endpoint_ResetFIFO(MASS_STORAGE_IN_EPNUM);
+
+					/* Clear the abort transfer flag */
+					IsMassStoreReset = false;
+				}
 
 				/* Indicate ready */
 				UpdateStatus(Status_USBReady);
@@ -308,8 +316,8 @@ static bool ReadInCommandBlock(void)
 	if (IsMassStoreReset)
 	  return false;
 
-	/* Clear the endpoint */
-	Endpoint_ClearCurrentBank();
+	/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+	Endpoint_Finalize_Stream();
 	
 	return true;
 }
@@ -349,8 +357,8 @@ static void ReturnCommandStatus(void)
 	if (IsMassStoreReset)
 	  return;
 
-	/* Send the CSW */
-	Endpoint_ClearCurrentBank();
+	/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
+	Endpoint_Finalize_Stream();
 }
 
 /** Stream callback function for the Endpoint stream read and write functions. This callback will abort the current stream transfer

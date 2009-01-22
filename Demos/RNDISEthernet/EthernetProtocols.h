@@ -28,6 +28,12 @@
   this software.
 */
 
+/** \file
+ *
+ *  General Ethernet protocol constants and type defines, for use by
+ *  all network protocol portions of the TCP/IP stack.
+ */
+
 #ifndef _ETHERNET_PROTOCOLS_H_
 #define _ETHERNET_PROTOCOLS_H_
 
@@ -64,23 +70,18 @@
 		#define PROTOCOL_UDP                     17
 		#define PROTOCOL_OSPF                    89
 		#define PROTOCOL_SCTP                    132
-		
-		#define ICMP_TYPE_ECHOREPLY              0
-		#define ICMP_TYPE_DESTINATIONUNREACHABLE 3
-		#define ICMP_TYPE_SOURCEQUENCH           4
-		#define ICMP_TYPE_REDIRECTMESSAGE        5
-		#define ICMP_TYPE_ECHOREQUEST            8
-		#define ICMP_TYPE_TIMEEXCEEDED           11
 
 	/* Type Defines: */
+		/** Type define for a physical MAC address of a device on a network */
 		typedef struct
 		{
-			uint8_t       Octets[6];
+			uint8_t       Octets[6]; /**< Individual bytes of a MAC address */
 		} MAC_Address_t;
 		
+		/** Type define for a protocol IP address of a device on a network */
 		typedef struct
 		{
-			uint8_t       Octets[4];
+			uint8_t       Octets[4]; /**< Individual bytes of an IP address */
 		} IP_Address_t;
 
 #endif
