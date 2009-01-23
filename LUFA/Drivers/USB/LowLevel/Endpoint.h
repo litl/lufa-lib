@@ -48,7 +48,6 @@
 		#if !defined(NO_STREAM_CALLBACKS) || defined(__DOXYGEN__)
 		#include "StreamCallbacks.h"
 		#endif
-		
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
 			extern "C" {
@@ -456,6 +455,28 @@
 				Dummy = UEDATX;
 			}
 
+		/* External Variables: */
+			/** Global indicating the maximum packet size of the default control endpoint located at address
+			 *  0 in the device. This value is set to the value indicated in the device descriptor in the user
+			 *  project once the USB interface is initialized into device mode.
+			 *
+			 *  If space is an issue, it is possible to fix this to a static value by defining the control
+			 *  endpoint size in the FIXED_CONTROL_ENDPOINT_SIZE token passed to the compiler in the makefile
+			 *  via the -D switch. When a fixed control endpoint size is used, the size is no longer dynamically
+			 *  read from the descriptors at runtime and instead fixed to the given value. When used, it is
+			 *  important that the descriptor control endpoint size value matches the size given as the
+			 *  FIXED_CONTROL_ENDPOINT_SIZE token - it is recommended that the FIXED_CONTROL_ENDPOINT_SIZE token
+			 *  be used in the descriptors to ensure this.
+			 *
+			 *  \note This variable should be treated as read-only in the user application, and never manually
+			 *        changed in value.
+			 */
+			#if (!defined(FIXED_CONTROL_ENDPOINT_SIZE) || defined(__DOXYGEN__))
+				extern uint8_t USB_ControlEndpointSize;
+			#else
+				#define USB_ControlEndpointSize FIXED_CONTROL_ENDPOINT_SIZE
+			#endif
+
 		/* Function Prototypes: */
 			/** Configures the specified endpoint number with the given endpoint type, direction, bank size
 			 *  and banking mode. Endpoints should be allocated in ascending order by their address in the
@@ -493,39 +514,17 @@
 			 *  \return A value from the Endpoint_WaitUntilReady_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_WaitUntilReady(void);
-			
-#if !defined(NO_ENDPOINT_STREAMS) || defined(__DOXYGEN__)
-			/** Finalizes a stream read or write sequence on a non-control endpoint. This must be called at the
-			 *  end of a stream transmission on an endpoint, to clear the final endpoint bank and send/receive a
-			 *  Zero Length Packet if required.
-			 */
-			void Endpoint_Finalize_Stream(void);
 
-			/** Finalizes a stream write sequence on a control endpoint. This must be called at the end of a
-			 *  control stream write transmission on an endpoint, to clear the final endpoint bank and send/receive a
-			 *  Zero Length Packet if required.
-			 */
-			void Endpoint_Finalize_Write_Control_Stream(void);
-
-			/** Finalizes a stream read sequence on a control endpoint. This must be called at the end of a
-			 *  control stream read transmission on an endpoint, to clear the final endpoint bank and send/receive a
-			 *  Zero Length Packet if required.
-			 */
-			void Endpoint_Finalize_Read_Control_Stream(void);
-			
 			/** Reads and discards the given number of bytes from the endpoint from the given buffer,
-			 *  discarding fully read packets from the host as needed.  each USB packet, the given stream
-			 *  callback function is executed repeatedly until the next packet is ready, allowing for early
-			 *  aborts of stream transfers.
+			 *  discarding fully read packets from the host as needed. The last packet is not automatically
+			 *  discarded once the remaining bytes has been read; the user is responsible for manually
+			 *  discarding the last packet from the host via the Endpoint_ClearCurrentBank() macro. Between
+			 *  each USB packet, the given stream callback function is executed repeatedly until the next
+			 *  packet is ready, allowing for early aborts of stream transfers.
 			 *
 			 *	The callback routine should be created using the STREAM_CALLBACK() macro. If the token
 			 *  NO_STREAM_CALLBACKS is passed via the -D option to the compiler, stream callbacks are disabled
 			 *  and this function has the Callback parameter ommitted.
-			 *
-			 *  This routine may be chained with other stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Stream(). Stream and primative Endpoint read/write operations must not
-			 *  be mixed within the same transmission.
 			 *
 			 *  \note This routine should not be used on CONTROL type endpoints.
 			 *
@@ -541,18 +540,15 @@
 			                                );
 
 			/** Writes the given number of bytes to the endpoint from the given buffer in little endian,
-			 *  sending full packets to the host as needed. Between each USB packet, the given stream callback
-			 *  function is executed repeatedly until the endpoint is ready to accept the next packet, allowing
-			 *  for early aborts of stream transfers.
+			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
+			 *  the user is responsible for manually sending the last written packet to the host via the
+			 *  Endpoint_ClearCurrentBank() macro. Between each USB packet, the given stream callback function
+			 *  is executed repeatedly until the endpoint is ready to accept the next packet, allowing for early
+			 *  aborts of stream transfers.
 			 *
 			 *	The callback routine should be created using the STREAM_CALLBACK() macro. If the token
 			 *  NO_STREAM_CALLBACKS is passed via the -D option to the compiler, stream callbacks are disabled
 			 *  and this function has the Callback parameter ommitted.
-			 *
-			 *  This routine may be chained with other stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Stream(). Stream and primative Endpoint read/write operations must not
-			 *  be mixed within the same transmission.
 			 *
 			 *  \note This routine should not be used on CONTROL type endpoints.
 			 *
@@ -569,18 +565,15 @@
 			                                 ) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Writes the given number of bytes to the endpoint from the given buffer in big endian,
-			 *  sending full packets to the host as needed. Between each USB packet, the given stream callback
-			 *  function is executed repeatedly until the endpoint is ready to accept the next packet, allowing
-			 *  for early aborts of stream transfers.
+			 *  sending full packets to the host as needed. The last packet filled is not automatically sent;
+			 *  the user is responsible for manually sending the last written packet to the host via the
+			 *  Endpoint_ClearCurrentBank() macro. Between each USB packet, the given stream callback function
+			 *  is executed repeatedly until the endpoint is ready to accept the next packet, allowing for early
+			 *  aborts of stream transfers.
 			 *
 			 *	The callback routine should be created using the STREAM_CALLBACK() macro. If the token
 			 *  NO_STREAM_CALLBACKS is passed via the -D option to the compiler, stream callbacks are disabled
 			 *  and this function has the Callback parameter ommitted.
-			 *
-			 *  This routine may be chained with other stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Stream(). Stream and primative Endpoint read/write operations must not
-			 *  be mixed within the same transmission.
 			 *
 			 *  \note This routine should not be used on CONTROL type endpoints.
 			 *
@@ -597,18 +590,15 @@
 			                                 ) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Reads the given number of bytes from the endpoint from the given buffer in little endian,
-			 *  discarding fully read packets from the host as needed. Between each USB packet, the given
-			 *  stream callback function is executed repeatedly until the endpoint is ready to accept the next
-			 *  packet, allowing for early aborts of stream transfers.
+			 *  discarding fully read packets from the host as needed. The last packet is not automatically
+			 *  discarded once the remaining bytes has been read; the user is responsible for manually
+			 *  discarding the last packet from the host via the Endpoint_ClearCurrentBank() macro. Between
+			 *  each USB packet, the given stream callback function is executed repeatedly until the endpoint
+			 *  is ready to accept the next packet, allowing for early aborts of stream transfers.
 			 *
 			 *	The callback routine should be created using the STREAM_CALLBACK() macro. If the token
 			 *  NO_STREAM_CALLBACKS is passed via the -D option to the compiler, stream callbacks are disabled
 			 *  and this function has the Callback parameter ommitted.
-			 *
-			 *  This routine may be chained with other stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Stream(). Stream and primative Endpoint read/write operations must not
-			 *  be mixed within the same transmission.
 			 *
 			 *  \note This routine should not be used on CONTROL type endpoints.
 			 *
@@ -625,18 +615,15 @@
 			                                ) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Reads the given number of bytes from the endpoint from the given buffer in big endian,
-			 *  discarding fully read packets from the host as needed. Between each USB packet, the given
-			 *  stream callback function is executed repeatedly until the endpoint is ready to accept the next
-			 *  packet, allowing for early aborts of stream transfers.
+			 *  discarding fully read packets from the host as needed. The last packet is not automatically
+			 *  discarded once the remaining bytes has been read; the user is responsible for manually
+			 *  discarding the last packet from the host via the Endpoint_ClearCurrentBank() macro. Between
+			 *  each USB packet, the given stream callback function is executed repeatedly until the endpoint
+			 *  is ready to accept the next packet, allowing for early aborts of stream transfers.
 			 *
 			 *	The callback routine should be created using the STREAM_CALLBACK() macro. If the token
 			 *  NO_STREAM_CALLBACKS is passed via the -D option to the compiler, stream callbacks are disabled
 			 *  and this function has the Callback parameter ommitted.
-			 *
-			 *  This routine may be chained with other stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Stream(). Stream and primative Endpoint read/write operations must not
-			 *  be mixed within the same transmission.
 			 *
 			 *  \note This routine should not be used on CONTROL type endpoints.
 			 *
@@ -653,14 +640,14 @@
 			                                ) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Writes the given number of bytes to the CONTROL type endpoint from the given buffer in little endian,
-			 *  sending full packets to the host as needed.
-			 *
-			 *  This routine may be chained with other control stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Write_Control_Stream(). Stream and primative Endpoint read/write operations must not
-			 *  be mixed within the same transmission.
+			 *  sending full packets to the host as needed. The host OUT acknowedgement is not automatically cleared
+			 *  in both failure and success states; the user is responsible for manually clearing the setup OUT to
+			 *  finalize the transfer via the Endpoint_ClearSetupOUT() macro.
 			 *
 			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \warning Unlike the standard stream read/write commands, the control stream commands cannot be chained
+			 *           together; i.e. the entire stream data must be read or written at the one time.
 			 *
 			 *  \param Buffer  Pointer to the source data buffer to read from.
 			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
@@ -670,14 +657,14 @@
 			uint8_t Endpoint_Write_Control_Stream_LE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Writes the given number of bytes to the CONTROL type endpoint from the given buffer in big endian,
-			 *  sending full packets to the host as needed.
-			 *
-			 *  This routine may be chained with other control stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Write_Control_Stream(). Stream and primative Endpoint read/write operations must not
-			 *  be mixed within the same transmission.
+			 *  sending full packets to the host as needed. The host OUT acknowedgement is not automatically cleared
+			 *  in both failure and success states; the user is responsible for manually clearing the setup OUT to
+			 *  finalize the transfer via the Endpoint_ClearSetupOUT() macro.
 			 *
 			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \warning Unlike the standard stream read/write commands, the control stream commands cannot be chained
+			 *           together; i.e. the entire stream data must be read or written at the one time.
 			 *
 			 *  \param Buffer  Pointer to the source data buffer to read from.
 			 *  \param Length  Number of bytes to read for the currently selected endpoint into the buffer.
@@ -687,14 +674,14 @@
 			uint8_t Endpoint_Write_Control_Stream_BE(const void* Buffer, uint16_t Length) ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Reads the given number of bytes from the CONTROL endpoint from the given buffer in little endian,
-			 *  discarding fully read packets from the host as needed. 
-			 *
-			 *  This routine may be chained with other control stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Read_Control_Stream(). Stream and primative Endpoint read/write operations must
-			 *  not be mixed within the same transmission.
+			 *  discarding fully read packets from the host as needed. The device IN acknowedgement is not
+			 *  automatically sent after success or failure states; the user is responsible for manually sending the
+			 *  setup IN to finalize the transfer via the Endpoint_ClearSetupIN() macro.
 			 *
 			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \warning Unlike the standard stream read/write commands, the control stream commands cannot be chained
+			 *           together; i.e. the entire stream data must be read or written at the one time.
 			 *
 			 *  \param Buffer  Pointer to the destination data buffer to write to.
 			 *  \param Length  Number of bytes to send via the currently selected endpoint.
@@ -704,14 +691,14 @@
 			uint8_t Endpoint_Read_Control_Stream_LE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
 
 			/** Reads the given number of bytes from the CONTROL endpoint from the given buffer in big endian,
-			 *  discarding fully read packets from the host as needed. 
-			 *
-			 *  This routine may be chained with other control stream functions to process an incomming transmission in
-			 *  chunks. Once the stream transmission is complete, the stream transfer must be terminated with a
-			 *  call to Endpoint_Finalize_Read_Control_Stream(). Stream and primative Endpoint read/write operations must
-			 *  not be mixed within the same transmission.
+			 *  discarding fully read packets from the host as needed. The device IN acknowedgement is not
+			 *  automatically sent after success or failure states; the user is responsible for manually sending the
+			 *  setup IN to finalize the transfer via the Endpoint_ClearSetupIN() macro.
 			 *
 			 *  \note This routine should only be used on CONTROL type endpoints.
+			 *
+			 *  \warning Unlike the standard stream read/write commands, the control stream commands cannot be chained
+			 *           together; i.e. the entire stream data must be read or written at the one time.
 			 *
 			 *  \param Buffer  Pointer to the destination data buffer to write to.
 			 *  \param Length  Number of bytes to send via the currently selected endpoint.
@@ -719,7 +706,6 @@
 			 *  \return A value from the Endpoint_ControlStream_RW_ErrorCodes_t enum.
 			 */
 			uint8_t Endpoint_Read_Control_Stream_BE(void* Buffer, uint16_t Length)  ATTR_NON_NULL_PTR_ARG(1);
-#endif
 
 		/* Function Aliases: */
 			/** Alias for Endpoint_Discard_Byte().
@@ -754,7 +740,6 @@
 			 */
 			#define Endpoint_Write_DWord(DWord)                 Endpoint_Write_DWord_LE(DWord)
 
-#if !defined(NO_ENDPOINT_STREAMS) || defined(__DOXYGEN__)
 			/** Alias for Endpoint_Read_Stream_LE(). By default USB transfers use little endian format, thus
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
@@ -782,8 +767,7 @@
 			 *  the command with no endianness specifier indicates little endian mode.
 			 */
 			#define Endpoint_Write_Control_Stream(Data, Length) Endpoint_Write_Control_Stream_LE(Data, Length)			
-#endif
-
+			
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Macros: */
@@ -815,36 +799,15 @@
 			#endif
 
 			#if defined(STATIC_ENDPOINT_CONFIGURATION)
-				#if !defined(NO_ENDPOINT_STREAMS)
-					#define Endpoint_ConfigureEndpoint(Number, Type, Direction, Size, Banks)        \
-														 Endpoint_ConfigureEndpointStatic(Number,   \
-																  ((Type << EPTYPE0) | Direction),  \
-																  ((1 << ALLOC) | Banks | Endpoint_BytesToEPSizeMask(Size)), \
-																  Endpoint_BytesToBankSize(Size))
-				#else
-					#define Endpoint_ConfigureEndpoint(Number, Type, Direction, Size, Banks)        \
-														 Endpoint_ConfigureEndpointStatic(Number,   \
-																  ((Type << EPTYPE0) | Direction),  \
-																  ((1 << ALLOC) | Banks | Endpoint_BytesToEPSizeMask(Size)))				
-				#endif
+				#define Endpoint_ConfigureEndpoint(Number, Type, Direction, Size, Banks)        \
+				                                     Endpoint_ConfigureEndpointStatic(Number,   \
+				                                              ((Type << EPTYPE0) | Direction),  \
+				                                              ((1 << ALLOC) | Banks | Endpoint_BytesToEPSizeMask(Size)));
 			#endif
 
 		/* Function Prototypes: */
 			void Endpoint_ClearEndpoints(void);
-			bool Endpoint_ConfigureEndpointStatic(const uint8_t Number, const uint8_t UECFG0XData, const uint8_t UECFG1XData
-#if !defined(NO_ENDPOINT_STREAMS) || defined(__DOXYGEN__)
-			                                      , const uint16_t Size
-#endif
-			                                     );
-
-		/* External Variables: */
-			extern uint16_t USB_EndpointSize[
-#if !defined(NO_ENDPOINT_STREAMS)
-                                             ENDPOINT_TOTAL_ENDPOINTS
-#else
-                                             1
-#endif
-                                             ];
+			bool Endpoint_ConfigureEndpointStatic(const uint8_t Number, const uint8_t UECFG0XData, const uint8_t UECFG1XData);
 			
 		/* Inline Functions: */
 			static inline uint8_t Endpoint_BytesToEPSizeMask(const uint16_t Bytes) ATTR_WARN_UNUSED_RESULT ATTR_CONST ATTR_ALWAYSINLINE;
@@ -869,28 +832,6 @@
 				#endif
 			};
 
-			static inline uint16_t Endpoint_BytesToBankSize(const uint16_t Bytes) ATTR_WARN_UNUSED_RESULT ATTR_CONST ATTR_ALWAYSINLINE;
-			static inline uint16_t Endpoint_BytesToBankSize(const uint16_t Bytes)
-			{
-				if (Bytes <= 8)
-				  return 8;
-				else if (Bytes <= 16)
-				  return 16;
-				else if (Bytes <= 32)
-				  return 32;
-				#if defined(USB_LIMITED_CONTROLLER)
-				else
-				  return 64;
-				#else
-				else if (Bytes <= 64)
-				  return 64;
-				else if (Bytes <= 128)
-				  return 128;
-				else
-				  return 256;
-				#endif
-			};
-			
 	#endif
 
 	/* Disable C linkage for C++ Compilers: */

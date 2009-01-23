@@ -215,8 +215,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the line coding data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(LineCodingData, sizeof(CDC_Line_Coding_t));
 				
-				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-				Endpoint_Finalize_Write_Control_Stream();
+				/* Finalize the stream transfer to send the last packet or clear the host abort */
+				Endpoint_ClearSetupOUT();
 			}
 			
 			break;
@@ -229,8 +229,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Read the line coding data in from the host into the global struct */
 				Endpoint_Read_Control_Stream_LE(LineCodingData, sizeof(CDC_Line_Coding_t));
 
-				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-				Endpoint_Finalize_Read_Control_Stream();
+				/* Finalize the stream transfer to clear the last packet from the host */
+				Endpoint_ClearSetupIN();
 			}
 	
 			break;
@@ -311,8 +311,8 @@ TASK(CDC1_Task)
 		/* Write the String to the Endpoint */
 		Endpoint_Write_Stream_LE(ReportString, strlen(ReportString));
 		
-		/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-		Endpoint_Finalize_Stream();
+		/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearCurrentBank();
 	}
 
 	/* Select the Serial Rx Endpoint */
@@ -343,8 +343,8 @@ TASK(CDC2_Task)
 		/* Read in the incomming packet into the buffer */
 		Endpoint_Read_Stream_LE(&Buffer, DataLength);
 
-		/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-		Endpoint_Finalize_Stream();
+		/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearCurrentBank();
 
 		/* Select the Serial Tx Endpoint */
 		Endpoint_SelectEndpoint(CDC2_TX_EPNUM);
@@ -352,7 +352,7 @@ TASK(CDC2_Task)
 		/* Write the received data to the endpoint */
 		Endpoint_Write_Stream_LE(&Buffer, DataLength);
 
-		/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-		Endpoint_Finalize_Stream();
+		/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearCurrentBank();
 	}
 }

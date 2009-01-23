@@ -105,11 +105,6 @@
  *  flexibility. Note that with this option dynamic values may still be used, but will result in many times more code to be generated than
  *  if the option was disabled. This is designed to be used only if the FIXED_CONTROL_ENDPOINT_SIZE option is also used.
  *
- *  <b>NO_ENDPOINT_STREAMS</b> - Endpoint.c \n
- *  By default, the library in device mode contains both primative and stream functions, for read/write access to Endpoint banks. If
- *  stream functions are not used in an application, they can be disabled by defining this token and passing it to the compiler via the
- *  -D switch in the project makefile. This will reduce the RAM and FLASH useage of the library slightly.
- *
  *  <b>USE_SINGLE_DEVICE_CONFIGURATION</b> - DevChapter9.h \n
  *  By default, the library determines the number of configurations a USB device supports by reading the device descriptor. This reduces
  *  the amount of configuration required to set up the library, and allows the value to change dynamically (if descriptors are stored in

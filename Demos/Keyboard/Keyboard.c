@@ -188,8 +188,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&KeyboardReportData, wLength);
 				
-				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-				Endpoint_Finalize_Write_Control_Stream();
+				/* Finalize the stream transfer to send the last packet or clear the host abort */
+				Endpoint_ClearSetupOUT();
 			}
 		
 			break;
@@ -406,8 +406,8 @@ TASK(USB_Keyboard_Report)
 			/* Write Keyboard Report Data */
 			Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData));
 
-			/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-			Endpoint_Finalize_Stream();
+			/* Finalize the stream transfer to send the last packet */
+			Endpoint_ClearCurrentBank();
 		}
 
 		/* Select the Keyboard LED Report Endpoint */

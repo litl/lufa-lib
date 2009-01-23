@@ -4,6 +4,9 @@
  *  documentation pages. It is not a project source file.
  */
  
+  TODO: Multiple LUNs cause data corruption
+	    Document Host demos
+	   
  /** \page Page_ChangeLog Project Changelog
   *
   *  \section Sec_ChangeLogXXXXXX Version XXXXXX
@@ -33,7 +36,6 @@
   *  - VBUS drop interrupt now disabled during the manual-to-auto VBUS delivery handoff
   *  - Simplified low level backend so that device/host mode initialization uses the same code paths
   *  - Added workaround for faulty Mass Storage devices which do not implement the required GET_MAX_LUN request
-  *  - Added new stream Finalize functions for normal and control endpoints to correctly handle ZLPs, updated all demos
   *  - Removed buggy Telnet application from the RNDIS demo
   *
   *  \section Sec_ChangeLog241208 Version 241208

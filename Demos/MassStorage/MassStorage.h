@@ -66,7 +66,7 @@
 		#define TOTAL_LUNS                 2
 		
 		/** Blocks in each LUN, calculated from the total capacity divided by the total number of Logical Units in the device. */
-		#define LUN_MEDIA_SIZE             (VIRTUAL_MEMORY_BLOCKS / TOTAL_LUNS)    
+		#define LUN_MEDIA_BLOCKS           (VIRTUAL_MEMORY_BLOCKS / TOTAL_LUNS)    
 		
 		/** Magic signature for a Command Block Wrapper used in the Mass Storage Bulk-Only transport protocol. */
 		#define CBW_SIGNATURE              0x43425355UL

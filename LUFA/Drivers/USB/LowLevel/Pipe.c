@@ -35,9 +35,6 @@
 
 uint8_t USB_ControlPipeSize = PIPE_CONTROLPIPE_DEFAULT_SIZE;
 
-static bool USB_PipeZLPRequired[PIPE_TOTAL_PIPES];
-
-
 bool Pipe_ConfigurePipe(const uint8_t  Number, const uint8_t Type, const uint8_t Token, const uint8_t EndpointNumber,
 						const uint16_t Size, const uint8_t Banks)
 {
@@ -120,10 +117,8 @@ uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length
 			if ((ErrorCode = Pipe_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		else
-		{
-			Pipe_Write_Byte(*(DataStream++));
-		}
+
+		Pipe_Write_Byte(*(DataStream++));
 	}
 
 	return PIPE_RWSTREAM_ERROR_NoError;
@@ -155,10 +150,8 @@ uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length
 			if ((ErrorCode = Pipe_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		else
-		{
-			Pipe_Write_Byte(*(DataStream--));
-		}
+
+		Pipe_Write_Byte(*(DataStream--));
 	}
 
 	return PIPE_RWSTREAM_ERROR_NoError;
@@ -189,10 +182,8 @@ uint8_t Pipe_Discard_Stream(uint16_t Length
 			if ((ErrorCode = Pipe_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		else
-		{
-			Pipe_Discard_Byte();
-		}
+
+		Pipe_Discard_Byte();
 	}
 
 	return PIPE_RWSTREAM_ERROR_NoError;
@@ -224,10 +215,8 @@ uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length
 			if ((ErrorCode = Pipe_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		else
-		{
-			*(DataStream++) = Pipe_Read_Byte();
-		}
+		
+		*(DataStream++) = Pipe_Read_Byte();
 	}
 
 	return PIPE_RWSTREAM_ERROR_NoError;
@@ -259,10 +248,8 @@ uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length
 			if ((ErrorCode = Pipe_WaitUntilReady()))
 			  return ErrorCode;
 		}
-		else
-		{
-			*(DataStream--) = Pipe_Read_Byte();
-		}
+
+		*(DataStream--) = Pipe_Read_Byte();
 	}
 	
 	return PIPE_RWSTREAM_ERROR_NoError;

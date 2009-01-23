@@ -156,8 +156,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the report data to the control endpoint */
 				Endpoint_Write_Control_Stream_LE(&JoystickReportData, wLength);
 				
-				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-				Endpoint_Finalize_Write_Control_Stream();
+				/* Finalize the stream transfer to send the last packet or clear the host abort */
+				Endpoint_ClearSetupOUT();
 			}
 		
 			break;
@@ -252,8 +252,8 @@ TASK(USB_Joystick_Report)
 			/* Write Joystick Report Data */
 			Endpoint_Write_Stream_LE(&JoystickReportData, sizeof(JoystickReportData));
 
-			/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-			Endpoint_Finalize_Stream();
+			/* Finalize the stream transfer to send the last packet */
+			Endpoint_ClearCurrentBank();
 			
 			/* Clear the report data afterwards */
 			JoystickReportData.X      = 0;

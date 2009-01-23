@@ -173,8 +173,8 @@ static bool SCSI_Command_Inquiry(void)
 	/* Pad out remaining bytes with 0x00 */
 	Endpoint_Write_Stream_LE(&PadBytes, (AllocationLength - BytesTransferred), AbortOnMassStoreReset);
 
-	/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-	Endpoint_Finalize_Stream();
+	/* Finalize the stream transfer to send the last packet */
+	Endpoint_ClearCurrentBank();
 
 	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.DataTransferLength -= BytesTransferred;
@@ -200,8 +200,8 @@ static bool SCSI_Command_Request_Sense(void)
 	/* Pad out remaining bytes with 0x00 */
 	Endpoint_Write_Stream_LE(&PadBytes, (AllocationLength - BytesTransferred), AbortOnMassStoreReset);
 
-	/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-	Endpoint_Finalize_Stream();
+	/* Finalize the stream transfer to send the last packet */
+	Endpoint_ClearCurrentBank();
 
 	/* Succeed the command and update the bytes transferred counter */
 	CommandBlock.DataTransferLength -= BytesTransferred;
@@ -217,7 +217,7 @@ static bool SCSI_Command_Request_Sense(void)
 static bool SCSI_Command_Read_Capacity_10(void)
 {
 	/* Send the total number of logical blocks in the current LUN */
-	Endpoint_Write_DWord_BE(LUN_MEDIA_SIZE);
+	Endpoint_Write_DWord_BE(LUN_MEDIA_BLOCKS - 1);
 
 	/* Send the logical block size of the device (must be 512 bytes) */
 	Endpoint_Write_DWord_BE(VIRTUAL_MEMORY_BLOCK_SIZE);
@@ -321,13 +321,8 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 	((uint8_t*)&TotalBlocks)[1]  = CommandBlock.SCSICommandData[7];
 	((uint8_t*)&TotalBlocks)[0]  = CommandBlock.SCSICommandData[8];
 	
-	#if (TOTAL_LUNS > 1)
-	/* Adjust the given block address to the real media address based on the selected LUN */
-	BlockAddress += ((uint32_t)CommandBlock.LUN * LUN_MEDIA_SIZE);
-	#endif
-	
-	/* Check if the block address is outside the maximum allowable value */
-	if (BlockAddress >= VIRTUAL_MEMORY_BLOCKS)
+	/* Check if the block address is outside the maximum allowable value for the LUN */
+	if (BlockAddress >= LUN_MEDIA_BLOCKS)
 	{
 		/* Block address is invalid, update SENSE key and return command fail */
 		SCSI_SET_SENSE(SCSI_SENSE_KEY_ILLEGAL_REQUEST,
@@ -337,6 +332,11 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 		return false;
 	}
 
+	#if (TOTAL_LUNS > 1)
+	/* Adjust the given block address to the real media address based on the selected LUN */
+	BlockAddress += ((uint32_t)CommandBlock.LUN * LUN_MEDIA_BLOCKS);
+	#endif
+	
 	/* Determine if the packet is a READ (10) or WRITE (10) command, call appropriate function */
 	if (IsDataRead == DATA_READ)
 	  DataflashManager_ReadBlocks(BlockAddress, TotalBlocks);

@@ -316,8 +316,8 @@ static bool ReadInCommandBlock(void)
 	if (IsMassStoreReset)
 	  return false;
 
-	/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-	Endpoint_Finalize_Stream();
+	/* Finalize the stream transfer to send the last packet */
+	Endpoint_ClearCurrentBank();
 	
 	return true;
 }
@@ -357,8 +357,8 @@ static void ReturnCommandStatus(void)
 	if (IsMassStoreReset)
 	  return;
 
-	/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-	Endpoint_Finalize_Stream();
+	/* Finalize the stream transfer to send the last packet */
+	Endpoint_ClearCurrentBank();
 }
 
 /** Stream callback function for the Endpoint stream read and write functions. This callback will abort the current stream transfer

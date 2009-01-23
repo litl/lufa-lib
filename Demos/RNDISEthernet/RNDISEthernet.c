@@ -167,8 +167,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Read in the RNDIS message into the message buffer */
 				Endpoint_Read_Control_Stream_LE(RNDISMessageBuffer, wLength);
 
-				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-				Endpoint_Finalize_Read_Control_Stream();
+				/* Finalize the stream transfer to clear the last packet from the host */
+				Endpoint_ClearSetupIN();
 
 				/* Process the RNDIS message */
 				ProcessRNDISControlMessage();
@@ -196,8 +196,8 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 				/* Write the message response data to the endpoint */
 				Endpoint_Write_Control_Stream_LE(RNDISMessageBuffer, wLength);
 				
-				/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-				Endpoint_Finalize_Write_Control_Stream();
+				/* Finalize the stream transfer to send the last packet or clear the host abort */
+				Endpoint_ClearSetupOUT();
 
 				/* Reset the message header once again after transmission */
 				MessageHeader->MessageLength = 0;
@@ -261,8 +261,8 @@ TASK(RNDIS_Task)
 		/* Indicate that a message response is ready for the host */
 		Endpoint_Write_Stream_LE(&Notification, sizeof(Notification));
 
-		/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-		Endpoint_Finalize_Stream();
+		/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearCurrentBank();
 
 		/* Indicate a response is no longer ready */
 		ResponseReady = false;
@@ -293,8 +293,8 @@ TASK(RNDIS_Task)
 			/* Read in the Ethernet frame into the buffer */
 			Endpoint_Read_Stream_LE(FrameIN.FrameData, RNDISPacketHeader.DataLength);
 
-			/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-			Endpoint_Finalize_Stream();
+			/* Finalize the stream transfer to send the last packet */
+			Endpoint_ClearCurrentBank();
 			
 			/* Store the size of the Ethernet frame */
 			FrameIN.FrameLength = RNDISPacketHeader.DataLength;
@@ -324,9 +324,9 @@ TASK(RNDIS_Task)
 			/* Send the Ethernet frame data to the host */
 			Endpoint_Write_Stream_LE(FrameOUT.FrameData, RNDISPacketHeader.DataLength);
 			
-			/* Finalize the stream transfer to send the last packet plus handle the ZLP if needed */
-			Endpoint_Finalize_Stream();
-
+			/* Finalize the stream transfer to send the last packet */
+			Endpoint_ClearCurrentBank();
+			
 			/* Indicate Ethernet OUT buffer no longer full */
 			FrameOUT.FrameInBuffer = false;
 		}

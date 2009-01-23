@@ -48,11 +48,11 @@
  */
 void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage     = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-	uint16_t CurrDFPageByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
-	
+	uint16_t CurrDFPage          = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFPageByte      = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 	uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
-		
+	bool     NeedPageWrite       = false;
+
 	/* Select the dataflash IC based on the page number */
 	Dataflash_SelectChipFromPage(CurrDFPage);
 	Dataflash_WaitWhileBusy();
@@ -75,10 +75,13 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 		{
 			/* Wait until the endpoint is ready to be written to */
 			Endpoint_WaitUntilReady();
-
+			
 			/* Write an endpoint packet sized data block to the dataflash */
 			for (uint8_t BufferByteDiv16 = 0; BufferByteDiv16 < (MASS_STORAGE_IO_EPSIZE >> 4); BufferByteDiv16++)
 			{
+				/* Indicate that the dataflash buffer contains unwritten data */
+				NeedPageWrite = true;
+
 				/* Write one 16-byte chunk of data to the dataflash */
 				Dataflash_SendByte(Endpoint_Read_Byte());
 				Dataflash_SendByte(Endpoint_Read_Byte());
@@ -111,6 +114,9 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 					/* Reset the dataflash buffer counter, increment the page counter */
 					CurrDFPageByteDiv16 = 0;
 					CurrDFPage++;
+
+					/* Indicate current buffer data has been written to the non-volatile memory */
+					NeedPageWrite = false;
 
 					/* Select the next dataflash chip based on the new dataflash page index */
 					Dataflash_SelectChipFromPage(CurrDFPage);
@@ -146,11 +152,15 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 		TotalBlocks--;
 	}
 
-	/* Write the dataflash buffer contents back to the dataflash page */
-	Dataflash_ToggleSelectedChipCS();
-	Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
-	Dataflash_SendAddressBytes(CurrDFPage, 0x00);
-	Dataflash_WaitWhileBusy();
+	/* Check if still need to commit the current dataflash buffer to non-volatile memory */
+	if (NeedPageWrite)
+	{
+		/* Write the dataflash buffer contents back to the dataflash page */
+		Dataflash_ToggleSelectedChipCS();
+		Dataflash_SendByte(DF_CMD_BUFF1TOMAINMEMWITHERASE);
+		Dataflash_SendAddressBytes(CurrDFPage, 0x00);
+		Dataflash_WaitWhileBusy();
+	}
 
 	/* Deselect all dataflash chips */
 	Dataflash_DeselectChip();
@@ -165,9 +175,8 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
  */
 void DataflashManager_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage     = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-	uint16_t CurrDFPageByte = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
-
+	uint16_t CurrDFPage          = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+	uint16_t CurrDFPageByte      = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 	uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
 
 	/* Select the dataflash IC based on the page number */

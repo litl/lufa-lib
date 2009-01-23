@@ -170,11 +170,10 @@
 			 */
 			static inline void Dataflash_SelectChipFromPage(const uint16_t PageAddress)
 			{
+				Dataflash_DeselectChip();
+				
 				if (PageAddress >= (DATAFLASH_PAGES * DATAFLASH_TOTALCHIPS))
-				{
-					Dataflash_DeselectChip();
-					return;
-				}
+				  return;
 
 				#if (DATAFLASH_TOTALCHIPS == 2)
 					if (PageAddress & 0x01)
@@ -182,7 +181,6 @@
 					else
 					  Dataflash_SelectChip(DATAFLASH_CHIP1);
 				#else
-					Dataflash_DeselectChip();
 					Dataflash_SelectChip(DATAFLASH_CHIP1);
 				#endif
 			}
