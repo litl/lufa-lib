@@ -4,7 +4,7 @@
  *  documentation pages. It is not a project source file.
  */
  
-  TODO: Multiple LUNs cause data corruption
+  TODO: Fix Mass Storage Host demo
 	    Document Host demos
 	   
  /** \page Page_ChangeLog Project Changelog
@@ -37,6 +37,8 @@
   *  - Simplified low level backend so that device/host mode initialization uses the same code paths
   *  - Added workaround for faulty Mass Storage devices which do not implement the required GET_MAX_LUN request
   *  - Removed buggy Telnet application from the RNDIS demo
+  *  - Moved Mass Storage class requests in the Mass Storage Host demo to wrapper functions in MassStoreCommands.c
+  *  - Fixed incorrect SCSI command size value in the Request Sense command in MassStoreCommands.c
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

@@ -67,7 +67,7 @@ TASK_LIST
 };
 
 /* Globals */
-uint8_t MassStore_NumberOfLUNs;
+uint8_t MassStore_MaxLUNIndex;
 
 int main(void)
 {
@@ -245,73 +245,27 @@ TASK(USB_MassStore_Host)
 			/* Indicate device busy via the status LEDs */
 			UpdateStatus(Status_Busy);
 			
-			/* Request to prepare the disk for use */
-			USB_HostRequest = (USB_Host_Request_Header_t)
-				{
-					bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
-					bRequest:      MASS_STORAGE_RESET,
-					wValue:        0,
-					wIndex:        0,
-					wLength:       0,
-				};
-
-			/* Send the request, display error and wait for device detatch if request fails */
-			if ((ErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
+			/* Reset the Mass Storage device interface, ready for use */
+			if ((ErrorCode = MassStore_MassStorageReset()) != HOST_SENDCONTROL_Successful)
 			{
-				puts_P(PSTR("Control error (Mass Storage Reset)."));
-				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
-
-				/* Indicate error via status LEDs */
-				UpdateStatus(Status_EnumerationError);
-
-				/* Wait until USB device disconnected */
-				while (USB_IsConnected);
+				ShowDiskReadError(PSTR("Mass Storage Reset"), ErrorCode);
 				break;
 			}
 			
-			/* Request to retrieve the maximum LUN index from the device */
-			USB_HostRequest = (USB_Host_Request_Header_t)
-				{
-					bmRequestType: (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE),
-					bRequest:      GET_MAX_LUN,
-					wValue:        0,
-					wIndex:        0,
-					wLength:       1,
-				};
-
 			/* Send the request, display error and wait for device detatch if request fails */
-			if ((ErrorCode = USB_Host_SendControlRequest(&MassStore_NumberOfLUNs)) != HOST_SENDCONTROL_Successful)
+			if ((ErrorCode = MassStore_GetMaxLUN(&MassStore_MaxLUNIndex)) != HOST_SENDCONTROL_Successful)
 			{	
-				/* Check if the device stalled the request */
-				if (ErrorCode == HOST_SENDCONTROL_SetupStalled)
-				{
-					/* Some faulty Mass Storage devices don't implement the GET_MAX_LUN request, so assume a single LUN */
-					MassStore_NumberOfLUNs = 0;
-				}
-				else
-				{
-					puts_P(PSTR("Control error (Get Max LUN)."));
-					printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
-
-					/* Indicate error via status LEDs */
-					UpdateStatus(Status_EnumerationError);
-
-					/* Wait until USB device disconnected */
-					while (USB_IsConnected);
-					break;
-				}
+				ShowDiskReadError(PSTR("Get Max LUN"), ErrorCode);
+				break;
 			}
 			
-			/* Device indicates the maximum LUN index, the 1-indexed number of LUNs is one more that this */
-			MassStore_NumberOfLUNs++;
-			
 			/* Print number of LUNs detected in the attached device */
-			printf_P(PSTR("Total LUNs: %d.\r\n"), MassStore_NumberOfLUNs);
+			printf_P(PSTR("Total LUNs: %d.\r\n"), (MassStore_MaxLUNIndex + 1));
 
 			/* Set the prevent removal flag for the device, allowing it to be accessed */
 			if ((ErrorCode = MassStore_PreventAllowMediumRemoval(0, true)) != 0)
 			{
-				ShowDiskReadError(ErrorCode);
+				ShowDiskReadError(PSTR("Prevent/Allow Medium Removal"), ErrorCode);
 				break;
 			}
 			
@@ -320,7 +274,7 @@ TASK(USB_MassStore_Host)
 			SCSI_Request_Sense_Response_t SenseData;
 			if ((ErrorCode = MassStore_RequestSense(0, &SenseData)) != 0)
 			{
-				ShowDiskReadError(ErrorCode);
+				ShowDiskReadError(PSTR("Request Sense"), ErrorCode);
 				break;
 			}
 
@@ -346,7 +300,7 @@ TASK(USB_MassStore_Host)
 			/* Retrieve disk capacity */
 			if ((ErrorCode = MassStore_ReadCapacity(0, &DiskCapacity)) != 0)
 			{
-				ShowDiskReadError(ErrorCode);
+				ShowDiskReadError(PSTR("Read Capacity"), ErrorCode);
 				break;
 			}
 			
@@ -359,7 +313,7 @@ TASK(USB_MassStore_Host)
 			/* Read in the first 512 byte block from the device */
 			if ((ErrorCode = MassStore_ReadDeviceBlock(0, 0x00000000, 1, DiskCapacity.BlockSize, BlockBuffer)) != 0)
 			{
-				ShowDiskReadError(ErrorCode);
+				ShowDiskReadError(PSTR("Read Device Block"), ErrorCode);
 				break;
 			}
 			
@@ -399,11 +353,13 @@ TASK(USB_MassStore_Host)
 	}
 }
 
-void ShowDiskReadError(uint8_t ErrorCode)
+void ShowDiskReadError(char* CommandString, uint8_t ErrorCode)
 {
 	/* Display the error code */
-	puts_P(PSTR(ESC_BG_RED "Command error.\r\n"));
+	printf_P(PSTR(ESC_BG_RED "Command error (%S).\r\n"), CommandString);
 	printf_P(PSTR("  -- Error Code: %d"), ErrorCode);
+	
+	Pipe_Freeze();
 
 	/* Indicate device error via the status LEDs */
 	UpdateStatus(Status_SCSICommandError);

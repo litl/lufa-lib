@@ -154,7 +154,7 @@ static uint8_t MassStore_SendReceiveData(void* BufferPtr)
 	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
-uint8_t MassStore_GetReturnedStatus(void)
+static uint8_t MassStore_GetReturnedStatus(void)
 {
 	uint8_t ErrorCode = PIPE_RWSTREAM_ERROR_NoError;
 
@@ -189,6 +189,45 @@ uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum)
 	return USB_Host_SendControlRequest(NULL);
 }
 
+uint8_t MassStore_MassStorageReset(void)
+{
+	USB_HostRequest = (USB_Host_Request_Header_t)
+		{
+			bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
+			bRequest:      MASS_STORAGE_RESET,
+			wValue:        0,
+			wIndex:        0,
+			wLength:       0,
+		};
+	
+	return USB_Host_SendControlRequest(NULL);
+}
+
+uint8_t MassStore_GetMaxLUN(uint8_t* MaxLUNIndex)
+{
+	uint8_t ErrorCode;
+
+	USB_HostRequest = (USB_Host_Request_Header_t)
+		{
+			bmRequestType: (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE),
+			bRequest:      GET_MAX_LUN,
+			wValue:        0,
+			wIndex:        0,
+			wLength:       1,
+		};
+		
+	if ((ErrorCode = USB_Host_SendControlRequest(MaxLUNIndex)) == HOST_SENDCONTROL_SetupStalled)
+	{
+		/* Clear the pipe stall */
+		Pipe_ClearStall();
+	
+		/* Some faulty Mass Storage devices don't implement the GET_MAX_LUN request, so assume a single LUN */
+		*MaxLUNIndex = 0;	
+	}
+	
+	return ErrorCode;
+}
+
 uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_Response_t* const SensePtr)
 {
 	uint8_t ReturnCode = PIPE_RWSTREAM_ERROR_NoError;
@@ -203,7 +242,7 @@ uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_
 					DataTransferLength: sizeof(SCSI_Request_Sense_Response_t),
 					Flags:              COMMAND_DIRECTION_DATA_IN,
 					LUN:                LUNIndex,
-					SCSICommandLength:  10
+					SCSICommandLength:  6
 				},
 					
 			SCSICommandData:

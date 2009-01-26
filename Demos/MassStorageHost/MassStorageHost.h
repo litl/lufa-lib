@@ -72,7 +72,7 @@
 		HANDLES_EVENT(USB_DeviceEnumerationFailed);
 				
 	/* Function Prototypes: */
-		void ShowDiskReadError(uint8_t ErrorCode);
+		void ShowDiskReadError(char* CommandString, uint8_t ErrorCode);
 		void UpdateStatus(uint8_t CurrentStatus);		
 
 #endif
