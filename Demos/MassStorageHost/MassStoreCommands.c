@@ -203,7 +203,7 @@ uint8_t MassStore_MassStorageReset(void)
 	return USB_Host_SendControlRequest(NULL);
 }
 
-uint8_t MassStore_GetMaxLUN(uint8_t* MaxLUNIndex)
+uint8_t MassStore_GetMaxLUN(uint8_t* const MaxLUNIndex)
 {
 	uint8_t ErrorCode;
 

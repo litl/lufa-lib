@@ -39,6 +39,8 @@
   *  - Removed buggy Telnet application from the RNDIS demo
   *  - Moved Mass Storage class requests in the Mass Storage Host demo to wrapper functions in MassStoreCommands.c
   *  - Fixed incorrect SCSI command size value in the Request Sense command in MassStoreCommands.c
+  *  - Added SetProtocol request to HID class non-parser Mouse and Keyboard demos to force devices to use the correct Boot Protocol
+  *  - Added new "dfu" and "flip" programming targets to project makefiles
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

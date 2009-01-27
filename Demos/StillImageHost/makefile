@@ -485,6 +485,14 @@ gccversion:
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 
+flip: $(TARGET).hex
+	batchisp -hardware usb -device $(MCU) -operation erase f
+	batchisp -hardware usb -device $(MCU) -operation loadbuffer $(TARGET).hex program
+	batchisp -hardware usb -device $(MCU) -operation start reset 0
+
+dfu: $(TARGET).hex
+	dfu-programmer $(MCU) erase
+	dfu-programmer $(MCU) flash --debug 1 $(TARGET).hex
 
 # Generate avr-gdb config/init file which does the following:
 #     define the reset signal, load the target file, connect to target, and set 
@@ -662,4 +670,4 @@ $(shell mkdir $(OBJDIR) 2>/dev/null)
 finish end sizebefore sizeafter gccversion  \
 build elf hex eep lss sym coff extcoff      \
 clean clean_list clean_binary program debug \
-gdb-config doxygen
+gdb-config doxygen dfu flip

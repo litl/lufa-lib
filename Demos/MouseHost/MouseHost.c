@@ -28,32 +28,6 @@
   this software.
 */
 
-/*
-	Mouse host demonstration application. This gives a simple reference
-	application for implementing a USB Mouse host, for USB mice using
-	the standard mouse HID profile.
-	
-	Mouse movement and button presses are displayed on the board LEDs,
-	as well as printed out the serial terminal as formatted dY, dY and
-	button status information.
-	
-	This uses a naive method where the returned report structure is
-	assumed. A better implementation uses the HID report parser for
-	correct report data processing across all compatable mice, as shown
-	in the MouseHostWithParser demo application.
-
-	Currently only single interface mice are supported.	
-*/
-
-/*
-	USB Mode:           Host
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Mouse
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
-
 #include "MouseHost.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -234,6 +208,30 @@ TASK(USB_Mouse_Host)
 				break;
 			}
 		
+			/* HID class request to set the mouse protocol to the Boot Protocol */
+			USB_HostRequest = (USB_Host_Request_Header_t)
+				{
+					bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
+					bRequest:      REQ_SetProtocol,
+					wValue:        0,
+					wIndex:        0,
+					wLength:       0,
+				};
+
+			/* Send the request, display error and wait for device detatch if request fails */
+			if ((ErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
+			{
+				puts_P(PSTR("Control Error (Set Protocol).\r\n"));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
+
+				/* Indicate error status */
+				UpdateStatus(Status_EnumerationError);
+				
+				/* Wait until USB device disconnected */
+				while (USB_IsConnected);
+				break;
+			}
+
 			puts_P(PSTR("Mouse Enumerated.\r\n"));
 			
 			USB_HostState = HOST_STATE_Ready;
@@ -250,10 +248,11 @@ TASK(USB_Mouse_Host)
 				uint8_t                LEDMask = LEDS_NO_LEDS;
 
 				/* Read in mouse report data */
-				MouseReport.Button = Pipe_Read_Byte();
-				MouseReport.X      = Pipe_Read_Byte();
-				MouseReport.Y      = Pipe_Read_Byte();
-				
+				Pipe_Read_Stream_LE(&MouseReport, sizeof(MouseReport));				
+					
+				/* Clear the IN endpoint, ready for next data packet */
+				Pipe_ClearCurrentBank();
+
 				/* Alter status LEDs according to mouse X movement */
 				if (MouseReport.X > 0)
 				  LEDMask |= LEDS_LED1;
@@ -276,9 +275,6 @@ TASK(USB_Mouse_Host)
 				printf_P(PSTR("dX:%2d dY:%2d Button:%d\r\n"), MouseReport.X,
 				                                              MouseReport.Y,
 				                                              MouseReport.Button);
-					
-				/* Clear the IN endpoint, ready for next data packet */
-				Pipe_ClearCurrentBank();
 			}
 
 			/* Freeze mouse data pipe */

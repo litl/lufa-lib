@@ -339,7 +339,7 @@ static uint8_t FetchNextCommandByte(void)
 	return Endpoint_Read_Byte();
 }
 
-/** Writes the next reponse byte to the CDC data IN endpoint, and sends the endpoint back if needed to free up the
+/** Writes the next response byte to the CDC data IN endpoint, and sends the endpoint back if needed to free up the
  *  bank when full ready for the next byte in the packet to the host.
  *
  *  \param Response  Next response byte to send to the host

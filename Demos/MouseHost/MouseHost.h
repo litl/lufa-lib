@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for MouseHost.c.
+ */
+
 #ifndef _MOUSE_HOST_H_
 #define _MOUSE_HOST_H_
 
@@ -48,14 +53,19 @@
 		#include "ConfigDescriptor.h"
 		
 	/* Macros: */
+		/** Pipe number for the mouse data IN pipe */
 		#define MOUSE_DATAPIPE              1
+		
+		/** HID Class Specific request to set the report protocol mode */
+		#define REQ_SetProtocol             0x0B
 
 	/* Type Defines: */
+		/** Type define for a standard Boot Protocol Mouse report */
 		typedef struct
 		{
-			uint8_t Button;
-			int8_t  X;
-			int8_t  Y;
+			uint8_t Button; /**< Button mask for currently pressed buttons in the mouse */
+			int8_t  X; /**< Current delta X movement of the mouse */
+			int8_t  Y; /**< Current delta Y movement on the mouse */
 		} USB_MouseReport_Data_t;
 
 	/* Task Definitions: */

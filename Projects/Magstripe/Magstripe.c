@@ -414,6 +414,7 @@ TASK(USB_Keyboard_Report)
 				IdleMSRemaining = (IdleCount << 2);
 			}
 
+			/* Write the keyboard report if a report is to be sent to the host */
 			if (SendReport)
 			{
 				/* Write Keyboard Report Data */

@@ -50,10 +50,14 @@
 	/* Macros: */
 		#define KEYBOARD_DATAPIPE              1
 
+		/** HID Class Specific request to set the report protocol mode */
+		#define REQ_SetProtocol             0x0B
+
 	/* Type Defines: */
 		typedef struct
 		{
 			uint8_t Modifier;
+			uint8_t RESERVED;
 			uint8_t KeyCode;
 		} USB_KeyboardReport_Data_t;
 

@@ -129,7 +129,7 @@
 		
 		uint8_t MassStore_ClearPipeStall(const uint8_t PipeEndpointNum);
 		uint8_t MassStore_MassStorageReset(void);
-		uint8_t MassStore_GetMaxLUN(uint8_t* MaxLUNIndex);
+		uint8_t MassStore_GetMaxLUN(uint8_t* const MaxLUNIndex);
 		uint8_t MassStore_RequestSense(const uint8_t LUNIndex, const SCSI_Request_Sense_Response_t* const SensePtr)
 		                               ATTR_NON_NULL_PTR_ARG(2);
 		uint8_t MassStore_ReadDeviceBlock(const uint8_t LUNIndex, const uint32_t BlockAddress,

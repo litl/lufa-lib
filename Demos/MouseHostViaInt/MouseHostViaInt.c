@@ -235,6 +235,30 @@ TASK(USB_Mouse_Host)
 				break;
 			}
 
+			/* HID class request to set the mouse protocol to the Boot Protocol */
+			USB_HostRequest = (USB_Host_Request_Header_t)
+				{
+					bmRequestType: (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
+					bRequest:      REQ_SetProtocol,
+					wValue:        0,
+					wIndex:        0,
+					wLength:       0,
+				};
+
+			/* Send the request, display error and wait for device detatch if request fails */
+			if ((ErrorCode = USB_Host_SendControlRequest(NULL)) != HOST_SENDCONTROL_Successful)
+			{
+				puts_P(PSTR("Control Error (Set Protocol).\r\n"));
+				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);
+
+				/* Indicate error status */
+				UpdateStatus(Status_EnumerationError);
+				
+				/* Wait until USB device disconnected */
+				while (USB_IsConnected);
+				break;
+			}
+
 			puts_P(PSTR("Mouse Enumerated.\r\n"));
 
 			USB_HostState = HOST_STATE_Ready;
@@ -262,9 +286,10 @@ ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 			USB_INT_Clear(PIPE_INT_IN);		
 
 			/* Read in mouse report data */
-			MouseReport.Button = Pipe_Read_Byte();
-			MouseReport.X      = Pipe_Read_Byte();
-			MouseReport.Y      = Pipe_Read_Byte();
+			Pipe_Read_Stream_LE(&MouseReport, sizeof(MouseReport));				
+				
+			/* Clear the IN endpoint, ready for next data packet */
+			Pipe_ClearCurrentBank();
 				
 			/* Alter status LEDs according to mouse X movement */
 			if (MouseReport.X > 0)
@@ -288,9 +313,6 @@ ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 			printf_P(PSTR("dX:%2d dY:%2d Button:%d\r\n"), MouseReport.X,
 			                                              MouseReport.Y,
 			                                              MouseReport.Button);
-					
-			/* Clear the IN endpoint, ready for next data packet */
-			Pipe_ClearCurrentBank();
 		}
 	}
 }

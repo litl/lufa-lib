@@ -320,13 +320,13 @@ TASK(USB_MassStore_Host)
 			/* Show the number of bytes not transferred in the previous command */
 			printf_P(PSTR("Transfer Residue: %lu\r\n"), SCSICommandStatus.DataTransferResidue);
 			
-			puts_P(PSTR("\r\nContents of first block:\r\n"));
+			puts_P(PSTR("\r\nContents of first block (HEX):\r\n"));
 			
 			/* Print the block bytes in hex out through the serial USART */
 			for (uint16_t Byte = 0; Byte < DiskCapacity.BlockSize; Byte++)
 			  printf_P(PSTR("0x%.2X "), BlockBuffer[Byte]);
 			
-			puts_P(PSTR("\r\n\r\nASCII Data:\r\n"));
+			puts_P(PSTR("\r\n\r\nContents of first block (ASCII):\r\n"));
 			
 			/* Do the same in ASCII characters */
 			for (uint16_t Byte = 0; Byte < DiskCapacity.BlockSize; Byte++)
