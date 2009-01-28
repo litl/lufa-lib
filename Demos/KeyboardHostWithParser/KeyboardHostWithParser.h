@@ -48,6 +48,9 @@
 		#include "ConfigDescriptor.h"
 		#include "HIDReport.h"
 
+	/* Macros: */
+		#define KEYBOARD_DATAPIPE              1
+
 	/* Enums: */
 		/** Enum for the possible status codes for passing to the UpdateStatus() function. */
 		enum KeyboardHostWithParser_StatusCodes_t

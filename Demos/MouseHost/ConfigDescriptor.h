@@ -53,7 +53,7 @@
 		#define MAX_CONFIG_DESCRIPTOR_SIZE  512
 	
 	/* Enums: */
-		/* Enum for the possible return codes of the ProcessConfigurationDescriptor() function. */
+		/** Enum for the possible return codes of the ProcessConfigurationDescriptor() function. */
 		enum MouseHost_GetConfigDescriptorDataCodes_t
 		{
 			SuccessfulConfigRead            = 0, /**< Configuration Descriptor was processed successfully */

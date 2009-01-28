@@ -4,23 +4,22 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \mainpage Mouse Host Demo
+/** \mainpage Keyboard Host Demo
  *  
- *  Mouse host demonstration application. This gives a simple reference
- *  application for implementing a USB Mouse host, for USB mice using
- *  the standard mouse HID profile.
+ *  Keyboard host demonstration application. This gives a simple reference
+ *  application for implementing a USB Mouse keyboard, for USB keyboards using
+ *  the standard keyboard HID profile.
  *  
- *  Mouse movement and button presses are displayed on the board LEDs,
- *  as well as printed out the serial terminal as formatted dY, dY and
- *  button status information.
+ *  Pressed alpha-numeric, enter or space key is transmitted through the serial
+ *  USART at serial settings 9600, 8, N, 1.
  *  
- *  This uses a naive method where the mouse is set to Boot Protocol mode, so
+ *  This uses a naive method where the keyboard is set to Boot Protocol mode, so
  *  that the report structure is fixed and known. A better implementation
  *  uses the HID report parser for correct report data processing across
  *  all compatable mice with advanced characteristics, as shown in the
- *  MouseHostWithParser demo application.
+ *  KeyboardHostWithParser demo application.
  *  
- *  Currently only single interface mice are supported.	
+ *  Currently only single interface keyboards are supported.	
  *
  *  <table>
  *   <tr>

@@ -3,9 +3,6 @@
  *  This file contains special DoxyGen information for the generation of the main page and other special
  *  documentation pages. It is not a project source file.
  */
- 
-  TODO: Fix Mass Storage Host demo
-	    Document Host demos
 	   
  /** \page Page_ChangeLog Project Changelog
   *
@@ -46,6 +43,8 @@
   *  - Serial driver now sets Tx line as output, enables pullup on Rx line
   *  - Fixed smaller USB AVRs raising multiple connection and disconnection events when NO_LIMITED_CONTROLLER_CONNECT is disabled
   *  - Added HOST_DEVICE_SETTLE_DELAY_MS to give the host delay after a device is connected before it is enumerated
+  *  - Fixed KeyboardHostWithParser demo linking against the wrong global variables
+  *  - Completed doxygen documentation of remaining library bootloaders, demos and projects
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

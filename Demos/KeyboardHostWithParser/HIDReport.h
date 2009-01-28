@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for HIDReport.c.
+ */
+
 #ifndef _HID_REPORT_H_
 #define _HID_REPORT_H_
 
@@ -37,28 +42,31 @@
 		#include "KeyboardHostWithParser.h"
 
 	/* Macros: */
-		#define USAGEPAGE_KEYBOARD             0x07
+		/** HID Report Descriptor Usage Page value for a desktop keyboard */
+		#define USAGE_PAGE_KEYBOARD             0x07
 
 	/* Enums: */
+		/** Enum for the possible return codes of the GetHIDReportData() function. */
 		enum KeyboardHostWithParser_GetHIDReportDataCodes_t
 		{
-			ParseSuccessful         = 0,
-			ParseError              = 1,
-			ParseControlError       = 2,
+			ParseSuccessful         = 0, /**< HID report descriptor parsed successfully */
+			ParseError              = 1, /**< Failed to fully process the HID report descriptor */
+			ParseControlError       = 2, /**< Control error occured while trying to read the device HID descriptor */
 		};
 		
 	/* Type Defines: */
+		/** Type define for a HID descriptor. */
 		typedef struct
 		{
-			USB_Descriptor_Header_t  Header;
+			USB_Descriptor_Header_t  Header; /**< Regular descriptor header containing the descriptor's type and length */
 				
-			uint16_t                 HIDSpec;
-			uint8_t                  CountryCode;
+			uint16_t                 HIDSpec; /**< Implemented HID class specification, in BCD encoded format */
+			uint8_t                  CountryCode; /**< Country code value for localized hardware */
 		
-			uint8_t                  TotalHIDReports;
+			uint8_t                  TotalHIDReports; /**< Total number of HID report descriptors in the current interface */
 
-			uint8_t                  HIDReportType;
-			uint16_t                 HIDReportLength;
+			uint8_t                  HIDReportType; /**< HID report type of the first HID report descriptor */
+			uint16_t                 HIDReportLength; /**< Total size in bytes of the first HID report descriptor */
 		} USB_Descriptor_HID_t;
 
 	/* External Variables: */

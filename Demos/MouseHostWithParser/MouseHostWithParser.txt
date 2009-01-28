@@ -4,23 +4,20 @@
  *  documentation pages. It is not a project source file.
  */
  
-/** \mainpage Mouse Host Demo
+/** \mainpage Mouse Host With HID Descriptor Parser Demo
  *  
  *  Mouse host demonstration application. This gives a simple reference
  *  application for implementing a USB Mouse host, for USB mice using
- *  the standard mouse HID profile.
+ *  the standard mouse HID profile. It uses a HID parser for the HID
+ *  reports, allowing for correct operation across all USB mice. This
+ *  demo supports mice with a single HID report.
  *  
- *  Mouse movement and button presses are displayed on the board LEDs,
- *  as well as printed out the serial terminal as formatted dY, dY and
- *  button status information.
+ *  Mouse movement and button presses are displayed on the board LEDs.
+ *  On connection to a USB mouse, the report items will be processed and
+ *  printed as a formatted list through the USART before the mouse is
+ *  fully enumerated.
  *  
- *  This uses a naive method where the mouse is set to Boot Protocol mode, so
- *  that the report structure is fixed and known. A better implementation
- *  uses the HID report parser for correct report data processing across
- *  all compatable mice with advanced characteristics, as shown in the
- *  MouseHostWithParser demo application.
- *  
- *  Currently only single interface mice are supported.	
+ *  Currently only single interface mice are supported.
  *
  *  <table>
  *   <tr>

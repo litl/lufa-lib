@@ -28,30 +28,12 @@
   this software.
 */
 
-/*
-	Keyboard host demonstration application. This gives a simple reference
-	application for implementing a USB Keyboard host, for USB keyboards using
-	the standard Keyboard HID profile. It uses a HID parser for the HID reports,
-	allowing for correct operation across all USB keyboards. This demo supports
-	keyboards with a single HID report.
-	
-	Pressed alpha-numeric, enter or space key is transmitted through the serial
-	USART at serial settings 9600, 8, N, 1. On connection to a USB keyboard, the
-	report items will be processed and printed as a formatted list through the
-	USART before the keyboard is fully enumerated.
-
-	Currently only single interface and single report keyboards are supported.
-*/
-
-/*
-	USB Mode:           Host
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Keyboard
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
-
+/** \file
+ *
+ *  Main source file for the KeyboardHostWithParser demo. This file contains the main tasks of
+ *  the demo and is responsible for the initial application hardware configuration.
+ */
+ 
 #include "KeyboardHostWithParser.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
@@ -67,10 +49,10 @@ TASK_LIST
 	{ Task: USB_Keyboard_Host    , TaskStatus: TASK_STOP },
 };
 
-/* Globals */
-uint16_t         HIDReportSize;
-HID_ReportInfo_t HIDReportInfo;
 
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -101,6 +83,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_DeviceAttached event. This indicates that a device has been attached to the host, and
+ *  starts the library USB task to begin the enumeration and USB management process.
+ */
 EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR("Device Attached.\r\n"));
@@ -110,6 +95,9 @@ EVENT_HANDLER(USB_DeviceAttached)
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 }
 
+/** Event handler for the USB_DeviceUnattached event. This indicates that a device has been removed from the host, and
+ *  stops the library USB task management process.
+ */
 EVENT_HANDLER(USB_DeviceUnattached)
 {
 	/* Stop keyboard and USB management task */
@@ -120,6 +108,9 @@ EVENT_HANDLER(USB_DeviceUnattached)
 	UpdateStatus(Status_USBNotReady);
 }
 
+/** Event handler for the USB_DeviceEnumerationComplete event. This indicates that a device has been successfully
+ *  enumerated by the host and is now ready to be used by the application.
+ */
 EVENT_HANDLER(USB_DeviceEnumerationComplete)
 {
 	/* Start Keyboard Host task */
@@ -129,6 +120,7 @@ EVENT_HANDLER(USB_DeviceEnumerationComplete)
 	UpdateStatus(Status_USBReady);
 }
 
+/** Event handler for the USB_HostError event. This indicates that a hardware error occurred while in host mode. */
 EVENT_HANDLER(USB_HostError)
 {
 	USB_ShutDown();
@@ -140,6 +132,9 @@ EVENT_HANDLER(USB_HostError)
 	for(;;);
 }
 
+/** Event handler for the USB_DeviceEnumerationFailed event. This indicates that a problem occured while
+ *  enumerating an attached USB device.
+ */
 EVENT_HANDLER(USB_DeviceEnumerationFailed)
 {
 	puts_P(PSTR(ESC_BG_RED "Dev Enum Error\r\n"));
@@ -184,6 +179,9 @@ void UpdateStatus(uint8_t CurrentStatus)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** Task to set the configuration of the attached device after it has been enumerated, and to read and process
+ *  the HID report descriptor and HID reports from the device and display the results onto the board LEDs.
+ */
 TASK(USB_Keyboard_Host)
 {
 	uint8_t ErrorCode;
@@ -293,9 +291,9 @@ TASK(USB_Keyboard_Host)
 					HID_ReportItem_t* ReportItem = &HIDReportInfo.ReportItems[ReportNumber];
 
 					/* Check if the current report item is a keyboard scancode */
-					if ((ReportItem->Attributes.Usage.Page      == USAGEPAGE_KEYBOARD) &&
-					    (ReportItem->Attributes.BitSize         == 8)                  &&
-					    (ReportItem->Attributes.Logical.Maximum > 1)                   &&
+					if ((ReportItem->Attributes.Usage.Page      == USAGE_PAGE_KEYBOARD) &&
+					    (ReportItem->Attributes.BitSize         == 8)                   &&
+					    (ReportItem->Attributes.Logical.Maximum > 1)                    &&
 					    (ReportItem->ItemType                   == REPORT_ITEM_TYPE_In))
 					{
 						/* Retrieve the keyboard scancode from the report data retrieved from the device */

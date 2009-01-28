@@ -30,6 +30,23 @@
 
 #include "ConfigDescriptor.h"
 
+/** \file
+ *
+ *  USB Device Configuration Descriptor processing routines, to determine the correct pipe configurations
+ *  needed to communication with an attached USB device. Descriptors are special  computer-readable structures
+ *  which the host requests upon device enumeration, to determine the device's capabilities and functions.
+ */
+
+#include "ConfigDescriptor.h"
+
+/** Reads and processes an attached device's descriptors, to determine compatibility and pipe configurations. This
+ *  routine will read in the entire configuration descriptor, and configure the hosts pipes to correctly communicate
+ *  with compatible devices.
+ *
+ *  This routine searches for a HID interface descriptor containing at least one Interrupt type IN endpoint and HID descriptor.
+ *
+ *  \return An error code from the MouseHost_GetConfigDescriptorDataCodes_t structure.
+ */
 uint8_t ProcessConfigurationDescriptor(void)
 {
 	uint8_t* ConfigDescriptorData;
@@ -92,10 +109,16 @@ uint8_t ProcessConfigurationDescriptor(void)
 	return SuccessfulConfigRead;
 }
 
+/** Descriptor comparator function. This comparator function is can be called while processing an attached USB device's
+ *  configuration descriptor, to search for a specific sub descriptor. It can also be used to abort the configuration
+ *  descriptor processing if an incompatible descriptor configuration is found.
+ *
+ *  This comparator searches for the next Interface descriptor of the correct Mouse HID Class and Protocol values.
+ *
+ *  \return A value from the DSEARCH_Return_ErrorCodes_t enum
+ */
 DESCRIPTOR_COMPARATOR(NextMouseInterface)
 {
-	/* PURPOSE: Find next mouse class interface descriptor */
-
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
 		/* Check the HID descriptor class and protocol, break out if correct class/protocol interface found */
@@ -109,10 +132,17 @@ DESCRIPTOR_COMPARATOR(NextMouseInterface)
 	return Descriptor_Search_NotFound;
 }
 
+/** Descriptor comparator function. This comparator function is can be called while processing an attached USB device's
+ *  configuration descriptor, to search for a specific sub descriptor. It can also be used to abort the configuration
+ *  descriptor processing if an incompatible descriptor configuration is found.
+ *
+ *  This comparator searches for the next IN Endpoint descriptor inside the current interface descriptor,
+ *  aborting the search if another interface descriptor is found before the required endpoint.
+ *
+ *  \return A value from the DSEARCH_Return_ErrorCodes_t enum
+ */
 DESCRIPTOR_COMPARATOR(NextInterfaceMouseDataEndpoint)
 {
-	/* PURPOSE: Find next interface endpoint descriptor before next interface descriptor */
-
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{
 		if (DESCRIPTOR_CAST(CurrentDescriptor, USB_Descriptor_Endpoint_t).EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
@@ -126,10 +156,16 @@ DESCRIPTOR_COMPARATOR(NextInterfaceMouseDataEndpoint)
 	return Descriptor_Search_NotFound;
 }
 
+/** Descriptor comparator function. This comparator function is can be called while processing an attached USB device's
+ *  configuration descriptor, to search for a specific sub descriptor. It can also be used to abort the configuration
+ *  descriptor processing if an incompatible descriptor configuration is found.
+ *
+ *  This comparator searches for the next HID descriptor within the current HID interface descriptor.
+ *
+ *  \return A value from the DSEARCH_Return_ErrorCodes_t enum
+ */
 DESCRIPTOR_COMPARATOR(NextHID)
 {
-	/* PURPOSE: Find next HID descriptor */
-
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_HID)
 	  return Descriptor_Search_Found;
 	else

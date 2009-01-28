@@ -28,34 +28,13 @@
   this software.
 */
 
-/*
-	Mouse host demonstration application, using pipe interrupts. This
-	gives a simple reference application for implementing a USB Mouse
-	host utilizing the LUFA pipe interrupt system, for USB mice using
-	the standard mouse HID profile.
-	
-	Mouse movement and button presses are displayed on the board LEDs,
-	as well as printed out the serial terminal as formatted dY, dY and
-	button status information.
-
-	This uses a naive method where the returned report structure is
-	assumed. A better implementation uses the HID report parser for
-	correct report data processing across all compatable mice, as shown
-	in the MouseHostWithParser demo application.
-
-	Currently only single interface mice are supported.	
-*/
-
-/*
-	USB Mode:           Host
-	USB Class:          Human Interface Device (HID)
-	USB Subclass:       Mouse
-	Relevant Standards: USBIF HID Standard
-	                    USBIF HID Usage Tables 
-	Usable Speeds:      Low Speed Mode, Full Speed Mode
-*/
-
-#include "MouseHostViaInt.h"
+/** \file
+ *
+ *  Main source file for the MouseHostViaInt demo. This file contains the main tasks of
+ *  the demo and is responsible for the initial application hardware configuration.
+ */
+ 
+ #include "MouseHostViaInt.h"
 
 /* Project Tags, for reading out using the ButtLoad project */
 BUTTLOADTAG(ProjName,    "LUFA Mouse Host App");
@@ -70,6 +49,10 @@ TASK_LIST
 	{ Task: USB_Mouse_Host       , TaskStatus: TASK_STOP },
 };
 
+
+/** Main program entry point. This routine configures the hardware required by the application, then
+ *  starts the scheduler to run the application tasks.
+ */
 int main(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -100,6 +83,9 @@ int main(void)
 	Scheduler_Start();
 }
 
+/** Event handler for the USB_DeviceAttached event. This indicates that a device has been attached to the host, and
+ *  starts the library USB task to begin the enumeration and USB management process.
+ */
 EVENT_HANDLER(USB_DeviceAttached)
 {
 	puts_P(PSTR("Device Attached.\r\n"));
@@ -109,6 +95,9 @@ EVENT_HANDLER(USB_DeviceAttached)
 	Scheduler_SetTaskMode(USB_USBTask, TASK_RUN);
 }
 
+/** Event handler for the USB_DeviceUnattached event. This indicates that a device has been removed from the host, and
+ *  stops the library USB task management process.
+ */
 EVENT_HANDLER(USB_DeviceUnattached)
 {
 	/* Stop mouse and USB management task */
@@ -119,6 +108,9 @@ EVENT_HANDLER(USB_DeviceUnattached)
 	UpdateStatus(Status_USBNotReady);
 }
 
+/** Event handler for the USB_DeviceEnumerationComplete event. This indicates that a device has been successfully
+ *  enumerated by the host and is now ready to be used by the application.
+ */
 EVENT_HANDLER(USB_DeviceEnumerationComplete)
 {
 	/* Start Mouse Host task */
@@ -128,6 +120,7 @@ EVENT_HANDLER(USB_DeviceEnumerationComplete)
 	UpdateStatus(Status_USBReady);
 }
 
+/** Event handler for the USB_HostError event. This indicates that a hardware error occurred while in host mode. */
 EVENT_HANDLER(USB_HostError)
 {
 	USB_ShutDown();
@@ -139,6 +132,9 @@ EVENT_HANDLER(USB_HostError)
 	for(;;);
 }
 
+/** Event handler for the USB_DeviceEnumerationFailed event. This indicates that a problem occured while
+ *  enumerating an attached USB device.
+ */
 EVENT_HANDLER(USB_DeviceEnumerationFailed)
 {
 	puts_P(PSTR(ESC_BG_RED "Dev Enum Error\r\n"));
@@ -180,6 +176,9 @@ void UpdateStatus(uint8_t CurrentStatus)
 	LEDs_SetAllLEDs(LEDMask);
 }
 
+/** Task to set the configuration of the attached device after it has been enumerated, and to enable the pipe
+ *  interrupts so that reports can be processed as they arrive from the device.
+ */
 TASK(USB_Mouse_Host)
 {
 	uint8_t ErrorCode;
@@ -266,6 +265,9 @@ TASK(USB_Mouse_Host)
 	}
 }
 
+/** Interrupt handler for the Endpoint/Pipe interrupt vector. This interrupt fires each time an enabled
+ *  pipe interrupt occurs on a pipe which has had that interrupt enabled.
+ */
 ISR(ENDPOINT_PIPE_vect, ISR_BLOCK)
 {
 	USB_MouseReport_Data_t MouseReport;

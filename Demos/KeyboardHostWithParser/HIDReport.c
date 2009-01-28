@@ -30,9 +30,18 @@
 
 #include "HIDReport.h"
 
+/** Size in bytes of the attached device's HID report descriptor */
 uint16_t         HIDReportSize;
+
+/** Processed HID report descriptor items structure, containing information on each HID report element */
 HID_ReportInfo_t HIDReportInfo;
 
+
+/** Function to read in the HID report descriptor from the attached device, and process it into easy-to-read
+ *  structures via the HID parser routines in the LUFA library.
+ *
+ *  \return  A value from the KeyboardHostWithParser_GetHIDReportDataCodes_t enum
+ */
 uint8_t GetHIDReportData(void)
 {
 	/* Create a buffer big enough to hold the entire returned HID report */
@@ -58,6 +67,10 @@ uint8_t GetHIDReportData(void)
 	return ParseSuccessful;
 }
 
+/** Function to print out the attached device's HID descriptor elements in human readable form
+ *  through the serial port. This is good for examining a device's HID descriptors, however it
+ *  can cause noticible delays as there is generally a lot of data to be sent.
+ */
 void DumpHIDReportItems(void)
 {
 	/* Loop through each of the loaded HID report items in the processed item structure */

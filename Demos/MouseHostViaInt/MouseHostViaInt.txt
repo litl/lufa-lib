@@ -6,8 +6,9 @@
  
 /** \mainpage Mouse Host Demo
  *  
- *  Mouse host demonstration application. This gives a simple reference
- *  application for implementing a USB Mouse host, for USB mice using
+ *  Mouse host demonstration application, using pipe interrupts. This
+ *  gives a simple reference application for implementing a USB Mouse
+ *  host utilizing the LUFA pipe interrupt system, for USB mice using
  *  the standard mouse HID profile.
  *  
  *  Mouse movement and button presses are displayed on the board LEDs,
