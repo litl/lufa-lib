@@ -124,7 +124,7 @@ void SCSI_DecodeSCSICommand(void)
 			break;
 	}
 	
-	/* Check if command was sucessfully processed */
+	/* Check if command was successfully processed */
 	if (CommandSuccess)
 	{
 		/* Command succeeded - set the CSW status and update the SENSE key */

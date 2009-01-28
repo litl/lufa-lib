@@ -45,7 +45,7 @@
 	/* Enums: */
 		enum MouseHostWithParser_GetHIDReportDataCodes_t
 		{
-			ParseSucessful          = 0,
+			ParseSuccessful          = 0,
 			ParseError              = 1,
 			ParseControlError       = 2,
 		};

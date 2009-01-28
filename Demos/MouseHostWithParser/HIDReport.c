@@ -52,10 +52,10 @@ uint8_t GetHIDReportData(void)
 	  return ParseControlError;
 
 	/* Send the HID report to the parser for processing */
-	if (ProcessHIDReport(HIDReportData, HIDReportSize, &HIDReportInfo) != HID_PARSE_Sucessful)
+	if (ProcessHIDReport(HIDReportData, HIDReportSize, &HIDReportInfo) != HID_PARSE_Successful)
 	  return ParseError;
 	
-	return ParseSucessful;
+	return ParseSuccessful;
 }
 
 void DumpHIDReportItems(void)

@@ -146,19 +146,20 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 				}
 				
 				CurrCollectionPath->Type = ReportItemData;
+				CurrCollectionPath->Usage.Page = CurrStateTable->Attributes.Usage.Page;
 				
 				if (UsageStackSize)
 				{
-					CurrCollectionPath->Usage = UsageStack[0];
+					CurrCollectionPath->Usage.Usage = UsageStack[0];
 
-					for (uint8_t i = 1; i <= UsageStackSize; i++)
-					  UsageStack[i - 1] = UsageStack[i];
+					for (uint8_t i = 0; i < UsageStackSize; i++)
+					  UsageStack[i] = UsageStack[i + 1];
 					  
 					UsageStackSize--;
 				}
 				else
 				{
-					CurrCollectionPath->Usage = 0;
+					CurrCollectionPath->Usage.Usage = 0;
 				}
 				
 				break;
@@ -193,8 +194,8 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 					{
 						CurrReportItem->Attributes.Usage.Usage = UsageStack[0];
 
-						for (uint8_t i = 1; i < UsageStackSize; i++)
-						  UsageStack[i - 1] = UsageStack[i];
+						for (uint8_t i = 0; i < UsageStackSize; i++)
+						  UsageStack[i] = UsageStack[i + 1];
 						  
 						UsageStackSize--;
 					}
@@ -271,7 +272,7 @@ uint8_t ProcessHIDReport(const uint8_t* ReportData, uint16_t ReportSize, HID_Rep
 		}
 	}
 	
-	return HID_PARSE_Sucessful;
+	return HID_PARSE_Successful;
 }
 
 bool GetReportItemInfo(const uint8_t* ReportData, HID_ReportItem_t* const ReportItem)

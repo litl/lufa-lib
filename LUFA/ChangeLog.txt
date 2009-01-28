@@ -41,6 +41,10 @@
   *  - Fixed incorrect SCSI command size value in the Request Sense command in MassStoreCommands.c
   *  - Added SetProtocol request to HID class non-parser Mouse and Keyboard demos to force devices to use the correct Boot Protocol
   *  - Added new "dfu" and "flip" programming targets to project makefiles
+  *  - HID_PARSE_Sucessful enum member typo corrected to HID_PARSE_Successful
+  *  - Changed COLLECTION item strucutres in the HID descriptor parser to include the collection's Usage Page value
+  *  - Serial driver now sets Tx line as output, enables pullup on Rx line
+  *  - Fixed smaller USB AVRs raising multiple connection and disconnection events when NO_LIMITED_CONTROLLER_CONNECT is disabled
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

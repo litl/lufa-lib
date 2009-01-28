@@ -176,7 +176,7 @@ void UpdateStatus(uint8_t CurrentStatus)
 			LEDMask = (LEDS_LED1 | LEDS_LED3);
 			break;
 		case Status_Busy:
-			LEDMask = (LEDS_LED1 | LEDS_LED2);
+			LEDMask = (LEDS_LED1 | LEDS_LED4);
 			break;
 	}
 	
@@ -244,7 +244,7 @@ TASK(USB_Keyboard_Host)
 			UpdateStatus(Status_Busy);
 
 			/* Get and process the device's first HID report descriptor */
-			if ((ErrorCode = GetHIDReportData()) != ParseSucessful)
+			if ((ErrorCode = GetHIDReportData()) != ParseSuccessful)
 			{
 				puts_P(PSTR("Report Parse Error.\r\n"));
 				printf_P(PSTR(" -- Error Code: %d\r\n"), ErrorCode);

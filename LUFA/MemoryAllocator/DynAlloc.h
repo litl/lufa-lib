@@ -143,7 +143,7 @@
 			 *  \return NULL handle if the allocation fails, or handle to the allocated memory if the allocation succeeds
 			 *
 			 *  \warning Even if the allocation fails, the deallocation will still occur. Care should be taken to ensure
-			 *           that the previously allocated memory is not used following an unsucessful realloc().
+			 *           that the previously allocated memory is not used following an unsuccessful realloc().
 			 */
 			Mem_Handle_t    Mem_Realloc(Mem_Handle_t CurrAllocHdl, const Alloc_Size_t Bytes);
 			

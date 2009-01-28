@@ -116,7 +116,7 @@
 			/** Enum for the possible error codes in the return value of the ProcessHIDReport() function */
 			enum HID_Parse_ErrorCodes_t
 			{
-				HID_PARSE_Sucessful                   = 0, /**< Sucessful parse of the HID report descriptor, no error. */
+				HID_PARSE_Successful                  = 0, /**< Successful parse of the HID report descriptor, no error. */
 				HID_PARSE_HIDStackOverflow            = 1, /**< More than HID_STATETABLE_STACK_DEPTH nested PUSHes in the report. */ 
 				HID_PARSE_HIDStackUnderflow           = 2, /**< A POP was found when the state table stack was empty. */
 				HID_PARSE_InsufficientReportItems     = 3, /**< More than HID_MAX_REPORTITEMS report items in the report. */
@@ -125,17 +125,7 @@
 				HID_PARSE_UsageStackOverflow          = 6, /**< More than HID_USAGE_STACK_DEPTH usages listed in a row. */
 			};
 		
-		/* Type Defines: */
-			/** Type define for a COLLECTION object. Contains the collection attributes and a reference to the
-			 *  parent collection if any.
-			 */
-			typedef struct CollectionPath
-			{
-				uint8_t                      Type;   /**< Collection type (for example "Generic Desktop"). */
-				uint16_t                     Usage;  /**< Collection usage. */
-				struct CollectionPath*       Parent; /**< Reference to parent collection, or NULL if root collection. */
-			} HID_CollectionPath_t;
-		
+		/* Type Defines: */		
 			/** Type define for an attribute with both minimum and maximum values (e.g. Logical Min/Max). */
 			typedef struct
 			{
@@ -157,6 +147,16 @@
 				uint16_t                     Usage;  /**< Usage of the report item. */
 				HID_MinMax_t                 MinMax; /**< Usage minimum and maximum of the report item. */
 			} HID_Usage_t;
+
+			/** Type define for a COLLECTION object. Contains the collection attributes and a reference to the
+			 *  parent collection if any.
+			 */
+			typedef struct CollectionPath
+			{
+				uint8_t                      Type;   /**< Collection type (for example "Generic Desktop"). */
+				HID_Usage_t                  Usage;  /**< Collection usage. */
+				struct CollectionPath*       Parent; /**< Reference to parent collection, or NULL if root collection. */
+			} HID_CollectionPath_t;
 
 			/** Type define for all the data attributes of a report item, except flags. */
 			typedef struct

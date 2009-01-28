@@ -244,7 +244,7 @@
 	#if !defined(__DOXYGEN__)
 		/* Function Prototypes: */
 			uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc,
-                                                     uint8_t (* const SearchRoutine)(void* const));
+                                                     uint8_t (* const ComparatorRoutine)(void* const));
 	#endif
 			
 	/* Disable C linkage for C++ Compilers: */

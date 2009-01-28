@@ -69,7 +69,7 @@
 
 		/* Enums: */
 			/** Enum for the USB_Host_SendControlRequest() return code, indicating the reason for the error
-			 *  if the transfer of the request is unsucessful.
+			 *  if the transfer of the request is unsuccessful.
 			 */
 			enum USB_Host_SendControlErrorCodes_t
 			{
