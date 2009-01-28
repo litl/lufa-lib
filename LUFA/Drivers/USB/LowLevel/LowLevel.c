@@ -237,7 +237,6 @@ void USB_ResetInterface(void)
 	
 	USB_INT_Enable(USB_INT_SRPI);
 	USB_INT_Enable(USB_INT_BCERRI);
-	USB_INT_Enable(USB_INT_VBERRI);		
 	#else
 	if (USB_CurrentMode == USB_MODE_DEVICE)
 	{
@@ -256,7 +255,6 @@ void USB_ResetInterface(void)
 		
 		USB_INT_Enable(USB_INT_SRPI);
 		USB_INT_Enable(USB_INT_BCERRI);
-		USB_INT_Enable(USB_INT_VBERRI);
 	}
 	#endif
 }

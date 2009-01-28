@@ -212,14 +212,6 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 	
 		RAISE_EVENT(USB_DeviceAttached);
 
-		USB_INT_Disable(USB_INT_VBERRI);
-
-		USB_Host_VBUS_Manual_Off();
-
-		USB_OTGPAD_On();
-		USB_Host_VBUS_Auto_Enable();
-		USB_Host_VBUS_Auto_On();
-
 		USB_INT_Enable(USB_INT_DDISCI);
 		
 		USB_HostState = HOST_STATE_Attached;

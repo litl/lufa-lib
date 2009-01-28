@@ -83,8 +83,8 @@ static void USB_HostTask(void)
 	uint8_t ErrorCode    = HOST_ENUMERROR_NoError;
 	uint8_t SubErrorCode = HOST_ENUMERROR_NoError;
 	
-	static uint8_t WaitMSRemaining;
-	static uint8_t PostWaitState;
+	static uint16_t WaitMSRemaining;
+	static uint8_t  PostWaitState;
 
 	switch (USB_HostState)
 	{
@@ -107,6 +107,26 @@ static void USB_HostTask(void)
 		
 			break;
 		case HOST_STATE_Attached:
+			WaitMSRemaining = HOST_DEVICE_SETTLE_DELAY_MS;
+		
+			USB_HostState = HOST_STATE_Attached_WaitForDeviceSettle;
+			break;
+		case HOST_STATE_Attached_WaitForDeviceSettle:
+			_delay_ms(1);
+
+			if (!(WaitMSRemaining--))
+			{
+				USB_Host_VBUS_Manual_Off();
+
+				USB_OTGPAD_On();
+				USB_Host_VBUS_Auto_Enable();
+				USB_Host_VBUS_Auto_On();
+				
+				USB_HostState = HOST_STATE_Attached_WaitForConnect;
+			}
+			
+			break;
+		case HOST_STATE_Attached_WaitForConnect:		
 			if (USB_INT_HasOccurred(USB_INT_DCONNI))
 			{	
 				USB_INT_Clear(USB_INT_DCONNI);

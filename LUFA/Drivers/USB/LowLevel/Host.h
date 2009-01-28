@@ -70,6 +70,18 @@
 				#define USB_HOST_TIMEOUT_MS                1000
 			#endif
 			
+			#if !defined(HOST_DEVICE_SETTLE_DELAY_MS) || defined(__DOXYGEN__)
+				/** Constant for the delay in milliseconds after a device is connected before the library
+				 *  will start the enumeration process. Some devices require a delay of up to 5 seconds
+				 *  after connection before the enumeration process can start or incorrect operation will
+				 *  occur.
+				 *
+				 *  This value may be overridden in the user project makefile as the value of the 
+				 *  HOST_DEVICE_SETTLE_DELAY_MS token, and passed to the compiler using the -D switch.
+				 */
+				#define HOST_DEVICE_SETTLE_DELAY_MS        1500
+			#endif
+			
 			/** Resets the USB bus, including the endpoints in any attached device and pipes on the AVR host.
 			 *  USB bus resets leave the default control pipe configured (if already configured).
 			 *
@@ -139,18 +151,20 @@
 			 */
 			enum USB_Host_States_t
 			{
-				HOST_STATE_WaitForDevice          = 0,  /**< Internally implemented by the library. */
-				HOST_STATE_Unattached             = 1,  /**< Internally implemented by the library. */
-				HOST_STATE_Attached               = 2,  /**< Internally implemented by the library. */
-				HOST_STATE_Attached_DoReset       = 3,  /**< Internally implemented by the library. */
-				HOST_STATE_Powered                = 4,  /**< Internally implemented by the library. */
-				HOST_STATE_Default                = 5,  /**< Internally implemented by the library. */
-				HOST_STATE_Default_PostReset      = 6,  /**< Internally implemented by the library. */
-				HOST_STATE_Default_PostAddressSet = 7,  /**< Internally implemented by the library. */
-				HOST_STATE_Addressed              = 8,  /**< May be implemented by the user project. */
-				HOST_STATE_Configured             = 9,  /**< May be implemented by the user project. */
-				HOST_STATE_Ready                  = 10, /**< May be implemented by the user project. */
-				HOST_STATE_Suspended              = 11, /**< May be implemented by the user project. */
+				HOST_STATE_WaitForDevice                = 0,  /**< Internally implemented by the library. */
+				HOST_STATE_Unattached                   = 1,  /**< Internally implemented by the library. */
+				HOST_STATE_Attached                     = 2,  /**< Internally implemented by the library. */
+				HOST_STATE_Attached_WaitForDeviceSettle = 3,  /**< Internally implemented by the library. */
+				HOST_STATE_Attached_WaitForConnect      = 4,  /**< Internally implemented by the library. */
+				HOST_STATE_Attached_DoReset             = 5,  /**< Internally implemented by the library. */
+				HOST_STATE_Powered                      = 6,  /**< Internally implemented by the library. */
+				HOST_STATE_Default                      = 7,  /**< Internally implemented by the library. */
+				HOST_STATE_Default_PostReset            = 8,  /**< Internally implemented by the library. */
+				HOST_STATE_Default_PostAddressSet       = 9,  /**< Internally implemented by the library. */
+				HOST_STATE_Addressed                    = 10, /**< May be implemented by the user project. */
+				HOST_STATE_Configured                   = 11, /**< May be implemented by the user project. */
+				HOST_STATE_Ready                        = 12, /**< May be implemented by the user project. */
+				HOST_STATE_Suspended                    = 13, /**< May be implemented by the user project. */
 			};
 			
 			/** Enum for the error codes for the USB_HostError event.

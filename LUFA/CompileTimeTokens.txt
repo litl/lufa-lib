@@ -130,6 +130,12 @@
  *  device fails to respond within the timeout period. This token may be defined to a non-zero value to set the timeout period for
  *  control transfers, specified in milliseconds. If not defined, the default value specified in Host.h is used instead.
  *
+ *  <b>HOST_DEVICE_SETTLE_DELAY_MS</b> - Host.h \n
+ *  Some devices require a delay of up to 5 seconds after they are connected to VBUS before the enumeration process can be started, or
+ *  they will fail to enumerate correctly. By placing a delay before the enumeration process, it can be ensured that the bus has settled
+ *  back to a known idle state before communications occur with the device. This token may be defined to a non-zero value to set the
+ *  device settle period, specified in milliseconds. If not defined, the default value specified in Host.h is used instead.
+ *
  *  <b>USE_STATIC_OPTIONS</b> - LowLevel.h \n
  *  By default, the USB_Init() function accepts dynamic options at runtime to alter the library behaviour, including whether the USB pad
  *  voltage regulator is enabled, and the device speed when in device mode. By defining this token to a mask comprised of the USB options

@@ -45,6 +45,7 @@
   *  - Changed COLLECTION item strucutres in the HID descriptor parser to include the collection's Usage Page value
   *  - Serial driver now sets Tx line as output, enables pullup on Rx line
   *  - Fixed smaller USB AVRs raising multiple connection and disconnection events when NO_LIMITED_CONTROLLER_CONNECT is disabled
+  *  - Added HOST_DEVICE_SETTLE_DELAY_MS to give the host delay after a device is connected before it is enumerated
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *
