@@ -3,7 +3,13 @@
  *  This file contains special DoxyGen information for the generation of the main page and other special
  *  documentation pages. It is not a project source file.
  */
-	   
+ 
+/**
+ * TODO:
+ * 1) Document MassStorageHost and StillImageHost demos
+ * 2) Change VBUS/IDTI interrupts to polling driven
+ */
+   
  /** \page Page_ChangeLog Project Changelog
   *
   *  \section Sec_ChangeLogXXXXXX Version XXXXXX
@@ -14,7 +20,7 @@
   *  - Fixed library handling Get Descriptor requests when not addressed as standard requests to the device or interface
   *  - Fixed serious data corruption issue in MassStorage demo dataflash write routine
   *  - Added new NO_CLEARSET_FEATURE_REQUEST compile time token
-  *  - USB task now retores previous global interrupt state after execution, rather than forcing global interrupts to be enabled
+  *  - USB task now restores previous global interrupt state after execution, rather than forcing global interrupts to be enabled
   *  - Fixed USB_DeviceEnumerationComplete event firing after each configuration change, rather than once after the initial configuration
   *  - Added ENDPOINT_DOUBLEBANK_SUPPORTED() macros to Endpoint.h, altered ENDPOINT_MAX_SIZE() to allow user to specify endpoint
   *  - ENDPOINT_MAX_ENDPOINTS changed to ENDPOINT_TOTAL_ENDPOINTS, PIPE_MAX_PIPES changed to PIPE_TOTAL_PIPES
@@ -45,6 +51,11 @@
   *  - Added HOST_DEVICE_SETTLE_DELAY_MS to give the host delay after a device is connected before it is enumerated
   *  - Fixed KeyboardHostWithParser demo linking against the wrong global variables
   *  - Completed doxygen documentation of remaining library bootloaders, demos and projects
+  *  - Fixed incorrect bootloader start address in the TeensyHID bootloader
+  *  - Added HWB button whole-disk ASCII dump functionality to MassStoreHost demo
+  *  - Replaced printf_P(PSTR("%c"), <Variable>) calls with putchar(<Variable>) for speed and size savings
+  *  - Serial driver now accepts baud rates over 16-bits in size, added double speed flag option
+  *  - Fixed incorrect callback abort return value in Pipe.c
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

@@ -10,7 +10,35 @@
  *  to the next version released. It does not indicate all new additions to the library in each version change, only
  *  areas relevant to making older projects compatible with the API changes of each new release.
  *
- * \section Sec_Migration153 Migrating from V1.5.3 to 171208
+ * \section Sec_MigrationXXXXXX Migrating from 171208 to XXXXXX
+ *
+ *  <b>Device Mode</b>
+ *    - The ENDPOINT_MAX_ENDPOINTS constant has been renamed to the more appropriate name of ENDPOINT_TOTAL_ENDPOINTS.
+ *    - The USB_STREAM_TIMEOUT_MS stream timeout default period has been extended to 100ms. This can be overridden in the user
+ *      makefile if desired to restore the previous 50ms timeout.
+ *
+ *  <b>Host Mode</b>
+ *    - The PIPE_MAX_ENDPOINTS constant has been renamed to the more appropriate name of PIPE_TOTAL_ENDPOINTS.
+ *    - The USB_STREAM_TIMEOUT_MS stream timeout default period has been extended to 100ms. This can be overridden in the user
+ *      makefile if desired to restore the previous 50ms timeout.
+ *    - The USB_DeviceEnumerationFailed event now contains a second "SubErrorCode" parameter, giving the error code of the function
+ *      which failed.
+ *    - The HID_PARSE_Sucessful enum member constant has been corrected to HID_PARSE_Successful.
+ *
+ *  <b>Non-USB Library Components</b>
+ *    - The previous SPI_SendByte() functionality is now located in SPI_TransferByte(). SPI_SendByte() now discards the return byte
+ *      for speed, to compliment the new SPI_ReceiveByte() function. If two-way SPI transfers are required, calls to SPI_SendByte()
+ *      should be changed to SPI_TransferByte().
+ *    - The serial driver now sets the Tx line as an output explicitly, and enables the pullup of the Rx line.
+ *    - The Serial_Init() and SerialStream_Init() functions now take a second DoubleSpeed parameter, which indicates if the USART
+ *      should be initialized in double speed mode - useful in some circumstances for attaining baud rates not usually possible at
+ *      the given AVR clock speed.
+ *
+ *  <b>Library Demos</b>
+ *    - Most library demos have been enhanced and/or had errors corrected. All users of all demos should upgrade their codebase to
+ *      the latest demo versions.
+ *
+ * \section Sec_Migration171208 Migrating from V1.5.3 to 171208
  *
  *  <b>All</b>
  *    - The MyUSB project name has been changed to LUFA (Lightweight Framework for USB AVRs). All references to MyUSB, including macro names,

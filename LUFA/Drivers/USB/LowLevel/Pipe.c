@@ -111,7 +111,7 @@ uint8_t Pipe_Write_Stream_LE(const void* Data, uint16_t Length
 				
 			#if !defined(NO_STREAM_CALLBACKS)
 			if ((Callback != NULL) && (Callback() == STREAMCALLBACK_Abort))
-			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
 			#endif
 
 			if ((ErrorCode = Pipe_WaitUntilReady()))
@@ -144,7 +144,7 @@ uint8_t Pipe_Write_Stream_BE(const void* Data, uint16_t Length
 				
 			#if !defined(NO_STREAM_CALLBACKS)
 			if ((Callback != NULL) && (Callback() == STREAMCALLBACK_Abort))
-			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
 			#endif
 
 			if ((ErrorCode = Pipe_WaitUntilReady()))
@@ -176,7 +176,7 @@ uint8_t Pipe_Discard_Stream(uint16_t Length
 				
 			#if !defined(NO_STREAM_CALLBACKS)
 			if ((Callback != NULL) && (Callback() == STREAMCALLBACK_Abort))
-			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
 			#endif
 
 			if ((ErrorCode = Pipe_WaitUntilReady()))
@@ -209,7 +209,7 @@ uint8_t Pipe_Read_Stream_LE(void* Buffer, uint16_t Length
 				
 			#if !defined(NO_STREAM_CALLBACKS)
 			if ((Callback != NULL) && (Callback() == STREAMCALLBACK_Abort))
-			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
 			#endif
 
 			if ((ErrorCode = Pipe_WaitUntilReady()))
@@ -242,7 +242,7 @@ uint8_t Pipe_Read_Stream_BE(void* Buffer, uint16_t Length
 				
 			#if !defined(NO_STREAM_CALLBACKS)
 			if ((Callback != NULL) && (Callback() == STREAMCALLBACK_Abort))
-			  return ENDPOINT_RWSTREAM_ERROR_CallbackAborted;
+			  return PIPE_RWSTREAM_ERROR_CallbackAborted;
 			#endif
 
 			if ((ErrorCode = Pipe_WaitUntilReady()))

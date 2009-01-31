@@ -69,9 +69,10 @@
 		/* Function Prototypes: */
 			/** Initializes the USART, ready for serial data transmission and reception.
 			 *
-			 *  \param BaudRate  Baud rate to configure the USART at
+			 *  \param BaudRate     Baud rate to configure the USART to
+			 *  \param DoubleSpeed  Enables double speed mode when set, halving the sample time to double the baud rate
 			 */
-			void Serial_Init(const uint16_t BaudRate);
+			void Serial_Init(const uint32_t BaudRate, const bool DoubleSpeed);
 
 			/** Transmits a given string located in program space (FLASH) through the USART.
 			 *

@@ -65,7 +65,7 @@ int main(void)
 
 	/* Hardware Initialization */
 	LEDs_Init();
-	SerialStream_Init(9600);
+	SerialStream_Init(9600, false);
 	
 	/* Webserver Initialization */
 	TCP_Init();

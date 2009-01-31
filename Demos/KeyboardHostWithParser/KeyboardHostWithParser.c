@@ -63,7 +63,7 @@ int main(void)
 	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
-	SerialStream_Init(9600);
+	SerialStream_Init(9600, false);
 	LEDs_Init();
 	
 	/* Indicate USB not ready */
@@ -329,7 +329,7 @@ TASK(USB_Keyboard_Host)
 								 
 							/* Print the pressed key character out through the serial port if valid */
 							if (PressedKey)
-							  printf_P(PSTR("%c"), PressedKey);
+							  putchar(PressedKey);
 						}
 						
 						/* Once a scancode is found, stop scanning through the report items */

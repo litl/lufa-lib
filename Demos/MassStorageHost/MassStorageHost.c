@@ -79,8 +79,9 @@ int main(void)
 	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
-	SerialStream_Init(9600);
+	SerialStream_Init(9600, false);
 	LEDs_Init();
+	HWB_Init();
 	
 	/* Indicate USB not ready */
 	UpdateStatus(Status_USBNotReady);
@@ -320,29 +321,68 @@ TASK(USB_MassStore_Host)
 			/* Show the number of bytes not transferred in the previous command */
 			printf_P(PSTR("Transfer Residue: %lu\r\n"), SCSICommandStatus.DataTransferResidue);
 			
-			puts_P(PSTR("\r\nContents of first block (HEX):\r\n"));
-			
-			/* Print the block bytes in hex out through the serial USART */
-			for (uint16_t Byte = 0; Byte < DiskCapacity.BlockSize; Byte++)
-			  printf_P(PSTR("0x%.2X "), BlockBuffer[Byte]);
-			
-			puts_P(PSTR("\r\n\r\nContents of first block (ASCII):\r\n"));
-			
-			/* Do the same in ASCII characters */
-			for (uint16_t Byte = 0; Byte < DiskCapacity.BlockSize; Byte++)
-			{
-				if ((BlockBuffer[Byte] >= '0' && BlockBuffer[Byte] <= '9') ||
-				    (BlockBuffer[Byte] >= 'a' && BlockBuffer[Byte] <= 'z') ||
-				    (BlockBuffer[Byte] >= 'A' && BlockBuffer[Byte] <= 'Z'))
-				{
-					printf_P(PSTR("%c"), BlockBuffer[Byte]);
-				}
-				else
-				{
-					printf_P(PSTR("%c"), '.');				
-				}
-			}
+			puts_P(PSTR("\r\nContents of first block:\r\n"));
 
+			/* Print out the first block in both HEX and ASCII, 16 bytes per line */
+			for (uint16_t Chunk = 0; Chunk < (DiskCapacity.BlockSize >> 4); Chunk++)
+			{
+				/* Pointer to the start of the current 16-byte chunk in the read block of data */
+				uint8_t* ChunkPtr = &BlockBuffer[Chunk << 4];
+				
+				/* Print out the 16 bytes of the chunk in HEX format */
+				for (uint8_t ByteOffset = 0; ByteOffset < (1 << 4); ByteOffset++)
+				{
+					char CurrByte = *(ChunkPtr + ByteOffset);
+				
+					printf_P(PSTR("%.2X "), CurrByte);
+				}
+				
+				puts_P(PSTR("    "));
+
+				/* Print out the 16 bytes of the chunk in ASCII format */
+				for (uint8_t ByteOffset = 0; ByteOffset < (1 << 4); ByteOffset++)
+				{
+					char CurrByte = *(ChunkPtr + ByteOffset);
+				
+					putchar(isprint(CurrByte) ? CurrByte : '.');
+				}
+				
+				puts_P(PSTR("\r\n"));
+			}
+			
+			puts_P(PSTR("\r\n\r\nPress HWB to read entire ASCII contents of disk...\r\n\r\n"));
+			
+			/* Wait for HWB to be pressed */
+			while (!(HWB_GetStatus()))
+			{
+				/* Abort if device removed */
+				if (!(USB_IsConnected))
+				  break;
+			}
+			
+			/* Print out the entire disk contents in ASCII format */
+			for (uint32_t CurrBlock = 0; CurrBlock < DiskCapacity.Blocks; CurrBlock++)
+			{
+				/* Read in the next block of data from the device */
+				if ((ErrorCode = MassStore_ReadDeviceBlock(0, CurrBlock, 1, DiskCapacity.BlockSize, BlockBuffer)) != 0)
+				{
+					ShowDiskReadError(PSTR("Read Device Block"), ErrorCode);
+					break;
+				}
+
+				/* Send the ASCII data in the read in block to the serial port */
+				for (uint16_t Byte = 0; Byte < DiskCapacity.BlockSize; Byte++)
+				{
+					char CurrByte = BlockBuffer[Byte];
+					
+					putchar(isprint(CurrByte) ? CurrByte : '.');
+				}
+
+				/* Abort if device removed */
+				if (!(USB_IsConnected))
+				  break;
+			}
+			
 			/* Indicate device no longer busy */
 			UpdateStatus(Status_USBReady);
 			

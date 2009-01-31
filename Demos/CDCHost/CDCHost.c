@@ -73,7 +73,7 @@ int main(void)
 	SetSystemClockPrescaler(0);
 
 	/* Hardware Initialization */
-	SerialStream_Init(9600);
+	SerialStream_Init(9600, false);
 	LEDs_Init();
 	
 	/* Indicate USB not ready */
@@ -250,7 +250,7 @@ TASK(USB_CDC_Host)
 				
 				/* Print out the buffer contents to the USART */
 				for (uint16_t BufferByte = 0; BufferByte < BufferLength; BufferByte++)
-				  printf_P(PSTR("%c"), Buffer[BufferByte]);
+				  putchar(Buffer[BufferByte]);
 			}
 
 			/* Select and unfreeze the notification pipe */

@@ -40,6 +40,8 @@
 	/* Includes: */
 		#include <avr/io.h>
 		#include <stdbool.h>
+		
+		#include <LUFA/Common/Common.h>
 
 	/* Macros: */
 		/** Maximum number of bits which can be stored into a bit buffer. The memory usage is one eigth of this value per buffer. */
@@ -68,14 +70,14 @@
 		 *  
 		 *  \param Buffer  Bit buffer to initialize
 		 */
-		void BitBuffer_Init(BitBuffer_t* Buffer);
+		void BitBuffer_Init(BitBuffer_t* Buffer) ATTR_NON_NULL_PTR_ARG(1);
 		
 		/** Stores a bit into the next location inside a given bit buffer.
 		 *
 		 *  \param Buffer  Bit buffer to store a bit into
 		 *  \param Bit  Bit to store into the buffer
 		 */
-		void BitBuffer_StoreNextBit(BitBuffer_t* Buffer, bool Bit);
+		void BitBuffer_StoreNextBit(BitBuffer_t* Buffer, bool Bit) ATTR_NON_NULL_PTR_ARG(1);
 		
 		/** Retrieves a bit from the next location inside a given bit buffer.
 		 *
@@ -83,6 +85,6 @@
 		 *
 		 *  \return Next bit from the buffer
 		 */
-		bool BitBuffer_GetNextBit(BitBuffer_t* Buffer);
+		bool BitBuffer_GetNextBit(BitBuffer_t* Buffer) ATTR_NON_NULL_PTR_ARG(1);
 		
 #endif

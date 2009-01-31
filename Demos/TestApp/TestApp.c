@@ -64,7 +64,7 @@ int main(void)
 	SetSystemClockPrescaler(0);
 	
 	/* Hardware initialization */
-	SerialStream_Init(9600);
+	SerialStream_Init(9600, false);
 	ADC_Init(ADC_SINGLE_CONVERSION | ADC_PRESCALE_64);
 	Temperature_Init();
 	Joystick_Init();

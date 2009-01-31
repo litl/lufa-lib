@@ -36,6 +36,7 @@
 		#include <avr/wdt.h>
 		#include <avr/pgmspace.h>
 		#include <stdio.h>
+		#include <ctype.h>
 
 		#include "ConfigDescriptor.h"
 		#include "MassStoreCommands.h"
@@ -46,6 +47,7 @@
 		#include <LUFA/Drivers/USB/USB.h>                        // USB Functionality
 		#include <LUFA/Drivers/AT90USBXXX/Serial_Stream.h>       // Serial stream driver
 		#include <LUFA/Drivers/Board/LEDs.h>                     // LEDs driver
+		#include <LUFA/Drivers/Board/HWB.h>                      // Hardware Button driver
 		#include <LUFA/Scheduler/Scheduler.h>                    // Simple scheduler for task management
 
 	/* Enums: */

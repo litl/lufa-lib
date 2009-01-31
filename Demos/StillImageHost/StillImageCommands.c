@@ -162,8 +162,7 @@ uint8_t SImage_RecieveBlockHeader(void)
 			Pipe_Read_Stream_LE(&PIMA_ReceivedBlock.Params, ParamBytes);
 		}
 		
-		/* Clear pipe banks after use */
-		Pipe_ClearCurrentBank();
+		/* Clear pipe bank after use */
 		Pipe_ClearCurrentBank();
 	}
 	

@@ -36,7 +36,7 @@ int SerialStream_TxByte(char DataByte, FILE *Stream)
 {
 	Serial_TxByte(DataByte);
 
-	return 0; 
+	return 0;
 }
 
 int SerialStream_RxByte(FILE *Stream)

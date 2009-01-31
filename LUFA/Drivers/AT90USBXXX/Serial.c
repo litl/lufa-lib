@@ -30,9 +30,9 @@
 
 #include "Serial.h"
 
-void Serial_Init(const uint16_t BaudRate)
+void Serial_Init(const uint32_t BaudRate, const bool DoubleSpeed)
 {
-	UCSR1A = 0;
+	UCSR1A = ((DoubleSpeed) ? (1 << U2X1) : 0);
 	UCSR1B = ((1 << RXEN1)  | (1 << TXEN1));
 	UCSR1C = ((1 << UCSZ11) | (1 << UCSZ10));
 	

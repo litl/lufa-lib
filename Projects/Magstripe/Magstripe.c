@@ -280,11 +280,21 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 {
 	static bool OddReport   = false;
 	static bool MustRelease = false;
+	
+	BitBuffer_t* Buffer     = NULL;
 
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_KeyboardReport_Data_t));
 
-	if (Track1Data.Elements || Track2Data.Elements || Track3Data.Elements)
+	/* Get the next non-empty track data buffer */
+	if (Track1Data.Elements)
+	  Buffer = &Track1Data;
+	else if (Track2Data.Elements)
+	  Buffer = &Track2Data;			
+	else if (Track3Data.Elements)
+	  Buffer = &Track3Data;
+
+	if (Buffer != NULL)
 	{
 		/* Toggle the odd report number indicator */
 		OddReport   = !OddReport;
@@ -295,16 +305,6 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 		/* Only send the next key on odd reports, so that they are interpersed with null reports to release keys */
 		if (OddReport)
 		{
-			BitBuffer_t* Buffer;
-			
-			/* Get the next non-empty track data buffer */
-			if (Track1Data.Elements)
-			  Buffer = &Track1Data;
-			else if (Track2Data.Elements)
-			  Buffer = &Track2Data;			
-			else
-			  Buffer = &Track3Data;
-			  
 			/* Set the report key code to the key code for the next data bit */
 			ReportData->KeyCode[0] = BitBuffer_GetNextBit(Buffer) ? KEY_1 : KEY_0;
 			
@@ -333,9 +333,14 @@ bool GetNextReport(USB_KeyboardReport_Data_t* ReportData)
 TASK(Magstripe_Read)
 {
 	/* Arrays to hold the buffer pointers, clock and data bit masks for the seperate card tracks */
-	BitBuffer_t* const TrackBuffer[3] = {&Track1Data,  &Track2Data,  &Track3Data};
-	const uint8_t      TrackClock[3]  = {MAG_T1_CLOCK, MAG_T2_CLOCK, MAG_T3_CLOCK};
-	const uint8_t      TrackData[3]   = {MAG_T1_DATA,  MAG_T2_DATA,  MAG_T3_DATA};
+	const struct
+	{
+		BitBuffer_t* Buffer;
+		uint8_t      ClockMask;
+		uint8_t      DataMask;	
+	} TrackInfo[] = {{&Track1Data, MAG_T1_CLOCK, MAG_T1_DATA},
+	                 {&Track2Data, MAG_T2_CLOCK, MAG_T2_DATA},
+	                 {&Track3Data, MAG_T3_CLOCK, MAG_T3_DATA}};
 
 	/* Previous magnetic card control line' status, for later comparison */
 	uint8_t Magstripe_Prev = 0;
@@ -354,20 +359,20 @@ TASK(Magstripe_Read)
 		for (uint8_t Track = 0; Track < 3; Track++)
 		{
 			/* Current data line status for the current card track */
-			bool DataLevel    = ((Magstripe_LCL & TrackData[Track]) != 0);
+			bool DataLevel    = ((Magstripe_LCL & TrackInfo[Track].DataMask) != 0);
 
 			/* Current clock line status for the current card track */
-			bool ClockLevel   = ((Magstripe_LCL & TrackClock[Track]) != 0);
+			bool ClockLevel   = ((Magstripe_LCL & TrackInfo[Track].ClockMask) != 0);
 
 			/* Current track clock transition check */
-			bool ClockChanged = (((Magstripe_LCL ^ Magstripe_Prev) & TrackClock[Track]) != 0);
+			bool ClockChanged = (((Magstripe_LCL ^ Magstripe_Prev) & TrackInfo[Track].ClockMask) != 0);
 		
 			/* Sample the next bit on the falling edge of the track's clock line, store key code into the track's buffer */
 			if (ClockLevel && ClockChanged)
-			  BitBuffer_StoreNextBit(TrackBuffer[Track], DataLevel);
+			  BitBuffer_StoreNextBit(TrackInfo[Track].Buffer, DataLevel);
 		}
 
-		/* Retain the current card reader control line' status for later edge detection */
+		/* Retain the current card reader control line states for later edge detection */
 		Magstripe_Prev = Magstripe_LCL;
 		
 		/* Retrieve the new card reader control line states */

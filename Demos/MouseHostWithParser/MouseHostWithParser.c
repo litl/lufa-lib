@@ -63,7 +63,7 @@ int main(void)
 	SetSystemClockPrescaler(0);
 	
 	/* Hardware Initialization */
-	SerialStream_Init(9600);
+	SerialStream_Init(9600, false);
 	LEDs_Init();
 	
 	/* Indicate USB not ready */
