@@ -28,8 +28,23 @@
   this software.
 */
 
+/** \file
+ *
+ *  USB Device Configuration Descriptor processing routines, to determine the correct pipe configurations
+ *  needed to communication with an attached USB device. Descriptors are special  computer-readable structures
+ *  which the host requests upon device enumeration, to determine the device's capabilities and functions.
+ */
+ 
 #include "ConfigDescriptor.h"
 
+/** Reads and processes an attached device's descriptors, to determine compatibility and pipe configurations. This
+ *  routine will read in the entire configuration descriptor, and configure the hosts pipes to correctly communicate
+ *  with compatible devices.
+ *
+ *  This routine searches for a MSD interface descriptor containing bulk IN and OUT data endpoints.
+ *
+ *  \return An error code from the MassStorageHost_GetConfigDescriptorDataCodes_t enum.
+ */
 uint8_t ProcessConfigurationDescriptor(void)
 {
 	uint8_t* ConfigDescriptorData;
@@ -105,10 +120,16 @@ uint8_t ProcessConfigurationDescriptor(void)
 	return SuccessfulConfigRead;
 }
 
+/** Descriptor comparator function. This comparator function is can be called while processing an attached USB device's
+ *  configuration descriptor, to search for a specific sub descriptor. It can also be used to abort the configuration
+ *  descriptor processing if an incompatible descriptor configuration is found.
+ *
+ *  This comparator searches for the next Interface descriptor of the correct Mass Storage Class, Subclass and Protocol values.
+ *
+ *  \return A value from the DSEARCH_Return_ErrorCodes_t enum
+ */
 DESCRIPTOR_COMPARATOR(NextMassStorageInterface)
 {
-	/* PURPOSE: Find next mass storage class interface descriptor */
-
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Interface)
 	{
 		/* Check the descriptor class and protocol, break out if correct class/protocol interface found */
@@ -123,10 +144,17 @@ DESCRIPTOR_COMPARATOR(NextMassStorageInterface)
 	return Descriptor_Search_NotFound;
 }
 
+/** Descriptor comparator function. This comparator function is can be called while processing an attached USB device's
+ *  configuration descriptor, to search for a specific sub descriptor. It can also be used to abort the configuration
+ *  descriptor processing if an incompatible descriptor configuration is found.
+ *
+ *  This comparator searches for the next Bulk Endpoint descriptor of the correct MSD interface, aborting the search if
+ *  another interface descriptor is found before the next endpoint.
+ *
+ *  \return A value from the DSEARCH_Return_ErrorCodes_t enum
+ */
 DESCRIPTOR_COMPARATOR(NextInterfaceBulkDataEndpoint)
 {
-	/* PURPOSE: Find next interface bulk endpoint descriptor before next interface descriptor */
-
 	if (DESCRIPTOR_TYPE(CurrentDescriptor) == DTYPE_Endpoint)
 	{
 		uint8_t EndpointType = (DESCRIPTOR_CAST(CurrentDescriptor,

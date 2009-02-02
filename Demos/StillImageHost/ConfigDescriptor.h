@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for ConfigDescriptor.c.
+ */
+
 #ifndef _CONFIGDESCRIPTOR_H_
 #define _CONFIGDESCRIPTOR_H_
 
@@ -38,16 +43,28 @@
 		#include "StillImageHost.h"
 		
 	/* Macros: */
+		/** Interface Class value for the Still Image Device class */
+		#define SIMAGE_CLASS                   0x06
+
+		/** Interface Class value for the Still Image Device subclass */
+		#define SIMAGE_SUBCLASS                0x01
+
+		/** Interface Class value for the Still Image Device protocol */
+		#define SIMAGE_PROTOCOL                0x01
+
+		/** Maximum size of a device configuration descriptor which can be processed by the host, in bytes */
 		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
 	
 	/* Enums: */
-		enum StillImageHost_GetConfigDescriptorDataCodes_t
+		/** Enum for the possible return codes of the ProcessConfigurationDescriptor() function. */
+		enum MassStorageHost_GetConfigDescriptorDataCodes_t
 		{
-			ControlError         = 0,
-			DescriptorTooLarge   = 1,
-			NoInterfaceFound     = 2,
-			NoEndpointFound      = 3,
-			SuccessfulConfigRead = 4,
+			SuccessfulConfigRead            = 0, /**< Configuration Descriptor was processed successfully */
+			ControlError                    = 1, /**< A control request to the device failed to complete successfully */
+			DescriptorTooLarge              = 2, /**< The device's Configuration Descriptor is too large to process */
+			InvalidConfigDataReturned       = 3, /**< The device returned an invalid Configuration Descriptor */
+			NoInterfaceFound                = 4, /**< A compatible SI interface was not found in the device's Configuration Descriptor */
+			NoEndpointFound                 = 5, /**< The correct SI endpoint descriptors were not found in the device's SI interface */
 		};
 	
 	/* Configuration Descriptor Comparison Functions: */

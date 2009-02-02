@@ -3,12 +3,6 @@
  *  This file contains special DoxyGen information for the generation of the main page and other special
  *  documentation pages. It is not a project source file.
  */
- 
-/**
- * TODO:
- * 1) Document MassStorageHost and StillImageHost demos
- * 2) Change VBUS/IDTI interrupts to polling driven
- */
    
  /** \page Page_ChangeLog Project Changelog
   *
@@ -56,6 +50,7 @@
   *  - Replaced printf_P(PSTR("%c"), <Variable>) calls with putchar(<Variable>) for speed and size savings
   *  - Serial driver now accepts baud rates over 16-bits in size, added double speed flag option
   *  - Fixed incorrect callback abort return value in Pipe.c
+  *  - Added new flip-ee and dfu-ee makefile targets (courtesy of AVROpendous Inc.)
   *
   *  \section Sec_ChangeLog241208 Version 241208
   *

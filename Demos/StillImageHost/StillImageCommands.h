@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for StillImageCommands.c.
+ */
+ 
 #ifndef _STILL_IMAGE_COMMANDS_H_
 #define _STILL_IMAGE_COMMANDS_H_
 
@@ -37,43 +42,47 @@
 		#include "PIMACodes.h"
 
 	/* Macros: */
+		/** Pipe number of the Still Image data IN pipe */
 		#define SIMAGE_DATA_IN_PIPE            0x01
+
+		/** Pipe number of the Still Image data OUT pipe */
 		#define SIMAGE_DATA_OUT_PIPE           0x02
+
+		/** Pipe number of the Still Image events pipe */
 		#define SIMAGE_EVENTS_PIPE             0x03
 
+		/** Timeout period between the issuing of a command to a device, and the reception of the first packet */
 		#define COMMAND_DATA_TIMEOUT_MS        5000
 		
+		/** Used in the DataLength field of a PIMA container, to give the total container size in bytes.
+		 *
+		 *  \param params  Number of parameters which are to be sent in the Param field of the container
+		 */
 		#define PIMA_COMMAND_SIZE(params)      ((sizeof(PIMA_SendBlock) - sizeof(PIMA_SendBlock.Params)) + \
 		                                        (params * sizeof(PIMA_SendBlock.Params[0])))
 
 	/* Type Defines: */
+		/** Type define for a PIMA container, use to send commands and receieve responses to and from an
+		 *  attached Still Image device.
+		 */
 		typedef struct
 		{
-			uint32_t DataLength;
-			uint16_t Type;
-			uint16_t Code;
-			uint32_t TransactionID;
-			uint32_t Params[4];
+			uint32_t DataLength; /**< Length of the container and data, in bytes */
+			uint16_t Type; /**< Container type, a value from the PIMA_Container_Types_t enum */
+			uint16_t Code; /**< Command, event or response code of the container */
+			uint32_t TransactionID; /**< Unique container ID to link blocks together */
+			uint32_t Params[4]; /**< Block parameters to be issued along with the block code */
 		} PIMA_Container_t;
 	
 	/* Enums: */
+		/** Enum for the possible PIMA contains types. */
 		enum PIMA_Container_Types_t
 		{
-			CType_Undefined         = 0,
-			CType_CommandBlock      = 1,
-			CType_DataBlock         = 2,
-			CType_ResponseBlock     = 3,
-			CType_EventBlock        = 4,
-		};
-
-		enum StillImageHost_ReadWriteErrorCodes_t
-		{
-			NoError            = 0,
-			InPipeStalled      = 1,
-			OutPipeStalled     = 2,
-			DeviceDisconnected = 3,
-			CommandTimeout     = 4,
-			BadResponse        = 5,
+			CType_Undefined         = 0, /**< Undefined container type */
+			CType_CommandBlock      = 1, /**< Command Block container type */
+			CType_DataBlock         = 2, /**< Data Block container type */
+			CType_ResponseBlock     = 3, /**< Response container type */
+			CType_EventBlock        = 4, /**< Event Block container type */
 		};
 	
 	/* External Variables: */

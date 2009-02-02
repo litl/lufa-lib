@@ -28,13 +28,27 @@
   this software.
 */
 
+/** \file
+ *
+ *  Still Image Device commands, to issue PIMA commands to the device for
+ *  reading device status, capacity, and other characteristics as well as
+ *  reading and writing of stored image data.
+ */
+
 #include "StillImageCommands.h"
 
 /* Globals: */
+/** PIMA block container for the block to send to the device */
 PIMA_Container_t PIMA_SendBlock;
+
+/** PIMA block container for the last received block from the device */
 PIMA_Container_t PIMA_ReceivedBlock;
+
+/** PIMA block container for the last event block received from the device */
 PIMA_Container_t PIMA_EventBlock;
 
+
+/** Function to send the PIMA command container to the attached still image device. */
 void SImage_SendBlockHeader(void)
 {
 	/* Unfreeze the data OUT pipe ready for data transmission */
@@ -65,6 +79,7 @@ void SImage_SendBlockHeader(void)
 	Pipe_Freeze();
 }
 
+/** Function to receive a PIMA event container from the attached still image device. */
 void SImage_RecieveEventHeader(void)
 {
 	/* Unfreeze the events pipe */
@@ -81,6 +96,7 @@ void SImage_RecieveEventHeader(void)
 	Pipe_Freeze();
 }
 
+/** Function to receive a PIMA response container from the attached still image device. */
 uint8_t SImage_RecieveBlockHeader(void)
 {
 	uint16_t TimeoutMSRem = COMMAND_DATA_TIMEOUT_MS;
@@ -103,7 +119,7 @@ uint8_t SImage_RecieveBlockHeader(void)
 			if (!(TimeoutMSRem))
 			{
 				/* Return error code */
-				return CommandTimeout;
+				return PIPE_RWSTREAM_ERROR_Timeout;
 			}
 		}
 		
@@ -116,7 +132,7 @@ uint8_t SImage_RecieveBlockHeader(void)
 			SImage_ClearPipeStall(SIMAGE_DATA_OUT_PIPE);
 
 			/* Return error code and break out of the loop */
-			return OutPipeStalled;
+			return PIPE_RWSTREAM_ERROR_PipeStalled;
 		}
 
 		Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
@@ -128,14 +144,14 @@ uint8_t SImage_RecieveBlockHeader(void)
 			SImage_ClearPipeStall(SIMAGE_DATA_IN_PIPE);
 
 			/* Return error code */
-			return InPipeStalled;
+			return PIPE_RWSTREAM_ERROR_PipeStalled;
 		}
 		  
 		/* Check to see if the device was disconnected, if so exit function */
 		if (!(USB_IsConnected))
 		{
 			/* Return error code */
-			return DeviceDisconnected;
+			return PIPE_RWSTREAM_ERROR_DeviceDisconnected;
 		}
 	};
 	
@@ -169,9 +185,14 @@ uint8_t SImage_RecieveBlockHeader(void)
 	/* Freeze the IN pipe after use */
 	Pipe_Freeze();
 	
-	return NoError;
+	return PIPE_RWSTREAM_ERROR_NoError;
 }
 
+/** Function to send the given data to the device, after a command block has been issued.
+ *
+ *  \param Buffer  Source data buffer to send to the device
+ *  \param Bytes   Number of bytes to send
+ */
 void SImage_SendData(void* Buffer, uint16_t Bytes)
 {
 	/* Unfreeze the data OUT pipe */
@@ -185,9 +206,16 @@ void SImage_SendData(void* Buffer, uint16_t Bytes)
 	Pipe_Freeze();
 }
 
+/** Function to receive the given data to the device, after a response block has been received.
+ *
+ *  \param Buffer  Destination data buffer to put read bytes from the device
+ *  \param Bytes   Number of bytes to receive
+ *
+ *  \return A value from the Pipe_Stream_RW_ErrorCodes_t enum
+ */
 uint8_t SImage_ReadData(void* Buffer, uint16_t Bytes)
 {
-	uint8_t ErrorCode = NoError;
+	uint8_t ErrorCode;
 
 	/* Unfreeze the data IN pipe */
 	Pipe_SelectPipe(SIMAGE_DATA_IN_PIPE);
@@ -202,6 +230,10 @@ uint8_t SImage_ReadData(void* Buffer, uint16_t Bytes)
 	return ErrorCode;
 }
 
+/** Function to test if a PIMA event block is waiting to be read in from the attached device.
+ *
+ *  \return True if an event is waiting to be read in from the device, false otherwise
+ */
 bool SImage_IsEventReceived(void)
 {
 	bool IsEventReceived = false;
@@ -220,6 +252,12 @@ bool SImage_IsEventReceived(void)
 	return IsEventReceived;
 }
 
+/** Clears the stall condition in the attached device on the nominated endpoint number.
+ *
+ *  \param EndpointNum  Endpoint number in the attached device whose stall condition is to be cleared
+ *
+ *  \return A value from the USB_Host_SendControlErrorCodes_t enum
+ */
 uint8_t SImage_ClearPipeStall(const uint8_t PipeEndpointNum)
 {
 	USB_HostRequest = (USB_Host_Request_Header_t)

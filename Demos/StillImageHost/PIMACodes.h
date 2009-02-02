@@ -28,6 +28,12 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header containing macros for possible PIMA commands. Refer to the PIMA standard
+ *  documentation for more information on each PIMA command.
+ */
+
 #ifndef _PIMA_CODES_H_
 
 	/* Macros: */
@@ -41,6 +47,5 @@
 		#define PIMA_RESPONSE_INVALIDTRANSACTIONID   0x2004
 		#define PIMA_RESPONSE_OPERATIONNOTSUPPORTED  0x2005
 		#define PIMA_RESPONSE_PARAMETERNOTSUPPORTED  0x2006
-		
 
 #endif

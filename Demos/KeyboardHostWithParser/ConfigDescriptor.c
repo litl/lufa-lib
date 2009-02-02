@@ -43,7 +43,7 @@
  *
  *  This routine searches for a HID interface descriptor containing at least one Interrupt type IN endpoint and HID descriptor.
  *
- *  \return An error code from the MouseHost_GetConfigDescriptorDataCodes_t structure.
+ *  \return An error code from the KeyboardHostWithParser_GetConfigDescriptorDataCodes_t enum.
  */
 uint8_t ProcessConfigurationDescriptor(void)
 {

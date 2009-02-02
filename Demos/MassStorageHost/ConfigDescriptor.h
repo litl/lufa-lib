@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for ConfigDescriptor.c.
+ */
+
 #ifndef _CONFIGDESCRIPTOR_H_
 #define _CONFIGDESCRIPTOR_H_
 
@@ -38,21 +43,28 @@
 		#include "MassStorageHost.h"
 		
 	/* Macros: */
-		#define MASS_STORE_CLASS                 0x08
-		#define MASS_STORE_SUBCLASS              0x06
-		#define MASS_STORE_PROTOCOL              0x50
+		/** Interface Class value for the Mass Storage Device class */
+		#define MASS_STORE_CLASS               0x08
+
+		/** Interface Class value for the Mass Storage Device subclass */
+		#define MASS_STORE_SUBCLASS            0x06
+
+		/** Interface Protocol value for the Bulk Only transport protocol */
+		#define MASS_STORE_PROTOCOL            0x50
 		
-		#define MAX_CONFIG_DESCRIPTOR_SIZE       512
+		/** Maximum size of a device configuration descriptor which can be processed by the host, in bytes */
+		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
 
 	/* Enums: */
+		/** Enum for the possible return codes of the ProcessConfigurationDescriptor() function. */
 		enum MassStorageHost_GetConfigDescriptorDataCodes_t
 		{
-			SuccessfulConfigRead                 = 0,
-			ControlError                         = 1,
-			DescriptorTooLarge                   = 2,
-			InvalidConfigDataReturned            = 3,
-			NoInterfaceFound                     = 4,
-			NoEndpointFound                      = 5,
+			SuccessfulConfigRead            = 0, /**< Configuration Descriptor was processed successfully */
+			ControlError                    = 1, /**< A control request to the device failed to complete successfully */
+			DescriptorTooLarge              = 2, /**< The device's Configuration Descriptor is too large to process */
+			InvalidConfigDataReturned       = 3, /**< The device returned an invalid Configuration Descriptor */
+			NoInterfaceFound                = 4, /**< A compatible MSD interface was not found in the device's Configuration Descriptor */
+			NoEndpointFound                 = 5, /**< The correct MSD endpoint descriptors were not found in the device's MSD interface */
 		};
 
 	/* Configuration Descriptor Comparison Functions: */
