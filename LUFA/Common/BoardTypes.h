@@ -58,12 +58,15 @@
 
 			/** Selects the RZUSBSTICK specific board drivers, including the driver for the boards LEDs. */
 			#define BOARD_RZUSBSTICK    3
+			
+			/** Selects the ATAVRUSBRF01 specific board drivers, including the driver for the board LEDs. */
+			#define BOARD_ATAVRUSBRF01  4
 
 			/** Selects the user-defined board drivers, which should be placed in the user project's folder
 			 *  under a directory named /Board/. Each board driver should be named identically to the LUFA
 			 *  master board driver (i.e., driver in the LUFA/Drivers/Board director) so that the library
 			 *  can correctly identify it.
 			 */
-			#define BOARD_USER          4
+			#define BOARD_USER          5
 
 #endif

@@ -15,7 +15,7 @@
 # Frederik Rouleau
 # Carlos Lamas
 # Dean Camera
-# AVROpendous Inc.
+# Opendous Inc.
 #
 #----------------------------------------------------------------------------
 # On command line:
@@ -62,7 +62,7 @@
 MCU = at90usb162
 
 
-# Target board (USBKEY, STK525, STK526, RZUSBSTICK, USER or blank for projects not requiring
+# Target board (see library BoardTypes.h documentation, USER or blank for projects not requiring
 # LUFA board drivers). If USER is selected, put custom board drivers in a directory called 
 # "Board" inside the application directory.
 BOARD  = USBKEY

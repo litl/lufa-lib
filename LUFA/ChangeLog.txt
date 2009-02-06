@@ -6,7 +6,7 @@
    
  /** \page Page_ChangeLog Project Changelog
   *
-  *  \section Sec_ChangeLogXXXXXX Version XXXXXX
+  *  \section Sec_ChangeLog090207 Version 090207
   *
   *  - PWM timer mode in AudioOut demo changed to Fast PWM for speed
   *  - Updated Magstripe project to work with the latest hardware revision
@@ -50,9 +50,14 @@
   *  - Replaced printf_P(PSTR("%c"), <Variable>) calls with putchar(<Variable>) for speed and size savings
   *  - Serial driver now accepts baud rates over 16-bits in size, added double speed flag option
   *  - Fixed incorrect callback abort return value in Pipe.c
-  *  - Added new flip-ee and dfu-ee makefile targets (courtesy of AVROpendous Inc.)
+  *  - Added new flip-ee and dfu-ee makefile targets (courtesy of Opendous Inc.)
+  *  - Removed reboot-on-disconnect code from the TeensyHID bootloader, caused problems on some systems
+  *  - Fixed AudioOutput and AudioInput demos looping on the endpoint data, rather than processing a sample at a time and returning
+  *    each time the task runs to allow for other tasks to execute
+  *  - Added support for the Atmel ATAVRUSBRF01 board
+  *  - Added AVRISP Programmer Project, courtesy of Opendous Inc.
   *
-  *  \section Sec_ChangeLog241208 Version 241208
+  *  \section Sec_ChangeLog081224 Version 081224
   *
   *  - MyUSB name changed to LUFA, the Lightweight USB Framework for AVRs
   *  - Fixed Mass Storage Host demo's MassStore_SendCommand() delay in the incorrect place

@@ -36,8 +36,8 @@
  
 /* ---   Project Configuration (Choose ONE)   --- */
 //#define AUDIO_OUT_MONO
-//#define AUDIO_OUT_STEREO
-#define AUDIO_OUT_LEDS
+#define AUDIO_OUT_STEREO
+//#define AUDIO_OUT_LEDS
 //#define AUDIO_OUT_PORTC
 /* --- --- --- --- --- --- --- ---  ---  ---  --- */
 
@@ -236,74 +236,70 @@ TASK(USB_Audio_Task)
 	/* Select the audio stream endpoint */
 	Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
 	
-	/* Check if the current endpoint can be read from (contains a packet) */
-	if (Endpoint_ReadWriteAllowed())
+	/* Check if the current endpoint can be read from (contains a packet) and that the next sample should be read */
+	if (Endpoint_ReadWriteAllowed() && (TIFR0 & (1 << OCF0A)))
 	{
-		/* Process the endpoint bytes all at once; the audio is at such a high sample rate that this
-		 * does not have any noticable latency on the USB management task */
-		while (Endpoint_BytesInEndpoint())
+		/* Clear the sample reload timer */
+		TIFR0 |= (1 << OCF0A);
+
+		/* Retreive the signed 16-bit left and right audio samples */
+		int16_t LeftSample_16Bit  = (int16_t)Endpoint_Read_Word_LE();
+		int16_t RightSample_16Bit = (int16_t)Endpoint_Read_Word_LE();
+
+		/* Check to see if the bank is now empty */
+		if (!(Endpoint_ReadWriteAllowed()))
 		{
-			/* Wait until next audio sample should be processed */
-			if (!(TIFR0 & (1 << OCF0A)))
-				continue;
-			else
-				TIFR0 |= (1 << OCF0A);
+			/* Acknowedge the packet, clear the bank ready for the next packet */
+			Endpoint_ClearCurrentBank();
+		}
 
-			/* Retreive the signed 16-bit left and right audio samples */
-			int16_t LeftSample_16Bit  = (int16_t)Endpoint_Read_Word_LE();
-			int16_t RightSample_16Bit = (int16_t)Endpoint_Read_Word_LE();
-
-			/* Massage signed 16-bit left and right audio samples into signed 8-bit */
-			int8_t  LeftSample_8Bit   = (LeftSample_16Bit  >> 8);
-			int8_t  RightSample_8Bit  = (RightSample_16Bit >> 8);
+		/* Massage signed 16-bit left and right audio samples into signed 8-bit */
+		int8_t  LeftSample_8Bit   = (LeftSample_16Bit  >> 8);
+		int8_t  RightSample_8Bit  = (RightSample_16Bit >> 8);
 			
 #if defined(AUDIO_OUT_MONO)
-			/* Mix the two channels together to produce a mono, 8-bit sample */
-			int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
+		/* Mix the two channels together to produce a mono, 8-bit sample */
+		int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
 
-			/* Load the sample into the PWM timer channel */
-			OCRxA = ((uint8_t)MixedSample_8Bit ^ (1 << 7));
+		/* Load the sample into the PWM timer channel */
+		OCRxA = ((uint8_t)MixedSample_8Bit ^ (1 << 7));
 #elif defined(AUDIO_OUT_STEREO)
-			/* Load the dual 8-bit samples into the PWM timer channels */
-			OCRxA = ((uint8_t)LeftSample_8Bit  ^ (1 << 7));
-			OCRxB = ((uint8_t)RightSample_8Bit ^ (1 << 7));
+		/* Load the dual 8-bit samples into the PWM timer channels */
+		OCRxA = ((uint8_t)LeftSample_8Bit  ^ (1 << 7));
+		OCRxB = ((uint8_t)RightSample_8Bit ^ (1 << 7));
 #elif defined(AUDIO_OUT_PORTC)
-			/* Mix the two channels together to produce a mono, 8-bit sample */
-			int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
+		/* Mix the two channels together to produce a mono, 8-bit sample */
+		int8_t  MixedSample_8Bit  = (((int16_t)LeftSample_8Bit + (int16_t)RightSample_8Bit) >> 1);
 
-			PORTC = MixedSample_8Bit;
+		PORTC = MixedSample_8Bit;
 #else
-			uint8_t LEDMask = LEDS_NO_LEDS;
+		uint8_t LEDMask = LEDS_NO_LEDS;
 
-			/* Make left channel positive (absolute) */
-			if (LeftSample_8Bit < 0)
-			  LeftSample_8Bit = -LeftSample_8Bit;
+		/* Make left channel positive (absolute) */
+		if (LeftSample_8Bit < 0)
+		  LeftSample_8Bit = -LeftSample_8Bit;
 
-			/* Make right channel positive (absolute) */
-			if (RightSample_8Bit < 0)
-			  RightSample_8Bit = -RightSample_8Bit;
+		/* Make right channel positive (absolute) */
+		if (RightSample_8Bit < 0)
+		  RightSample_8Bit = -RightSample_8Bit;
 
-			/* Set first LED based on sample value */
-			if (LeftSample_8Bit < ((128 / 8) * 1))
-			  LEDMask |= LEDS_LED2;
-			else if (LeftSample_8Bit < ((128 / 8) * 3))
-			  LEDMask |= (LEDS_LED1 | LEDS_LED2);
-			else
-			  LEDMask |= LEDS_LED1;
+		/* Set first LED based on sample value */
+		if (LeftSample_8Bit < ((128 / 8) * 1))
+		  LEDMask |= LEDS_LED2;
+		else if (LeftSample_8Bit < ((128 / 8) * 3))
+		  LEDMask |= (LEDS_LED1 | LEDS_LED2);
+		else
+		  LEDMask |= LEDS_LED1;
 
-			/* Set second LED based on sample value */
-			if (RightSample_8Bit < ((128 / 8) * 1))
-			  LEDMask |= LEDS_LED4;
-			else if (RightSample_8Bit < ((128 / 8) * 3))
-			  LEDMask |= (LEDS_LED3 | LEDS_LED4);
-			else
-			  LEDMask |= LEDS_LED3;
-			  
-			LEDs_SetAllLEDs(LEDMask);
+		/* Set second LED based on sample value */
+		if (RightSample_8Bit < ((128 / 8) * 1))
+		  LEDMask |= LEDS_LED4;
+		else if (RightSample_8Bit < ((128 / 8) * 3))
+		  LEDMask |= (LEDS_LED3 | LEDS_LED4);
+		else
+		  LEDMask |= LEDS_LED3;
+		  
+		LEDs_SetAllLEDs(LEDMask);
 #endif
-		}
-		
-		/* Acknowedge the packet, clear the bank ready for the next packet */
-		Endpoint_ClearCurrentBank();
 	}
 }

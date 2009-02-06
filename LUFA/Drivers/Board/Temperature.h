@@ -48,8 +48,8 @@
 		#include "../../Common/Common.h"
 	
 		#if !defined(BOARD)
-			#error BOARD must be set in makefile to BOARD_USBKEY, BOARD_STK525, BOARD_STK526, BOARD_RZUSBSTICK or BOARD_USER.	
-		#elif (BOARD == BOARD_RZUSBSTICK)
+			#error #error BOARD must be set in makefile to a value specified in BoardTypes.h.	
+		#elif (BOARD != BOARD_USBKEY) && (BOARD != BOARD_STK525) && (BOARD != BOARD_STK526)
 			#error The selected board does not contain a temperature sensor.
 		#endif
 
@@ -89,7 +89,7 @@
 	#if !defined(__DOXYGEN__)
 		/* Macros: */
 			#define TEMP_TABLE_SIZE   (sizeof(Temperature_Lookup) / sizeof(Temperature_Lookup[0]))
-			#define TEMP_TABLE_OFFSET -20
+			#define TEMP_TABLE_OFFSET -21
 	#endif
 
 	/* Disable C linkage for C++ Compilers: */

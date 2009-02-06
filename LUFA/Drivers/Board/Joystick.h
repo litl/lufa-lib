@@ -53,17 +53,17 @@
 	#include "../../Common/Common.h"
 	
 	#if !defined(BOARD)
-		#error BOARD must be set in makefile to BOARD_USBKEY, BOARD_STK525, BOARD_STK526, BOARD_RZUSBSTICK or BOARD_USER.	
+		#error BOARD must be set in makefile to a value specified in BoardTypes.h.
 	#elif (BOARD == BOARD_USBKEY)
 		#include "USBKEY/Joystick.h"
 	#elif (BOARD == BOARD_STK525)
 		#include "STK525/Joystick.h"
 	#elif (BOARD == BOARD_STK526)
 		#include "STK526/Joystick.h"
-	#elif (BOARD == BOARD_RZUSBSTICK)
-		#error The selected board does not contain a joystick.
 	#elif (BOARD == BOARD_USER)
 		#include "Board/Joystick.h"		
+	#else
+		#error The selected board does not contain a joystick.
 	#endif
 
 	/* Psudo-Functions for Doxygen: */

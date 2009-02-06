@@ -10,7 +10,7 @@
  *  to the next version released. It does not indicate all new additions to the library in each version change, only
  *  areas relevant to making older projects compatible with the API changes of each new release.
  *
- * \section Sec_MigrationXXXXXX Migrating from 171208 to XXXXXX
+ * \section Sec_Migration090207 Migrating from 081217 to 090207
  *
  *  <b>Device Mode</b>
  *    - The ENDPOINT_MAX_ENDPOINTS constant has been renamed to the more appropriate name of ENDPOINT_TOTAL_ENDPOINTS.
@@ -38,7 +38,7 @@
  *    - Most library demos have been enhanced and/or had errors corrected. All users of all demos should upgrade their codebase to
  *      the latest demo versions.
  *
- * \section Sec_Migration171208 Migrating from V1.5.3 to 171208
+ * \section Sec_Migration171208 Migrating from V1.5.3 to 081217
  *
  *  <b>All</b>
  *    - The MyUSB project name has been changed to LUFA (Lightweight Framework for USB AVRs). All references to MyUSB, including macro names,

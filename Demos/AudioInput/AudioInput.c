@@ -204,32 +204,28 @@ TASK(USB_Audio_Task)
 	/* Select the audio stream endpoint */
 	Endpoint_SelectEndpoint(AUDIO_STREAM_EPNUM);
 	
-	/* Check if the current endpoint can be read from (contains a packet) */
-	if (Endpoint_ReadWriteAllowed())
+	/* Check if the current endpoint can be read from (contains a packet) and that the next sample should be stored */
+	if (Endpoint_ReadWriteAllowed() && (TIFR0 & (1 << OCF0A)))
 	{
-		/* Process the endpoint bytes all at once; the audio is at such a high sample rate that this
-		 * does not have any noticable latency on the USB management task */
-		while (Endpoint_BytesInEndpoint() < AUDIO_STREAM_EPSIZE)
-		{
-			/* Wait until next audio sample should be processed */
-			if (!(TIFR0 & (1 << OCF0A)))
-				continue;
-			else
-				TIFR0 |= (1 << OCF0A);
+		/* Clear the sample reload timer */
+		TIFR0 |= (1 << OCF0A);
 
-			/* Audio sample is ADC value scaled to fit the entire range */
-			int16_t AudioSample = ((SAMPLE_MAX_RANGE / ADC_MAX_RANGE) * ADC_GetResult());
-			
-#if defined(MICROPHONE_BIASED_TO_HALF_RAIL)
-			/* Microphone is biased to half rail voltage, subtract the bias from the sample value */
-			AudioSample -= (SAMPLE_MAX_RANGE / 2));
-#endif
-			
-			/* Write the sample to the buffer */
-			Endpoint_Write_Word_LE(AudioSample);			
-		}
+		/* Audio sample is ADC value scaled to fit the entire range */
+		int16_t AudioSample = ((SAMPLE_MAX_RANGE / ADC_MAX_RANGE) * ADC_GetResult());
 		
-		/* Send the full packet to the host */
-		Endpoint_ClearCurrentBank();
+#if defined(MICROPHONE_BIASED_TO_HALF_RAIL)
+		/* Microphone is biased to half rail voltage, subtract the bias from the sample value */
+		AudioSample -= (SAMPLE_MAX_RANGE / 2));
+#endif
+
+		/* Write the sample to the buffer */
+		Endpoint_Write_Word_LE(AudioSample);
+
+		/* Check to see if the bank is now full */
+		if (!(Endpoint_ReadWriteAllowed()))
+		{
+			/* Send the full packet to the host */
+			Endpoint_ClearCurrentBank();
+		}
 	}
 }

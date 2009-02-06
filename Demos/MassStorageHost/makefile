@@ -15,7 +15,7 @@
 # Frederik Rouleau
 # Carlos Lamas
 # Dean Camera
-# AVROpendous Inc.
+# Opendous Inc.
 #
 #----------------------------------------------------------------------------
 # On command line:
@@ -62,7 +62,7 @@
 MCU = at90usb1287
 
 
-# Target board (USBKEY, STK525, STK526, RZUSBSTICK, USER or blank for projects not requiring
+# Target board (see library BoardTypes.h documentation, USER or blank for projects not requiring
 # LUFA board drivers). If USER is selected, put custom board drivers in a directory called 
 # "Board" inside the application directory.
 BOARD  = USBKEY
@@ -163,7 +163,7 @@ CSTANDARD = -std=gnu99
 
 # Place -D or -U options here for C sources
 CDEFS  = -DF_CPU=$(F_CPU)UL -DBOARD=BOARD_$(BOARD) -DUSE_NONSTANDARD_DESCRIPTOR_NAMES -DNO_STREAM_CALLBACKS
-CDEFS += -DUSB_HOST_ONLY -DUSE_STATIC_OPTIONS=(USB_OPT_REG_ENABLED | USB_OPT_AUTO_PLL)
+CDEFS += -DUSB_HOST_ONLY -DUSE_STATIC_OPTIONS="(USB_OPT_REG_ENABLED | USB_OPT_AUTO_PLL)"
 
 
 # Place -D or -U options here for ASM sources

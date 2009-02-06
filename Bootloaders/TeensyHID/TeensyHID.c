@@ -78,14 +78,6 @@ int main(void)
 	for (;;);
 }
 
-/** Event handler for the USB_Disconnect event. This indicates that the bootloader should exit and the user
- *  application started.
- */
-EVENT_HANDLER(USB_Disconnect)
-{
-	RunBootloader = false;
-}
-
 /** Event handler for the USB_ConfigurationChanged event. This configures the device's endpoints ready
  *  to relay data to and from the attached USB host.
  */
