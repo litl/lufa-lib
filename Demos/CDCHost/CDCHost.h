@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for CDCHost.c.
+ */
+
 #ifndef _CDC_HOST_H_
 #define _CDC_HOST_H_
 
@@ -47,9 +52,14 @@
 		
 		#include "ConfigDescriptor.h"
 		
-	/* Macros: */		
+	/* Macros: */
+		/** Pipe number for the CDC data IN pipe */
 		#define CDC_DATAPIPE_IN                1
+
+		/** Pipe number for the CDC data OUT pipe */
 		#define CDC_DATAPIPE_OUT               2
+
+		/** Pipe number for the CDC notification pipe */
 		#define CDC_NOTIFICATIONPIPE           3
 
 	/* Enums: */

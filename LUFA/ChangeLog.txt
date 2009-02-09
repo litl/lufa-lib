@@ -47,7 +47,7 @@
   *  - Completed doxygen documentation of remaining library bootloaders, demos and projects
   *  - Fixed incorrect bootloader start address in the TeensyHID bootloader
   *  - Added HWB button whole-disk ASCII dump functionality to MassStoreHost demo
-  *  - Replaced printf_P(PSTR("%c"), <Variable>) calls with putchar(<Variable>) for speed and size savings
+  *  - Replaced printf_P(PSTR("%c"), {Variable}) calls with putchar(<Variable>) for speed and size savings
   *  - Serial driver now accepts baud rates over 16-bits in size, added double speed flag option
   *  - Fixed incorrect callback abort return value in Pipe.c
   *  - Added new flip-ee and dfu-ee makefile targets (courtesy of Opendous Inc.)
@@ -56,6 +56,10 @@
   *    each time the task runs to allow for other tasks to execute
   *  - Added support for the Atmel ATAVRUSBRF01 board
   *  - Added AVRISP Programmer Project, courtesy of Opendous Inc.
+  *  - Fixed CDC Host demo not searching through both CDC interfaces for endpoints
+  *  - Fixed incorrect Product String descriptor length in the DFU class bootloader
+  *  - Fixed failed descriptor searches in ConfigDescriptor.c eating the last checked descriptor when another search is started
+  *  - Added new USB_Host_GetPreviousDescriptor() function to ConfigDescriptor.c to move back one descriptor
   *
   *  \section Sec_ChangeLog081224 Version 081224
   *

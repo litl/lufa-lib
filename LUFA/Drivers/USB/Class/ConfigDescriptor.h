@@ -110,7 +110,10 @@
 
 			/** Searches for the next descriptor in the given configuration descriptor using a premade comparator
 			 *  function. The routine updates the position and remaining configuration descriptor bytes values
-			 *  automatically.
+			 *  automatically. If a comparator routine fails a search, the descriptor pointer is retreated back
+			 *  so that the next descriptor search invocation will start from the descriptor which first caused the
+			 *  original search to fail. This behaviour allows for one comparator to be used immediately after another
+			 *  has failed, starting the second search from the descriptor which failed the first.
 			 *
 			 *  \param DSize    Pointer to an int storing the remaining bytes in the configuration descriptor
 			 *  \param DPos     Pointer to the current position in the configuration descriptor
@@ -175,6 +178,28 @@
 			                                           ATTR_NON_NULL_PTR_ARG(1);
 
 		/* Inline Functions: */
+			/** Skips back over the current sub-descriptor inside the configuration descriptor, so that the pointer then
+			    points to the previous sub-descriptor. The bytes remaining value is automatically incremented.
+			 *
+			 * \param BytesRem  Pointer to the number of bytes remaining of the configuration descriptor
+			 * \param CurrConfigLoc  Pointer to the current descriptor inside the configuration descriptor
+			 */
+			static inline void USB_Host_GetPreviousDescriptor(uint16_t* const BytesRem,
+			                                                  uint8_t** const CurrConfigLoc) 
+														      ATTR_NON_NULL_PTR_ARG(1, 2);									  
+			static inline void USB_Host_GetPreviousDescriptor(uint16_t* const BytesRem,
+			                                                  uint8_t** const CurrConfigLoc)
+			{
+				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
+				uint16_t CurrDescriptorSize = DESCRIPTOR_CAST(*CurrConfigLoc, USB_Descriptor_Header_t).Size;
+				#else
+				uint16_t CurrDescriptorSize = DESCRIPTOR_CAST(*CurrConfigLoc, USB_Descriptor_Header_t).bLength;				
+				#endif
+
+				*CurrConfigLoc -= CurrDescriptorSize;
+				*BytesRem      += CurrDescriptorSize;
+			}
+
 			/** Skips over the current sub-descriptor inside the configuration descriptor, so that the pointer then
 			    points to the next sub-descriptor. The bytes remaining value is automatically decremented.
 			 *

@@ -509,6 +509,7 @@ flip: $(TARGET).hex
 dfu: $(TARGET).hex
 	dfu-programmer $(MCU) erase
 	dfu-programmer $(MCU) flash --debug 1 $(TARGET).hex
+	dfu-programmer $(MCU) reset
 
 flip-ee: $(TARGET).hex $(TARGET).eep
 	mv $(TARGET).eep $(TARGET)eep.hex
@@ -522,6 +523,7 @@ dfu-ee: $(TARGET).hex $(TARGET).eep
 	dfu-programmer $(MCU) erase
 	dfu-programmer $(MCU) flash --debug 1 $(TARGET).hex
 	dfu-programmer $(MCU) eeprom --debug 1 $(TARGET).eep
+	dfu-programmer $(MCU) reset
 
 # Generate avr-gdb config/init file which does the following:
 #     define the reset signal, load the target file, connect to target, and set 

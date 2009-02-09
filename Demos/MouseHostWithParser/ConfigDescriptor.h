@@ -60,7 +60,7 @@
 	
 	/* Enums: */
 		/** Enum for the possible return codes of the ProcessConfigurationDescriptor() function. */
-		enum MouseHostWithParser_GetConfigDescriptorDataCodes_t
+		enum CDCHost_GetConfigDescriptorDataCodes_t
 		{
 			SuccessfulConfigRead            = 0, /**< Configuration Descriptor was processed successfully */
 			ControlError                    = 1, /**< A control request to the device failed to complete successfully */

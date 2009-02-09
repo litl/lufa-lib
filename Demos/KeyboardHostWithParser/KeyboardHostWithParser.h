@@ -49,6 +49,7 @@
 		#include "HIDReport.h"
 
 	/* Macros: */
+		/** Pipe number for the keyboard report data pipe */
 		#define KEYBOARD_DATAPIPE              1
 
 	/* Enums: */

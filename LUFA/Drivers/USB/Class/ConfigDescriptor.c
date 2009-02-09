@@ -45,14 +45,14 @@ uint8_t USB_Host_GetDeviceConfigDescriptor(uint16_t* const ConfigSizePtr, void* 
 	
 	if (BufferPtr == NULL)
 	{
-		BufferPtr      = alloca(sizeof(USB_Descriptor_Configuration_Header_t));
+		uint8_t ConfigHeader[sizeof(USB_Descriptor_Configuration_Header_t)];
 
-		ErrorCode      = USB_Host_SendControlRequest(BufferPtr);
+		ErrorCode      = USB_Host_SendControlRequest(ConfigHeader);
 
 		#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
-		*ConfigSizePtr = DESCRIPTOR_CAST(BufferPtr, USB_Descriptor_Configuration_Header_t).TotalConfigurationSize;
+		*ConfigSizePtr = DESCRIPTOR_CAST(ConfigHeader, USB_Descriptor_Configuration_Header_t).TotalConfigurationSize;
 		#else
-		*ConfigSizePtr = DESCRIPTOR_CAST(BufferPtr, USB_Descriptor_Configuration_Header_t).wTotalLength;		
+		*ConfigSizePtr = DESCRIPTOR_CAST(ConfigHeader, USB_Descriptor_Configuration_Header_t).wTotalLength;		
 		#endif
 	}
 	else
@@ -120,9 +120,13 @@ uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* const BytesRem, uint8_t** con
 		USB_Host_GetNextDescriptor(BytesRem, CurrConfigLoc);
 
 		ErrorCode = ComparatorRoutine(*CurrConfigLoc);
-		
+
 		if (ErrorCode != Descriptor_Search_NotFound)
-		  return ErrorCode;
+		{
+			USB_Host_GetPreviousDescriptor(BytesRem, CurrConfigLoc);
+		
+			return ErrorCode;
+		}
 	}
 	
 	return Descriptor_Search_Comp_EndOfDescriptor;

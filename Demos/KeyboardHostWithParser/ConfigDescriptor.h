@@ -58,7 +58,6 @@
 		/** Descriptor header type constant for a HID report descriptor */
 		#define DTYPE_Report                   0x22
 	
-	
 	/* Enums: */
 		enum KeyboardHostWithParser_GetConfigDescriptorDataCodes_t
 		{

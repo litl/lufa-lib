@@ -28,6 +28,11 @@
   this software.
 */
 
+/** \file
+ *
+ *  Header file for ConfigDescriptor.c.
+ */
+
 #ifndef _CONFIGDESCRIPTOR_H_
 #define _CONFIGDESCRIPTOR_H_
 
@@ -38,21 +43,37 @@
 		#include "CDCHost.h"
 		
 	/* Macros: */
+		/** Interface Class value for the CDC class */
+		#define CDC_CONTROL_CLASS              0x02
+
+		/** Interface Class value for the CDC Communication Interface subclass */
+		#define CDC_CONTROL_SUBCLASS           0x02
+
+		/** Interface Class value for the CDC protocol */
+		#define CDC_CONTROL_PROTOCOL           0x01
+		
+		/** Interface Class value for the CDC data class */
+		#define CDC_DATA_CLASS                 0x0A
+
+		/** Interface Class value for the CDC data subclass (unused) */
+		#define CDC_DATA_SUBCLASS              0x00
+
+		/** Interface Class value for the CDC data protocol */
+		#define CDC_DATA_PROTOCOL              0x00
+
+		/** Maximum size of a device configuration descriptor which can be processed by the host, in bytes */
 		#define MAX_CONFIG_DESCRIPTOR_SIZE     512
 	
-		#define CDC_CLASS                      0x02
-		#define CDC_SUBCLASS                   0x02
-		#define CDC_PROTOCOL                   0x01
-
 	/* Enums: */
+		/** Enum for the possible return codes of the ProcessConfigurationDescriptor() function. */
 		enum CDCHost_GetConfigDescriptorDataCodes_t
 		{
-			SuccessfulConfigRead               = 0,
-			ControlError                       = 1,
-			DescriptorTooLarge                 = 2,
-			InvalidConfigDataReturned          = 3,
-			NoCDCInterfaceFound                = 4,
-			NoEndpointFound                    = 5,
+			SuccessfulConfigRead            = 0, /**< Configuration Descriptor was processed successfully */
+			ControlError                    = 1, /**< A control request to the device failed to complete successfully */
+			DescriptorTooLarge              = 2, /**< The device's Configuration Descriptor is too large to process */
+			InvalidConfigDataReturned       = 3, /**< The device returned an invalid Configuration Descriptor */
+			NoCDCInterfaceFound             = 4, /**< A compatible CDC interface was not found in the device's Configuration Descriptor */
+			NoEndpointFound                 = 5, /**< Cmpatible CDC endpoints were not found in the device's CDC interface */
 		};
 
 	/* Configuration Descriptor Comparison Functions: */

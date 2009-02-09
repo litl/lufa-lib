@@ -77,7 +77,7 @@ uint8_t ProcessConfigurationDescriptor(void)
 
 	/* Get the keyboard interface's data endpoint descriptor */
 	if (USB_Host_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
-	                                                NextInterfaceKeyboardDataEndpoint))
+	                                   NextInterfaceKeyboardDataEndpoint))
 	{
 		/* Descriptor not found, error out */
 		return NoEndpointFound;

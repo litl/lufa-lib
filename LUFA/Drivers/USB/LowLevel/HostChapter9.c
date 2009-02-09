@@ -107,40 +107,31 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 	}
 	else
 	{
-		Pipe_SetToken(PIPE_TOKEN_OUT);
-		Pipe_Unfreeze();	
-
 		if (DataStream != NULL)
 		{
+			Pipe_SetToken(PIPE_TOKEN_OUT);
+			Pipe_Unfreeze();	
+
 			while (DataLen)
 			{
 				if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(USB_HOST_WAITFOR_OutReady)))
 				  goto End_Of_Control_Send;
 
-				if (DataLen < USB_ControlPipeSize)
-				{
-					while (DataLen)
-					{
-						Pipe_Write_Byte(*(DataStream++));
-						DataLen--;
-					}
-				}
-				else
-				{
-					for (uint16_t PipeByte = 0; PipeByte < USB_ControlPipeSize; PipeByte++)
-					  Pipe_Write_Byte(*(DataStream++));
-
-					DataLen -= USB_ControlPipeSize;
+				while (DataLen && (Pipe_BytesInPipe() < USB_ControlPipeSize))
+				{					
+					Pipe_Write_Byte(*(DataStream++));
+					DataLen--;
 				}
 				
 				Pipe_ClearSetupOUT();
 			}
+
+			if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(USB_HOST_WAITFOR_OutReady)))
+			  goto End_Of_Control_Send;
+
+			Pipe_Freeze();
 		}
 		
-		if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(USB_HOST_WAITFOR_OutReady)))
-		  goto End_Of_Control_Send;
-
-		Pipe_Freeze();
 		Pipe_SetToken(PIPE_TOKEN_IN);
 		Pipe_Unfreeze();
 
@@ -164,7 +155,7 @@ End_Of_Control_Send:
 static uint8_t USB_Host_Wait_For_Setup_IOS(const uint8_t WaitType)
 {
 	uint16_t TimeoutCounter = USB_HOST_TIMEOUT_MS;
-
+	
 	while (!(((WaitType == USB_HOST_WAITFOR_SetupSent)  && Pipe_IsSetupSent())       ||
 	         ((WaitType == USB_HOST_WAITFOR_InReceived) && Pipe_IsSetupINReceived()) ||
 	         ((WaitType == USB_HOST_WAITFOR_OutReady)   && Pipe_IsSetupOUTReady())))

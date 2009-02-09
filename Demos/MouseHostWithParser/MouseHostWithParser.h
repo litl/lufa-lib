@@ -49,6 +49,7 @@
 		#include "HIDReport.h"
 
 	/* Macros: */
+		/** Pipe number for the mouse report data pipe */
 		#define MOUSE_DATAPIPE              1
 
 	/* Enums: */

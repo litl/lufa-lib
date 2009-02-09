@@ -116,10 +116,13 @@ static void USB_Device_SetAddress(void)
 	uint8_t wValue_LSB = Endpoint_Read_Byte();
 
 	Endpoint_ClearSetupReceived();
-
-	Endpoint_ClearSetupIN();
+	
 	while (!(Endpoint_IsSetupINReady()));
 	
+	Endpoint_ClearSetupIN();
+	
+	while (!(Endpoint_IsSetupINReady()));
+
 	UDADDR = ((1 << ADDEN) | (wValue_LSB & 0x7F));
 
 	return;

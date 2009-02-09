@@ -28,8 +28,6 @@
   this software.
 */
 
-#include "ConfigDescriptor.h"
-
 /** \file
  *
  *  USB Device Configuration Descriptor processing routines, to determine the correct pipe configurations
