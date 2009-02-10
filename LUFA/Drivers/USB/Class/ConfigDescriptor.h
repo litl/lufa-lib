@@ -178,28 +178,6 @@
 			                                           ATTR_NON_NULL_PTR_ARG(1);
 
 		/* Inline Functions: */
-			/** Skips back over the current sub-descriptor inside the configuration descriptor, so that the pointer then
-			    points to the previous sub-descriptor. The bytes remaining value is automatically incremented.
-			 *
-			 * \param BytesRem  Pointer to the number of bytes remaining of the configuration descriptor
-			 * \param CurrConfigLoc  Pointer to the current descriptor inside the configuration descriptor
-			 */
-			static inline void USB_Host_GetPreviousDescriptor(uint16_t* const BytesRem,
-			                                                  uint8_t** const CurrConfigLoc) 
-														      ATTR_NON_NULL_PTR_ARG(1, 2);									  
-			static inline void USB_Host_GetPreviousDescriptor(uint16_t* const BytesRem,
-			                                                  uint8_t** const CurrConfigLoc)
-			{
-				#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
-				uint16_t CurrDescriptorSize = DESCRIPTOR_CAST(*CurrConfigLoc, USB_Descriptor_Header_t).Size;
-				#else
-				uint16_t CurrDescriptorSize = DESCRIPTOR_CAST(*CurrConfigLoc, USB_Descriptor_Header_t).bLength;				
-				#endif
-
-				*CurrConfigLoc -= CurrDescriptorSize;
-				*BytesRem      += CurrDescriptorSize;
-			}
-
 			/** Skips over the current sub-descriptor inside the configuration descriptor, so that the pointer then
 			    points to the next sub-descriptor. The bytes remaining value is automatically decremented.
 			 *
@@ -268,7 +246,7 @@
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Function Prototypes: */
-			uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc,
+			uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
                                                      uint8_t (* const ComparatorRoutine)(void* const));
 	#endif
 			

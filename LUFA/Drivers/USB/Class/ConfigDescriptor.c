@@ -110,20 +110,22 @@ void USB_Host_GetNextDescriptorOfTypeAfter(uint16_t* const BytesRem,
 	  USB_Host_GetNextDescriptorOfType(BytesRem, CurrConfigLoc, Type);
 }
 			
-uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* const BytesRem, uint8_t** const CurrConfigLoc,
+uint8_t USB_Host_GetNextDescriptorComp_P(uint16_t* BytesRem, uint8_t** CurrConfigLoc,
                                          uint8_t (* const ComparatorRoutine)(void*))
 {
 	uint8_t ErrorCode;
 		
 	while (*BytesRem)
 	{
+		uint8_t**  PrevDescLoc = CurrConfigLoc;
+		uint16_t  PrevBytesRem = *BytesRem;
+
 		USB_Host_GetNextDescriptor(BytesRem, CurrConfigLoc);
 
-		ErrorCode = ComparatorRoutine(*CurrConfigLoc);
-
-		if (ErrorCode != Descriptor_Search_NotFound)
+		if ((ErrorCode = ComparatorRoutine(*CurrConfigLoc)) != Descriptor_Search_NotFound)
 		{
-			USB_Host_GetPreviousDescriptor(BytesRem, CurrConfigLoc);
+			CurrConfigLoc = PrevDescLoc;
+			*BytesRem     = PrevBytesRem;
 		
 			return ErrorCode;
 		}

@@ -59,7 +59,6 @@
   *  - Fixed CDC Host demo not searching through both CDC interfaces for endpoints
   *  - Fixed incorrect Product String descriptor length in the DFU class bootloader
   *  - Fixed failed descriptor searches in ConfigDescriptor.c eating the last checked descriptor when another search is started
-  *  - Added new USB_Host_GetPreviousDescriptor() function to ConfigDescriptor.c to move back one descriptor
   *
   *  \section Sec_ChangeLog081224 Version 081224
   *
