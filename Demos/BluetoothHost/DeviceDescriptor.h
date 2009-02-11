@@ -28,22 +28,29 @@
   this software.
 */
 
-/** \file
- *
- *  Version constants for informational purposes and version-specific macro creation. This header file contains the
- *  current LUFA version number in several forms, for use in the user-application (for example, for printing out 
- *  whilst debugging, or for testing for version compatibility).
- */
+#ifndef _DEVICEDESCRIPTOR_H_
+#define _DEVICEDESCRIPTOR_H_
 
-#ifndef __LUFA_VERSION_H__
-#define __LUFA_VERSION_H__
+	/* Includes: */
+		#include <LUFA/Drivers/USB/USB.h>                        // USB Functionality
+		
+		#include "BluetoothHost.h"
+		
+	/* Macros: */
+		#define BLUETOOTH_DEVICE_CLASS           0xE0
+		#define BLUETOOTH_DEVICE_SUBCLASS        0x01
+		#define BLUETOOTH_DEVICE_PROTOCOL        0x01
 
-	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			/** Indicates the version number of the library, as an integer. */
-			#define LUFA_VERSION_INTEGER     000000
+	/* Enums: */
+		enum BluetoothHost_GetDeviceDescriptorDataCodes_t
+		{
+			SuccessfulDeviceRead                 = 0,
+			ControlErrorDuringDeviceRead         = 1,
+			InvalidDeviceDataReturned            = 2,
+			IncorrectDevice                      = 3,
+		};
 
-			/** Indicates the version number of the library, as a string. */
-			#define LUFA_VERSION_STRING      "000000"
+	/* Function Prototypes: */
+		uint8_t ProcessDeviceDescriptor(void);	
 
 #endif

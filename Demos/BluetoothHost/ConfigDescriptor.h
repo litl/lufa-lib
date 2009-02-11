@@ -28,22 +28,33 @@
   this software.
 */
 
-/** \file
- *
- *  Version constants for informational purposes and version-specific macro creation. This header file contains the
- *  current LUFA version number in several forms, for use in the user-application (for example, for printing out 
- *  whilst debugging, or for testing for version compatibility).
- */
+#ifndef _CONFIGDESCRIPTOR_H_
+#define _CONFIGDESCRIPTOR_H_
 
-#ifndef __LUFA_VERSION_H__
-#define __LUFA_VERSION_H__
+	/* Includes: */
+		#include <LUFA/Drivers/USB/USB.h>                        // USB Functionality
+		#include <LUFA/Drivers/USB/Class/ConfigDescriptor.h>     // Configuration Descriptor Parser
+		
+		#include "BluetoothHost.h"
+		
+	/* Macros: */
+		#define MAX_CONFIG_DESCRIPTOR_SIZE       512
 
-	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			/** Indicates the version number of the library, as an integer. */
-			#define LUFA_VERSION_INTEGER     000000
+	/* Enums: */
+		enum BluetoothHost_GetConfigDescriptorDataCodes_t
+		{
+			SuccessfulConfigRead                 = 0,
+			ControlErrorDuringConfigRead         = 1,
+			InvalidConfigDataReturned            = 2,
+			DescriptorTooLarge                   = 3,
+			NoInterfaceFound                     = 4,
+			NoEndpointFound                      = 5,
+		};
+	
+	/* Configuration Descriptor Comparison Functions: */
+		DESCRIPTOR_COMPARATOR(NextInterfaceBluetoothDataEndpoint);
 
-			/** Indicates the version number of the library, as a string. */
-			#define LUFA_VERSION_STRING      "000000"
+	/* Function Prototypes: */
+		uint8_t ProcessConfigurationDescriptor(void);	
 
 #endif

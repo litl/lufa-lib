@@ -28,22 +28,36 @@
   this software.
 */
 
-/** \file
- *
- *  Version constants for informational purposes and version-specific macro creation. This header file contains the
- *  current LUFA version number in several forms, for use in the user-application (for example, for printing out 
- *  whilst debugging, or for testing for version compatibility).
- */
+#include "DeviceDescriptor.h"
 
-#ifndef __LUFA_VERSION_H__
-#define __LUFA_VERSION_H__
+uint8_t ProcessDeviceDescriptor(void)
+{
+	USB_Descriptor_Device_t DeviceDescriptor;
 
-	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			/** Indicates the version number of the library, as an integer. */
-			#define LUFA_VERSION_INTEGER     000000
+	/* Standard request to get the device descriptor */
+	USB_HostRequest = (USB_Host_Request_Header_t)
+		{
+			bmRequestType: (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE),
+			bRequest:      REQ_GetDescriptor,
+			wValue:        (DTYPE_Device << 8),
+			wIndex:        0,
+			wLength:       sizeof(USB_Descriptor_Device_t),
+		};
 
-			/** Indicates the version number of the library, as a string. */
-			#define LUFA_VERSION_STRING      "000000"
-
-#endif
+	/* Send the request to retrieve the device descriptor */
+	if (USB_Host_SendControlRequest((void*)&DeviceDescriptor) != HOST_SENDCONTROL_Successful)
+	  return ControlErrorDuringDeviceRead;
+	  
+	/* Validate returned data - ensure the returned data is a device descriptor */
+	if (DeviceDescriptor.Header.Type != DTYPE_Device)
+	  return InvalidDeviceDataReturned;
+	  
+	if ((DeviceDescriptor.Class != BLUETOOTH_DEVICE_CLASS) ||
+	    (DeviceDescriptor.SubClass != BLUETOOTH_DEVICE_SUBCLASS) ||
+	    (DeviceDescriptor.Protocol != BLUETOOTH_DEVICE_PROTOCOL))
+	{
+		return IncorrectDevice;
+	}
+	
+	return SuccessfulDeviceRead;
+}

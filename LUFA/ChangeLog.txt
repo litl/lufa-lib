@@ -6,6 +6,10 @@
    
  /** \page Page_ChangeLog Project Changelog
   *
+  *  \section Sec_ChangeLogXXXXXX Version XXXXXX
+  *
+  *  - Added new BluetoothHost demo
+  *
   *  \section Sec_ChangeLog090209 Version 090209
   *
   *  - PWM timer mode in AudioOut demo changed to Fast PWM for speed
@@ -58,7 +62,6 @@
   *  - Added AVRISP Programmer Project, courtesy of Opendous Inc.
   *  - Fixed CDC Host demo not searching through both CDC interfaces for endpoints
   *  - Fixed incorrect Product String descriptor length in the DFU class bootloader
-  *  - Fixed failed descriptor searches in ConfigDescriptor.c eating the last checked descriptor when another search is started
   *
   *  \section Sec_ChangeLog081224 Version 081224
   *
