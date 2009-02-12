@@ -37,7 +37,7 @@
 		#include <avr/pgmspace.h>
 		#include <stdio.h>
 
-		#include "BluetoothCommands.h"
+		#include "BluetoothStack.h"
 
 		#include "DeviceDescriptor.h"
 		#include "ConfigDescriptor.h"
@@ -57,8 +57,6 @@
 
 	/* Task Definitions: */
 		TASK(USB_Bluetooth_Host);
-		TASK(Bluetooth_ProcessData);
-		TASK(Bluetooth_ProcessEvents);
 
 	/* Enums: */
 		/** Enum for the possible status codes for passing to the UpdateStatus() function. */

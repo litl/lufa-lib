@@ -28,8 +28,8 @@
   this software.
 */
 
-#ifndef _BLUETOOTH_COMMANDS_H_
-#define _BLUETOOTH_COMMANDS_H_
+#ifndef _BLUETOOTH_STACK_
+#define _BLUETOOTH_STACK_
 
 	/* Includes: */
 		#include <avr/io.h>
@@ -37,15 +37,16 @@
 		#include <stdbool.h>
 
 		#include <LUFA/Drivers/USB/USB.h>
+		#include <LUFA/Scheduler/Scheduler.h>
 		
 		#include "BluetoothHost.h"
 		#include "BluetoothClassCodes.h"
-		#include "BluetoothCommandCodes.h"
+		#include "BluetoothHCICommands.h"
 		
 	/* Macros: */
-		#define CHANNEL_SIGNALLING      0x0001
-		#define CHANNEL_CONNECTIONLESS  0x0002
-	
+		#define BLUETOOTH_CHANNEL_SIGNALING         0x0001
+		#define BLUETOOTH_CHANNEL_CONNECTIONLESS    0x0002
+
 	/* Type Defines: */
 		typedef struct
 		{
@@ -81,47 +82,83 @@
 		{
 			uint8_t Code;
 			uint8_t Identifier;
+			uint16_t Length;
 		} Bluetooth_SignalCommand_Header_t;
-
-		typedef struct
-		{
-			uint8_t Octets[6];
-		} Bluetooth_Device_Address_t;	
 		
 		typedef struct
 		{
-			Bluetooth_Device_Address_t RemoteAddress;
-			uint8_t                    ClassOfDevice_Service;
-			uint16_t                   ClassOfDevice_MajorMinor;
-			uint8_t                    LinkType;
-		} Bluetooth_EventParams_ConnectionRequest_t;
+			uint8_t CommandStatus;
+			uint8_t CommandPackets;
+
+			struct
+			{
+				int OCF : 10;
+				int OGF : 6;
+			} OpCode;
+		} Bluetooth_HCIEvent_CommandStatus_Header_t;
 		
 		typedef struct
 		{
-			uint8_t                    ConnectionStatus;
-			uint16_t                   ConnectionHandle;
-			Bluetooth_Device_Address_t RemoteAddress;
-			uint8_t                    LinkType;
-			uint8_t                    EncryptionEnabled;
-		} Bluetooth_EventParams_ConnectionComplete_t;
+			uint8_t  RemoteAddress[6];
+			uint8_t  ClassOfDevice_Service;
+			uint16_t ClassOfDevice_MajorMinor;
+			uint8_t  LinkType;
+		} Bluetooth_HCIEvent_ConnectionRequest_Header_t;
 
 		typedef struct
 		{
-			uint8_t                    ConnectionStatus;
-			uint16_t                   ConnectionHandle;
-			uint8_t                    Reason;
-		} Bluetooth_EventParams_DisconnectionComplete_t;
-	
+			uint8_t  RemoteAddress[6];
+			uint8_t  SlaveRole;
+		} Bluetooth_HCICommand_AcceptConnectionRequest_Params_t;
+		
+		typedef struct
+		{
+			uint8_t  RemoteAddress[6];
+			uint8_t  Reason;
+		} Bluetooth_HCICommand_RejectConnectionRequest_Params_t;
+
+
+		typedef struct
+		{
+			bool    IsConnected;
+			uint8_t DeviceAddress[6];
+		} Bluetooth_Connection_t;
+		
+		typedef struct
+		{
+			uint32_t Class;
+			char     Name[];
+		} Bluetooth_Device_t;
+
+	/* Enums: */
+		enum BluetoothStack_States_t
+		{
+			Bluetooth_Init                       = 0,
+			Bluetooth_Init_Reset                 = 1,
+			Bluetooth_Init_SetLocalName          = 2,
+			Bluetooth_Init_SetDeviceClass        = 3,
+			Bluetooth_Init_WriteScanEnable       = 4,
+			Bluetooth_Conn_AcceptConnection      = 5,
+			Bluetooth_Conn_RejectConnection      = 6,
+			Bluetooth_ProcessEvents              = 7,
+		};
+		
+	/* Tasks: */
+		TASK(Bluetooth_Task);
+
+	/* External Variables: */
+		extern Bluetooth_Device_t     Bluetooth_DeviceConfiguration;
+		extern Bluetooth_Connection_t Bluetooth_Connection;
+
 	/* Function Prototypes: */
-	#if defined(INCLUDE_FROM_BLUETOOTH_COMMANDS_C)
-		static uint8_t Bluetooth_SendHCICommand(void* Parameters);
-	#endif
+		#if defined(INCLUDE_FROM_BLUETOOTHSTACK_C)
+			static uint8_t Bluetooth_SendHCICommand(void* Parameters, uint8_t ParamLength);
+			static bool    Bluetooth_GetNextEventHeader(void);
+			static void    Bluetooth_DiscardRemainingEventParameters(void);
+			static bool    Bluetooth_GetNextACLPacketHeader(void);
+			static void    Bluetooth_DiscardRemainingACLPacketData(void);
+			static void    Bluetooth_ProcessHCICommands(void);
+			static void    Bluetooth_ProcessACLPackets(void);
+		#endif
 
-	void Bluetooth_Command_ResetBaseBand(void);
-	void Bluetooth_Command_SetLocalName(char* NewLocalName);
-	void Bluetooth_Command_GetRemoteName(Bluetooth_Device_Address_t* RemoteAddress, char* RemoteNameBuff);
-	void Bluetooth_Command_WriteScanEnable(uint8_t Interval);
-	void Bluetooth_Command_AcceptConnectionRequest(Bluetooth_Device_Address_t* RemoteAddress, bool SlaveRole);
-	void Bluetooth_Command_WriteClassOfDevice(uint32_t DeviceClass);
-	
 #endif

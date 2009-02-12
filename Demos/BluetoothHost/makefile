@@ -1,6 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # WinAVR Makefile Template written by Eric B. Weddington, Jörg Wunsch, et al.
+#  >> Modified for use with the LUFA project. <<
 #
 # Released to the Public Domain
 #
@@ -13,6 +14,9 @@
 # Sander Pool
 # Frederik Rouleau
 # Carlos Lamas
+# Dean Camera
+# Opendous Inc.
+# Denver Gingerich
 #
 #----------------------------------------------------------------------------
 # On command line:
@@ -27,6 +31,21 @@
 #
 # make program = Download the hex file to the device, using avrdude.
 #                Please customize the avrdude settings below first!
+#
+# make dfu = Download the hex file to the device, using dfu-programmer (must
+#            have dfu-programmer installed).
+#
+# make flip = Download the hex file to the device, using Atmel FLIP (must
+#             have Atmel FLIP installed).
+#
+# make dfu-ee = Download the eeprom file to the device, using dfu-programmer
+#               (must have dfu-programmer installed).
+#
+# make flip-ee = Download the eeprom file to the device, using Atmel FLIP
+#                (must have Atmel FLIP installed).
+#
+# make doxygen = Generate DoxyGen documentation for the project (must have
+#                DoxyGen installed)
 #
 # make debug = Start either simulavr or avarice as specified for debugging, 
 #              with avr-gdb or avr-insight as the front end for debugging.
@@ -89,7 +108,7 @@ OBJDIR = .
 SRC = $(TARGET).c                                          \
 	  DeviceDescriptor.c                                   \
 	  ConfigDescriptor.c                                   \
-	  BluetoothCommands.c                                  \
+	  BluetoothStack.c                                     \
 	  ../../LUFA/Scheduler/Scheduler.c                     \
 	  ../../LUFA/Drivers/AT90USBXXX/Serial_Stream.c        \
 	  ../../LUFA/Drivers/AT90USBXXX/Serial.c               \
@@ -450,7 +469,9 @@ end:
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
-ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(TARGET).elf
+ELFSIZE = $(SIZE) $(MCU_FLAG) $(FORMAT_FLAG) $(TARGET).elf
+MCU_FLAG = $(shell $(SIZE) --help | grep -- --mcu > /dev/null && echo --mcu=$(MCU) )
+FORMAT_FLAG = $(shell $(SIZE) --help | grep -- --format=.*avr > /dev/null && echo --format=avr )
 
 sizebefore:
 	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); \
@@ -486,6 +507,27 @@ gccversion :
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 
+flip: $(TARGET).hex
+	batchisp -hardware usb -device $(MCU) -operation erase f
+	batchisp -hardware usb -device $(MCU) -operation loadbuffer $(TARGET).hex program
+	batchisp -hardware usb -device $(MCU) -operation start reset 0
+
+dfu: $(TARGET).hex
+	dfu-programmer $(MCU) erase
+	dfu-programmer $(MCU) flash --debug 1 $(TARGET).hex
+	dfu-programmer $(MCU) reset
+
+flip-ee: $(TARGET).hex $(TARGET).eep
+	mv $(TARGET).eep $(TARGET)eep.hex
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM erase F memory FLASH erase F
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM loadbuffer $(TARGET)eep.hex memory FLASH loadbuffer $(TARGET).hex program
+	batchisp -hardware usb -device $(MCU) -operation start reset 0
+
+dfu-ee: $(TARGET).hex $(TARGET).eep
+	dfu-programmer $(MCU) erase
+	dfu-programmer $(MCU) flash --debug 1 $(TARGET).hex
+	dfu-programmer $(MCU) eeprom --debug 1 $(TARGET).eep
+	dfu-programmer $(MCU) reset
 
 # Generate avr-gdb config/init file which does the following:
 #     define the reset signal, load the target file, connect to target, and set 

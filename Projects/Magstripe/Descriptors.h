@@ -76,7 +76,6 @@
 			USB_Descriptor_Interface_t            Interface; /**< Keyboard interface descriptor */
 			USB_Descriptor_HID_t                  KeyboardHID; /**< Keyboard HID descriptor */
 	        USB_Descriptor_Endpoint_t             KeyboardEndpoint; /**< Keyboard key report endpoint descriptor */
-	        USB_Descriptor_Endpoint_t             KeyboardLEDsEndpoint; /**< Keyboard LED report endpoint descriptor */
 		} USB_Descriptor_Configuration_t;
 					
 	/* Macros: */

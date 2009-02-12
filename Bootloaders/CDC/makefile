@@ -16,6 +16,7 @@
 # Carlos Lamas
 # Dean Camera
 # Opendous Inc.
+# Denver Gingerich
 #
 #----------------------------------------------------------------------------
 # On command line:
@@ -468,7 +469,9 @@ end:
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
-ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(TARGET).elf
+ELFSIZE = $(SIZE) $(MCU_FLAG) $(FORMAT_FLAG) $(TARGET).elf
+MCU_FLAG = $(shell $(SIZE) --help | grep -- --mcu > /dev/null && echo --mcu=$(MCU) )
+FORMAT_FLAG = $(shell $(SIZE) --help | grep -- --format=.*avr > /dev/null && echo --format=avr )
 
 sizebefore:
 	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); \
@@ -517,9 +520,7 @@ dfu: $(TARGET).hex
 flip-ee: $(TARGET).hex $(TARGET).eep
 	mv $(TARGET).eep $(TARGET)eep.hex
 	batchisp -hardware usb -device $(MCU) -operation memory EEPROM erase F memory FLASH erase F
-	batchisp -hardware usb -device $(MCU) -operation memory EEPROM
-	loadbuffer $(TARGET)eep.hex memory FLASH loadbuffer $(TARGET).hex
-	program
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM loadbuffer $(TARGET)eep.hex memory FLASH loadbuffer $(TARGET).hex program
 	batchisp -hardware usb -device $(MCU) -operation start reset 0
 
 dfu-ee: $(TARGET).hex $(TARGET).eep

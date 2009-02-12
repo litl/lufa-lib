@@ -28,8 +28,8 @@
   this software.
 */
 
-#ifndef _BLUETOOTH_COMMANDCODES_H_
-#define _BLUETOOTH_COMMANDCODES_H_
+#ifndef _BLUETOOTH_HCICOMMANDS_H_
+#define _BLUETOOTH_HCICOMMANDS_H_
 
 	/* Macros: */
 		#define OGF_LINK_CONTROL                               0x01
@@ -63,6 +63,9 @@
 		#define EVENT_CONNECTION_REQUEST                       0x04
 		#define EVENT_DISCONNECTION_COMPLETE                   0x05
 		#define EVENT_REMOTE_NAME_REQUEST_COMPLETE             0x07
+		
+
+		#define ERROR_LIMITED_RESOURCES                        0x0D
 		
 	/* Enums: */
 		enum Bluetooth_ScanEnable_Modes_t
