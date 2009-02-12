@@ -31,6 +31,16 @@
 #ifndef _BLUETOOTH_HCICOMMANDS_H_
 #define _BLUETOOTH_HCICOMMANDS_H_
 
+	/* Includes: */
+		#include <avr/io.h>
+		#include <string.h>
+		#include <stdbool.h>
+
+		#include <LUFA/Drivers/USB/USB.h>
+
+		#include "BluetoothHost.h"
+		#include "BluetoothClassCodes.h"
+
 	/* Macros: */
 		#define OGF_LINK_CONTROL                               0x01
 		#define OGF_CTRLR_BASEBAND                             0x03
@@ -64,8 +74,58 @@
 		#define EVENT_DISCONNECTION_COMPLETE                   0x05
 		#define EVENT_REMOTE_NAME_REQUEST_COMPLETE             0x07
 		
-
 		#define ERROR_LIMITED_RESOURCES                        0x0D
+		
+	/* Type Defines: */
+		typedef struct
+		{
+			struct
+			{
+				int OCF : 10;
+				int OGF : 6;
+			} OpCode;
+
+			uint8_t  ParameterLength;
+			uint8_t  Parameters[];
+		} Bluetooth_HCICommand_Header_t;
+
+		typedef struct
+		{
+			uint8_t  EventCode;
+			uint8_t  ParameterLength;
+		} Bluetooth_HCIEvent_Header_t;
+
+		typedef struct
+		{
+			uint8_t CommandStatus;
+			uint8_t CommandPackets;
+
+			struct
+			{
+				int OCF : 10;
+				int OGF : 6;
+			} OpCode;
+		} Bluetooth_HCIEvent_CommandStatus_Header_t;
+		
+		typedef struct
+		{
+			uint8_t  RemoteAddress[6];
+			uint8_t  ClassOfDevice_Service;
+			uint16_t ClassOfDevice_MajorMinor;
+			uint8_t  LinkType;
+		} Bluetooth_HCIEvent_ConnectionRequest_Header_t;
+
+		typedef struct
+		{
+			uint8_t  RemoteAddress[6];
+			uint8_t  SlaveRole;
+		} Bluetooth_HCICommand_AcceptConnectionRequest_Params_t;
+		
+		typedef struct
+		{
+			uint8_t  RemoteAddress[6];
+			uint8_t  Reason;
+		} Bluetooth_HCICommand_RejectConnectionRequest_Params_t;
 		
 	/* Enums: */
 		enum Bluetooth_ScanEnable_Modes_t
@@ -75,5 +135,30 @@
 			PageScanOnly              = 2,
 			InquiryAndPageScans       = 3,
 		};
+
+		enum BluetoothStack_States_t
+		{
+			Bluetooth_Init                       = 0,
+			Bluetooth_Init_Reset                 = 1,
+			Bluetooth_Init_SetLocalName          = 2,
+			Bluetooth_Init_SetDeviceClass        = 3,
+			Bluetooth_Init_WriteScanEnable       = 4,
+			Bluetooth_Conn_AcceptConnection      = 5,
+			Bluetooth_Conn_RejectConnection      = 6,
+			Bluetooth_ProcessEvents              = 7,
+		};
+		
+	/* External Variables: */
+		extern uint8_t Bluetooth_HCIProcessingState;
+
+	/* Function Prototypes: */
+		void Bluetooth_ProcessHCICommands(void);
+
+		#if defined(INCLUDE_FROM_BLUETOOTHHCICOMMANDS_C)
+			static uint8_t Bluetooth_SendHCICommand(void* Parameters, uint8_t ParamLength);
+			static bool    Bluetooth_GetNextHCIEventHeader(void);
+			static void    Bluetooth_DiscardRemainingHCIEventParameters(void);
+			static void    Bluetooth_ProcessHCICommands(void);
+		#endif
 		
 #endif

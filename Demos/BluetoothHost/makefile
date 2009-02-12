@@ -109,6 +109,8 @@ SRC = $(TARGET).c                                          \
 	  DeviceDescriptor.c                                   \
 	  ConfigDescriptor.c                                   \
 	  BluetoothStack.c                                     \
+	  BluetoothHCICommands.c                               \
+	  BluetoothACLPackets.c                                \
 	  ../../LUFA/Scheduler/Scheduler.c                     \
 	  ../../LUFA/Drivers/AT90USBXXX/Serial_Stream.c        \
 	  ../../LUFA/Drivers/AT90USBXXX/Serial.c               \

@@ -57,14 +57,12 @@ TASK_LIST
 {
 	{ Task: USB_USBTask          ,   TaskStatus: TASK_STOP },
 	{ Task: USB_Bluetooth_Host   ,   TaskStatus: TASK_STOP },
-	{ Task: Bluetooth_Task       ,   TaskStatus: TASK_STOP  },
+	{ Task: Bluetooth_Task       ,   TaskStatus: TASK_STOP },
 };
-
-uint8_t PreviouslyConnected = false;
 
 Bluetooth_Device_t Bluetooth_DeviceConfiguration =
 	{
-		Class: (DEVICE_CLASS_MAJOR_COMPUTER | DEVICE_CLASS_MINOR_COMPUTER_PALM),
+		Class: (DEVICE_CLASS_SERVICE_CAPTURING | DEVICE_CLASS_MAJOR_COMPUTER | DEVICE_CLASS_MINOR_COMPUTER_PALM),
 		Name:  "LUFA Bluetooth Serial Demo",
 	};
 

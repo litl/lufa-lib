@@ -28,34 +28,60 @@
   this software.
 */
 
-#ifndef _BLUETOOTH_STACK_
-#define _BLUETOOTH_STACK_
+#ifndef _BLUETOOTH_ACLPACKETS_
+#define _BLUETOOTH_ACLPACKETS_
 
 	/* Includes: */
+		#include <avr/io.h>
+		#include <string.h>
+		#include <stdbool.h>
+
 		#include <LUFA/Drivers/USB/USB.h>
-		#include <LUFA/Scheduler/Scheduler.h>
 		
-		#include "BluetoothHCICommands.h"
-		#include "BluetoothACLPackets.h"
+		#include "BluetoothHost.h"
+		
+	/* Macros: */
+		#define BLUETOOTH_CHANNEL_SIGNALING              0x0001
+		#define BLUETOOTH_CHANNEL_CONNECTIONLESS         0x0002
+		
+		#define BLUETOOTH_SIGNAL_CONNECTION_REQUEST      0x02
+		#define BLUETOOTH_SIGNAL_CONNECTION_RESPONSE     0x03
 		
 	/* Type Defines: */
 		typedef struct
 		{
-			bool    IsConnected;
-			uint8_t DeviceAddress[6];
-		} Bluetooth_Connection_t;
+			uint16_t ConnectionHandle;
+			uint16_t DataLength;
+		} Bluetooth_ACL_Header_t;
+
+		typedef struct
+		{
+			uint16_t PayloadLength;
+			uint16_t DestinationChannel;
+		} Bluetooth_DataPacket_Header_t;
 		
 		typedef struct
 		{
-			uint32_t Class;
-			char     Name[];
-		} Bluetooth_Device_t;
+			uint8_t  Code;
+			uint8_t  Identifier;
+			uint16_t Length;
+		} Bluetooth_SignalCommand_Header_t;
 		
-	/* Tasks: */
-		TASK(Bluetooth_Task);
+		typedef struct
+		{
+			uint16_t PSM;
+			uint16_t SourceChannel;
+		} Bluetooth_SignalCommand_ConnectionRequest_t;
 
-	/* External Variables: */
-		extern Bluetooth_Device_t     Bluetooth_DeviceConfiguration;
-		extern Bluetooth_Connection_t Bluetooth_Connection;
+		typedef struct
+		{
+			uint16_t DestinationChannel;
+			uint16_t SourceChannel;
+			uint16_t Result;
+			uint16_t Status;
+		} Bluetooth_SignalCommand_ConnectionResponse_t;
+		
+	/* Function Prototypes: */
+		void Bluetooth_ProcessACLPackets(void);
 
 #endif
