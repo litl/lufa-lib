@@ -104,6 +104,9 @@ uint8_t USB_Host_SendControlRequest(void* BufferPtr)
 		  goto End_Of_Control_Send;
 
 		Pipe_ClearSetupOUT();
+
+		if ((ReturnStatus = USB_Host_Wait_For_Setup_IOS(USB_HOST_WAITFOR_OutReady)))
+		  goto End_Of_Control_Send;
 	}
 	else
 	{

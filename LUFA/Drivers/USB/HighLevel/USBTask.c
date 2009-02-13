@@ -174,31 +174,27 @@ static void USB_HostTask(void)
 					wLength:       PIPE_CONTROLPIPE_DEFAULT_SIZE,
 				};
 
-			#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
-			uint8_t* DataBuffer = alloca(offsetof(USB_Descriptor_Device_t, Endpoint0Size) + 1);
-			#else
-			uint8_t* DataBuffer = alloca(offsetof(USB_Descriptor_Device_t, bMaxPacketSize0) + 1);			
-			#endif
-			
+			uint8_t DataBuffer[PIPE_CONTROLPIPE_DEFAULT_SIZE];
+
 			if ((SubErrorCode = USB_Host_SendControlRequest(DataBuffer)) != HOST_SENDCONTROL_Successful)
 			{
 				ErrorCode = HOST_ENUMERROR_ControlError;
 				break;
 			}
-			
+
 			#if defined(USE_NONSTANDARD_DESCRIPTOR_NAMES)
 			USB_ControlPipeSize = DataBuffer[offsetof(USB_Descriptor_Device_t, Endpoint0Size)];
 			#else
 			USB_ControlPipeSize = DataBuffer[offsetof(USB_Descriptor_Device_t, bMaxPacketSize0)];			
 			#endif
-			
+	
 			USB_Host_ResetDevice();
 			
 			HOST_TASK_NONBLOCK_WAIT(200, HOST_STATE_Default_PostReset);
 			break;
 		case HOST_STATE_Default_PostReset:
 			Pipe_DisablePipe();
-			Pipe_DeallocateMemory();
+			Pipe_DeallocateMemory();		
 			Pipe_ResetPipe(PIPE_CONTROLPIPE);
 			
 			Pipe_ConfigurePipe(PIPE_CONTROLPIPE, EP_TYPE_CONTROL,

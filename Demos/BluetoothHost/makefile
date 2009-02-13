@@ -520,14 +520,14 @@ dfu: $(TARGET).hex
 	dfu-programmer $(MCU) reset
 
 flip-ee: $(TARGET).hex $(TARGET).eep
-	mv $(TARGET).eep $(TARGET)eep.hex
-	batchisp -hardware usb -device $(MCU) -operation memory EEPROM erase F memory FLASH erase F
-	batchisp -hardware usb -device $(MCU) -operation memory EEPROM loadbuffer $(TARGET)eep.hex memory FLASH loadbuffer $(TARGET).hex program
+	copy $(TARGET).eep $(TARGET)eep.hex
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM erase
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM
+	loadbuffer $(TARGET)eep.hex program
 	batchisp -hardware usb -device $(MCU) -operation start reset 0
 
 dfu-ee: $(TARGET).hex $(TARGET).eep
 	dfu-programmer $(MCU) erase
-	dfu-programmer $(MCU) flash --debug 1 $(TARGET).hex
 	dfu-programmer $(MCU) eeprom --debug 1 $(TARGET).eep
 	dfu-programmer $(MCU) reset
 
