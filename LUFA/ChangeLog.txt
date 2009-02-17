@@ -15,6 +15,8 @@
   *  - Fixed makefile EEPROM programming targets programming FLASH data in addition to EEPROM data
   *  - LUFA devices now enumerate correctly with LUFA hosts
   *  - Fixed Configuration Descriptor search routine freezing when a comparitor returned a failure
+  *  - Removed HID report item serial dump in the MouseHostWithParser and KeyboardHostWithParser - useful only for debugging, and
+  *    slowed down the enumeration of HID devices too much
   *
   *  \section Sec_ChangeLog090209 Version 090209
   *

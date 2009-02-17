@@ -193,7 +193,11 @@ CFLAGS += -funsigned-bitfields
 CFLAGS += -ffunction-sections
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
-CFLAGS += -finline-limit=20
+CFLAGS += -fno-inline-small-functions
+CFLAGS += -fno-reorder-blocks
+CFLAGS += -fno-reorder-blocks-and-partition
+CFLAGS += -fno-reorder-functions
+CFLAGS += -fno-toplevel-reorder
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wundef
@@ -520,8 +524,7 @@ dfu: $(TARGET).hex
 flip-ee: $(TARGET).hex $(TARGET).eep
 	copy $(TARGET).eep $(TARGET)eep.hex
 	batchisp -hardware usb -device $(MCU) -operation memory EEPROM erase
-	batchisp -hardware usb -device $(MCU) -operation memory EEPROM
-	loadbuffer $(TARGET)eep.hex program
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM loadbuffer $(TARGET)eep.hex program
 	batchisp -hardware usb -device $(MCU) -operation start reset 0
 
 dfu-ee: $(TARGET).hex $(TARGET).eep

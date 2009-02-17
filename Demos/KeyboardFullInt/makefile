@@ -514,8 +514,7 @@ dfu: $(TARGET).hex
 flip-ee: $(TARGET).hex $(TARGET).eep
 	copy $(TARGET).eep $(TARGET)eep.hex
 	batchisp -hardware usb -device $(MCU) -operation memory EEPROM erase
-	batchisp -hardware usb -device $(MCU) -operation memory EEPROM
-	loadbuffer $(TARGET)eep.hex program
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM loadbuffer $(TARGET)eep.hex program
 	batchisp -hardware usb -device $(MCU) -operation start reset 0
 
 dfu-ee: $(TARGET).hex $(TARGET).eep

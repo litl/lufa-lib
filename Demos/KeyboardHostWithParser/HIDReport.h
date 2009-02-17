@@ -75,6 +75,5 @@
 
 	/* Function Prototypes: */
 		uint8_t GetHIDReportData(void);
-		void    DumpHIDReportItems(void);
 		
 #endif

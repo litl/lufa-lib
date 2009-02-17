@@ -26,8 +26,8 @@
  *  \section Sec_Links Library Links
  *  Project Homepage: http://www.fourwalledcubicle.com/LUFA.php \n
  *  Development Blog: http://www.fourwalledcubicle.com/blog \n
- *  Discussion Group: http://groups.google.com/group/LUFA-support-list \n
- *  Bugs and Feature Requests: http://code.google.com/p/LUFA-issues/issues/ \n
+ *  Discussion Group: http://groups.google.com/group/myusb-support-list \n
+ *  SVN Access, Bug Reports and Feature Requests: http://code.google.com/p/lufa-lib/ \n
  *  Author's Website: http://www.fourwalledcubicle.com \n
  *
  *  WinAVR Website: http://winavr.sourceforge.net \n
@@ -67,7 +67,7 @@
  *  the CDC class (AVR109 protocol) is compatible with such open source software as AVRDUDE and AVR-OSP.
  *
  *  \section Sec_Donations Donate
- *  I am a 19 year old University student studying for a double degree in Computer Science and Electronics
+ *  I am a 20 year old University student studying for a double degree in Computer Science and Electronics
  *  Engineering. This leaves little time for any sort of work or leisure. Please consider donating a small amount
  *  to myself to support this and my future Open Source projects. You can donate any amount via PayPal on my
  *  website, http://www.fourwalledcubicle.com . All donations are greatly appreciated.

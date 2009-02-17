@@ -52,12 +52,8 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 	uint16_t CurrDFPageByte      = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 	uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
 
-	/* Select the dataflash IC based on the page number */
-	Dataflash_SelectChipFromPage(CurrDFPage);
-	Dataflash_WaitWhileBusy();
-	
 	/* Copy selected dataflash's current page contents to the dataflash buffer */
-	Dataflash_ToggleSelectedChipCS();
+	Dataflash_SelectChipFromPage(CurrDFPage);
 	Dataflash_SendByte(DF_CMD_MAINMEMTOBUFF1);
 	Dataflash_SendAddressBytes(CurrDFPage, 0);
 	Dataflash_WaitWhileBusy();
@@ -67,8 +63,8 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 	Dataflash_SendByte(DF_CMD_BUFF1WRITE);
 	Dataflash_SendAddressBytes(0, CurrDFPageByte);
 
-	/* Ensure endpoint is ready before continuing */
-	Endpoint_WaitUntilReady();
+	/* Wait until endpoint is ready before continuing */
+	while (!(Endpoint_ReadWriteAllowed()));
 
 	while (TotalBlocks)
 	{
@@ -84,7 +80,7 @@ void DataflashManager_WriteBlocks(const uint32_t BlockAddress, uint16_t TotalBlo
 				Endpoint_ClearCurrentBank();
 				
 				/* Wait until the host has sent another packet */
-				Endpoint_WaitUntilReady();
+				while (!(Endpoint_ReadWriteAllowed()));
 			}
 
 			/* Check if end of dataflash page reached */
@@ -181,12 +177,8 @@ void DataflashManager_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBloc
 	uint16_t CurrDFPageByte      = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
 	uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
 
-	/* Select the dataflash IC based on the page number */
-	Dataflash_SelectChipFromPage(CurrDFPage);
-	Dataflash_WaitWhileBusy();
-	
 	/* Send the dataflash main memory page read command */
-	Dataflash_ToggleSelectedChipCS();
+	Dataflash_SelectChipFromPage(CurrDFPage);
 	Dataflash_SendByte(DF_CMD_MAINMEMPAGEREAD);
 	Dataflash_SendAddressBytes(CurrDFPage, CurrDFPageByte);
 	Dataflash_SendByte(0x00);
@@ -194,8 +186,8 @@ void DataflashManager_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBloc
 	Dataflash_SendByte(0x00);
 	Dataflash_SendByte(0x00);
 	
-	/* Ensure endpoint is ready before continuing */
-	Endpoint_WaitUntilReady();
+	/* Wait until endpoint is ready before continuing */
+	while (!(Endpoint_ReadWriteAllowed()));
 	
 	while (TotalBlocks)
 	{
@@ -211,7 +203,7 @@ void DataflashManager_ReadBlocks(const uint32_t BlockAddress, uint16_t TotalBloc
 				Endpoint_ClearCurrentBank();
 				
 				/* Wait until the endpoint is ready for more data */
-				Endpoint_WaitUntilReady();	
+				while (!(Endpoint_ReadWriteAllowed()));
 			}
 			
 			/* Check if end of dataflash page reached */

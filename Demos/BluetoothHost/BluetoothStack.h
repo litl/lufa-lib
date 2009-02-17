@@ -35,24 +35,57 @@
 		#include <LUFA/Drivers/USB/USB.h>
 		#include <LUFA/Scheduler/Scheduler.h>
 		
+		#include "BluetoothHost.h"
 		#include "BluetoothHCICommands.h"
 		#include "BluetoothACLPackets.h"
 		
+	/* Macros: */
+		#define BLUETOOTH_MAX_OPEN_CHANNELS              2
+		#define BLUETOOTH_CHANNELNUMBER_BASEOFFSET       0x0040
+		
+		#define BT_DEBUG(s, ...) printf_P(PSTR(s "\r\n"), __VA_ARGS__)
+	
+	/* Enums: */
+		enum Bluetooth_Channel_State_t
+		{
+			Channel_Closed          = 0,
+			Channel_WaitConnect     = 1,
+			Channel_WaitConnectRsp  = 2,
+			Channel_Config          = 3,
+			Channel_Open            = 4,
+			Channel_WaitDisconnect  = 5,
+		};
+
 	/* Type Defines: */
 		typedef struct
 		{
-			bool    IsConnected;
-			uint8_t DeviceAddress[6];
+			uint8_t  State;
+			uint16_t LocalNumber;
+			uint16_t RemoteNumber;
+			uint16_t PSM;
+			uint16_t MTU;
+		} Bluetooth_Channel_t;
+
+		typedef struct
+		{
+			bool                IsConnected;
+			uint16_t            ConnectionHandle;
+			uint8_t             DeviceAddress[6];
+			Bluetooth_Channel_t Channels[BLUETOOTH_MAX_OPEN_CHANNELS];
 		} Bluetooth_Connection_t;
 		
 		typedef struct
 		{
 			uint32_t Class;
+			char     PINCode[16];
 			char     Name[];
 		} Bluetooth_Device_t;
 		
 	/* Tasks: */
 		TASK(Bluetooth_Task);
+
+	/* Function Prototypes: */
+		Bluetooth_Channel_t* Bluetooth_GetChannelData(uint16_t PSM);		
 
 	/* External Variables: */
 		extern Bluetooth_Device_t     Bluetooth_DeviceConfiguration;

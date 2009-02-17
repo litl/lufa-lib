@@ -255,11 +255,6 @@ TASK(USB_Mouse_Host)
 				while (USB_IsConnected);
 				break;			
 			}
-
-			puts_P(PSTR("Dumping HID Report Items.\r\n"));
-
-			/* Dump the HID report items to the serial port */
-			DumpHIDReportItems();
 			
 			/* All LEDs off - ready to indicate keypresses */
 			UpdateStatus(Status_USBReady);
@@ -284,6 +279,9 @@ TASK(USB_Mouse_Host)
 				/* Load in the mouse report */
 				Pipe_Read_Stream_LE(MouseReport, Pipe_BytesInPipe());
 				
+				/* Clear the IN endpoint, ready for next data packet */
+				Pipe_ClearCurrentBank();
+
 				/* Check each HID report item in turn, looking for mouse X/Y/button reports */
 				for (uint8_t ReportNumber = 0; ReportNumber < HIDReportInfo.TotalReportItems; ReportNumber++)
 				{
@@ -317,9 +315,13 @@ TASK(USB_Mouse_Host)
 						/* For multi-report devices - if the requested data was not in the issued report, continue */
 						if (!(FoundData))
 						  continue;
-
-						/* Value is a signed 8-bit value, cast as appropriate */
-						int8_t DeltaMovement = (int8_t)ReportItem->Value;
+						  
+						int16_t DeltaMovement;
+						
+						if (ReportItem->Attributes.BitSize > 8)
+						  DeltaMovement = (int16_t)ReportItem->Value;
+						else
+						  DeltaMovement = (int8_t)ReportItem->Value;
 						
 						/* Determine if the report is for the X or Y delta movement */
 						if (ReportItem->Attributes.Usage.Usage == USAGE_X)
@@ -339,9 +341,6 @@ TASK(USB_Mouse_Host)
 				
 				/* Display the button information on the board LEDs */
 				LEDs_SetAllLEDs(LEDMask);
-					
-				/* Clear the IN endpoint, ready for next data packet */
-				Pipe_ClearCurrentBank();
 			}
 
 			/* Freeze mouse data pipe */

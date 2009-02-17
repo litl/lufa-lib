@@ -34,8 +34,9 @@ Bluetooth_Connection_t Bluetooth_Connection = {IsConnected: false};
 
 Bluetooth_Device_t     Bluetooth_DeviceConfiguration ATTR_WEAK =
 	{
-		Class: DEVICE_CLASS_MAJOR_MISC,
-		Name:  "LUFA BT Device",
+		Class:   DEVICE_CLASS_MAJOR_MISC,
+		PINCode: "0000",
+		Name:    "LUFA BT Device"
 	};
 
 TASK(Bluetooth_Task)
@@ -44,9 +45,33 @@ TASK(Bluetooth_Task)
 	  Bluetooth_HCIProcessingState = Bluetooth_Init;
 		
 	Bluetooth_ProcessHCICommands();
-	
-	if (Bluetooth_Connection.IsConnected)
-	  Bluetooth_ProcessACLPackets();
+	Bluetooth_ProcessACLPackets();
 }
 
+Bluetooth_Channel_t* Bluetooth_GetChannelData(uint16_t PSM)
+{
+	Bluetooth_Channel_t* CurrentChannelStructure;
 
+	for (uint8_t i = 0; i < BLUETOOTH_MAX_OPEN_CHANNELS; i++)
+	{
+		CurrentChannelStructure = &Bluetooth_Connection.Channels[i];
+	
+		if (CurrentChannelStructure->PSM == PSM)
+		  return CurrentChannelStructure;
+	}
+	
+	for (uint8_t i = 0; i < BLUETOOTH_MAX_OPEN_CHANNELS; i++)
+	{
+		CurrentChannelStructure = &Bluetooth_Connection.Channels[i];
+	
+		if (CurrentChannelStructure->State == Channel_Closed)
+		{
+			CurrentChannelStructure->LocalNumber = (BLUETOOTH_CHANNELNUMBER_BASEOFFSET + i);
+			CurrentChannelStructure->PSM         = PSM;
+			
+			return CurrentChannelStructure;
+		}
+	}
+
+	return NULL;
+}

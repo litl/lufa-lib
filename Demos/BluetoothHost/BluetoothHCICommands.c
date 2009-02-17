@@ -34,9 +34,7 @@ static   Bluetooth_HCICommand_Header_t HCICommandHeader;
 static   Bluetooth_HCIEvent_Header_t   HCIEventHeader;
 
          uint8_t                       Bluetooth_HCIProcessingState;
-static   uint8_t                       Bluetooth_NextHCIProcessingState;
-
-static   uint8_t                       Bluetooth_RejectedDeviceAddress[6];
+static   uint8_t                       Bluetooth_TempDeviceAddress[6];
 
 static uint8_t Bluetooth_SendHCICommand(void* Parameters, uint8_t ParamLength)
 {
@@ -55,7 +53,7 @@ static uint8_t Bluetooth_SendHCICommand(void* Parameters, uint8_t ParamLength)
 	memcpy(CommandBuffer, &HCICommandHeader, sizeof(HCICommandHeader));
 	
 	if (ParamLength)
-	  memcpy(&CommandBuffer[sizeof(HCICommandHeader)], Parameters, ParamLength);	
+	  memcpy(&CommandBuffer[sizeof(HCICommandHeader)], Parameters, ParamLength);
 
 	return USB_Host_SendControlRequest(CommandBuffer);
 }
@@ -90,8 +88,8 @@ void Bluetooth_ProcessHCICommands(void)
 			Pipe_SelectPipe(BLUETOOTH_EVENTS_PIPE);
 			Pipe_SetInfiniteINRequests();
 			
-			Bluetooth_Connection.IsConnected = false;
-
+			memset(&Bluetooth_Connection, 0x00, sizeof(Bluetooth_Connection));
+							   
 			Bluetooth_HCIProcessingState = Bluetooth_Init_Reset; 
 			break;
 		case Bluetooth_Init_Reset:
@@ -101,11 +99,59 @@ void Bluetooth_ProcessHCICommands(void)
 				ParameterLength: 0,
 			};
 			
-			printf("(HCI) Enter State: Bluetooth_Init_Reset\r\n");
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Init_Reset", NULL);
 
 			ErrorCode = Bluetooth_SendHCICommand(NULL, 0);
-			Bluetooth_HCIProcessingState     = Bluetooth_ProcessEvents;
-			Bluetooth_NextHCIProcessingState = Bluetooth_Init_SetLocalName;
+
+			do
+			{
+				while (!(Bluetooth_GetNextHCIEventHeader()));
+				Bluetooth_DiscardRemainingHCIEventParameters();
+			} while (HCIEventHeader.EventCode != EVENT_COMMAND_COMPLETE);
+
+			Bluetooth_HCIProcessingState = Bluetooth_Init_ReadBufferSize;
+			break;
+		case Bluetooth_Init_ReadBufferSize:
+			HCICommandHeader = (Bluetooth_HCICommand_Header_t)
+			{
+				OpCode: {OGF: OGF_CTRLR_INFORMATIONAL, OCF: OGF_CTRLR_INFORMATIONAL_READBUFFERSIZE},
+				ParameterLength: 0,
+			};
+		
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Init_ReadBufferSize", NULL);
+
+			ErrorCode = Bluetooth_SendHCICommand(NULL, 0);
+
+			do
+			{
+				while (!(Bluetooth_GetNextHCIEventHeader()));
+				Bluetooth_DiscardRemainingHCIEventParameters();
+			} while (HCIEventHeader.EventCode != EVENT_COMMAND_COMPLETE);
+
+			Bluetooth_HCIProcessingState = Bluetooth_Init_SetEventMask;		
+			break;
+		case Bluetooth_Init_SetEventMask:
+			HCICommandHeader = (Bluetooth_HCICommand_Header_t)
+			{
+				OpCode: {OGF: OGF_CTRLR_BASEBAND, OCF: OCF_CTRLR_BASEBAND_SET_EVENT_MASK},
+				ParameterLength: 8,
+			};
+		
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Init_SetEventMask", NULL);
+			
+			uint8_t EventMask[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+			ErrorCode = Bluetooth_SendHCICommand(&EventMask, 8);
+
+			BT_DEBUG("(HCI) -- Event mask: 0x%02X%02X%02X%02X%02X%02X%02X%02X", EventMask[7], EventMask[6], EventMask[5], EventMask[4],
+			                                                                    EventMask[3], EventMask[2], EventMask[1], EventMask[0]);
+			do
+			{
+				while (!(Bluetooth_GetNextHCIEventHeader()));
+				Bluetooth_DiscardRemainingHCIEventParameters();
+			} while (HCIEventHeader.EventCode != EVENT_COMMAND_COMPLETE);
+		
+
+			Bluetooth_HCIProcessingState = Bluetooth_Init_SetLocalName;		
 			break;
 		case Bluetooth_Init_SetLocalName:
 			HCICommandHeader = (Bluetooth_HCICommand_Header_t)
@@ -114,11 +160,18 @@ void Bluetooth_ProcessHCICommands(void)
 					ParameterLength: 248,
 				};
 
-			printf("(HCI) Enter State: Bluetooth_Init_SetLocalName\r\n");
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Init_SetLocalName", NULL);
+			BT_DEBUG("(HCI)  -- Name: %s", Bluetooth_DeviceConfiguration.Name);
 
-			ErrorCode                = Bluetooth_SendHCICommand(Bluetooth_DeviceConfiguration.Name, strlen(Bluetooth_DeviceConfiguration.Name));
-			Bluetooth_HCIProcessingState     = Bluetooth_ProcessEvents;
-			Bluetooth_NextHCIProcessingState = Bluetooth_Init_SetDeviceClass;
+			ErrorCode = Bluetooth_SendHCICommand(Bluetooth_DeviceConfiguration.Name, strlen(Bluetooth_DeviceConfiguration.Name));
+			
+			do
+			{
+				while (!(Bluetooth_GetNextHCIEventHeader()));
+				Bluetooth_DiscardRemainingHCIEventParameters();
+			} while (HCIEventHeader.EventCode != EVENT_COMMAND_COMPLETE);
+			
+			Bluetooth_HCIProcessingState = Bluetooth_Init_SetDeviceClass;
 			break;
 		case Bluetooth_Init_SetDeviceClass:
 			HCICommandHeader = (Bluetooth_HCICommand_Header_t)
@@ -127,11 +180,17 @@ void Bluetooth_ProcessHCICommands(void)
 					ParameterLength: 3,
 				};
 
-			printf("(HCI) Enter State: Bluetooth_Init_SetDeviceClass\r\n");
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Init_SetDeviceClass", NULL);
 
 			ErrorCode = Bluetooth_SendHCICommand(&Bluetooth_DeviceConfiguration.Class, 3);
-			Bluetooth_HCIProcessingState     = Bluetooth_ProcessEvents;
-			Bluetooth_NextHCIProcessingState = Bluetooth_Init_WriteScanEnable;	
+
+			do
+			{
+				while (!(Bluetooth_GetNextHCIEventHeader()));
+				Bluetooth_DiscardRemainingHCIEventParameters();
+			} while (HCIEventHeader.EventCode != EVENT_COMMAND_COMPLETE);
+
+			Bluetooth_HCIProcessingState = Bluetooth_Init_WriteScanEnable;	
 			break;
 		case Bluetooth_Init_WriteScanEnable:
 			HCICommandHeader = (Bluetooth_HCICommand_Header_t)
@@ -140,13 +199,104 @@ void Bluetooth_ProcessHCICommands(void)
 				ParameterLength: 1,
 			};
 			
-			printf("(HCI) Enter State: Bluetooth_Init_WriteScanEnable\r\n");
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Init_WriteScanEnable", NULL);
 
 			uint8_t Interval = InquiryAndPageScans;
+			ErrorCode = Bluetooth_SendHCICommand(&Interval, 1);
 
-			ErrorCode = Bluetooth_SendHCICommand(&Interval, 1);			
+			do
+			{
+				while (!(Bluetooth_GetNextHCIEventHeader()));
+				Bluetooth_DiscardRemainingHCIEventParameters();
+			} while (HCIEventHeader.EventCode != EVENT_COMMAND_COMPLETE);
+
+			Bluetooth_HCIProcessingState = Bluetooth_PrepareToProcessEvents;
+			break;
+		case Bluetooth_PrepareToProcessEvents:
+			BT_DEBUG("(HCI) Enter State: Bluetooth_ProcessEvents", NULL);
+
 			Bluetooth_HCIProcessingState     = Bluetooth_ProcessEvents;
-			Bluetooth_NextHCIProcessingState = Bluetooth_ProcessEvents;
+			break;
+		case Bluetooth_ProcessEvents:
+			if (Bluetooth_GetNextHCIEventHeader())
+			{
+				BT_DEBUG("(HCI) Event Code: 0x%02X", HCIEventHeader.EventCode);
+			
+				if (HCIEventHeader.EventCode == EVENT_COMMAND_STATUS)
+				{
+					Bluetooth_HCIEvent_CommandStatus_Header_t CommandStatusHeader;
+
+					Pipe_Read_Stream_LE(&CommandStatusHeader, sizeof(CommandStatusHeader));
+					HCIEventHeader.ParameterLength -= sizeof(CommandStatusHeader);
+										
+					BT_DEBUG("(HCI) >> Command status: 0x%02X", CommandStatusHeader.CommandStatus);
+					
+					if (CommandStatusHeader.CommandStatus)
+					  Bluetooth_HCIProcessingState = Bluetooth_Init;
+				}
+				else if (HCIEventHeader.EventCode == EVENT_CONNECTION_REQUEST)
+				{
+					Bluetooth_HCIEvent_ConnectionRequest_Header_t ConnectionRequestParams;
+					
+					Pipe_Read_Stream_LE(&ConnectionRequestParams, sizeof(ConnectionRequestParams));
+					HCIEventHeader.ParameterLength -= sizeof(ConnectionRequestParams);
+
+					BT_DEBUG("(HCI) >> Connection Request from device %02X:%02X:%02X:%02X:%02X:%02X",
+					         ConnectionRequestParams.RemoteAddress[5], ConnectionRequestParams.RemoteAddress[4], 
+					         ConnectionRequestParams.RemoteAddress[3], ConnectionRequestParams.RemoteAddress[2], 
+					         ConnectionRequestParams.RemoteAddress[1], ConnectionRequestParams.RemoteAddress[0]);
+ 					BT_DEBUG("(HCI) -- Device Class: 0x%02X%04X", ConnectionRequestParams.ClassOfDevice_Service,
+					                                              ConnectionRequestParams.ClassOfDevice_MajorMinor);
+					BT_DEBUG("(HCI) -- Link Type: 0x%02x", ConnectionRequestParams.LinkType);
+					
+					memcpy(Bluetooth_TempDeviceAddress, ConnectionRequestParams.RemoteAddress,
+					       sizeof(Bluetooth_TempDeviceAddress));
+
+					Bluetooth_HCIProcessingState = (Bluetooth_Connection.IsConnected) ? Bluetooth_Conn_RejectConnection :
+						                                                                Bluetooth_Conn_AcceptConnection;
+				}
+				else if (HCIEventHeader.EventCode == EVENT_DISCONNECTION_COMPLETE)
+				{
+					BT_DEBUG("(HCI) >> Disconnection from device complete.", NULL);
+					Bluetooth_HCIProcessingState = Bluetooth_Init;
+				}
+				else if (HCIEventHeader.EventCode == EVENT_CONNECTION_COMPLETE)
+				{
+					Bluetooth_HCIEvent_ConnectionComplete_Header_t ConnectionCompleteParams;
+					
+					Pipe_Read_Stream_LE(&ConnectionCompleteParams, sizeof(ConnectionCompleteParams));
+					HCIEventHeader.ParameterLength -= sizeof(ConnectionCompleteParams);
+
+					BT_DEBUG("(HCI) >> Connection to device complete.", NULL);
+					BT_DEBUG("(HCI) -- Status: %d", ConnectionCompleteParams.Status);
+					BT_DEBUG("(HCI) -- Handle: %d", ConnectionCompleteParams.ConnectionHandle);
+					
+					if (ConnectionCompleteParams.Status == 0x00)
+					{
+						memcpy(Bluetooth_Connection.DeviceAddress, ConnectionCompleteParams.RemoteAddress,
+							   sizeof(Bluetooth_Connection.DeviceAddress));
+						Bluetooth_Connection.ConnectionHandle = ConnectionCompleteParams.ConnectionHandle;
+						Bluetooth_Connection.IsConnected = true;
+					}
+				}
+				else if (HCIEventHeader.EventCode == EVENT_PIN_CODE_REQUEST)
+				{
+					Pipe_Read_Stream_LE(&Bluetooth_TempDeviceAddress, sizeof(Bluetooth_TempDeviceAddress));
+					HCIEventHeader.ParameterLength -= sizeof(Bluetooth_TempDeviceAddress);
+
+					BT_DEBUG("(HCI) >> Pin code request", NULL);					
+					BT_DEBUG("(HCI) >> PIN Code Request from device %02X:%02X:%02X:%02X:%02X:%02X", 
+							 Bluetooth_TempDeviceAddress[5], Bluetooth_TempDeviceAddress[4], Bluetooth_TempDeviceAddress[3],
+							 Bluetooth_TempDeviceAddress[2], Bluetooth_TempDeviceAddress[1], Bluetooth_TempDeviceAddress[0]);
+							 
+					Bluetooth_HCIProcessingState = Bluetooth_Conn_SendPINCode;
+				}
+				
+				BT_DEBUG("(HCI) -- Unread Event Param Length: %d", HCIEventHeader.ParameterLength);
+
+				Bluetooth_DiscardRemainingHCIEventParameters();
+			}
+
 			break;
 		case Bluetooth_Conn_AcceptConnection:
 			HCICommandHeader = (Bluetooth_HCICommand_Header_t)
@@ -155,20 +305,17 @@ void Bluetooth_ProcessHCICommands(void)
 					ParameterLength: sizeof(Bluetooth_HCICommand_AcceptConnectionRequest_Params_t),
 				};
 			
-			printf("(HCI) Enter State: Bluetooth_Conn_AcceptConnection\r\n");
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Conn_AcceptConnection", NULL);
 
 			Bluetooth_HCICommand_AcceptConnectionRequest_Params_t AcceptConnectionParams;
 							 
-			memcpy(AcceptConnectionParams.RemoteAddress, Bluetooth_Connection.DeviceAddress,
-			       sizeof(Bluetooth_Connection.DeviceAddress));
-			AcceptConnectionParams.SlaveRole = 0x01;
+			memcpy(AcceptConnectionParams.RemoteAddress, Bluetooth_TempDeviceAddress,
+			       sizeof(Bluetooth_TempDeviceAddress));
+			AcceptConnectionParams.SlaveRole = true;
 
 			Bluetooth_SendHCICommand(&AcceptConnectionParams, sizeof(AcceptConnectionParams));
-		
-			Bluetooth_Connection.IsConnected = true;
-
-			Bluetooth_HCIProcessingState     = Bluetooth_ProcessEvents;
-			Bluetooth_NextHCIProcessingState = Bluetooth_ProcessEvents;
+			
+			Bluetooth_HCIProcessingState     = Bluetooth_PrepareToProcessEvents;
 			break;
 		case Bluetooth_Conn_RejectConnection:
 			HCICommandHeader = (Bluetooth_HCICommand_Header_t)
@@ -177,86 +324,45 @@ void Bluetooth_ProcessHCICommands(void)
 					ParameterLength: sizeof(Bluetooth_HCICommand_RejectConnectionRequest_Params_t),
 				};
 			
-			printf("(HCI) Enter State: Bluetooth_Conn_RejectConnection\r\n");
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Conn_RejectConnection", NULL);
 
 			Bluetooth_HCICommand_RejectConnectionRequest_Params_t RejectConnectionParams;
 
-			memcpy(RejectConnectionParams.RemoteAddress, Bluetooth_RejectedDeviceAddress,
-			       sizeof(Bluetooth_RejectedDeviceAddress));
+			memcpy(RejectConnectionParams.RemoteAddress, Bluetooth_TempDeviceAddress,
+			       sizeof(Bluetooth_TempDeviceAddress));
 			RejectConnectionParams.Reason = ERROR_LIMITED_RESOURCES;
 
 			Bluetooth_SendHCICommand(&AcceptConnectionParams, sizeof(AcceptConnectionParams));
 		
-			Bluetooth_HCIProcessingState     = Bluetooth_ProcessEvents;
-			Bluetooth_NextHCIProcessingState = Bluetooth_ProcessEvents;
+			Bluetooth_HCIProcessingState     = Bluetooth_PrepareToProcessEvents;
 			break;
-		case Bluetooth_ProcessEvents:
-			if (Bluetooth_GetNextHCIEventHeader())
-			{
-				printf("(HCI) Event Code: 0x%02X\r\n", HCIEventHeader.EventCode);
+		case Bluetooth_Conn_SendPINCode:
+			HCICommandHeader = (Bluetooth_HCICommand_Header_t)
+				{
+					OpCode: {OGF: OGF_LINK_CONTROL, OCF: OCF_LINK_CONTROL_PIN_CODE_REQUEST_REPLY},
+					ParameterLength: sizeof(Bluetooth_HCICommand_PinCodeResponse_Params_t),
+				};
 			
-				if (HCIEventHeader.EventCode == EVENT_COMMAND_STATUS)
-				{
-					Bluetooth_HCIEvent_CommandStatus_Header_t CommandStatusHeader;
-					Pipe_Read_Stream_LE(&CommandStatusHeader, sizeof(CommandStatusHeader));
-					
-					printf("(HCI) >> Command status: 0x%02X\r\n", CommandStatusHeader.CommandStatus);
-					
-					if (CommandStatusHeader.CommandStatus)
-					  Bluetooth_HCIProcessingState = Bluetooth_Init;
+			BT_DEBUG("(HCI) Enter State: Bluetooth_Conn_SendPINCode", NULL);
+			BT_DEBUG("(HCI) -- PIN: %s", Bluetooth_DeviceConfiguration.PINCode);
 
-					HCIEventHeader.ParameterLength -= sizeof(CommandStatusHeader);
-				}
-				else if (HCIEventHeader.EventCode == EVENT_COMMAND_COMPLETE)
-				{
-					printf("(HCI) >> Command complete.\r\n");
-
-					Bluetooth_HCIProcessingState = Bluetooth_NextHCIProcessingState;
-					
-					if (Bluetooth_HCIProcessingState == Bluetooth_ProcessEvents)
-					  printf("(HCI) Enter State: Bluetooth_ProcessEvents\r\n");
-				}
-				else if (HCIEventHeader.EventCode == EVENT_CONNECTION_REQUEST)
-				{
-					Bluetooth_HCIEvent_ConnectionRequest_Header_t ConnectionRequestParams;
-					
-					Pipe_Read_Stream_LE(&ConnectionRequestParams, sizeof(ConnectionRequestParams));
-
-					uint8_t* RemoteAddressOctets = (uint8_t*)&ConnectionRequestParams.RemoteAddress;
-					printf_P(PSTR("(HCI) >> Connection Request from device %02X:%02X:%02X:%02X:%02X:%02X\r\n"), 
-							 RemoteAddressOctets[5], RemoteAddressOctets[4], RemoteAddressOctets[3],
-							 RemoteAddressOctets[2], RemoteAddressOctets[1], RemoteAddressOctets[0]);
-					printf_P(PSTR("(HCI) -- Device Class: 0x%02X%04X\r\n"), ConnectionRequestParams.ClassOfDevice_Service,
-																	   ConnectionRequestParams.ClassOfDevice_MajorMinor);
-					printf_P(PSTR("(HCI) -- Link Type: 0x%02x\r\n"), ConnectionRequestParams.LinkType);
-					printf_P(PSTR("(HCI) -- Connection %S\r\n"), (Bluetooth_Connection.IsConnected) ? PSTR("Rejected") : PSTR("Accepted"));
-					
-					if (Bluetooth_Connection.IsConnected)
-					{
-						memcpy(Bluetooth_RejectedDeviceAddress, ConnectionRequestParams.RemoteAddress,
-						       sizeof(Bluetooth_RejectedDeviceAddress));
-						
-						Bluetooth_HCIProcessingState = Bluetooth_Conn_RejectConnection;
-					}
-					else
-					{
-						memcpy(Bluetooth_Connection.DeviceAddress, ConnectionRequestParams.RemoteAddress,
-						       sizeof(Bluetooth_Connection.DeviceAddress));
-
-						Bluetooth_HCIProcessingState = Bluetooth_Conn_AcceptConnection;
-					}
-
-					HCIEventHeader.ParameterLength -= sizeof(ConnectionRequestParams);
-				}
-				else if (HCIEventHeader.EventCode == EVENT_DISCONNECTION_COMPLETE)
-				{
-					printf("(HCI) >> Disconnection from device complete.\r\n");
-					Bluetooth_Connection.IsConnected = false;					
-				}
-				
+			Bluetooth_HCICommand_PinCodeResponse_Params_t PINCodeRequestParams;
+		
+			memcpy(PINCodeRequestParams.RemoteAddress, Bluetooth_TempDeviceAddress,
+			       sizeof(Bluetooth_TempDeviceAddress));
+			PINCodeRequestParams.PINCodeLength = strlen(Bluetooth_DeviceConfiguration.PINCode);
+			memcpy(PINCodeRequestParams.PINCode, Bluetooth_DeviceConfiguration.PINCode,
+			       sizeof(Bluetooth_DeviceConfiguration.PINCode));
+			
+			Bluetooth_SendHCICommand(&PINCodeRequestParams, sizeof(PINCodeRequestParams));
+		
+			do
+			{
+				while (!(Bluetooth_GetNextHCIEventHeader()));
 				Bluetooth_DiscardRemainingHCIEventParameters();
-			}
+			} while (HCIEventHeader.EventCode != EVENT_COMMAND_COMPLETE);
 
+			Bluetooth_HCIProcessingState     = Bluetooth_PrepareToProcessEvents;
 			break;
 	}
 }

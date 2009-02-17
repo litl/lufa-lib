@@ -254,11 +254,6 @@ TASK(USB_Keyboard_Host)
 				while (USB_IsConnected);
 				break;	
 			}
-
-			puts_P(PSTR("Dumping HID Report Items.\r\n"));
-
-			/* Dump the HID report items to the serial port */
-			DumpHIDReportItems();
 			
 			/* All LEDs off - ready to indicate keypresses */
 			UpdateStatus(Status_USBReady);

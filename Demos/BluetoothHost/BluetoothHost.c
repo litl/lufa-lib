@@ -63,7 +63,8 @@ TASK_LIST
 Bluetooth_Device_t Bluetooth_DeviceConfiguration =
 	{
 		Class: (DEVICE_CLASS_SERVICE_CAPTURING | DEVICE_CLASS_MAJOR_COMPUTER | DEVICE_CLASS_MINOR_COMPUTER_PALM),
-		Name:  "LUFA Bluetooth Serial Demo",
+		PINCode: "0000",
+		Name:  "LUFA Bluetooth Demo"
 	};
 
 
@@ -227,15 +228,16 @@ TASK(USB_Bluetooth_Host)
 			USB_HostState = HOST_STATE_Ready;
 			break;
 		case HOST_STATE_Ready:
-			if (Bluetooth_Connection.IsConnected)
+			if (Bluetooth_HCIProcessingState != Bluetooth_ProcessEvents)
 			{
-				/* Indicate device busy via the status LEDs */
-				LEDs_SetAllLEDs(LEDS_LED3 | LEDS_LED4);
+				UpdateStatus(Status_BluetoothBusy);
 			}
 			else
 			{
-				/* Indicate device no longer busy */
-				LEDs_SetAllLEDs(LEDS_LED4);
+				if (Bluetooth_Connection.IsConnected)
+				  UpdateStatus(Status_BluetoothConnected);
+				else
+				  UpdateStatus(Status_USBReady);
 			}
 			
 			break;
@@ -267,6 +269,12 @@ void UpdateStatus(uint8_t CurrentStatus)
 		case Status_HardwareError:
 			LEDMask = (LEDS_LED1 | LEDS_LED3);
 			break;
+		case Status_BluetoothConnected:
+			LEDMask = (LEDS_LED2 | LEDS_LED4);
+			break;		
+		case Status_BluetoothBusy:
+			LEDMask = (LEDS_LED2 | LEDS_LED3 | LEDS_LED4);
+			break;		
 	}
 	
 	/* Set the board LEDs to the new LED mask */

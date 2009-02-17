@@ -38,7 +38,7 @@
 
 		#include <LUFA/Drivers/USB/USB.h>
 		
-		#include "BluetoothHost.h"
+		#include "BluetoothStack.h"
 		
 	/* Macros: */
 		#define BLUETOOTH_CHANNEL_SIGNALING              0x0001
@@ -46,6 +46,9 @@
 		
 		#define BLUETOOTH_SIGNAL_CONNECTION_REQUEST      0x02
 		#define BLUETOOTH_SIGNAL_CONNECTION_RESPONSE     0x03
+		
+		#define BLUETOOTH_CONNECTION_SUCCESSFUL          0x0000
+		#define BLUETOOTH_CONNECTION_REFUSED_RESOURCES   0x0004
 		
 	/* Type Defines: */
 		typedef struct
@@ -84,4 +87,10 @@
 	/* Function Prototypes: */
 		void Bluetooth_ProcessACLPackets(void);
 
+		#if defined(INCLUDE_FROM_BLUETOOTH_ACLPACKETS_C)
+			static inline void Bluetooth_ProcessSignalPacket_ConnectionRequest(Bluetooth_ACL_Header_t* ACLPacketHeader,
+                                                                   Bluetooth_DataPacket_Header_t* DataHeader,
+                                                                   Bluetooth_SignalCommand_Header_t* SignalCommandHeader);
+		#endif
+		
 #endif

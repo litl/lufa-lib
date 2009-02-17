@@ -38,12 +38,13 @@
 
 		#include <LUFA/Drivers/USB/USB.h>
 
-		#include "BluetoothHost.h"
+		#include "BluetoothStack.h"
 		#include "BluetoothClassCodes.h"
 
 	/* Macros: */
 		#define OGF_LINK_CONTROL                               0x01
 		#define OGF_CTRLR_BASEBAND                             0x03
+		#define OGF_CTRLR_INFORMATIONAL                        0x04
 
 		#define OCF_LINK_CONTROL_INQUIRY                       0x0001
 		#define OCF_LINK_CONTROL_INQUIRY_CANCEL                0x0002
@@ -60,12 +61,16 @@
 		#define OCF_LINK_CONTROL_PIN_CODE_REQUEST_NEG_REPLY    0x000E
 		#define OCF_LINK_CONTROL_CHANGE_CONNECTION_PACKET_TYPE 0x000F
 		#define OCF_LINK_CONTROL_REMOTE_NAME_REQUEST           0x0019
-		#define OCF_CTRLR_SET_EVENT_MASK                       0x0001
+		#define OCF_CTRLR_BASEBAND_SET_EVENT_MASK              0x0001
 		#define OCF_CTRLR_BASEBAND_RESET                       0x0003
+		#define OCF_CTRLR_BASEBAND_WRITE_PIN_TYPE              0x000A
 		#define OCF_CTRLR_BASEBAND_WRITE_LOCAL_NAME            0x0013
 		#define OCF_CTRLR_BASEBAND_READ_LOCAL_NAME             0x0014
 		#define OCF_CTRLR_BASEBAND_WRITE_SCAN_ENABLE           0x001A
 		#define OCF_CTRLR_BASEBAND_WRITE_CLASS_OF_DEVICE       0x0024
+		#define OCF_CTRLR_BASEBAND_WRITE_SIMPLE_PAIRING_MODE   0x0056
+		#define OCF_CTRLR_BASEBAND_WRITE_AUTHENTICATION_ENABLE 0x0020
+		#define OGF_CTRLR_INFORMATIONAL_READBUFFERSIZE         0x0005
 		
 		#define EVENT_COMMAND_STATUS                           0x0F
 		#define EVENT_COMMAND_COMPLETE                         0x0E
@@ -73,6 +78,7 @@
 		#define EVENT_CONNECTION_REQUEST                       0x04
 		#define EVENT_DISCONNECTION_COMPLETE                   0x05
 		#define EVENT_REMOTE_NAME_REQUEST_COMPLETE             0x07
+		#define EVENT_PIN_CODE_REQUEST                         0x16
 		
 		#define ERROR_LIMITED_RESOURCES                        0x0D
 		
@@ -117,6 +123,15 @@
 
 		typedef struct
 		{
+			uint8_t  Status;
+			uint16_t ConnectionHandle;
+			uint8_t  RemoteAddress[6];
+			uint8_t  LinkType;
+			uint8_t  EncryptionEnabled;
+		} Bluetooth_HCIEvent_ConnectionComplete_Header_t;
+		
+		typedef struct
+		{
 			uint8_t  RemoteAddress[6];
 			uint8_t  SlaveRole;
 		} Bluetooth_HCICommand_AcceptConnectionRequest_Params_t;
@@ -126,6 +141,13 @@
 			uint8_t  RemoteAddress[6];
 			uint8_t  Reason;
 		} Bluetooth_HCICommand_RejectConnectionRequest_Params_t;
+
+		typedef struct
+		{
+			uint8_t  RemoteAddress[6];
+			uint8_t  PINCodeLength;
+			char     PINCode[16];
+		} Bluetooth_HCICommand_PinCodeResponse_Params_t;
 		
 	/* Enums: */
 		enum Bluetooth_ScanEnable_Modes_t
@@ -138,14 +160,18 @@
 
 		enum BluetoothStack_States_t
 		{
-			Bluetooth_Init                       = 0,
-			Bluetooth_Init_Reset                 = 1,
-			Bluetooth_Init_SetLocalName          = 2,
-			Bluetooth_Init_SetDeviceClass        = 3,
-			Bluetooth_Init_WriteScanEnable       = 4,
-			Bluetooth_Conn_AcceptConnection      = 5,
-			Bluetooth_Conn_RejectConnection      = 6,
-			Bluetooth_ProcessEvents              = 7,
+			Bluetooth_Init                            = 0,
+			Bluetooth_Init_Reset                      = 1,
+			Bluetooth_Init_ReadBufferSize             = 2,
+			Bluetooth_Init_SetEventMask               = 3,
+			Bluetooth_Init_SetLocalName               = 4,
+			Bluetooth_Init_SetDeviceClass             = 5,
+			Bluetooth_Init_WriteScanEnable            = 6,
+			Bluetooth_PrepareToProcessEvents          = 7,
+			Bluetooth_ProcessEvents                   = 8,
+			Bluetooth_Conn_AcceptConnection           = 9,
+			Bluetooth_Conn_RejectConnection           = 10,
+			Bluetooth_Conn_SendPINCode                = 11,
 		};
 		
 	/* External Variables: */
