@@ -44,8 +44,13 @@
 		#include <LUFA/Common/Common.h>
 
 	/* Macros: */
-		/** Maximum number of bits which can be stored into a bit buffer. The memory usage is one eigth of this value per buffer. */
-		#define MAX_BITS 1024
+		#if (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB647__) || \
+		     defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__)) || defined(__DOXYGEN__)
+			/** Maximum number of bits which can be stored into a bit buffer. The memory usage is one eigth of this value per buffer. */
+			#define MAX_BITS 20480
+		#else
+			#define MAX_BITS 1024
+		#endif
 		
 	/* Type Defines: */
 		/* Type define for a pointer to a bit in a bit buffer. */

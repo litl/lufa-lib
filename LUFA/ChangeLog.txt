@@ -17,6 +17,7 @@
   *  - Fixed Configuration Descriptor search routine freezing when a comparitor returned a failure
   *  - Removed HID report item serial dump in the MouseHostWithParser and KeyboardHostWithParser - useful only for debugging, and
   *    slowed down the enumeration of HID devices too much
+  *  - Increased the number of bits per track which can be read in the MagStripe project to 20480 when compiled for the AT90USBXXX6/7
   *
   *  \section Sec_ChangeLog090209 Version 090209
   *
