@@ -165,9 +165,6 @@ EVENT_HANDLER(USB_UnhandledControlPacket)
 					ReportData = (uint8_t*)&MouseReportData;
 					ReportSize = sizeof(MouseReportData);
 				}
-				
-				/* Ignore unused Interface number value */
-				Endpoint_Discard_Word();
 
 				/* Read in the number of bytes in the report to send to the host */
 				uint16_t wLength = Endpoint_Read_Word_LE();
