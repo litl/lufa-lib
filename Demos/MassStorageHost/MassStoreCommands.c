@@ -35,6 +35,15 @@
  *  also contains block read and write functions, so that device blocks
  *  can be read and written. In general, these functions would be chained
  *  to a FAT library to give file-level access to an attached device's contents.
+ *
+ *  \note Many Mass Storage devices on the market are non-compliant to the
+ *        specifications and thus can proove difficult to interface with. It
+ *        may be neccesary to retry the functions in the module several times
+ *        after they have returned and error to successfully send the command
+ *        to the device. Some devices may also need to have the stream function
+ *        timeout period extended beyond 100ms by defining USB_STREAM_TIMEOUT_MS
+ *        to a larger value in the project makefile and passing it to the compiler
+ *        via the -D switch.
  */
  
 #define  INCLUDE_FROM_MASSSTORE_COMMANDS_C
