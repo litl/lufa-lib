@@ -284,8 +284,7 @@ void Bluetooth_ProcessHCICommands(void)
 					Pipe_Read_Stream_LE(&Bluetooth_TempDeviceAddress, sizeof(Bluetooth_TempDeviceAddress));
 					HCIEventHeader.ParameterLength -= sizeof(Bluetooth_TempDeviceAddress);
 
-					BT_DEBUG("(HCI) >> Pin code request", NULL);					
-					BT_DEBUG("(HCI) >> PIN Code Request from device %02X:%02X:%02X:%02X:%02X:%02X", 
+					BT_DEBUG("(HCI) >> PIN code Request from device %02X:%02X:%02X:%02X:%02X:%02X", 
 							 Bluetooth_TempDeviceAddress[5], Bluetooth_TempDeviceAddress[4], Bluetooth_TempDeviceAddress[3],
 							 Bluetooth_TempDeviceAddress[2], Bluetooth_TempDeviceAddress[1], Bluetooth_TempDeviceAddress[0]);
 							 

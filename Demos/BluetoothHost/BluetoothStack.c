@@ -48,7 +48,7 @@ TASK(Bluetooth_Task)
 	Bluetooth_ProcessACLPackets();
 }
 
-Bluetooth_Channel_t* Bluetooth_GetChannelData(uint16_t PSM)
+Bluetooth_Channel_t* Bluetooth_GetChannelData(uint16_t ChannelNumber, bool SearchBySource)
 {
 	Bluetooth_Channel_t* CurrentChannelStructure;
 
@@ -56,21 +56,32 @@ Bluetooth_Channel_t* Bluetooth_GetChannelData(uint16_t PSM)
 	{
 		CurrentChannelStructure = &Bluetooth_Connection.Channels[i];
 	
-		if (CurrentChannelStructure->PSM == PSM)
+		uint16_t CurrentChannelNumber = ((SearchBySource) ? CurrentChannelStructure->RemoteNumber : CurrentChannelStructure->LocalNumber);
+	
+		if (CurrentChannelNumber == ChannelNumber)
 		  return CurrentChannelStructure;
 	}
-	
+
+	return NULL;
+}
+
+Bluetooth_Channel_t* Bluetooth_InitChannelData(uint16_t RemoteChannelNumber, uint16_t PSM)
+{
+	Bluetooth_Channel_t* CurrentChannelStructure;
+
 	for (uint8_t i = 0; i < BLUETOOTH_MAX_OPEN_CHANNELS; i++)
 	{
 		CurrentChannelStructure = &Bluetooth_Connection.Channels[i];
 	
 		if (CurrentChannelStructure->State == Channel_Closed)
 		{
-			CurrentChannelStructure->LocalNumber = (BLUETOOTH_CHANNELNUMBER_BASEOFFSET + i);
-			CurrentChannelStructure->PSM         = PSM;
+			CurrentChannelStructure->RemoteNumber = RemoteChannelNumber;
+			CurrentChannelStructure->LocalNumber  = (BLUETOOTH_CHANNELNUMBER_BASEOFFSET + i);
+			CurrentChannelStructure->PSM          = PSM;
+			CurrentChannelStructure->State        = Channel_Config;
 			
 			return CurrentChannelStructure;
-		}
+		}		
 	}
 
 	return NULL;

@@ -46,9 +46,16 @@
 		
 		#define BLUETOOTH_SIGNAL_CONNECTION_REQUEST      0x02
 		#define BLUETOOTH_SIGNAL_CONNECTION_RESPONSE     0x03
+		#define BLUETOOTH_SIGNAL_CONFIGURATION_REQUEST   0x04
+		#define BLUETOOTH_SIGNAL_CONFIGURATION_RESPONSE  0x05
 		
 		#define BLUETOOTH_CONNECTION_SUCCESSFUL          0x0000
 		#define BLUETOOTH_CONNECTION_REFUSED_RESOURCES   0x0004
+		
+		#define BLUETOOTH_CONFIGURATION_SUCCESSFUL       0x0000
+		#define BLUETOOTH_CONFIGURATION_REJECTED         0x0002
+		#define BLUETOOTH_CONFIGURATION_UNKNOWNOPTIONS   0x0003
+
 		
 	/* Type Defines: */
 		typedef struct
@@ -84,11 +91,29 @@
 			uint16_t Status;
 		} Bluetooth_SignalCommand_ConnectionResponse_t;
 		
+		typedef struct
+		{
+			uint16_t DestinationChannel;
+			uint16_t Flags;
+			uint8_t  Options[];
+		} Bluetooth_SignalCommand_ConfigurationRequest_t;
+
+		typedef struct
+		{
+			uint16_t SourceChannel;
+			uint16_t Flags;
+			uint16_t Result;
+			uint8_t  Config;
+		} Bluetooth_SignalCommand_ConfigurationResponse_t;
+		
 	/* Function Prototypes: */
 		void Bluetooth_ProcessACLPackets(void);
 
 		#if defined(INCLUDE_FROM_BLUETOOTH_ACLPACKETS_C)
 			static inline void Bluetooth_ProcessSignalPacket_ConnectionRequest(Bluetooth_ACL_Header_t* ACLPacketHeader,
+                                                                   Bluetooth_DataPacket_Header_t* DataHeader,
+                                                                   Bluetooth_SignalCommand_Header_t* SignalCommandHeader);
+			static inline void Bluetooth_ProcessSignalPacket_ConfigurationRequest(Bluetooth_ACL_Header_t* ACLPacketHeader,
                                                                    Bluetooth_DataPacket_Header_t* DataHeader,
                                                                    Bluetooth_SignalCommand_Header_t* SignalCommandHeader);
 		#endif

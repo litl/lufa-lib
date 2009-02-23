@@ -43,6 +43,9 @@
 		#define BLUETOOTH_MAX_OPEN_CHANNELS              2
 		#define BLUETOOTH_CHANNELNUMBER_BASEOFFSET       0x0040
 		
+		#define CHANNEL_LOOKUP_BY_SOURCE                 true
+		#define CHANNEL_LOOKUP_BY_DESTINATION            false
+		
 		#define BT_DEBUG(s, ...) printf_P(PSTR(s "\r\n"), __VA_ARGS__)
 	
 	/* Enums: */
@@ -85,7 +88,8 @@
 		TASK(Bluetooth_Task);
 
 	/* Function Prototypes: */
-		Bluetooth_Channel_t* Bluetooth_GetChannelData(uint16_t PSM);		
+		Bluetooth_Channel_t* Bluetooth_GetChannelData(uint16_t ChannelNumber, bool SearchBySource);
+		Bluetooth_Channel_t* Bluetooth_InitChannelData(uint16_t RemoteChannelNumber, uint16_t PSM);
 
 	/* External Variables: */
 		extern Bluetooth_Device_t     Bluetooth_DeviceConfiguration;
